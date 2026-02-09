@@ -15,14 +15,27 @@ exports.handler = async (event) => {
     const tone = str(body.tone || body.style || "neutral").toLowerCase();
 
     if (!text) {
+      const fallbackReplies = buildReplies(userLang, tone);
       return json(200, headers, {
         ok: true,
         detectedLang: "UNKNOWN",
+        detected: "UNKNOWN",
+        lang: "UNKNOWN",
+        sourceLang: sourceLang,
+        userLang,
+        translation: "",
+        translatedText: "",
+        translated: "",
         summary: "Brak tekstu do analizy.",
+        whatOfficeSays: "Brak tekstu do analizy.",
+        communication: "Brak tekstu do analizy.",
+        officeSummary: "Brak tekstu do analizy.",
         risks: [],
-        replies: buildReplies(userLang, tone),
-        examples: buildReplies(userLang, tone),
-        translation: ""
+        riskList: [],
+        riskChips: [],
+        replies: fallbackReplies,
+        examples: fallbackReplies,
+        responseExamples: fallbackReplies
       });
     }
 
@@ -34,15 +47,17 @@ exports.handler = async (event) => {
       });
     }
 
-    // 1) ANALIZA (JSON)
+    // 1) ANALIZA (JSON_OBJECT) — w prompt MUSI paść słowo "JSON"
     const analysisPrompt = `
-Zadanie: przeanalizuj pismo (bez porad prawnych). Zależy mi na:
-1) Wykryciu języka pisma (detectedLang).
-2) Krótkim streszczeniu "co urząd komunikuje" (1-3 zdania) w języku: ${userLang}.
-3) "Ryzyka komunikacyjne" (3-8 punktów).
-4) 3 wersje gotowej odpowiedzi: neutralna, uprzejma, stanowcza (w języku: ${userLang}).
+Zadanie: przeanalizuj pismo (bez porad prawnych).
+Wykonaj:
+1) wykryj język (detectedLang)
+2) streszczenie 1–3 zdania w języku: ${userLang}
+3) ryzyka komunikacyjne 3–8 punktów
+4) 3 wersje odpowiedzi: neutralna, uprzejma, stanowcza (w języku: ${userLang})
 
-Zwróć WYŁĄCZNIE JSON:
+Zwróć WYŁĄCZNIE poprawny JSON (JSON object), bez żadnych komentarzy i bez markdown.
+Wynik ma być JSON w dokładnie takim kształcie:
 {
   "detectedLang": "NL",
   "summary": "...",
@@ -50,32 +65,33 @@ Zwróć WYŁĄCZNIE JSON:
   "replies": { "neutral": "...", "polite": "...", "firm": "..." }
 }
 
-Tekst:
+TEKST:
 """${text}"""
 `.trim();
 
-    const modelJson = await callOpenAIJson(apiKey, analysisPrompt);
+    const modelJson = await callOpenAIJsonObject(apiKey, analysisPrompt);
 
     const detectedLang = str(modelJson.detectedLang || "UNKNOWN").toUpperCase();
     const summary = str(modelJson.summary || "");
     const risks = Array.isArray(modelJson.risks) ? modelJson.risks.filter(Boolean).map(String) : [];
     const repliesFromModel = (modelJson.replies && typeof modelJson.replies === "object") ? modelJson.replies : {};
 
-    // 2) TŁUMACZENIE (tekst) — zawsze zwracamy "translation"
+    // 2) TŁUMACZENIE (TEXT)
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
     let translation = "";
-    if (effectiveSource === userLang || userLang === "AUTO") {
+    if (!effectiveSource || effectiveSource === "UNKNOWN" || effectiveSource === userLang || userLang === "AUTO") {
       translation = text;
     } else {
       const translatePrompt = `
 Przetłumacz poniższy tekst na język: ${userLang}.
-Zachowaj sens, ton i format (np. akapity, listy).
+Zachowaj sens, ton i format (akapity, listy).
 Zwróć WYŁĄCZNIE przetłumaczony tekst, bez komentarzy.
 
 TEKST:
 """${text}"""
 `.trim();
+
       translation = await callOpenAIText(apiKey, translatePrompt);
     }
 
@@ -88,7 +104,6 @@ TEKST:
       firm:    str(repliesFromModel.firm    || fallbackReplies.firm)
     };
 
-    // Payload kompatybilny z Twoim indexem (i “starymi” nazwami)
     const payload = {
       ok: true,
 
@@ -214,7 +229,7 @@ Mit freundlichen Grüßen,`
   return map[L] || pl;
 }
 
-async function callOpenAIJson(apiKey, prompt) {
+async function callOpenAIJsonObject(apiKey, prompt) {
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -224,18 +239,22 @@ async function callOpenAIJson(apiKey, prompt) {
     body: JSON.stringify({
       model: "gpt-4o-mini",
       temperature: 0,
-      max_output_tokens: 900,
+      max_output_tokens: 1000,
       input: prompt,
-      text: { format: { type: "text" } }
+      text: { format: { type: "json_object" } }
     })
   });
 
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`OpenAI error ${res.status}: ${JSON.stringify(data)}`);
 
   const raw = extractTextFromResponses(data);
-  const jsonText = extractJson(raw);
-  return JSON.parse(jsonText);
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const jsonText = extractJson(raw);
+    return JSON.parse(jsonText);
+  }
 }
 
 async function callOpenAIText(apiKey, prompt) {
@@ -246,15 +265,15 @@ async function callOpenAIText(apiKey, prompt) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-  model: "gpt-4o-mini",
-  temperature: 0,
-  max_output_tokens: 900,
-  input: prompt,
-  text: { format: { type: "json_object" } }
-})
+      model: "gpt-4o-mini",
+      temperature: 0,
+      max_output_tokens: 1400,
+      input: prompt,
+      text: { format: { type: "text" } }
+    })
   });
 
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`OpenAI error ${res.status}: ${JSON.stringify(data)}`);
 
   return extractTextFromResponses(data).trim();
