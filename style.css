@@ -1,0 +1,49 @@
+:root{
+  --sb-accent:#4f8f7a;        /* szałwia */
+  --sb-accent-2:#447d6a;      /* hover */
+  --sb-soft:#eef6f3;          /* jasne tło akcentu */
+  --sb-border:#cfe4dc;
+  --sb-text:#1f2f2a;
+}
+
+html,body{ background:#fff; color:var(--sb-text); }
+
+/* GŁÓWNY PRZYCISK (Analizuj) */
+button.primary,
+.btn-primary,
+#analyzeBtn{
+  background:var(--sb-accent) !important;
+  border-color:var(--sb-accent) !important;
+  color:#fff !important;
+}
+button.primary:hover,
+.btn-primary:hover,
+#analyzeBtn:hover{
+  background:var(--sb-accent-2) !important;
+  border-color:var(--sb-accent-2) !important;
+}
+
+/* Przyciski języków – aktywny */
+.langBtn.active,
+.lang button.active,
+.lang .active{
+  border-color:var(--sb-accent) !important;
+  color:var(--sb-accent) !important;
+  background:var(--sb-soft) !important;
+}
+
+/* Karty/sekcje */
+.card,
+.panel,
+section{
+  border-color:#e6f0ec !important;
+}
+.card:focus-within,
+.panel:focus-within,
+textarea:focus,
+input:focus,
+select:focus{
+  outline:none !important;
+  border-color:var(--sb-border) !important;
+  box-shadow:0 0 0 3px rgba(79,143,122,.15) !important;
+}

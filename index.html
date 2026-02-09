@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0E2A47">
+
+  <title>Sense Bridge — zrozum pisma urzędowe</title>
+
+  <!-- ✅ paths safe for /app/ -->
+  <link rel="icon" href="/icons/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="manifest" href="/manifest.json">
+
+  <style>
+    :root{
+      --bg:#f6f7f9;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#4f8f7a;
+      --primary-hover:#447d6a;
+      --warn:#fef3c7;
+      --warn-text:#92400e;
+      --border:#e5e7eb;
+      --ok:#5fb3a2;
+      --ok-hover:#4aa091;
+      --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height:1.5;
+    }
+    main{
+      max-width:900px;
+      margin:0 auto;
+      padding:24px 16px 64px;
+    }
+    h1,h2,h3{margin:0 0 8px}
+    p{margin:0 0 12px;color:var(--muted)}
+    .card{
+      background:var(--card);
+      border-radius:14px;
+      border:1px solid var(--border);
+      padding:16px;
+      margin-bottom:16px;
+    }
+    textarea{
+      width:100%;
+      min-height:160px;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      font-size:15px;
+      resize:vertical;
+    }
+    select,button{
+      padding:10px 14px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      font-size:14px;
+    }
+    button.primary{
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      cursor:pointer;
+    }
+    button.primary:hover{background:var(--primary-hover)}
+    button.primary:disabled{
+      background:#93c5fd;
+      cursor:not-allowed;
+    }
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .grow{flex:1}
+    .section-title{
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    .box-warn{
+      background:var(--warn);
+      color:var(--warn-text);
+      border-radius:10px;
+      padding:10px 12px;
+      margin-bottom:8px;
+    }
+    pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:13px;
+      background:#f9fafb;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .ui-switch{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .ui-btn{
+      border:1px solid var(--border);
+      background:#fff;
+      cursor:pointer;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .ui-btn.active{
+      border-color:var(--primary);
+      color:var(--text);
+      box-shadow: 0 0 0 3px rgba(79,143,122,0.18);
+    }
+
+    .access{
+      margin-top:24px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      padding:16px;
+    }
+    .access.hidden{ display:none; }
+    .plans{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:12px;
+      margin:12px 0;
+    }
+    .plan{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      background:#fff;
+      cursor:pointer;
+      text-align:left;
+      position:relative;
+    }
+    .plan:hover{ border-color:#cbd5e1; }
+    .plan.best{ border-color:var(--ok); }
+    .badge{
+      position:absolute;
+      top:10px;
+      right:10px;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#dcfce7;
+      color:#166534;
+      border:1px solid #86efac;
+    }
+    .plan .name{ font-weight:600; margin-bottom:4px; }
+    .plan .price{ font-size:22px; font-weight:800; }
+    .plan .meta{ color:var(--muted); font-size:13px; margin-top:4px; }
+
+    .fine{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    .statusbar{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px dashed var(--border);
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:6px 10px;
+      background:#fff;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .chip strong{ color:var(--text); }
+    .link{
+      background:none;
+      border:none;
+      color:var(--primary);
+      cursor:pointer;
+      padding:0;
+      font-size:13px;
+    }
+    .link:hover{ text-decoration:underline; }
+
+    .lock{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #fecaca;
+      background:#fff1f2;
+      color:#991b1b;
+      display:none;
+    }
+    .lock.show{ display:block; }
+
+    .tools{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:8px;
+    }
+    .tool-btn{
+      background:#fff;
+      border:1px solid var(--border);
+      cursor:pointer;
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .tool-btn:hover{border-color:#cbd5e1}
+    .hint{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+  </style>
+</head>
+
+<body>
+<main>
+
+  <div class="card">
+    <div class="topbar">
+      <div>
+        <h1 id="hTitle">Sense Bridge</h1>
+        <p id="hDesc">Pomaga zrozumieć pisma urzędowe. Bez porad. Bez presji.</p>
+      </div>
+
+      <div class="ui-switch" aria-label="Język strony">
+        <button class="ui-btn" type="button" data-ui="PL" onclick="setUiLang('PL')">PL</button>
+        <button class="ui-btn" type="button" data-ui="NL" onclick="setUiLang('NL')">NL</button>
+        <button class="ui-btn" type="button" data-ui="EN" onclick="setUiLang('EN')">EN</button>
+        <button class="ui-btn" type="button" data-ui="DE" onclick="setUiLang('DE')">DE</button>
+      </div>
+    </div>
+
+    <!-- ✅ paid message OUTSIDE topbar but inside header card -->
+    <div id="paidMsg" class="card" style="display:none;margin:12px 0 0;">
+      <p id="paidText" style="margin:0;color:#1f2937;font-weight:600;"></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" id="lblPaste">Wklej pismo</div>
+    <textarea id="inputText" placeholder="Wklej treść pisma lub e-maila z urzędu…"></textarea>
+
+    <div class="row" style="margin-top:8px">
+      <select id="sourceLang" aria-label="Język dokumentu">
+        <option value="AUTO">Język dokumentu: AUTO</option>
+        <option value="NL">NL</option>
+        <option value="DE">DE</option>
+        <option value="EN">EN</option>
+        <option value="PL">PL</option>
+      </select>
+
+      <select id="userLang" aria-label="Twój język">
+        <option value="PL">Twój język: PL</option>
+        <option value="DE">DE</option>
+        <option value="NL">NL</option>
+        <option value="EN">EN</option>
+      </select>
+
+      <button id="btnAnalyze" class="primary grow" onclick="analyze()">Analizuj pismo</button>
+    </div>
+
+    <div class="tools">
+      <button class="tool-btn" type="button" onclick="clearInput()">Wyczyść</button>
+      <button class="tool-btn" type="button" onclick="copyText('translation')">Kopiuj tłumaczenie</button>
+      <button class="tool-btn" type="button" onclick="copyText('examples')">Kopiuj odpowiedzi</button>
+    </div>
+
+    <div class="statusbar">
+      <div class="chip">
+        <span id="lblFree">FREE:</span> <strong id="freeLeft">3</strong> <span id="lblAnalyses">analizy</span>
+      </div>
+      <div class="chip">
+        <span id="lblAccess">Dostęp:</span> <strong id="accessState">FREE</strong>
+      </div>
+      <button class="link" onclick="resetFree()" title="Tylko do testów" id="btnReset" style="display:none">Reset testowy</button>
+    </div>
+
+    <div id="lockBox" class="lock">
+      Limit FREE został wykorzystany. Wybierz dostęp poniżej, aby kontynuować.
+    </div>
+
+    <div class="hint" id="hintUI">
+      „UI” to po prostu <strong>język strony</strong> (przycisków i opisów) — nie zmienia treści dokumentu ani analizy.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" id="lblTranslation">Tłumaczenie</div>
+    <pre id="translation"></pre>
+  </div>
+
+  <div class="card">
+    <div class="section-title" id="lblSummary">Co urząd komunikuje</div>
+    <p id="summary"></p>
+  </div>
+
+  <div class="card">
+    <div class="section-title" id="lblRisks">Ryzyka komunikacyjne</div>
+    <div id="risks"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" id="lblExamples">Przykłady odpowiedzi</div>
+    <pre id="examples"></pre>
+  </div>
+
+  <section id="access" class="access hidden" aria-label="Dostęp Sense Bridge">
+    <h2 id="payTitle">Dostęp bez abonamentu</h2>
+    <p id="payDesc">Masz <strong>3 analizy FREE</strong> na sprawdzenie działania. Potem wybierasz spokojny dostęp czasowy.</p>
+
+    <div class="plans">
+      <button class="plan" type="button" onclick="goPay('24h')" aria-label="Wybierz dostęp 24 godziny za 3 euro">
+        <div class="name" id="p24name">24h PASS</div>
+        <div class="price" id="p24price">3 €</div>
+        <div class="meta" id="p24meta">Dla jednego pilnego pisma</div>
+      </button>
+
+      <button class="plan" type="button" onclick="goPay('7d')" aria-label="Wybierz dostęp 7 dni za 7 euro">
+        <div class="name" id="p7name">7 dni</div>
+        <div class="price" id="p7price">7 €</div>
+        <div class="meta" id="p7meta">Na serię wiadomości / odpowiedzi</div>
+      </button>
+
+      <button class="plan best" type="button" onclick="goPay('30d')" aria-label="Wybierz dostęp 30 dni za 15 euro">
+        <span class="badge" id="pBest">Najlepsza wartość</span>
+        <div class="name" id="p30name">30 dni</div>
+        <div class="price" id="p30price">15 €</div>
+        <div class="meta" id="p30meta">Spokój na cały miesiąc</div>
+      </button>
+    </div>
+
+    <p class="fine" id="fine1">
+      Sense Bridge nie daje porad prawnych. Pomaga zrozumieć sens, ton i ryzyka pisma,
+      abyś mógł podjąć własną decyzję.
+    </p>
+    <p class="fine" id="fine2">
+      Sprzedajemy <strong>spokój i zrozumienie</strong>, nie „AI”.
+    </p>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================
+   CONFIG (Stripe + endpoints)
+   ========================================================= */
+const STRIPE_LINKS = {
+  "24h": "https://buy.stripe.com/test_dRm5kCgTk7wUeF2dgO53O00",
+  "7d":  "https://buy.stripe.com/test_cNi7sKauWaJ68gE2Ca53O01",
+  "30d": "https://buy.stripe.com/test_14A3cu5aC4kIfJ6dgO53O02"
+};
+
+const ENDPOINTS = {
+  analyze: "/.netlify/functions/analyze",
+  translate: "/.netlify/functions/translate"
+};
+
+/* =========================================================
+   PAYWALL (local + stable)
+   ========================================================= */
+const SB = {
+  freeMax: 3,
+  keyFreeUsed: "sb_free_used_v2",
+  keyPass: "sb_pass_v2" // {type, exp}
+};
+
+function nowMs(){ return Date.now(); }
+
+function getFreeUsed(){
+  const n = parseInt(localStorage.getItem(SB.keyFreeUsed) || "0", 10);
+  return Number.isFinite(n) ? n : 0;
+}
+function setFreeUsed(n){
+  localStorage.setItem(SB.keyFreeUsed, String(Math.max(0, n|0)));
+}
+
+function getPass(){
+  try {
+    const raw = localStorage.getItem(SB.keyPass);
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    if(!obj || !obj.type || !obj.exp) return null;
+    if(nowMs() > obj.exp) return null;
+    return obj;
+  } catch { return null; }
+}
+function setPass(type, exp){
+  localStorage.setItem(SB.keyPass, JSON.stringify({type, exp}));
+}
+function clearPass(){
+  localStorage.removeItem(SB.keyPass);
+}
+
+function freeLeft(){
+  const used = getFreeUsed();
+  return Math.max(0, SB.freeMax - used);
+}
+
+function hasAccess(){
+  const pass = getPass();
+  if(pass) return { mode:"PASS", label: pass.type.toUpperCase(), until: pass.exp };
+  const left = freeLeft();
+  if(left > 0) return { mode:"FREE", label: "FREE" };
+  return { mode:"LOCKED", label: "LOCKED" };
+}
+
+function refreshUI(){
+  document.getElementById("freeLeft").textContent = String(freeLeft());
+
+  const access = hasAccess();
+  document.getElementById("accessState").textContent = access.label;
+
+  const btn = document.getElementById("btnAnalyze");
+  const lockBox = document.getElementById("lockBox");
+  const accessSection = document.getElementById("access");
+
+  if(access.mode === "LOCKED"){
+    btn.disabled = true;
+    lockBox.classList.add("show");
+    accessSection.classList.remove("hidden");
+  } else {
+    btn.disabled = false;
+    lockBox.classList.remove("show");
+    accessSection.classList.add("hidden");
+  }
+}
+
+function updatePaidMessage(){
+  const access = hasAccess();
+  const box = document.getElementById("paidMsg");
+  const text = document.getElementById("paidText");
+  if(!box || !text) return;
+
+  if(access.mode === "PASS"){
+    const until = new Date(access.until).toLocaleString();
+    text.innerHTML = `✅ <strong>Dostęp aktywny</strong> • ważny do: <strong>${until}</strong>`;
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+  }
+}
+
+function consumeFreeIfNeeded(){
+  const access = hasAccess();
+  if(access.mode === "FREE"){
+    setFreeUsed(getFreeUsed() + 1);
+  }
+}
+
+function resetFree(){
+  setFreeUsed(0);
+  clearPass();
+  refreshUI();
+  updatePaidMessage();
+}
+
+function enableDevReset(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("dev") === "1"){
+    const btn = document.getElementById("btnReset");
+    if(btn) btn.style.display = "inline-block";
+  }
+}
+
+function applyPaidFromQuery(){
+  const url = new URL(window.location.href);
+  const paid = (url.searchParams.get("paid") || "").trim();
+  if(!paid) return;
+
+  let ms = 0;
+  if(paid === "24h") ms = 24*60*60*1000;
+  if(paid === "7d")  ms = 7*24*60*60*1000;
+  if(paid === "30d") ms = 30*24*60*60*1000;
+
+  if(ms > 0){
+    setPass(paid, nowMs() + ms);
+  }
+
+  url.searchParams.delete("paid");
+  window.history.replaceState({}, "", url.toString());
+}
+
+/* =========================================================
+   UI LANGUAGE (PL/NL/EN/DE)
+   ========================================================= */
+const UI = {
+  key: "sb_ui_lang_v1",
+  lang: "PL",
+  dict: {
+    PL: {
+      title: "Sense Bridge",
+      desc: "Pomaga zrozumieć pisma urzędowe. Bez porad. Bez presji.",
+      paste: "Wklej pismo",
+      placeholder: "Wklej treść pisma lub e-maila z urzędu…",
+      btnAnalyze: "Analizuj pismo",
+      free: "FREE:",
+      analyses: "analizy",
+      access: "Dostęp:",
+      reset: "Reset testowy",
+      lock: "Limit FREE został wykorzystany. Wybierz dostęp poniżej, aby kontynuować.",
+      translation: "Tłumaczenie",
+      summary: "Co urząd komunikuje",
+      risks: "Ryzyka komunikacyjne",
+      examples: "Przykłady odpowiedzi",
+      payTitle: "Dostęp bez abonamentu",
+      payDesc: "Masz 3 analizy FREE na sprawdzenie działania. Potem wybierasz spokojny dostęp czasowy.",
+      p24meta: "Dla jednego pilnego pisma",
+      p7meta: "Na serię wiadomości / odpowiedzi",
+      p30meta: "Spokój na cały miesiąc",
+      best: "Najlepsza wartość",
+      fine1: "Sense Bridge nie daje porad prawnych. Pomaga zrozumieć sens, ton i ryzyka pisma, abyś mógł podjąć własną decyzję.",
+      fine2: "Sprzedajemy spokój i zrozumienie, nie „AI”.",
+      hintUI: "„UI” to po prostu <strong>język strony</strong> (przycisków i opisów) — nie zmienia treści dokumentu ani analizy.",
+      srcAuto: "Język dokumentu: AUTO",
+      clear: "Wyczyść",
+      copyTr: "Kopiuj tłumaczenie",
+      copyEx: "Kopiuj odpowiedzi"
+    },
+    NL: {
+      title: "Sense Bridge",
+      desc: "Helpt officiële brieven begrijpen. Geen advies. Geen druk.",
+      paste: "Plak de brief",
+      placeholder: "Plak de tekst van de brief of e-mail…",
+      btnAnalyze: "Analyseer brief",
+      free: "FREE:",
+      analyses: "analyses",
+      access: "Toegang:",
+      reset: "Test reset",
+      lock: "Je FREE-limiet is op. Kies hieronder toegang om door te gaan.",
+      translation: "Vertaling",
+      summary: "Wat de instantie bedoelt",
+      risks: "Communicatierisico’s",
+      examples: "Voorbeelden van antwoorden",
+      payTitle: "Toegang zonder abonnement",
+      payDesc: "Je krijgt 3 FREE-analyses om te testen. Daarna kies je rustige tijdstoegang.",
+      p24meta: "Voor één urgente brief",
+      p7meta: "Voor een reeks berichten",
+      p30meta: "Rust voor een hele maand",
+      best: "Beste waarde",
+      fine1: "Sense Bridge geeft geen juridisch advies. Het helpt je de betekenis, toon en risico’s te begrijpen zodat je zelf beslist.",
+      fine2: "We verkopen rust en begrip, niet ‘AI’.",
+      hintUI: "‘UI’ is gewoon de taal van de pagina (knoppen en teksten) — dit verandert de analyse niet.",
+      srcAuto: "Taal document: AUTO",
+      clear: "Wissen",
+      copyTr: "Kopieer vertaling",
+      copyEx: "Kopieer antwoorden"
+    },
+    EN: {
+      title: "Sense Bridge",
+      desc: "Helps you understand official letters. No advice. No pressure.",
+      paste: "Paste the letter",
+      placeholder: "Paste the content of the letter or email…",
+      btnAnalyze: "Analyze letter",
+      free: "FREE:",
+      analyses: "analyses",
+      access: "Access:",
+      reset: "Test reset",
+      lock: "Your FREE limit is used. Choose access below to continue.",
+      translation: "Translation",
+      summary: "What the office is communicating",
+      risks: "Communication risks",
+      examples: "Reply examples",
+      payTitle: "No-subscription access",
+      payDesc: "You get 3 FREE analyses to test. Then choose a calm time pass.",
+      p24meta: "For one urgent letter",
+      p7meta: "For a series of messages",
+      p30meta: "Peace for a whole month",
+      best: "Best value",
+      fine1: "Sense Bridge does not provide legal advice. It helps you understand meaning, tone and risks so you can decide yourself.",
+      fine2: "We sell peace and understanding, not ‘AI’.",
+      hintUI: "‘UI’ is simply the page language (buttons and labels) — it doesn’t change the analysis.",
+      srcAuto: "Document language: AUTO",
+      clear: "Clear",
+      copyTr: "Copy translation",
+      copyEx: "Copy replies"
+    },
+    DE: {
+      title: "Sense Bridge",
+      desc: "Hilft, amtliche Schreiben zu verstehen. Keine Beratung. Kein Druck.",
+      paste: "Schreiben einfügen",
+      placeholder: "Füge den Text des Schreibens oder der E-Mail ein…",
+      btnAnalyze: "Schreiben analysieren",
+      free: "FREE:",
+      analyses: "Analysen",
+      access: "Zugang:",
+      reset: "Test-Reset",
+      lock: "Dein FREE-Limit ist aufgebraucht. Wähle unten einen Zugang, um fortzufahren.",
+      translation: "Übersetzung",
+      summary: "Was die Behörde mitteilt",
+      risks: "Kommunikationsrisiken",
+      examples: "Antwortbeispiele",
+      payTitle: "Zugang ohne Abo",
+      payDesc: "Du hast 3 FREE-Analysen zum Testen. Danach wählst du einen ruhigen Zeitpass.",
+      p24meta: "Für ein dringendes Schreiben",
+      p7meta: "Für mehrere Nachrichten",
+      p30meta: "Ruhe für einen ganzen Monat",
+      best: "Bester Wert",
+      fine1: "Sense Bridge gibt keine Rechtsberatung. Es hilft dir, Sinn, Ton und Risiken zu verstehen, damit du selbst entscheiden kannst.",
+      fine2: "Wir verkaufen Ruhe und Verständnis, nicht ‘KI’.",
+      hintUI: "‘UI’ ist einfach die Seitensprache (Buttons & Texte) — das ändert die Analyse nicht.",
+      srcAuto: "Dokumentsprache: AUTO",
+      clear: "Leeren",
+      copyTr: "Übersetzung kopieren",
+      copyEx: "Antworten kopieren"
+    }
+  }
+};
+
+function getUiLang(){
+  const saved = (localStorage.getItem(UI.key) || "").trim().toUpperCase();
+  if(UI.dict[saved]) return saved;
+  return "PL";
+}
+function setUiLang(lang){
+  const L = (lang || "").toUpperCase();
+  if(!UI.dict[L]) return;
+  UI.lang = L;
+  localStorage.setItem(UI.key, L);
+  applyUiLang();
+}
+function applyUiLang(){
+  const t = UI.dict[UI.lang];
+
+  document.getElementById("hTitle").textContent = t.title;
+  document.getElementById("hDesc").textContent = t.desc;
+
+  document.getElementById("lblPaste").textContent = t.paste;
+  document.getElementById("inputText").placeholder = t.placeholder;
+  document.getElementById("btnAnalyze").textContent = t.btnAnalyze;
+
+  document.getElementById("lblFree").textContent = t.free;
+  document.getElementById("lblAnalyses").textContent = t.analyses;
+  document.getElementById("lblAccess").textContent = t.access;
+  document.getElementById("btnReset").textContent = t.reset;
+  document.getElementById("lockBox").textContent = t.lock;
+
+  document.getElementById("lblTranslation").textContent = t.translation;
+  document.getElementById("lblSummary").textContent = t.summary;
+  document.getElementById("lblRisks").textContent = t.risks;
+  document.getElementById("lblExamples").textContent = t.examples;
+
+  document.getElementById("payTitle").textContent = t.payTitle;
+  document.getElementById("payDesc").textContent = t.payDesc;
+  document.getElementById("p24meta").textContent = t.p24meta;
+  document.getElementById("p7meta").textContent = t.p7meta;
+  document.getElementById("p30meta").textContent = t.p30meta;
+  document.getElementById("pBest").textContent = t.best;
+  document.getElementById("fine1").textContent = t.fine1;
+  document.getElementById("fine2").textContent = t.fine2;
+  document.getElementById("hintUI").innerHTML = t.hintUI;
+
+  const src = document.getElementById("sourceLang");
+  if(src && src.options && src.options.length){
+    src.options[0].textContent = t.srcAuto;
+  }
+
+  document.querySelectorAll(".ui-btn").forEach(b=>{
+    b.classList.toggle("active", b.getAttribute("data-ui") === UI.lang);
+  });
+
+  const toolButtons = document.querySelectorAll(".tool-btn");
+  if(toolButtons.length >= 3){
+    toolButtons[0].textContent = t.clear;
+    toolButtons[1].textContent = t.copyTr;
+    toolButtons[2].textContent = t.copyEx;
+  }
+}
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function clearInput(){
+  document.getElementById("inputText").value = "";
+}
+async function copyText(id){
+  const el = document.getElementById(id);
+  const txt = (el && (el.textContent || "")).trim();
+  if(!txt){
+    alert("Brak treści do skopiowania.");
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(txt);
+  }catch{
+    const ta = document.createElement("textarea");
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
+}
+function safeArr(a){
+  return Array.isArray(a) ? a : [];
+}
+
+/* =========================================================
+   PAY (Stripe redirect)
+   ========================================================= */
+function goPay(which){
+  const url = STRIPE_LINKS[which];
+  if(!url){
+    alert("Brak linku płatności dla: " + which);
+    return;
+  }
+  window.location.href = url;
+}
+
+/* =========================================================
+   CORE: analyze + translate fallback
+   ========================================================= */
+function checkPaywall(){
+  const access = hasAccess();
+  if(access.mode === "LOCKED"){
+    refreshUI();
+    updatePaidMessage();
+    // pokaż sekcję płatności
+    const accessSection = document.getElementById("access");
+    if(accessSection) accessSection.classList.remove("hidden");
+    const lockBox = document.getElementById("lockBox");
+    if(lockBox) lockBox.classList.add("show");
+    return false;
+  }
+  return true;
+}
+async function analyze(){
+
+  if (!checkPaywall()) return;
+
+  const btn = document.getElementById("btnAnalyze");
+  btn.disabled = true;
+
+  try{
+    const text = (document.getElementById("inputText").value || "").trim();
+    const sourceLang = document.getElementById("sourceLang").value;
+    const userLang = document.getElementById("userLang").value;
+
+    if(!text){
+      alert("Wklej treść pisma.");
+      return;
+    }
+
+    const res = await fetch(ENDPOINTS.analyze,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ text, sourceLang, userLang })
+    });
+
+    const data = await res.json();
+    if(!res.ok){
+      throw new Error((data && (data.error || data.message)) ? (data.error || data.message) : ("HTTP " + res.status));
+    }
+
+    document.getElementById("summary").textContent =
+      (data.summary || data.whatOfficeSays || data.communication || "").trim();
+
+    const risksBox = document.getElementById("risks");
+    risksBox.innerHTML = "";
+    safeArr(data.risks || data.riskList || data.riskChips).forEach(r=>{
+      const d=document.createElement("div");
+      d.className="box-warn";
+      d.textContent=String(r);
+      risksBox.appendChild(d);
+    });
+
+    const ex = data.examples || data.responseExamples || data.replies || {};
+    const parts = [];
+    if(ex.neutral) parts.push("NEUTRAL:\n" + ex.neutral);
+    if(ex.polite)  parts.push("UPRZEJMIE:\n" + ex.polite);
+    if(ex.firm)    parts.push("STANOWCZO:\n" + ex.firm);
+    document.getElementById("examples").textContent = parts.join("\n\n");
+
+    let translation = (data.translation || data.translatedText || data.translated || "").trim();
+
+    if(!translation){
+      const trRes = await fetch(ENDPOINTS.translate,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ text, sourceLang, userLang })
+      });
+      const trData = await trRes.json();
+      if(!trRes.ok){
+        throw new Error((trData && (trData.error || trData.message)) ? (trData.error || trData.message) : ("Translate HTTP " + trRes.status));
+      }
+      translation = (trData.translation || trData.translatedText || trData.translated || "").trim();
+    }
+
+    document.getElementById("translation").textContent = translation;
+
+    consumeFreeIfNeeded();
+    refreshUI();
+    updatePaidMessage();
+
+    document.getElementById("translation").scrollIntoView({behavior:"smooth"});
+  } catch (e){
+    alert("Błąd: " + (e?.message || e));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+(function init(){
+  UI.lang = getUiLang();
+  applyUiLang();
+  applyPaidFromQuery();
+  refreshUI();
+  updatePaidMessage();
+  enableDevReset();
+})();
+</script>
+
+</body>
+</html>
