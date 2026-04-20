@@ -7,10 +7,9 @@
 
   <title>Sense Bridge — zrozum pisma urzędowe</title>
 
-  <!-- ✅ paths safe for /app/ -->
   <link rel="icon" href="/icons/favicon.ico" type="image/x-icon">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
-<link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
 
   <style>
     :root{
@@ -262,7 +261,6 @@
       </div>
     </div>
 
-    <!-- ✅ paid message OUTSIDE topbar but inside header card -->
     <div id="paidMsg" class="card" style="display:none;margin:12px 0 0;">
       <p id="paidText" style="margin:0;color:#1f2937;font-weight:600;"></p>
     </div>
@@ -370,17 +368,30 @@
     </p>
   </section>
 
+  <div id="paymentBox" class="card" style="display:none;">
+    <h3>Zakup dostępu</h3>
+    <p><b>Kwota:</b> <span id="amountText"></span></p>
+
+    <p><b>Zapłać przelewem:</b></p>
+    <p>
+      IBAN: <b>NL60 RABO 0324 8128 84</b><br>
+      Odbiorca: <b>I. Madej</b>
+    </p>
+
+    <p><b>Tytuł przelewu:</b><br>
+      <span id="transferTitle"></span>
+    </p>
+
+    <button class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
+  </div>
+
 </main>
 
 <script>
 /* =========================================================
-   CONFIG (Stripe + endpoints)
+   CONFIG
    ========================================================= */
-const STRIPE_LINKS = {
-  "24h": "https://buy.stripe.com/test_dRm5kCgTk7wUeF2dgO53O00",
-  "7d":  "https://buy.stripe.com/test_cNi7sKauWaJ68gE2Ca53O01",
-  "30d": "https://buy.stripe.com/test_14A3cu5aC4kIfJ6dgO53O02"
-};
+const STRIPE_LINKS = {};
 
 const ENDPOINTS = {
   analyze: "/.netlify/functions/analyze",
@@ -393,7 +404,7 @@ const ENDPOINTS = {
 const SB = {
   freeMax: 3,
   keyFreeUsed: "sb_free_used_v2",
-  keyPass: "sb_pass_v2" // {type, exp}
+  keyPass: "sb_pass_v2"
 };
 
 function nowMs(){ return Date.now(); }
@@ -727,15 +738,65 @@ function safeArr(a){
 }
 
 /* =========================================================
-   PAY (Stripe redirect)
+   PAY (manual payment + instant client access)
    ========================================================= */
+let currentPlan = null;
+
 function goPay(which){
-  const url = STRIPE_LINKS[which];
-  if(!url){
-    alert("Brak linku płatności dla: " + which);
-    return;
+  currentPlan = which;
+
+  let amount = "";
+  let title = "";
+
+  const email = prompt("Podaj swój email:");
+  if(!email) return;
+
+  if(which === "24h"){
+    amount = "3 €";
+    title = "SB24-" + email;
   }
-  window.location.href = url;
+  if(which === "7d"){
+    amount = "7 €";
+    title = "SB7-" + email;
+  }
+  if(which === "30d"){
+    amount = "15 €";
+    title = "SB30-" + email;
+  }
+
+  document.getElementById("amountText").textContent = amount;
+  document.getElementById("transferTitle").textContent = title;
+  localStorage.setItem("sb_user_email", email);
+
+  document.getElementById("paymentBox").style.display = "block";
+  document.getElementById("paymentBox").scrollIntoView({ behavior: "smooth" });
+}
+
+function confirmPaid(){
+  const now = Date.now();
+  let access = 0;
+
+  if(currentPlan === "24h"){
+    access = 24 * 60 * 60 * 1000;
+  }
+  if(currentPlan === "7d"){
+    access = 7 * 24 * 60 * 60 * 1000;
+  }
+  if(currentPlan === "30d"){
+    access = 30 * 24 * 60 * 60 * 1000;
+  }
+
+  const type = currentPlan;
+  const until = now + access;
+
+  localStorage.setItem("sb_access_until", until);
+  setPass(type, until);
+
+  alert("Dostęp aktywny ✔");
+
+  refreshUI();
+  updatePaidMessage();
+  location.reload();
 }
 
 /* =========================================================
@@ -746,7 +807,6 @@ function checkPaywall(){
   if(access.mode === "LOCKED"){
     refreshUI();
     updatePaidMessage();
-    // pokaż sekcję płatności
     const accessSection = document.getElementById("access");
     if(accessSection) accessSection.classList.remove("hidden");
     const lockBox = document.getElementById("lockBox");
@@ -755,8 +815,8 @@ function checkPaywall(){
   }
   return true;
 }
-async function analyze(){
 
+async function analyze(){
   if (!checkPaywall()) return;
 
   const btn = document.getElementById("btnAnalyze");
