@@ -396,7 +396,8 @@ const STRIPE_LINKS = {};
 const ENDPOINTS = {
   analyze: "/.netlify/functions/analyze",
   translate: "/.netlify/functions/translate",
-  accessSet: "/.netlify/functions/access_set"
+  accessSet: "/.netlify/functions/access_set",
+  accessCheck: "/.netlify/functions/access_check"
 };
 
 /* =========================================================
@@ -738,6 +739,35 @@ function safeArr(a){
   return Array.isArray(a) ? a : [];
 }
 
+  async function syncAccess(){
+  const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
+  if(!email) return;
+
+  try {
+    const res = await fetch(ENDPOINTS.accessCheck, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok || !data.ok) return;
+
+    if(data.status === "ACTIVE"){
+      setPass(data.plan, data.expires);
+    }
+
+    if(data.status === "EXPIRED" || data.status === "BLOCKED"){
+      clearPass();
+    }
+
+  } catch(e){
+    console.log("sync error", e);
+  }
+  }
+  
+
 /* =========================================================
    PAY (manual payment + instant client access)
    ========================================================= */
@@ -910,10 +940,11 @@ async function analyze(){
 /* =========================================================
    INIT
    ========================================================= */
-(function init(){
+(async function init(){
   UI.lang = getUiLang();
   applyUiLang();
   applyPaidFromQuery();
+  await syncAccess();
   refreshUI();
   updatePaidMessage();
   enableDevReset();
