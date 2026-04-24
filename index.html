@@ -773,31 +773,46 @@ function goPay(which){
   document.getElementById("paymentBox").scrollIntoView({ behavior: "smooth" });
 }
 
-function confirmPaid(){
-  const now = Date.now();
-  let access = 0;
+async function confirmPaid(){
+  const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
 
-  if(currentPlan === "24h"){
-    access = 24 * 60 * 60 * 1000;
-  }
-  if(currentPlan === "7d"){
-    access = 7 * 24 * 60 * 60 * 1000;
-  }
-  if(currentPlan === "30d"){
-    access = 30 * 24 * 60 * 60 * 1000;
+  if(!email){
+    alert("Podaj email najpierw.");
+    return;
   }
 
-  const type = currentPlan;
-  const until = now + access;
+  if(!currentPlan){
+    alert("Brak wybranego planu.");
+    return;
+  }
 
-  localStorage.setItem("sb_access_until", until);
-  setPass(type, until);
+  try {
+    const res = await fetch(ENDPOINTS.accessSet, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        plan: currentPlan
+      })
+    });
 
-  alert("Dostęp aktywny ✔");
+    const data = await res.json();
 
-  refreshUI();
-  updatePaidMessage();
-  location.reload();
+    if(!res.ok || !data.ok){
+      throw new Error(data.error || "Błąd aktywacji");
+    }
+
+    setPass(currentPlan, data.expires);
+
+    alert("Dostęp aktywny ✔");
+
+    refreshUI();
+    updatePaidMessage();
+    location.reload();
+
+  } catch (e) {
+    alert("Błąd: " + (e.message || e));
+  }
 }
 
 /* =========================================================
