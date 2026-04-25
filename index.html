@@ -895,41 +895,7 @@ function checkPaywall(){
   }
   return true;
 }
-  async function checkAccess(){
-  const email = localStorage.getItem("sb_user_email");
-  if(!email) return;
-
-  try{
-    const res = await fetch("/.netlify/functions/check-access", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
-
-    const data = await res.json();
-
-    if(data.access === "BLOCKED"){
-      alert("Dostęp zablokowany");
-      localStorage.removeItem("sb_pass_v2");
-      refreshUI();
-    }
-
-    if(data.access === "EXPIRED"){
-      localStorage.removeItem("sb_pass_v2");
-      refreshUI();
-    }
-
-    if(data.access === "ACTIVE"){
-      setPass(data.plan, data.expires);
-      refreshUI();
-      updatePaidMessage();
-    }
-
-  }catch(e){
-    console.log("checkAccess error", e);
-  }
-}
-
+  
 async function analyze(){
   if (!checkPaywall()) return;
 
@@ -1015,7 +981,6 @@ async function analyze(){
   await syncAccess();
   refreshUI();
   updatePaidMessage();
-  checkAccess();
   enableDevReset();
 })();
 </script>
