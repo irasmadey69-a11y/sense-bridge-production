@@ -782,18 +782,34 @@ function goPay(which){
   const email = prompt("Podaj swój email:");
   if(!email) return;
 
-  if(which === "24h"){
-    amount = "3 €";
-    title = "SB24-" + email;
-  }
-  if(which === "7d"){
-    amount = "7 €";
-    title = "SB7-" + email;
-  }
-  if(which === "30d"){
-    amount = "15 €";
-    title = "SB30-" + email;
-  }
+  let planNum = "24";
+
+if(which === "24h"){
+  amount = "3 €";
+  planNum = "24";
+}
+
+if(which === "7d"){
+  amount = "7 €";
+  planNum = "7";
+}
+
+if(which === "30d"){
+  amount = "15 €";
+  planNum = "30";
+}
+
+// losowy kod 4 cyfry
+const code = Math.floor(1000 + Math.random() * 9000);
+
+// fragment maila (przed @)
+const namePart = email.split("@")[0].slice(0,5);
+
+// finalny tytuł
+title = "SB" + planNum + "-" + code + "-" + namePart;
+
+// zapisz lokalnie
+localStorage.setItem("sb_payment_code", code);
 
   document.getElementById("amountText").textContent = amount;
   document.getElementById("transferTitle").textContent = title;
