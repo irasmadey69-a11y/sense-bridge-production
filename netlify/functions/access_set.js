@@ -30,6 +30,19 @@ exports.handler = async (event) => {
     try {
   const store = getStore("sb-users");
 
+      const existingRaw = await store.get(email);
+
+if (existingRaw) {
+  const existing = JSON.parse(existingRaw);
+
+  if (existing.status === "BLOCKED") {
+    return json(403, {
+      ok: false,
+      error: "Ten email jest zablokowany."
+    });
+  }
+}
+try {
   await store.set(email, JSON.stringify({
     email,
     plan,
