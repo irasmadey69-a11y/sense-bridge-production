@@ -855,9 +855,10 @@ async function confirmPaid(){
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email,
-        plan: currentPlan
-      })
+  email,
+  plan: currentPlan,
+  paymentTitle: document.getElementById("transferTitle").textContent.trim()
+})
     });
 
     const data = await res.json();
