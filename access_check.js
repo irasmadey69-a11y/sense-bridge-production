@@ -13,7 +13,11 @@ exports.handler = async (event) => {
       return json(400, { ok: false, error: "Missing email" });
     }
 
-    const store = getStore("sb-users");
+    const store = getStore({
+  name: "sb-users",
+  siteID: process.env.NETLIFY_SITE_ID,
+  token: process.env.NETLIFY_AUTH_TOKEN
+});
     const raw = await store.get(email);
 
     if (!raw) {
