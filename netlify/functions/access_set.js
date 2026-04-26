@@ -2,14 +2,15 @@ const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
   try {
-    const body = JSON.parse(event.body || "{}");
-const adminPin = String(body.adminPin || "");
-
-if (adminPin !== process.env.ADMIN_PIN) {
-  return json(403, { ok: false, error: "Brak dostępu (PIN)" });
-}
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
+    }
+
+    const body = JSON.parse(event.body || "{}");
+    const adminPin = String(body.adminPin || "");
+
+    if (adminPin !== process.env.ADMIN_PIN) {
+      return json(403, { ok: false, error: "Brak dostępu (PIN)" });
     }
 
     const email = String(body.email || "").trim().toLowerCase();
@@ -32,41 +33,40 @@ if (adminPin !== process.env.ADMIN_PIN) {
     const now = Date.now();
     const expires = now + ms;
 
-    try {
-  const store = getStore("sb-users");
-
-      const existingRaw = await store.get(email);
-
-if (existingRaw) {
-  const existing = JSON.parse(existingRaw);
-
-  if (existing.status === "BLOCKED") {
-    return json(403, {
-      ok: false,
-      error: "Ten email jest zablokowany."
+    const store = getStore("sb-users", {
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_AUTH_TOKEN
     });
-  }
-}
-try {
-  await store.set(email, JSON.stringify({
-    email,
-    plan,
-    paymentTitle,
-    status: "ACTIVE",
-    createdAt: now,
-    expires
-  }));
-} catch (blobError) {
-  console.log("Blobs save skipped:", blobError.message || blobError);
-}
 
-await sendNotificationEmail({
-  email,
-  plan,
-  paymentTitle,
-  createdAt: now,
-  expires
-});
+    const existingRaw = await store.get(email);
+
+    if (existingRaw) {
+      const existing = JSON.parse(existingRaw);
+
+      if (existing.status === "BLOCKED") {
+        return json(403, {
+          ok: false,
+          error: "Ten email jest zablokowany."
+        });
+      }
+    }
+
+    await store.set(email, JSON.stringify({
+      email,
+      plan,
+      paymentTitle,
+      status: "ACTIVE",
+      createdAt: now,
+      expires
+    }));
+
+    await sendNotificationEmail({
+      email,
+      plan,
+      paymentTitle,
+      createdAt: now,
+      expires
+    });
 
     return json(200, {
       ok: true,
@@ -76,6 +76,7 @@ await sendNotificationEmail({
       status: "ACTIVE",
       expires
     });
+
   } catch (e) {
     return json(500, { ok: false, error: e.message || String(e) });
   }
