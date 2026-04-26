@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Sense Bridge – Admin</title>
+<style>
+body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; }
+input, button { width: 100%; padding: 10px; margin-top: 10px; }
+button { cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h2>Panel Admina</h2>
+
+<input id="pin" placeholder="PIN admina">
+<input id="email" placeholder="Email użytkownika">
+
+<button onclick="block()">Zablokuj</button>
+<button onclick="unblock()">Odblokuj</button>
+
+<p id="msg"></p>
+
+<script>
+const API = "https://sense-bridge-production.netlify.app/.netlify/functions";
+
+async function block() {
+  const res = await fetch(API + "/access_block", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: email.value,
+      adminPin: pin.value
+    })
+  });
+  show(res);
+}
+
+async function unblock() {
+  const res = await fetch(API + "/access_set", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: email.value,
+      plan: "24h",
+      adminPin: pin.value
+    })
+  });
+  show(res);
+}
+
+async function show(res) {
+  const data = await res.json();
+  msg.innerText = JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
