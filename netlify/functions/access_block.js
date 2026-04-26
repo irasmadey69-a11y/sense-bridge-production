@@ -2,14 +2,15 @@ const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
   try {
-    const body = JSON.parse(event.body || "{}");
-const adminPin = String(body.adminPin || "");
-
-if (adminPin !== process.env.ADMIN_PIN) {
-  return json(403, { ok: false, error: "Brak dostępu (PIN)" });
-}
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
+    }
+
+    const body = JSON.parse(event.body || "{}");
+    const adminPin = String(body.adminPin || "");
+
+    if (adminPin !== process.env.ADMIN_PIN) {
+      return json(403, { ok: false, error: "Brak dostępu (PIN)" });
     }
 
     const email = String(body.email || "").trim().toLowerCase();
@@ -18,7 +19,10 @@ if (adminPin !== process.env.ADMIN_PIN) {
       return json(400, { ok: false, error: "Missing email" });
     }
 
-    const store = getStore("sb-users");
+    const store = getStore("sb-users", {
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_AUTH_TOKEN
+    });
 
     const raw = await store.get(email);
     const existing = raw ? JSON.parse(raw) : { email };
@@ -34,6 +38,7 @@ if (adminPin !== process.env.ADMIN_PIN) {
       email,
       status: "BLOCKED"
     });
+
   } catch (e) {
     return json(500, { ok: false, error: e.message || String(e) });
   }
