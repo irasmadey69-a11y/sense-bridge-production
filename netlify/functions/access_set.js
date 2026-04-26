@@ -27,24 +27,28 @@ exports.handler = async (event) => {
     const now = Date.now();
     const expires = now + ms;
 
-    const store = getStore("sb-users");
+    try {
+  const store = getStore("sb-users");
 
-    await store.set(email, JSON.stringify({
-      email,
-      plan,
-      paymentTitle,
-      status: "ACTIVE",
-      createdAt: now,
-      expires
-    }));
+  await store.set(email, JSON.stringify({
+    email,
+    plan,
+    paymentTitle,
+    status: "ACTIVE",
+    createdAt: now,
+    expires
+  }));
+} catch (blobError) {
+  console.log("Blobs save skipped:", blobError.message || blobError);
+}
 
-    await sendNotificationEmail({
-      email,
-      plan,
-      paymentTitle,
-      createdAt: now,
-      expires
-    });
+await sendNotificationEmail({
+  email,
+  plan,
+  paymentTitle,
+  createdAt: now,
+  expires
+});
 
     return json(200, {
       ok: true,
