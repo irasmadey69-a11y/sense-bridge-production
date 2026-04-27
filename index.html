@@ -268,6 +268,13 @@
 
   <div class="card">
     <div class="section-title" id="lblPaste">Wklej pismo</div>
+    <div class="photo-box">
+  <label for="sbPhotoInput"><strong>Zdjęcie pisma</strong></label>
+  <input id="sbPhotoInput" type="file" accept="image/*" />
+  <button id="sbReadPhotoBtn" type="button">Wczytaj tekst ze zdjęcia</button>
+  <div id="sbPhotoStatus" style="font-size:13px; opacity:.8; margin-top:6px;"></div>
+    </div>
+    
     <textarea id="inputText" placeholder="Wklej treść pisma lub e-maila z urzędu…"></textarea>
 
     <div class="row" style="margin-top:8px">
@@ -983,6 +990,94 @@ async function analyze(){
   refreshUI();
   updatePaidMessage();
   enableDevReset();
+})();
+(function () {
+  const MAX_MB = 4;
+
+  function findTextArea() {
+    return (
+      document.getElementById("letterText") ||
+      document.getElementById("inputText") ||
+      document.getElementById("documentText") ||
+      document.getElementById("textInput") ||
+      document.querySelector("textarea")
+    );
+  }
+
+  function setStatus(msg) {
+    const el = document.getElementById("sbPhotoStatus");
+    if (el) el.textContent = msg;
+  }
+
+  function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Nie udało się odczytać pliku."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function readPhotoText() {
+    const input = document.getElementById("sbPhotoInput");
+    const btn = document.getElementById("sbReadPhotoBtn");
+    const textarea = findTextArea();
+
+    if (!input || !input.files || !input.files[0]) {
+      setStatus("Najpierw wybierz zdjęcie pisma.");
+      return;
+    }
+
+    if (!textarea) {
+      setStatus("Nie znaleziono pola tekstowego na pismo.");
+      return;
+    }
+
+    const file = input.files[0];
+
+    if (!file.type.startsWith("image/")) {
+      setStatus("Wybierz plik obrazu, np. JPG lub PNG.");
+      return;
+    }
+
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setStatus("Zdjęcie jest za duże. Maksymalnie " + MAX_MB + " MB.");
+      return;
+    }
+
+    try {
+      if (btn) btn.disabled = true;
+      setStatus("Czytam tekst ze zdjęcia...");
+
+      const imageDataUrl = await fileToDataUrl(file);
+
+      const res = await fetch("/.netlify/functions/ocr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageDataUrl })
+      });
+
+      const data = await res.json();
+
+      if (!data.ok) {
+        throw new Error(data.error || "Błąd OCR");
+      }
+
+      textarea.value = data.text || "";
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+
+      setStatus("Tekst ze zdjęcia został wstawiony. Możesz kliknąć „Analizuj pismo”.");
+    } catch (err) {
+      setStatus("Błąd: " + err.message);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.getElementById("sbReadPhotoBtn");
+    if (btn) btn.addEventListener("click", readPhotoText);
+  });
 })();
 </script>
 
