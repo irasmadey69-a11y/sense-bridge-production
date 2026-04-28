@@ -2,32 +2,124 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sense Bridge – Admin</title>
+
 <style>
-body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; }
-input, button { width: 100%; padding: 10px; margin-top: 10px; }
-button { cursor: pointer; }
+body {
+  font-family: system-ui;
+  background: #f3f5f7;
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+}
+
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(63,138,114,0.3);
+  margin-bottom: 15px;
+}
+
+h2 {
+  margin-bottom: 5px;
+}
+
+input, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+button {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.green {
+  background: #3f8a72;
+  color: white;
+  border: none;
+}
+
+.red {
+  background: #dc2626;
+  color: white;
+  border: none;
+}
+
+.blue {
+  background: #0e2a47;
+  color: white;
+  border: none;
+}
+
+.result {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #ddd;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.active { background: #dcfce7; color: #166534; }
+.blocked { background: #fee2e2; color: #991b1b; }
 </style>
 </head>
+
 <body>
 
-<h2>Panel Admina</h2>
+<div class="card">
+  <h2>Panel Admina</h2>
+  <p>Zarządzanie użytkownikami</p>
+</div>
 
-<input id="pin" placeholder="PIN admina">
-<input id="email" placeholder="Email użytkownika">
+<div class="card">
+  <input id="pin" placeholder="PIN admina">
+  <input id="email" placeholder="Email użytkownika">
 
-<button onclick="block()">Zablokuj</button>
-<button onclick="unblock()">Odblokuj</button>
+  <button class="green" onclick="setPlan('24h')">Aktywuj 24h</button>
+  <button class="green" onclick="setPlan('7d')">Aktywuj 7 dni</button>
+  <button class="green" onclick="setPlan('30d')">Aktywuj 30 dni</button>
 
-<p id="msg"></p>
+  <button class="red" onclick="block()">Zablokuj</button>
+  <button onclick="check()">Sprawdź status</button>
+</div>
+
+<div class="card">
+  <div id="result" class="result">Brak danych</div>
+</div>
 
 <script>
 const API = "https://sense-bridge-production.netlify.app/.netlify/functions";
 
+async function setPlan(plan) {
+  const res = await fetch(API + "/access_set", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      email: email.value,
+      plan: plan,
+      adminPin: pin.value
+    })
+  });
+  show(res);
+}
+
 async function block() {
   const res = await fetch(API + "/access_block", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
       email: email.value,
       adminPin: pin.value
@@ -36,14 +128,12 @@ async function block() {
   show(res);
 }
 
-async function unblock() {
-  const res = await fetch(API + "/access_set", {
+async function check() {
+  const res = await fetch(API + "/access_check", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
-      email: email.value,
-      plan: "24h",
-      adminPin: pin.value
+      email: email.value
     })
   });
   show(res);
@@ -51,7 +141,17 @@ async function unblock() {
 
 async function show(res) {
   const data = await res.json();
-  msg.innerText = JSON.stringify(data, null, 2);
+
+  let statusClass = "";
+  if (data.status === "ACTIVE") statusClass = "active";
+  if (data.status === "BLOCKED") statusClass = "blocked";
+
+  result.innerHTML = `
+    <b>Email:</b> ${data.email || "-"}<br>
+    <b>Status:</b> <span class="badge ${statusClass}">${data.status || "-"}</span><br>
+    <b>Plan:</b> ${data.plan || "-"}<br>
+    <b>Ważny do:</b> ${data.expires || "-"}
+  `;
 }
 </script>
 
