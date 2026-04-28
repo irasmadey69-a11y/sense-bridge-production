@@ -410,6 +410,31 @@
       min-height:22px;
     }
 
+
+    .install-btn{
+      margin:10px 0 14px;
+      width:auto;
+      max-width:100%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 15px;
+      border-radius:999px;
+      border:1px solid rgba(63,138,114,0.28);
+      background:#ffffff;
+      color:#245c4d;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 4px 12px rgba(15,23,42,0.04);
+      white-space:normal;
+      text-align:center;
+    }
+    .install-btn:hover{
+      background:rgba(63,138,114,0.07);
+      transform:translateY(-1px);
+    }
+
   </style>
 </head>
 
@@ -420,6 +445,7 @@
     <div class="topbar">
       <div>
         <h1 id="hTitle">Sense Bridge</h1>
+        <button id="installAppBtn" class="install-btn" type="button" onclick="installApp()">📲 Dodaj skrót aplikacji do telefonu</button>
         <p id="hDesc">Pomaga zrozumieć pisma urzędowe. Bez porad. Bez presji.</p>
       </div>
 
@@ -499,6 +525,7 @@
       <button class="tool-btn" type="button" onclick="clearInput()">Wyczyść</button>
       <button class="tool-btn" type="button" onclick="copyText('translation')">Kopiuj tłumaczenie</button>
       <button class="tool-btn" type="button" onclick="copyText('examples')">Kopiuj odpowiedzi</button>
+      <button class="tool-btn" type="button" onclick="copyText('examplesDoc')" id="btnCopyExamplesDoc">Kopiuj odpowiedzi do wysłania</button>
     </div>
 
     <div class="statusbar">
@@ -536,8 +563,13 @@
   </div>
 
   <div class="card">
-    <div class="section-title" id="lblExamples">Przykłady odpowiedzi</div>
+    <div class="section-title" id="lblExamples">Przykłady odpowiedzi (Twój język)</div>
     <pre id="examples"></pre>
+  </div>
+
+  <div class="card">
+    <div class="section-title" id="lblExamplesDoc">Przykłady odpowiedzi (język dokumentu)</div>
+    <pre id="examplesDoc"></pre>
   </div>
 
   <section id="access" class="access hidden" aria-label="Dostęp Sense Bridge">
@@ -749,6 +781,8 @@ const UI = {
       placeholder: "Wklej treść pisma lub e-maila z urzędu…",
       btnAnalyze: "Analizuj pismo",
       userLang: "Twój język",
+      installApp: '📲 Dodaj skrót aplikacji do telefonu',
+      installHelp: 'Aby dodać skrót aplikacji do telefonu:\\n\\nKliknij 3 kropki w przeglądarce\\n→ Dodaj do ekranu głównego',
       free: "FREE:",
       analyses: "analizy",
       access: "Dostęp:",
@@ -758,6 +792,10 @@ const UI = {
       summary: "Co urząd komunikuje",
       risks: "Ryzyka komunikacyjne",
       examples: "Przykłady odpowiedzi",
+      examplesUser: 'Przykłady odpowiedzi (Twój język)',
+      examplesDoc: 'Przykłady odpowiedzi (język dokumentu)',
+      copyExDoc: 'Kopiuj odpowiedzi do wysłania',
+      examplesDocEmpty: 'Po analizie pojawi się tutaj wersja odpowiedzi w języku dokumentu.',
       payTitle: "Dostęp bez abonamentu",
       payDesc: "Masz 3 analizy FREE na sprawdzenie działania. Potem wybierasz spokojny dostęp czasowy.",
       p24meta: "Dla jednego pilnego pisma",
@@ -770,7 +808,7 @@ const UI = {
       srcAuto: "Język dokumentu: AUTO",
       clear: "Wyczyść",
       copyTr: "Kopiuj tłumaczenie",
-      copyEx: "Kopiuj odpowiedzi"
+      copyEx: 'Kopiuj odpowiedzi (mój język)'
     },
     NL: {
       title: "Sense Bridge",
@@ -783,6 +821,8 @@ const UI = {
       placeholder: "Plak de tekst van de brief of e-mail…",
       btnAnalyze: "Analyseer brief",
       userLang: "Jouw taal",
+      installApp: '📲 Snelkoppeling op telefoon zetten',
+      installHelp: 'Om een snelkoppeling op je telefoon te zetten:\\n\\nTik op de 3 puntjes in de browser\\n→ Toevoegen aan startscherm',
       free: "FREE:",
       analyses: "analyses",
       access: "Toegang:",
@@ -792,6 +832,10 @@ const UI = {
       summary: "Wat de instantie bedoelt",
       risks: "Communicatierisico’s",
       examples: "Voorbeelden van antwoorden",
+      examplesUser: 'Voorbeelden van antwoorden (jouw taal)',
+      examplesDoc: 'Voorbeelden van antwoorden (taal van het document)',
+      copyExDoc: 'Kopieer antwoord om te versturen',
+      examplesDocEmpty: 'Na de analyse verschijnt hier de antwoordversie in de taal van het document.',
       payTitle: "Toegang zonder abonnement",
       payDesc: "Je krijgt 3 FREE-analyses om te testen. Daarna kies je rustige tijdstoegang.",
       p24meta: "Voor één urgente brief",
@@ -804,7 +848,7 @@ const UI = {
       srcAuto: "Taal document: AUTO",
       clear: "Wissen",
       copyTr: "Kopieer vertaling",
-      copyEx: "Kopieer antwoorden"
+      copyEx: 'Kopieer antwoorden (mijn taal)'
     },
     EN: {
       title: "Sense Bridge",
@@ -817,6 +861,8 @@ const UI = {
       placeholder: "Paste the content of the letter or email…",
       btnAnalyze: "Analyze letter",
       userLang: "Your language",
+      installApp: '📲 Add app shortcut to phone',
+      installHelp: 'To add an app shortcut to your phone:\\n\\nTap the 3 dots in your browser\\n→ Add to Home screen',
       free: "FREE:",
       analyses: "analyses",
       access: "Access:",
@@ -826,6 +872,10 @@ const UI = {
       summary: "What the office is communicating",
       risks: "Communication risks",
       examples: "Reply examples",
+      examplesUser: 'Reply examples (your language)',
+      examplesDoc: 'Reply examples (document language)',
+      copyExDoc: 'Copy reply to send',
+      examplesDocEmpty: 'After analysis, the reply version in the document language will appear here.',
       payTitle: "No-subscription access",
       payDesc: "You get 3 FREE analyses to test. Then choose a calm time pass.",
       p24meta: "For one urgent letter",
@@ -838,7 +888,7 @@ const UI = {
       srcAuto: "Document language: AUTO",
       clear: "Clear",
       copyTr: "Copy translation",
-      copyEx: "Copy replies"
+      copyEx: 'Copy replies (my language)'
     },
     DE: {
       title: "Sense Bridge",
@@ -851,6 +901,8 @@ const UI = {
       placeholder: "Füge den Text des Schreibens oder der E-Mail ein…",
       btnAnalyze: "Schreiben analysieren",
       userLang: "Deine Sprache",
+      installApp: '📲 App-Verknüpfung zum Handy hinzufügen',
+      installHelp: 'So fügst du eine App-Verknüpfung hinzu:\\n\\nTippe auf die 3 Punkte im Browser\\n→ Zum Startbildschirm hinzufügen',
       free: "FREE:",
       analyses: "Analysen",
       access: "Zugang:",
@@ -860,6 +912,10 @@ const UI = {
       summary: "Was die Behörde mitteilt",
       risks: "Kommunikationsrisiken",
       examples: "Antwortbeispiele",
+      examplesUser: 'Antwortbeispiele (deine Sprache)',
+      examplesDoc: 'Antwortbeispiele (Dokumentsprache)',
+      copyExDoc: 'Antwort zum Senden kopieren',
+      examplesDocEmpty: 'Nach der Analyse erscheint hier die Antwortversion in der Dokumentsprache.',
       payTitle: "Zugang ohne Abo",
       payDesc: "Du hast 3 FREE-Analysen zum Testen. Danach wählst du einen ruhigen Zeitpass.",
       p24meta: "Für ein dringendes Schreiben",
@@ -872,7 +928,7 @@ const UI = {
       srcAuto: "Dokumentsprache: AUTO",
       clear: "Leeren",
       copyTr: "Übersetzung kopieren",
-      copyEx: "Antworten kopieren"
+      copyEx: 'Antworten kopieren (meine Sprache)'
     },
     FR: {
       title: "Sense Bridge",
@@ -885,6 +941,8 @@ const UI = {
       placeholder: "Collez le texte du courrier ou de l’e-mail…",
       btnAnalyze: "Analyser le courrier",
       userLang: "Votre langue",
+      installApp: '📲 Ajouter le raccourci au téléphone',
+      installHelp: 'Pour ajouter le raccourci sur le téléphone:\\n\\nAppuyez sur les 3 points du navigateur\\n→ Ajouter à l’écran d’accueil',
       free: "FREE:",
       analyses: "analyses",
       access: "Accès:",
@@ -894,6 +952,10 @@ const UI = {
       summary: "Ce que l’organisme communique",
       risks: "Risques de communication",
       examples: "Exemples de réponses",
+      examplesUser: 'Exemples de réponses (votre langue)',
+      examplesDoc: 'Exemples de réponses (langue du document)',
+      copyExDoc: 'Copier la réponse à envoyer',
+      examplesDocEmpty: 'Après l’analyse, la version de réponse dans la langue du document apparaîtra ici.',
       payTitle: "Accès sans abonnement",
       payDesc: "Vous avez 3 analyses FREE pour tester. Ensuite, choisissez un accès temporaire.",
       p24meta: "Pour un courrier urgent",
@@ -906,7 +968,7 @@ const UI = {
       srcAuto: "Langue du document: AUTO",
       clear: "Effacer",
       copyTr: "Copier la traduction",
-      copyEx: "Copier les réponses"
+      copyEx: 'Copier les réponses (ma langue)'
     },
     IT: {
       title: "Sense Bridge",
@@ -919,6 +981,8 @@ const UI = {
       placeholder: "Incolla il testo della lettera o dell’e-mail…",
       btnAnalyze: "Analizza lettera",
       userLang: "La tua lingua",
+      installApp: '📲 Aggiungi scorciatoia al telefono',
+      installHelp: 'Per aggiungere la scorciatoia al telefono:\\n\\nTocca i 3 puntini nel browser\\n→ Aggiungi alla schermata iniziale',
       free: "FREE:",
       analyses: "analisi",
       access: "Accesso:",
@@ -928,6 +992,10 @@ const UI = {
       summary: "Cosa comunica l’ente",
       risks: "Rischi comunicativi",
       examples: "Esempi di risposte",
+      examplesUser: 'Esempi di risposte (la tua lingua)',
+      examplesDoc: 'Esempi di risposte (lingua del documento)',
+      copyExDoc: 'Copia risposta da inviare',
+      examplesDocEmpty: 'Dopo l’analisi, qui apparirà la versione della risposta nella lingua del documento.',
       payTitle: "Accesso senza abbonamento",
       payDesc: "Hai 3 analisi FREE per provare. Poi scegli un accesso temporaneo.",
       p24meta: "Per una lettera urgente",
@@ -940,7 +1008,7 @@ const UI = {
       srcAuto: "Lingua del documento: AUTO",
       clear: "Cancella",
       copyTr: "Copia traduzione",
-      copyEx: "Copia risposte"
+      copyEx: 'Copia risposte (mia lingua)'
     },
     ES: {
       title: "Sense Bridge",
@@ -953,6 +1021,8 @@ const UI = {
       placeholder: "Pega el texto de la carta o del correo…",
       btnAnalyze: "Analizar carta",
       userLang: "Tu idioma",
+      installApp: '📲 Añadir acceso directo al teléfono',
+      installHelp: 'Para añadir el acceso directo al teléfono:\\n\\nToca los 3 puntos del navegador\\n→ Añadir a pantalla de inicio',
       free: "FREE:",
       analyses: "análisis",
       access: "Acceso:",
@@ -962,6 +1032,10 @@ const UI = {
       summary: "Qué comunica la institución",
       risks: "Riesgos de comunicación",
       examples: "Ejemplos de respuesta",
+      examplesUser: 'Ejemplos de respuesta (tu idioma)',
+      examplesDoc: 'Ejemplos de respuesta (idioma del documento)',
+      copyExDoc: 'Copiar respuesta para enviar',
+      examplesDocEmpty: 'Después del análisis aparecerá aquí la versión de respuesta en el idioma del documento.',
       payTitle: "Acceso sin suscripción",
       payDesc: "Tienes 3 análisis FREE para probar. Después eliges un acceso temporal.",
       p24meta: "Para una carta urgente",
@@ -974,7 +1048,7 @@ const UI = {
       srcAuto: "Idioma del documento: AUTO",
       clear: "Borrar",
       copyTr: "Copiar traducción",
-      copyEx: "Copiar respuestas"
+      copyEx: 'Copiar respuestas (mi idioma)'
     },
     PT: {
       title: "Sense Bridge",
@@ -987,6 +1061,8 @@ const UI = {
       placeholder: "Cole o texto da carta ou do e-mail…",
       btnAnalyze: "Analisar carta",
       userLang: "O seu idioma",
+      installApp: '📲 Adicionar atalho ao telefone',
+      installHelp: 'Para adicionar o atalho ao telefone:\\n\\nToque nos 3 pontos do navegador\\n→ Adicionar ao ecrã inicial',
       free: "FREE:",
       analyses: "análises",
       access: "Acesso:",
@@ -996,6 +1072,10 @@ const UI = {
       summary: "O que a entidade comunica",
       risks: "Riscos de comunicação",
       examples: "Exemplos de respostas",
+      examplesUser: 'Exemplos de respostas (o seu idioma)',
+      examplesDoc: 'Exemplos de respostas (idioma do documento)',
+      copyExDoc: 'Copiar resposta para enviar',
+      examplesDocEmpty: 'Após a análise, aparecerá aqui a versão da resposta no idioma do documento.',
       payTitle: "Acesso sem subscrição",
       payDesc: "Tem 3 análises FREE para testar. Depois escolhe um acesso temporário.",
       p24meta: "Para uma carta urgente",
@@ -1008,7 +1088,7 @@ const UI = {
       srcAuto: "Idioma do documento: AUTO",
       clear: "Limpar",
       copyTr: "Copiar tradução",
-      copyEx: "Copiar respostas"
+      copyEx: 'Copiar respostas (meu idioma)'
     }
   }
 };
@@ -1030,6 +1110,9 @@ function applyUiLang(){
 
   document.getElementById("hTitle").textContent = t.title;
   document.getElementById("hDesc").textContent = t.desc;
+
+  const installBtn = document.getElementById("installAppBtn");
+  if(installBtn) installBtn.textContent = t.installApp;
 
   document.getElementById("lblPaste").textContent = t.paste;
   document.getElementById("inputText").placeholder = t.placeholder;
@@ -1063,7 +1146,8 @@ function applyUiLang(){
   document.getElementById("lblTranslation").textContent = t.translation;
   document.getElementById("lblSummary").textContent = t.summary;
   document.getElementById("lblRisks").textContent = t.risks;
-  document.getElementById("lblExamples").textContent = t.examples;
+  document.getElementById("lblExamples").textContent = t.examplesUser || t.examples;
+  document.getElementById("lblExamplesDoc").textContent = t.examplesDoc;
 
   document.getElementById("payTitle").textContent = t.payTitle;
   document.getElementById("payDesc").textContent = t.payDesc;
@@ -1084,11 +1168,12 @@ function applyUiLang(){
     b.classList.toggle("active", b.getAttribute("data-ui") === UI.lang);
   });
 
-  const toolButtons = document.querySelectorAll(".tool-btn");
+  const toolButtons = document.querySelectorAll(".tools .tool-btn");
   if(toolButtons.length >= 3){
     toolButtons[0].textContent = t.clear;
     toolButtons[1].textContent = t.copyTr;
     toolButtons[2].textContent = t.copyEx;
+    if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
   }
 }
 
@@ -1115,6 +1200,12 @@ async function checkAccessServer(email){
 
 function clearInput(){
   document.getElementById("inputText").value = "";
+  ["translation","summary","examples","examplesDoc"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = "";
+  });
+  const risks = document.getElementById("risks");
+  if(risks) risks.innerHTML = "";
 }
 async function copyText(id){
   const el = document.getElementById(id);
@@ -1319,6 +1410,23 @@ async function analyze(){
     if(ex.firm)    parts.push("STANOWCZO:\n" + ex.firm);
     document.getElementById("examples").textContent = parts.join("\n\n");
 
+    const exDoc = data.examplesDoc || data.documentExamples || data.examples_document || data.repliesDocument || data.replies_document || {};
+    let docText = "";
+    if(typeof exDoc === "string"){
+      docText = exDoc.trim();
+    } else {
+      const docParts = [];
+      if(exDoc.neutral) docParts.push("NEUTRAL:\n" + exDoc.neutral);
+      if(exDoc.polite)  docParts.push("POLITE:\n" + exDoc.polite);
+      if(exDoc.firm)    docParts.push("FIRM:\n" + exDoc.firm);
+      docText = docParts.join("\n\n").trim();
+    }
+
+    const examplesDocEl = document.getElementById("examplesDoc");
+    if(examplesDocEl){
+      examplesDocEl.textContent = docText || (UI.dict[UI.lang]?.examplesDocEmpty || "");
+    }
+
     let translation = (data.translation || data.translatedText || data.translated || "").trim();
 
     if(!translation){
@@ -1490,6 +1598,27 @@ async function analyze(){
     }
   });
 })();
+
+// INSTALL APP (PWA)
+let deferredPrompt = null;
+
+window.addEventListener("beforeinstallprompt", function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function() {
+      deferredPrompt = null;
+    });
+  } else {
+    const t = UI.dict[UI.lang] || UI.dict.PL;
+    alert(t.installHelp || UI.dict.PL.installHelp);
+  }
+}
+
 </script>
 
 </body>
