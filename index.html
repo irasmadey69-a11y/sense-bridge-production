@@ -387,6 +387,29 @@
       }
     }
 
+
+    .ui-switch{
+      max-width:100%;
+    }
+    @media (max-width:640px){
+      .ui-switch{
+        gap:7px;
+      }
+      .ui-btn{
+        padding:8px 10px;
+        min-width:48px;
+      }
+    }
+
+
+    .analyze-status{
+      margin-top:10px;
+      font-size:14px;
+      font-weight:650;
+      color:#0e2a47;
+      min-height:22px;
+    }
+
   </style>
 </head>
 
@@ -405,6 +428,10 @@
         <button class="ui-btn" type="button" data-ui="NL" onclick="setUiLang('NL')">NL</button>
         <button class="ui-btn" type="button" data-ui="EN" onclick="setUiLang('EN')">EN</button>
         <button class="ui-btn" type="button" data-ui="DE" onclick="setUiLang('DE')">DE</button>
+        <button class="ui-btn" type="button" data-ui="FR" onclick="setUiLang('FR')">FR</button>
+        <button class="ui-btn" type="button" data-ui="IT" onclick="setUiLang('IT')">IT</button>
+        <button class="ui-btn" type="button" data-ui="ES" onclick="setUiLang('ES')">ES</button>
+        <button class="ui-btn" type="button" data-ui="PT" onclick="setUiLang('PT')">PT</button>
       </div>
     </div>
 
@@ -435,24 +462,37 @@
 
     <div class="row" style="margin-top:8px">
       <select id="sourceLang" aria-label="Język dokumentu">
+        
         <option value="AUTO">Język dokumentu: AUTO</option>
-        <option value="NL">🇳🇱 Nederlands</option>
-        <option value="DE">🇩🇪 Deutsch</option>
-        <option value="EN">🇬🇧 English</option>
         <option value="PL">🇵🇱 Polski</option>
+        <option value="NL">🇳🇱 Nederlands</option>
+        <option value="EN">🇬🇧 English</option>
+        <option value="DE">🇩🇪 Deutsch</option>
+        <option value="FR">🇫🇷 Français</option>
+        <option value="IT">🇮🇹 Italiano</option>
+        <option value="ES">🇪🇸 Español</option>
+        <option value="PT">🇵🇹 Português</option>
+      
       </select>
 
       <div>
         <div id="lblUserLang" class="section-title">Twój język</div>
         <select id="userLang" aria-label="Twój język">
-          <option value="PL">🇵🇱 Polski</option>
-          <option value="NL">🇳🇱 Nederlands</option>
-          <option value="EN">🇬🇧 English</option>
-          <option value="DE">🇩🇪 Deutsch</option>
+          
+        <option value="PL">🇵🇱 Polski</option>
+        <option value="NL">🇳🇱 Nederlands</option>
+        <option value="EN">🇬🇧 English</option>
+        <option value="DE">🇩🇪 Deutsch</option>
+        <option value="FR">🇫🇷 Français</option>
+        <option value="IT">🇮🇹 Italiano</option>
+        <option value="ES">🇪🇸 Español</option>
+        <option value="PT">🇵🇹 Português</option>
+      
         </select>
       </div>
 
       <button id="btnAnalyze" class="primary grow" onclick="analyze()">Analizuj pismo</button>
+      <div id="analyzeStatus" class="analyze-status"></div>
     </div>
 
     <div class="tools">
@@ -706,16 +746,9 @@ const UI = {
       choosePhoto: "Wybierz zdjęcie",
       noPhoto: "Nie wybrano zdjęcia",
       readPhoto: "Wczytaj tekst ze zdjęcia",
-      statusChoosePhoto: "Najpierw wybierz zdjęcie pisma.",
-      statusNoTextarea: "Nie znaleziono pola tekstowego na pismo.",
-      statusChooseImage: "Wybierz plik obrazu, np. JPG lub PNG.",
-      statusTooBig: "Zdjęcie jest za duże. Maksymalnie",
-      statusReading: "Czytam tekst ze zdjęcia...",
-      statusInserted: "Tekst ze zdjęcia został wstawiony. Możesz kliknąć „Analizuj pismo”.",
-      statusError: "Błąd:",
-      userLang: "Twój język",
       placeholder: "Wklej treść pisma lub e-maila z urzędu…",
       btnAnalyze: "Analizuj pismo",
+      userLang: "Twój język",
       free: "FREE:",
       analyses: "analizy",
       access: "Dostęp:",
@@ -737,9 +770,7 @@ const UI = {
       srcAuto: "Język dokumentu: AUTO",
       clear: "Wyczyść",
       copyTr: "Kopiuj tłumaczenie",
-      copyEx: "Kopiuj odpowiedzi",
-      emptyCopy: "Brak treści do skopiowania.",
-      emptyText: "Wklej treść pisma."
+      copyEx: "Kopiuj odpowiedzi"
     },
     NL: {
       title: "Sense Bridge",
@@ -749,16 +780,9 @@ const UI = {
       choosePhoto: "Kies foto",
       noPhoto: "Geen foto gekozen",
       readPhoto: "Tekst uit foto lezen",
-      statusChoosePhoto: "Kies eerst een foto van de brief.",
-      statusNoTextarea: "Tekstveld voor de brief niet gevonden.",
-      statusChooseImage: "Kies een afbeeldingsbestand, bijvoorbeeld JPG of PNG.",
-      statusTooBig: "De foto is te groot. Maximaal",
-      statusReading: "Ik lees de tekst uit de foto...",
-      statusInserted: "De tekst uit de foto is ingevoegd. Je kunt nu op ‘Analyseer brief’ klikken.",
-      statusError: "Fout:",
-      userLang: "Jouw taal",
       placeholder: "Plak de tekst van de brief of e-mail…",
       btnAnalyze: "Analyseer brief",
+      userLang: "Jouw taal",
       free: "FREE:",
       analyses: "analyses",
       access: "Toegang:",
@@ -780,9 +804,7 @@ const UI = {
       srcAuto: "Taal document: AUTO",
       clear: "Wissen",
       copyTr: "Kopieer vertaling",
-      copyEx: "Kopieer antwoorden",
-      emptyCopy: "Geen tekst om te kopiëren.",
-      emptyText: "Plak de tekst van de brief."
+      copyEx: "Kopieer antwoorden"
     },
     EN: {
       title: "Sense Bridge",
@@ -792,16 +814,9 @@ const UI = {
       choosePhoto: "Choose photo",
       noPhoto: "No photo selected",
       readPhoto: "Read text from photo",
-      statusChoosePhoto: "Choose a letter photo first.",
-      statusNoTextarea: "Letter text field not found.",
-      statusChooseImage: "Choose an image file, for example JPG or PNG.",
-      statusTooBig: "The photo is too large. Maximum",
-      statusReading: "Reading text from photo...",
-      statusInserted: "Text from the photo was inserted. You can click ‘Analyze letter’.",
-      statusError: "Error:",
-      userLang: "Your language",
       placeholder: "Paste the content of the letter or email…",
       btnAnalyze: "Analyze letter",
+      userLang: "Your language",
       free: "FREE:",
       analyses: "analyses",
       access: "Access:",
@@ -823,9 +838,7 @@ const UI = {
       srcAuto: "Document language: AUTO",
       clear: "Clear",
       copyTr: "Copy translation",
-      copyEx: "Copy replies",
-      emptyCopy: "No text to copy.",
-      emptyText: "Paste the letter text."
+      copyEx: "Copy replies"
     },
     DE: {
       title: "Sense Bridge",
@@ -835,16 +848,9 @@ const UI = {
       choosePhoto: "Foto wählen",
       noPhoto: "Kein Foto ausgewählt",
       readPhoto: "Text aus Foto lesen",
-      statusChoosePhoto: "Wähle zuerst ein Foto des Schreibens.",
-      statusNoTextarea: "Textfeld für das Schreiben nicht gefunden.",
-      statusChooseImage: "Wähle eine Bilddatei, z. B. JPG oder PNG.",
-      statusTooBig: "Das Foto ist zu groß. Maximal",
-      statusReading: "Ich lese den Text aus dem Foto...",
-      statusInserted: "Der Text aus dem Foto wurde eingefügt. Du kannst auf ‘Schreiben analysieren’ klicken.",
-      statusError: "Fehler:",
-      userLang: "Deine Sprache",
       placeholder: "Füge den Text des Schreibens oder der E-Mail ein…",
       btnAnalyze: "Schreiben analysieren",
+      userLang: "Deine Sprache",
       free: "FREE:",
       analyses: "Analysen",
       access: "Zugang:",
@@ -866,9 +872,143 @@ const UI = {
       srcAuto: "Dokumentsprache: AUTO",
       clear: "Leeren",
       copyTr: "Übersetzung kopieren",
-      copyEx: "Antworten kopieren",
-      emptyCopy: "Kein Text zum Kopieren.",
-      emptyText: "Füge den Text des Schreibens ein."
+      copyEx: "Antworten kopieren"
+    },
+    FR: {
+      title: "Sense Bridge",
+      desc: "Aide à comprendre les courriers officiels. Sans conseil. Sans pression.",
+      paste: "Coller le courrier",
+      photoTitle: "Photo du courrier",
+      choosePhoto: "Choisir une photo",
+      noPhoto: "Aucune photo sélectionnée",
+      readPhoto: "Lire le texte de la photo",
+      placeholder: "Collez le texte du courrier ou de l’e-mail…",
+      btnAnalyze: "Analyser le courrier",
+      userLang: "Votre langue",
+      free: "FREE:",
+      analyses: "analyses",
+      access: "Accès:",
+      reset: "Réinitialisation test",
+      lock: "Votre limite FREE est utilisée. Choisissez un accès ci-dessous pour continuer.",
+      translation: "Traduction",
+      summary: "Ce que l’organisme communique",
+      risks: "Risques de communication",
+      examples: "Exemples de réponses",
+      payTitle: "Accès sans abonnement",
+      payDesc: "Vous avez 3 analyses FREE pour tester. Ensuite, choisissez un accès temporaire.",
+      p24meta: "Pour un courrier urgent",
+      p7meta: "Pour plusieurs messages",
+      p30meta: "Tranquillité pendant un mois",
+      best: "Meilleure valeur",
+      fine1: "Sense Bridge ne donne pas de conseils juridiques. Il aide à comprendre le sens, le ton et les risques afin que vous puissiez décider vous-même.",
+      fine2: "Nous vendons de la tranquillité et de la compréhension, pas de l’« IA ».",
+      hintUI: "« UI » signifie simplement la langue de la page (boutons et textes) — cela ne change pas l’analyse.",
+      srcAuto: "Langue du document: AUTO",
+      clear: "Effacer",
+      copyTr: "Copier la traduction",
+      copyEx: "Copier les réponses"
+    },
+    IT: {
+      title: "Sense Bridge",
+      desc: "Aiuta a capire le lettere ufficiali. Nessun consiglio. Nessuna pressione.",
+      paste: "Incolla la lettera",
+      photoTitle: "Foto della lettera",
+      choosePhoto: "Scegli foto",
+      noPhoto: "Nessuna foto selezionata",
+      readPhoto: "Leggi testo dalla foto",
+      placeholder: "Incolla il testo della lettera o dell’e-mail…",
+      btnAnalyze: "Analizza lettera",
+      userLang: "La tua lingua",
+      free: "FREE:",
+      analyses: "analisi",
+      access: "Accesso:",
+      reset: "Reset test",
+      lock: "Il tuo limite FREE è stato usato. Scegli un accesso qui sotto per continuare.",
+      translation: "Traduzione",
+      summary: "Cosa comunica l’ente",
+      risks: "Rischi comunicativi",
+      examples: "Esempi di risposte",
+      payTitle: "Accesso senza abbonamento",
+      payDesc: "Hai 3 analisi FREE per provare. Poi scegli un accesso temporaneo.",
+      p24meta: "Per una lettera urgente",
+      p7meta: "Per una serie di messaggi",
+      p30meta: "Tranquillità per tutto il mese",
+      best: "Miglior valore",
+      fine1: "Sense Bridge non fornisce consulenza legale. Aiuta a capire significato, tono e rischi, così puoi decidere tu.",
+      fine2: "Vendiamo tranquillità e comprensione, non ‘AI’.",
+      hintUI: "‘UI’ è semplicemente la lingua della pagina (pulsanti e testi) — non cambia l’analisi.",
+      srcAuto: "Lingua del documento: AUTO",
+      clear: "Cancella",
+      copyTr: "Copia traduzione",
+      copyEx: "Copia risposte"
+    },
+    ES: {
+      title: "Sense Bridge",
+      desc: "Ayuda a entender cartas oficiales. Sin asesoramiento. Sin presión.",
+      paste: "Pegar la carta",
+      photoTitle: "Foto de la carta",
+      choosePhoto: "Elegir foto",
+      noPhoto: "No se ha seleccionado foto",
+      readPhoto: "Leer texto de la foto",
+      placeholder: "Pega el texto de la carta o del correo…",
+      btnAnalyze: "Analizar carta",
+      userLang: "Tu idioma",
+      free: "FREE:",
+      analyses: "análisis",
+      access: "Acceso:",
+      reset: "Reinicio de prueba",
+      lock: "Has usado tu límite FREE. Elige un acceso abajo para continuar.",
+      translation: "Traducción",
+      summary: "Qué comunica la institución",
+      risks: "Riesgos de comunicación",
+      examples: "Ejemplos de respuesta",
+      payTitle: "Acceso sin suscripción",
+      payDesc: "Tienes 3 análisis FREE para probar. Después eliges un acceso temporal.",
+      p24meta: "Para una carta urgente",
+      p7meta: "Para varios mensajes",
+      p30meta: "Tranquilidad durante todo el mes",
+      best: "Mejor valor",
+      fine1: "Sense Bridge no ofrece asesoramiento legal. Ayuda a entender el significado, el tono y los riesgos para que puedas decidir por ti mismo.",
+      fine2: "Vendemos tranquilidad y comprensión, no ‘IA’.",
+      hintUI: "‘UI’ es simplemente el idioma de la página (botones y textos) — no cambia el análisis.",
+      srcAuto: "Idioma del documento: AUTO",
+      clear: "Borrar",
+      copyTr: "Copiar traducción",
+      copyEx: "Copiar respuestas"
+    },
+    PT: {
+      title: "Sense Bridge",
+      desc: "Ajuda a entender cartas oficiais. Sem aconselhamento. Sem pressão.",
+      paste: "Colar a carta",
+      photoTitle: "Foto da carta",
+      choosePhoto: "Escolher foto",
+      noPhoto: "Nenhuma foto selecionada",
+      readPhoto: "Ler texto da foto",
+      placeholder: "Cole o texto da carta ou do e-mail…",
+      btnAnalyze: "Analisar carta",
+      userLang: "O seu idioma",
+      free: "FREE:",
+      analyses: "análises",
+      access: "Acesso:",
+      reset: "Reset de teste",
+      lock: "O seu limite FREE foi usado. Escolha um acesso abaixo para continuar.",
+      translation: "Tradução",
+      summary: "O que a entidade comunica",
+      risks: "Riscos de comunicação",
+      examples: "Exemplos de respostas",
+      payTitle: "Acesso sem subscrição",
+      payDesc: "Tem 3 análises FREE para testar. Depois escolhe um acesso temporário.",
+      p24meta: "Para uma carta urgente",
+      p7meta: "Para uma série de mensagens",
+      p30meta: "Tranquilidade por todo o mês",
+      best: "Melhor valor",
+      fine1: "Sense Bridge não fornece aconselhamento jurídico. Ajuda a entender o significado, o tom e os riscos para que possa decidir por si.",
+      fine2: "Vendemos tranquilidade e compreensão, não ‘IA’.",
+      hintUI: "‘UI’ é simplesmente o idioma da página (botões e textos) — isso não altera a análise.",
+      srcAuto: "Idioma do documento: AUTO",
+      clear: "Limpar",
+      copyTr: "Copiar tradução",
+      copyEx: "Copiar respostas"
     }
   }
 };
@@ -1135,7 +1275,9 @@ async function analyze(){
   if (!checkPaywall()) return;
 
   const btn = document.getElementById("btnAnalyze");
+  const statusEl = document.getElementById("analyzeStatus");
   btn.disabled = true;
+  if(statusEl){ statusEl.textContent = "⏳ Analizuję pismo..."; }
 
   try{
     const text = (document.getElementById("inputText").value || "").trim();
@@ -1198,11 +1340,16 @@ async function analyze(){
     refreshUI();
     updatePaidMessage();
 
+    if(statusEl){ statusEl.textContent = "✅ Gotowe – sprawdź poniżej"; }
     document.getElementById("translation").scrollIntoView({behavior:"smooth"});
   } catch (e){
+    if(statusEl){ statusEl.textContent = "❌ Błąd analizy"; }
     alert("Błąd: " + (e?.message || e));
   } finally {
     btn.disabled = false;
+    setTimeout(() => {
+      if(statusEl) statusEl.textContent = "";
+    }, 3000);
   }
 }
 
