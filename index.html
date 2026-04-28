@@ -13,15 +13,15 @@
 
   <style>
     :root{
-      --bg:#f6f7f9;
+      --bg:#f3f5f7;
       --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --primary:#4f8f7a;
-      --primary-hover:#447d6a;
+      --text:#172033;
+      --muted:#687385;
+      --primary:#3f8a72;
+      --primary-hover:#2f6f5c;
       --warn:#fef3c7;
       --warn-text:#92400e;
-      --border:#e5e7eb;
+      --border:rgba(63,138,114,0.28);
       --ok:#5fb3a2;
       --ok-hover:#4aa091;
       --danger:#ef4444;
@@ -37,39 +37,59 @@
     main{
       max-width:900px;
       margin:0 auto;
-      padding:24px 16px 64px;
+      padding:28px 16px 72px;
     }
     h1,h2,h3{margin:0 0 8px}
     p{margin:0 0 12px;color:var(--muted)}
     .card{
       background:var(--card);
-      border-radius:14px;
+      border-radius:18px;
       border:1px solid var(--border);
-      padding:16px;
-      margin-bottom:16px;
+      padding:18px;
+      margin-bottom:18px;
+      box-shadow:0 8px 24px rgba(15,23,42,0.045);
     }
     textarea{
       width:100%;
-      min-height:160px;
-      padding:12px;
-      border-radius:10px;
+      min-height:170px;
+      padding:14px;
+      border-radius:14px;
       border:1px solid var(--border);
       font-size:15px;
       resize:vertical;
+      background:#fff;
+      transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    textarea:focus{
+      outline:none;
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(63,138,114,0.16);
+      background:#ffffff;
     }
     select,button{
-      padding:10px 14px;
-      border-radius:10px;
+      padding:11px 15px;
+      border-radius:12px;
       border:1px solid var(--border);
       font-size:14px;
+      transition:border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .12s ease;
+    }
+    select:focus,button:focus{
+      outline:none;
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(63,138,114,0.14);
     }
     button.primary{
-      background:var(--primary);
+      background:linear-gradient(135deg,var(--primary),#58a58d);
       color:#fff;
       border:none;
       cursor:pointer;
+      font-weight:650;
+      box-shadow:0 8px 18px rgba(63,138,114,0.22);
     }
-    button.primary:hover{background:var(--primary-hover)}
+    button.primary:hover{
+      background:linear-gradient(135deg,var(--primary-hover),var(--primary));
+      transform:translateY(-1px);
+    }
     button.primary:disabled{
       background:#93c5fd;
       cursor:not-allowed;
@@ -78,8 +98,9 @@
     .grow{flex:1}
     .section-title{
       font-size:15px;
-      font-weight:600;
-      margin-bottom:6px;
+      font-weight:750;
+      margin-bottom:8px;
+      letter-spacing:-0.01em;
     }
     .box-warn{
       background:var(--warn);
@@ -118,10 +139,11 @@
       border:1px solid var(--border);
       background:#fff;
       cursor:pointer;
-      padding:8px 10px;
+      padding:8px 11px;
       border-radius:999px;
       font-size:13px;
       color:var(--muted);
+      box-shadow:0 3px 10px rgba(15,23,42,0.035);
     }
     .ui-btn.active{
       border-color:var(--primary);
@@ -229,8 +251,8 @@
       background:#fff;
       border:1px solid var(--border);
       cursor:pointer;
-      border-radius:10px;
-      padding:8px 10px;
+      border-radius:12px;
+      padding:9px 12px;
       font-size:13px;
       color:var(--muted);
     }
@@ -240,13 +262,138 @@
       color:var(--muted);
       margin-top:8px;
     }
+    .photo-box{
+      margin:8px 0 12px;
+    }
+    .photo-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+      margin-bottom:8px;
+    }
+    #sbPhotoFileName{
+      display:inline-block;
+      font-size:13px;
+      color:var(--muted);
+      word-break:break-word;
+    }
+    #lblUserLang{
+      margin-top:8px;
+      margin-bottom:4px;
+    }
+
+    /* =========================================================
+       PRO V2 visual polish
+       ========================================================= */
+    .top-card{
+      border:1px solid rgba(63,138,114,0.34);
+      border-top:6px solid var(--primary);
+      background:
+        radial-gradient(circle at top right, rgba(63,138,114,0.12), transparent 34%),
+        #ffffff;
+    }
+    .top-card h1{
+      color:#122033;
+      font-size:clamp(38px, 9vw, 58px);
+      line-height:1.02;
+    }
+    .top-card p{
+      font-size:clamp(18px, 4.6vw, 26px);
+      color:#5f6b7a;
+      max-width:720px;
+    }
+    .card{
+      border-color:rgba(63,138,114,0.24);
+    }
+    .card:hover{
+      border-color:rgba(63,138,114,0.34);
+    }
+    .photo-box{
+      border-color:rgba(63,138,114,0.30);
+      background:
+        linear-gradient(180deg, rgba(63,138,114,0.045), rgba(255,255,255,0.96));
+    }
+    textarea{
+      border-color:rgba(63,138,114,0.28);
+    }
+    select{
+      border-color:rgba(63,138,114,0.28);
+    }
+    #sourceLang,
+    #userLang{
+      width:100%;
+      max-width:520px;
+    }
+    #lblUserLang{
+      margin-top:14px;
+    }
+    #btnAnalyze{
+      width:100%;
+      max-width:520px;
+      margin-top:4px;
+      min-height:56px;
+      font-size:16px;
+      background:linear-gradient(135deg,#0e2a47,#17476f);
+      box-shadow:0 10px 22px rgba(14,42,71,0.24);
+    }
+    #btnAnalyze:hover{
+      background:linear-gradient(135deg,#0b2239,#123f63);
+    }
+    #sbChoosePhotoBtn,
+    #sbReadPhotoBtn{
+      background:linear-gradient(135deg,var(--primary),#58a58d);
+      color:#ffffff;
+      border:none;
+      box-shadow:0 7px 16px rgba(63,138,114,0.18);
+    }
+    #sbChoosePhotoBtn:hover,
+    #sbReadPhotoBtn:hover{
+      background:linear-gradient(135deg,var(--primary-hover),var(--primary));
+    }
+    .tool-btn{
+      border-color:rgba(63,138,114,0.22);
+      background:#ffffff;
+    }
+    .chip{
+      border-color:rgba(63,138,114,0.24);
+    }
+    @media (max-width:640px){
+      main{
+        padding:18px 14px 70px;
+      }
+      .card{
+        padding:16px;
+        border-radius:20px;
+      }
+      .row{
+        display:block;
+      }
+      .row select,
+      .row button{
+        display:block;
+        width:100%;
+        margin-bottom:10px;
+      }
+      #btnAnalyze{
+        margin-top:12px;
+      }
+      .tools{
+        margin-top:12px;
+      }
+      .tool-btn{
+        width:auto;
+      }
+    }
+
   </style>
 </head>
 
 <body>
 <main>
 
-  <div class="card">
+  <div class="card top-card">
     <div class="topbar">
       <div>
         <h1 id="hTitle">Sense Bridge</h1>
@@ -268,30 +415,42 @@
 
   <div class="card">
     <div class="section-title" id="lblPaste">Wklej pismo</div>
+
     <div class="photo-box">
-  <label for="sbPhotoInput"><strong>Zdjęcie pisma</strong></label>
-  <input id="sbPhotoInput" type="file" accept="image/*" />
-  <button id="sbReadPhotoBtn" type="button">Wczytaj tekst ze zdjęcia</button>
-  <div id="sbPhotoStatus" style="font-size:13px; opacity:.8; margin-top:6px;"></div>
+      <label id="lblPhotoTitle" for="sbPhotoInput"><strong>Zdjęcie pisma</strong></label>
+
+      <input id="sbPhotoInput" type="file" accept="image/*" style="display:none;" />
+
+      <div class="photo-actions">
+        <button id="sbChoosePhotoBtn" type="button">Wybierz zdjęcie</button>
+        <span id="sbPhotoFileName">Nie wybrano zdjęcia</span>
+      </div>
+
+      <button id="sbReadPhotoBtn" type="button">Wczytaj tekst ze zdjęcia</button>
+
+      <div id="sbPhotoStatus" style="font-size:13px; opacity:.8; margin-top:6px;"></div>
     </div>
-    
+
     <textarea id="inputText" placeholder="Wklej treść pisma lub e-maila z urzędu…"></textarea>
 
     <div class="row" style="margin-top:8px">
       <select id="sourceLang" aria-label="Język dokumentu">
         <option value="AUTO">Język dokumentu: AUTO</option>
-        <option value="NL">NL</option>
-        <option value="DE">DE</option>
-        <option value="EN">EN</option>
-        <option value="PL">PL</option>
+        <option value="NL">🇳🇱 Nederlands</option>
+        <option value="DE">🇩🇪 Deutsch</option>
+        <option value="EN">🇬🇧 English</option>
+        <option value="PL">🇵🇱 Polski</option>
       </select>
 
-      <select id="userLang" aria-label="Twój język">
-        <option value="PL">Twój język: PL</option>
-        <option value="DE">DE</option>
-        <option value="NL">NL</option>
-        <option value="EN">EN</option>
-      </select>
+      <div>
+        <div id="lblUserLang" class="section-title">Twój język</div>
+        <select id="userLang" aria-label="Twój język">
+          <option value="PL">🇵🇱 Polski</option>
+          <option value="NL">🇳🇱 Nederlands</option>
+          <option value="EN">🇬🇧 English</option>
+          <option value="DE">🇩🇪 Deutsch</option>
+        </select>
+      </div>
 
       <button id="btnAnalyze" class="primary grow" onclick="analyze()">Analizuj pismo</button>
     </div>
@@ -543,6 +702,18 @@ const UI = {
       title: "Sense Bridge",
       desc: "Pomaga zrozumieć pisma urzędowe. Bez porad. Bez presji.",
       paste: "Wklej pismo",
+      photoTitle: "Zdjęcie pisma",
+      choosePhoto: "Wybierz zdjęcie",
+      noPhoto: "Nie wybrano zdjęcia",
+      readPhoto: "Wczytaj tekst ze zdjęcia",
+      statusChoosePhoto: "Najpierw wybierz zdjęcie pisma.",
+      statusNoTextarea: "Nie znaleziono pola tekstowego na pismo.",
+      statusChooseImage: "Wybierz plik obrazu, np. JPG lub PNG.",
+      statusTooBig: "Zdjęcie jest za duże. Maksymalnie",
+      statusReading: "Czytam tekst ze zdjęcia...",
+      statusInserted: "Tekst ze zdjęcia został wstawiony. Możesz kliknąć „Analizuj pismo”.",
+      statusError: "Błąd:",
+      userLang: "Twój język",
       placeholder: "Wklej treść pisma lub e-maila z urzędu…",
       btnAnalyze: "Analizuj pismo",
       free: "FREE:",
@@ -566,12 +737,26 @@ const UI = {
       srcAuto: "Język dokumentu: AUTO",
       clear: "Wyczyść",
       copyTr: "Kopiuj tłumaczenie",
-      copyEx: "Kopiuj odpowiedzi"
+      copyEx: "Kopiuj odpowiedzi",
+      emptyCopy: "Brak treści do skopiowania.",
+      emptyText: "Wklej treść pisma."
     },
     NL: {
       title: "Sense Bridge",
       desc: "Helpt officiële brieven begrijpen. Geen advies. Geen druk.",
       paste: "Plak de brief",
+      photoTitle: "Foto van de brief",
+      choosePhoto: "Kies foto",
+      noPhoto: "Geen foto gekozen",
+      readPhoto: "Tekst uit foto lezen",
+      statusChoosePhoto: "Kies eerst een foto van de brief.",
+      statusNoTextarea: "Tekstveld voor de brief niet gevonden.",
+      statusChooseImage: "Kies een afbeeldingsbestand, bijvoorbeeld JPG of PNG.",
+      statusTooBig: "De foto is te groot. Maximaal",
+      statusReading: "Ik lees de tekst uit de foto...",
+      statusInserted: "De tekst uit de foto is ingevoegd. Je kunt nu op ‘Analyseer brief’ klikken.",
+      statusError: "Fout:",
+      userLang: "Jouw taal",
       placeholder: "Plak de tekst van de brief of e-mail…",
       btnAnalyze: "Analyseer brief",
       free: "FREE:",
@@ -595,12 +780,26 @@ const UI = {
       srcAuto: "Taal document: AUTO",
       clear: "Wissen",
       copyTr: "Kopieer vertaling",
-      copyEx: "Kopieer antwoorden"
+      copyEx: "Kopieer antwoorden",
+      emptyCopy: "Geen tekst om te kopiëren.",
+      emptyText: "Plak de tekst van de brief."
     },
     EN: {
       title: "Sense Bridge",
       desc: "Helps you understand official letters. No advice. No pressure.",
       paste: "Paste the letter",
+      photoTitle: "Letter photo",
+      choosePhoto: "Choose photo",
+      noPhoto: "No photo selected",
+      readPhoto: "Read text from photo",
+      statusChoosePhoto: "Choose a letter photo first.",
+      statusNoTextarea: "Letter text field not found.",
+      statusChooseImage: "Choose an image file, for example JPG or PNG.",
+      statusTooBig: "The photo is too large. Maximum",
+      statusReading: "Reading text from photo...",
+      statusInserted: "Text from the photo was inserted. You can click ‘Analyze letter’.",
+      statusError: "Error:",
+      userLang: "Your language",
       placeholder: "Paste the content of the letter or email…",
       btnAnalyze: "Analyze letter",
       free: "FREE:",
@@ -624,12 +823,26 @@ const UI = {
       srcAuto: "Document language: AUTO",
       clear: "Clear",
       copyTr: "Copy translation",
-      copyEx: "Copy replies"
+      copyEx: "Copy replies",
+      emptyCopy: "No text to copy.",
+      emptyText: "Paste the letter text."
     },
     DE: {
       title: "Sense Bridge",
       desc: "Hilft, amtliche Schreiben zu verstehen. Keine Beratung. Kein Druck.",
       paste: "Schreiben einfügen",
+      photoTitle: "Foto des Schreibens",
+      choosePhoto: "Foto wählen",
+      noPhoto: "Kein Foto ausgewählt",
+      readPhoto: "Text aus Foto lesen",
+      statusChoosePhoto: "Wähle zuerst ein Foto des Schreibens.",
+      statusNoTextarea: "Textfeld für das Schreiben nicht gefunden.",
+      statusChooseImage: "Wähle eine Bilddatei, z. B. JPG oder PNG.",
+      statusTooBig: "Das Foto ist zu groß. Maximal",
+      statusReading: "Ich lese den Text aus dem Foto...",
+      statusInserted: "Der Text aus dem Foto wurde eingefügt. Du kannst auf ‘Schreiben analysieren’ klicken.",
+      statusError: "Fehler:",
+      userLang: "Deine Sprache",
       placeholder: "Füge den Text des Schreibens oder der E-Mail ein…",
       btnAnalyze: "Schreiben analysieren",
       free: "FREE:",
@@ -653,7 +866,9 @@ const UI = {
       srcAuto: "Dokumentsprache: AUTO",
       clear: "Leeren",
       copyTr: "Übersetzung kopieren",
-      copyEx: "Antworten kopieren"
+      copyEx: "Antworten kopieren",
+      emptyCopy: "Kein Text zum Kopieren.",
+      emptyText: "Füge den Text des Schreibens ein."
     }
   }
 };
@@ -679,6 +894,25 @@ function applyUiLang(){
   document.getElementById("lblPaste").textContent = t.paste;
   document.getElementById("inputText").placeholder = t.placeholder;
   document.getElementById("btnAnalyze").textContent = t.btnAnalyze;
+
+  document.getElementById("lblPhotoTitle").innerHTML = "<strong>" + t.photoTitle + "</strong>";
+  document.getElementById("sbChoosePhotoBtn").textContent = t.choosePhoto;
+  document.getElementById("sbReadPhotoBtn").textContent = t.readPhoto;
+
+  const fileNameEl = document.getElementById("sbPhotoFileName");
+  if (fileNameEl && !fileNameEl.dataset.hasFile) {
+    fileNameEl.textContent = t.noPhoto;
+  }
+
+  const userLangSelect = document.getElementById("userLang");
+  if (userLangSelect) {
+    userLangSelect.setAttribute("aria-label", t.userLang);
+  }
+
+  const lblUserLang = document.getElementById("lblUserLang");
+  if (lblUserLang) {
+    lblUserLang.textContent = t.userLang;
+  }
 
   document.getElementById("lblFree").textContent = t.free;
   document.getElementById("lblAnalyses").textContent = t.analyses;
@@ -721,7 +955,7 @@ function applyUiLang(){
 /* =========================================================
    HELPERS
    ========================================================= */
-  async function checkAccessServer(email){
+async function checkAccessServer(email){
   try{
     const res = await fetch("/.netlify/functions/access_check",{
       method:"POST",
@@ -737,8 +971,8 @@ function applyUiLang(){
   } catch(e){
     return null;
   }
-  }
-  
+}
+
 function clearInput(){
   document.getElementById("inputText").value = "";
 }
@@ -746,7 +980,7 @@ async function copyText(id){
   const el = document.getElementById(id);
   const txt = (el && (el.textContent || "")).trim();
   if(!txt){
-    alert("Brak treści do skopiowania.");
+    alert(UI.dict[UI.lang].emptyCopy || "Brak treści do skopiowania.");
     return;
   }
   try{
@@ -764,7 +998,7 @@ function safeArr(a){
   return Array.isArray(a) ? a : [];
 }
 
-  async function syncAccess(){
+async function syncAccess(){
   const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
   if(!email) return;
 
@@ -790,8 +1024,7 @@ function safeArr(a){
   } catch(e){
     console.log("sync error", e);
   }
-  }
-  
+}
 
 /* =========================================================
    PAY (manual payment + instant client access)
@@ -809,32 +1042,26 @@ function goPay(which){
 
   let planNum = "24";
 
-if(which === "24h"){
-  amount = "3 €";
-  planNum = "24";
-}
+  if(which === "24h"){
+    amount = "3 €";
+    planNum = "24";
+  }
 
-if(which === "7d"){
-  amount = "7 €";
-  planNum = "7";
-}
+  if(which === "7d"){
+    amount = "7 €";
+    planNum = "7";
+  }
 
-if(which === "30d"){
-  amount = "15 €";
-  planNum = "30";
-}
+  if(which === "30d"){
+    amount = "15 €";
+    planNum = "30";
+  }
 
-// losowy kod 4 cyfry
-const code = Math.floor(1000 + Math.random() * 9000);
+  const code = Math.floor(1000 + Math.random() * 9000);
+  const namePart = email.split("@")[0].slice(0,5);
+  title = "SB" + planNum + "-" + code + "-" + namePart;
 
-// fragment maila (przed @)
-const namePart = email.split("@")[0].slice(0,5);
-
-// finalny tytuł
-title = "SB" + planNum + "-" + code + "-" + namePart;
-
-// zapisz lokalnie
-localStorage.setItem("sb_payment_code", code);
+  localStorage.setItem("sb_payment_code", code);
 
   document.getElementById("amountText").textContent = amount;
   document.getElementById("transferTitle").textContent = title;
@@ -862,10 +1089,10 @@ async function confirmPaid(){
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-  email,
-  plan: currentPlan,
-  paymentTitle: document.getElementById("transferTitle").textContent.trim()
-})
+        email,
+        plan: currentPlan,
+        paymentTitle: document.getElementById("transferTitle").textContent.trim()
+      })
     });
 
     const data = await res.json();
@@ -903,7 +1130,7 @@ function checkPaywall(){
   }
   return true;
 }
-  
+
 async function analyze(){
   if (!checkPaywall()) return;
 
@@ -916,7 +1143,7 @@ async function analyze(){
     const userLang = document.getElementById("userLang").value;
 
     if(!text){
-      alert("Wklej treść pisma.");
+      alert(UI.dict[UI.lang].emptyText || "Wklej treść pisma.");
       return;
     }
 
@@ -991,8 +1218,16 @@ async function analyze(){
   updatePaidMessage();
   enableDevReset();
 })();
+
+/* =========================================================
+   PHOTO OCR
+   ========================================================= */
 (function () {
   const MAX_MB = 4;
+
+  function t() {
+    return UI.dict[UI.lang] || UI.dict.PL;
+  }
 
   function findTextArea() {
     return (
@@ -1024,30 +1259,30 @@ async function analyze(){
     const textarea = findTextArea();
 
     if (!input || !input.files || !input.files[0]) {
-      setStatus("Najpierw wybierz zdjęcie pisma.");
+      setStatus(t().statusChoosePhoto);
       return;
     }
 
     if (!textarea) {
-      setStatus("Nie znaleziono pola tekstowego na pismo.");
+      setStatus(t().statusNoTextarea);
       return;
     }
 
     const file = input.files[0];
 
     if (!file.type.startsWith("image/")) {
-      setStatus("Wybierz plik obrazu, np. JPG lub PNG.");
+      setStatus(t().statusChooseImage);
       return;
     }
 
     if (file.size > MAX_MB * 1024 * 1024) {
-      setStatus("Zdjęcie jest za duże. Maksymalnie " + MAX_MB + " MB.");
+      setStatus(t().statusTooBig + " " + MAX_MB + " MB.");
       return;
     }
 
     try {
       if (btn) btn.disabled = true;
-      setStatus("Czytam tekst ze zdjęcia...");
+      setStatus(t().statusReading);
 
       const imageDataUrl = await fileToDataUrl(file);
 
@@ -1057,26 +1292,55 @@ async function analyze(){
         body: JSON.stringify({ imageDataUrl })
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        const raw = await res.text();
+        throw new Error(raw || "OCR endpoint error");
+      }
 
       if (!data.ok) {
-        throw new Error(data.error || "Błąd OCR");
+        throw new Error(data.error || "OCR error");
       }
 
       textarea.value = data.text || "";
       textarea.dispatchEvent(new Event("input", { bubbles: true }));
 
-      setStatus("Tekst ze zdjęcia został wstawiony. Możesz kliknąć „Analizuj pismo”.");
+      setStatus(t().statusInserted);
     } catch (err) {
-      setStatus("Błąd: " + err.message);
+      setStatus(t().statusError + " " + err.message);
     } finally {
       if (btn) btn.disabled = false;
     }
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    const btn = document.getElementById("sbReadPhotoBtn");
-    if (btn) btn.addEventListener("click", readPhotoText);
+    const readBtn = document.getElementById("sbReadPhotoBtn");
+    const chooseBtn = document.getElementById("sbChoosePhotoBtn");
+    const input = document.getElementById("sbPhotoInput");
+    const fileName = document.getElementById("sbPhotoFileName");
+
+    if (readBtn) readBtn.addEventListener("click", readPhotoText);
+
+    if (chooseBtn && input) {
+      chooseBtn.addEventListener("click", function () {
+        input.click();
+      });
+    }
+
+    if (input && fileName) {
+      input.addEventListener("change", function () {
+        if (input.files && input.files[0]) {
+          fileName.textContent = input.files[0].name;
+          fileName.dataset.hasFile = "1";
+          setStatus("");
+        } else {
+          fileName.dataset.hasFile = "";
+          fileName.textContent = t().noPhoto;
+        }
+      });
+    }
   });
 })();
 </script>
