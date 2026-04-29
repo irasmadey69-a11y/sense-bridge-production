@@ -40,18 +40,7 @@ exports.handler = async (event) => {
       token: process.env.NETLIFY_AUTH_TOKEN
     });
 
-    const existingRaw = await store.get(email);
-
-    if (existingRaw) {
-      const existing = JSON.parse(existingRaw);
-
-      if (existing.status === "BLOCKED") {
-        return json(403, {
-          ok: false,
-          error: "Ten email jest zablokowany."
-        });
-      }
-    }
+    // Admin może aktywować także wcześniej zablokowany email.
 
     await store.set(email, JSON.stringify({
       email,
