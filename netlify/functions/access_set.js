@@ -9,11 +9,6 @@ exports.handler = async (event) => {
     }
 
     const body = JSON.parse(event.body || "{}");
-    const adminPin = String(body.adminPin || "");
-
-    if (adminPin !== process.env.ADMIN_PIN) {
-      return json(403, { ok: false, error: "Brak dostępu (PIN)" });
-    }
 
     const email = String(body.email || "").trim().toLowerCase();
     const plan = String(body.plan || "").trim();
@@ -40,8 +35,25 @@ exports.handler = async (event) => {
       token: process.env.NETLIFY_AUTH_TOKEN
     });
 
-    // Admin może aktywować także wcześniej zablokowany email.
+    // 🔐 sprawdzamy PIN tylko jeśli ktoś go poda
+    const adminPin = String(body.adminPin || "");
+    const isAdmin = adminPin && adminPin === process.env.ADMIN_PIN;
 
+    const existingRaw = await store.get(email);
+
+    if (existingRaw) {
+      const existing = JSON.parse(existingRaw);
+
+      // ❌ zablokowany user NIE może sam się aktywować
+      if (existing.status === "BLOCKED" && !isAdmin) {
+        return json(403, {
+          ok: false,
+          error: "Ten email jest zablokowany."
+        });
+      }
+    }
+
+    // ✅ zapis / nadpisanie użytkownika
     await store.set(email, JSON.stringify({
       email,
       plan,
@@ -51,6 +63,7 @@ exports.handler = async (event) => {
       expires
     }));
 
+    // 📩 mail do Ciebie (jeśli masz API)
     await sendNotificationEmail({
       email,
       plan,
