@@ -1314,6 +1314,15 @@ async function confirmPaid(){
     alert("Brak wybranego planu.");
     return;
   }
+  const accessCheck = await checkAccessServer(email);
+
+if (accessCheck && accessCheck.status === "BLOCKED") {
+  clearPass();
+  refreshUI();
+  updatePaidMessage();
+  alert("Ten email jest zablokowany.");
+  return;
+}
 
   try {
     const res = await fetch(ENDPOINTS.accessSet, {
