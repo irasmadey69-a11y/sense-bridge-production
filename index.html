@@ -1314,7 +1314,7 @@ async function confirmPaid(){
     alert("Brak wybranego planu.");
     return;
   }
-  const accessCheck = await checkAccessServer(email);
+const accessCheck = await checkAccessServer(email);
 
 if (accessCheck && accessCheck.status === "BLOCKED") {
   clearPass();
@@ -1323,7 +1323,6 @@ if (accessCheck && accessCheck.status === "BLOCKED") {
   alert("Ten email jest zablokowany.");
   return;
 }
-
   try {
     const res = await fetch(ENDPOINTS.accessSet, {
       method: "POST",
@@ -1419,22 +1418,42 @@ async function analyze(){
     if(ex.firm)    parts.push("STANOWCZO:\n" + ex.firm);
     document.getElementById("examples").textContent = parts.join("\n\n");
 
-    const exDoc = data.examplesDoc || data.documentExamples || data.examples_document || data.repliesDocument || data.replies_document || {};
-    let docText = "";
-    if(typeof exDoc === "string"){
-      docText = exDoc.trim();
-    } else {
-      const docParts = [];
-      if(exDoc.neutral) docParts.push("NEUTRAL:\n" + exDoc.neutral);
-      if(exDoc.polite)  docParts.push("POLITE:\n" + exDoc.polite);
-      if(exDoc.firm)    docParts.push("FIRM:\n" + exDoc.firm);
-      docText = docParts.join("\n\n").trim();
-    }
-
     const examplesDocEl = document.getElementById("examplesDoc");
-    if(examplesDocEl){
-      examplesDocEl.textContent = docText || (UI.dict[UI.lang]?.examplesDocEmpty || "");
+
+let docText = "";
+const docTargetLang = sourceLang !== "AUTO" ? sourceLang : (data.detectedLang || data.language || "");
+
+if (docTargetLang && docTargetLang !== userLang && parts.length > 0) {
+  try {
+    const trDocRes = await fetch(ENDPOINTS.translate, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+  text: parts.join("\n\n"),
+  sourceLang: userLang,
+  targetLang: docTargetLang,
+  userLang: docTargetLang
+})
+    });
+
+    const trDocData = await trDocRes.json();
+
+    if (trDocRes.ok) {
+      docText = (
+        trDocData.translation ||
+        trDocData.translatedText ||
+        trDocData.translated ||
+        ""
+      ).trim();
     }
+  } catch (e) {
+    console.log("examplesDoc translate error", e);
+  }
+}
+
+if (examplesDocEl) {
+  examplesDocEl.textContent = docText || "Nie udało się automatycznie przygotować odpowiedzi w języku dokumentu. Wybierz ręcznie język dokumentu zamiast AUTO i spróbuj ponownie.";
+}
 
     let translation = (data.translation || data.translatedText || data.translated || "").trim();
 
