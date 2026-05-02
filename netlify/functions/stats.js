@@ -1,8 +1,4 @@
-const store = getStore({
-  name: "sb-stats",
-  siteID: process.env.NETLIFY_SITE_ID,
-  token: process.env.NETLIFY_AUTH_TOKEN
-});
+const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
   try {
@@ -17,7 +13,11 @@ exports.handler = async (event) => {
       return json(403, { ok: false, error: "Wrong admin PIN" });
     }
 
-    const store = getStore("sb-stats");
+    const store = getStore({
+      name: "sb-stats",
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_AUTH_TOKEN
+    });
 
     const visitsRaw = await store.get("visits");
     const analyzesRaw = await store.get("analyzes");
