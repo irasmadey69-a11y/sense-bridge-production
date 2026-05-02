@@ -238,6 +238,24 @@ button:hover{
     PIN zostaje tylko w tej sesji przeglądarki. Po odświeżeniu możesz wpisać go ponownie.
   </div>
 </section>
+  <section class="card">
+  <h2>📊 Statystyki</h2>
+
+  <button class="btn-main" onclick="loadStats()">Odśwież statystyki</button>
+
+  <div class="status-box" style="margin-top:12px;">
+    <div class="line">
+      <div class="key">Wejścia na stronę</div>
+      <div class="value" id="statVisits">—</div>
+    </div>
+    <div class="line">
+      <div class="key">Kliknięcia „Analizuj”</div>
+      <div class="value" id="statAnalyzes">—</div>
+    </div>
+  </div>
+
+  <div id="statsMsg" class="notice hidden"></div>
+  </section>
 
 <section class="card">
   <h2>⚡ Szybka akcja</h2>
@@ -287,6 +305,37 @@ let localUsers = [
   { email:"test.user@email.com", status:"ACTIVE", plan:"7d", expires:"za kilka dni", last:"Aktywacja testowa" },
   { email:"pending.client@email.com", status:"PENDING", plan:"30d", expires:"oczekuje", last:"Kliknięto „Zapłaciłem”" }
 ];
+  async function loadStats(){
+  const pin = getPin();
+
+  if(!pin){
+    showMsg("statsMsg", "Wpisz PIN admina.", true);
+    return;
+  }
+
+  showMsg("statsMsg", "Pobieram statystyki...", false);
+
+  try{
+    const res = await fetch(API + "/stats", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ adminPin: pin })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok || data.ok === false){
+      throw new Error(data.error || "Błąd pobierania statystyk");
+    }
+
+    document.getElementById("statVisits").textContent = data.visits ?? 0;
+    document.getElementById("statAnalyzes").textContent = data.analyzes ?? 0;
+
+    showMsg("statsMsg", "✅ Statystyki odświeżone.", false);
+  }catch(e){
+    showMsg("statsMsg", "❌ " + (e.message || e), true);
+  }
+  }
 
 function getPin(){ return document.getElementById("pin").value.trim(); }
 function getEmail(){ return document.getElementById("email").value.trim().toLowerCase(); }
