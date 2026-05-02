@@ -1379,14 +1379,20 @@ async function analyze(){
   if(statusEl){ statusEl.textContent = "⏳ Analizuję pismo..."; }
 
   try{
-    const text = (document.getElementById("inputText").value || "").trim();
-    const sourceLang = document.getElementById("sourceLang").value;
-    const userLang = document.getElementById("userLang").value;
+    let text = (document.getElementById("inputText").value || "").trim();
+const sourceLang = document.getElementById("sourceLang").value;
+const userLang = document.getElementById("userLang").value;
 
-    if(!text){
-      alert(UI.dict[UI.lang].emptyText || "Wklej treść pisma.");
-      return;
-    }
+const photoInput = document.getElementById("sbPhotoInput");
+
+if (!text && photoInput && photoInput.files && photoInput.files[0] && window.sbReadPhotoText) {
+  text = await window.sbReadPhotoText(true);
+}
+
+if(!text){
+  alert(UI.dict[UI.lang].emptyText || "Wklej treść pisma albo wybierz zdjęcie.");
+  return;
+}
 
     const res = await fetch(ENDPOINTS.analyze,{
       method:"POST",
@@ -1503,28 +1509,33 @@ if (examplesDocEl) {
 })();
 
 /* =========================================================
-   PHOTO OCR
+   PHOTO OCR - mobile safe
    ========================================================= */
 (function () {
-  const MAX_MB = 4;
+  const MAX_ORIGINAL_MB = 25;
+  const MAX_SIDE = 1600;
+  const JPEG_QUALITY = 0.78;
 
-  function t() {
-    return UI.dict[UI.lang] || UI.dict.PL;
+  function msg(key) {
+    const fallback = {
+      statusChoosePhoto: "Najpierw wybierz zdjęcie.",
+      statusNoTextarea: "Nie znaleziono pola tekstowego.",
+      statusChooseImage: "Wybierz plik graficzny.",
+      statusTooBig: "Zdjęcie jest za duże. Maksymalnie",
+      statusReading: "Czytam tekst ze zdjęcia...",
+      statusInserted: "Tekst ze zdjęcia został wstawiony.",
+      statusError: "Błąd OCR:"
+    };
+    return (UI.dict[UI.lang] && UI.dict[UI.lang][key]) || fallback[key] || "";
   }
 
   function findTextArea() {
-    return (
-      document.getElementById("letterText") ||
-      document.getElementById("inputText") ||
-      document.getElementById("documentText") ||
-      document.getElementById("textInput") ||
-      document.querySelector("textarea")
-    );
+    return document.getElementById("inputText") || document.querySelector("textarea");
   }
 
-  function setStatus(msg) {
+  function setStatus(text) {
     const el = document.getElementById("sbPhotoStatus");
-    if (el) el.textContent = msg;
+    if (el) el.textContent = text || "";
   }
 
   function fileToDataUrl(file) {
@@ -1536,38 +1547,66 @@ if (examplesDocEl) {
     });
   }
 
-  async function readPhotoText() {
+  function imageToCanvasDataUrl(dataUrl) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+
+      img.onload = () => {
+        let w = img.width;
+        let h = img.height;
+
+        const scale = Math.min(1, MAX_SIDE / Math.max(w, h));
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+
+        resolve(canvas.toDataURL("image/jpeg", JPEG_QUALITY));
+      };
+
+      img.onerror = () => reject(new Error("Nie udało się przygotować zdjęcia."));
+      img.src = dataUrl;
+    });
+  }
+
+  async function readPhotoText(silent = false) {
     const input = document.getElementById("sbPhotoInput");
     const btn = document.getElementById("sbReadPhotoBtn");
     const textarea = findTextArea();
 
     if (!input || !input.files || !input.files[0]) {
-      setStatus(t().statusChoosePhoto);
-      return;
+      if (!silent) setStatus(msg("statusChoosePhoto"));
+      return "";
     }
 
     if (!textarea) {
-      setStatus(t().statusNoTextarea);
-      return;
+      setStatus(msg("statusNoTextarea"));
+      return "";
     }
 
     const file = input.files[0];
 
     if (!file.type.startsWith("image/")) {
-      setStatus(t().statusChooseImage);
-      return;
+      setStatus(msg("statusChooseImage"));
+      return "";
     }
 
-    if (file.size > MAX_MB * 1024 * 1024) {
-      setStatus(t().statusTooBig + " " + MAX_MB + " MB.");
-      return;
+    if (file.size > MAX_ORIGINAL_MB * 1024 * 1024) {
+      setStatus(msg("statusTooBig") + " " + MAX_ORIGINAL_MB + " MB.");
+      return "";
     }
 
     try {
       if (btn) btn.disabled = true;
-      setStatus(t().statusReading);
+      setStatus(msg("statusReading"));
 
-      const imageDataUrl = await fileToDataUrl(file);
+      const originalDataUrl = await fileToDataUrl(file);
+      const imageDataUrl = await imageToCanvasDataUrl(originalDataUrl);
 
       const res = await fetch("/.netlify/functions/ocr", {
         method: "POST",
@@ -1575,28 +1614,28 @@ if (examplesDocEl) {
         body: JSON.stringify({ imageDataUrl })
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        const raw = await res.text();
-        throw new Error(raw || "OCR endpoint error");
-      }
+      const data = await res.json();
 
-      if (!data.ok) {
+      if (!res.ok || !data.ok) {
         throw new Error(data.error || "OCR error");
       }
 
-      textarea.value = data.text || "";
+      const text = String(data.text || "").trim();
+      textarea.value = text;
       textarea.dispatchEvent(new Event("input", { bubbles: true }));
 
-      setStatus(t().statusInserted);
+      setStatus(text ? msg("statusInserted") : "Nie udało się odczytać tekstu.");
+      return text;
+
     } catch (err) {
-      setStatus(t().statusError + " " + err.message);
+      setStatus(msg("statusError") + " " + (err.message || err));
+      return "";
     } finally {
       if (btn) btn.disabled = false;
     }
   }
+
+  window.sbReadPhotoText = readPhotoText;
 
   document.addEventListener("DOMContentLoaded", function () {
     const readBtn = document.getElementById("sbReadPhotoBtn");
@@ -1604,7 +1643,11 @@ if (examplesDocEl) {
     const input = document.getElementById("sbPhotoInput");
     const fileName = document.getElementById("sbPhotoFileName");
 
-    if (readBtn) readBtn.addEventListener("click", readPhotoText);
+    if (readBtn) {
+      readBtn.addEventListener("click", function () {
+        readPhotoText(false);
+      });
+    }
 
     if (chooseBtn && input) {
       chooseBtn.addEventListener("click", function () {
@@ -1620,20 +1663,12 @@ if (examplesDocEl) {
           setStatus("");
         } else {
           fileName.dataset.hasFile = "";
-          fileName.textContent = t().noPhoto;
+          fileName.textContent = msg("noPhoto") || "Nie wybrano zdjęcia";
         }
       });
     }
   });
 })();
-
-// INSTALL APP (PWA)
-let deferredPrompt = null;
-
-window.addEventListener("beforeinstallprompt", function(e) {
-  e.preventDefault();
-  deferredPrompt = e;
-});
 
 function installApp() {
   if (deferredPrompt) {
