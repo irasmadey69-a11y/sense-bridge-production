@@ -1,14 +1,15 @@
-const store = getStore({
-  name: "sb-stats",
-  siteID: process.env.NETLIFY_SITE_ID,
-  token: process.env.NETLIFY_AUTH_TOKEN
-});
+const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
   try {
-    const store = getStore("sb-stats");
+    const store = getStore({
+      name: "sb-stats",
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_AUTH_TOKEN
+    });
 
-    const key = event.httpMethod === "POST" ? "visits" : "visits";
+    const key = "visits";
+
     let count = await store.get(key);
     count = count ? parseInt(count, 10) : 0;
 
