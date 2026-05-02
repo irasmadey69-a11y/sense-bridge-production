@@ -1,4 +1,8 @@
-const { getStore } = require("@netlify/blobs");
+const store = getStore({
+  name: "sb-stats",
+  siteID: process.env.NETLIFY_SITE_ID,
+  token: process.env.NETLIFY_AUTH_TOKEN
+});
 
 exports.handler = async () => {
   try {
