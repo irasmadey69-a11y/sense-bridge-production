@@ -1477,7 +1477,7 @@ if (examplesDocEl) {
     }
 
     document.getElementById("translation").textContent = translation;
-
+fetch("/.netlify/functions/analyze_count", { method: "POST" }).catch(()=>{});
     consumeFreeIfNeeded();
     refreshUI();
     updatePaidMessage();
@@ -1502,6 +1502,7 @@ if (examplesDocEl) {
   UI.lang = getUiLang();
   applyUiLang();
   applyPaidFromQuery();
+  fetch("/.netlify/functions/analyze_count", { method: "POST" }).catch(()=>{});
   await syncAccess();
   refreshUI();
   updatePaidMessage();
