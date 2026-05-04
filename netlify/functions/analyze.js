@@ -68,6 +68,10 @@ Wykonaj:
 6) wypisz ryzyka komunikacyjne, ale konkretnie, bez ogólników
 7) podaj 3 wersje odpowiedzi: neutralna, uprzejma, stanowcza
 8) jeśli pismo dotyczy urzędu, długu, terminu, kary, świadczeń, sądu, podatków, pracy, mieszkania albo zdrowia — dodaj sekcję gdzie szukać pomocy.
+9) oceń czy potrzebna jest pomoc prawna:
+- NONE (niepotrzebna)
+- RECOMMENDED (warto skonsultować)
+- URGENT (pilnie skonsultuj)
 Nie podawaj wymyślonych lokalnych kancelarii. Podawaj ogólne i bezpieczne kierunki pomocy, np. darmowy punkt pomocy prawnej, urząd, organizacja konsumencka, Juridisch Loket w NL, Verbraucherzentrale w DE, Citizens Advice w UK, lokalna gmina/municipality.
 
 Zwróć WYŁĄCZNIE poprawny JSON (JSON object), bez markdown.
@@ -80,7 +84,8 @@ Kształt JSON:
   "consequences": ["...", "..."],
   "risks": ["...", "..."],
   "help": ["...", "..."],
-  "replies": {
+  "legalHelpNeeded": "RECOMMENDED",
+"replies": {
     "neutral": "...",
     "polite": "...",
     "firm": "..."
@@ -99,6 +104,10 @@ TEKST:
     const actions = Array.isArray(modelJson.actions) ? modelJson.actions.filter(Boolean).map(String) : [];
 const consequences = Array.isArray(modelJson.consequences) ? modelJson.consequences.filter(Boolean).map(String) : [];
 const help = Array.isArray(modelJson.help) ? modelJson.help.filter(Boolean).map(String) : [];
+const legalHelpNeeded = str(modelJson.legalHelpNeeded || "UNKNOWN").toUpperCase();
+const legalHelpFinal = ["NONE","RECOMMENDED","URGENT"].includes(legalHelpNeeded)
+  ? legalHelpNeeded
+  : "RECOMMENDED";
 const urgency = str(modelJson.urgency || "UNKNOWN").toUpperCase();
     const repliesFromModel = (modelJson.replies && typeof modelJson.replies === "object") ? modelJson.replies : {};
 
@@ -131,29 +140,29 @@ TEKST:
     };
 
     const payload = {
-      ok: true,
+  ok: true,
 
-      detectedLang,
-      detected: detectedLang,
-      lang: detectedLang,
+  detectedLang,
+  detected: detectedLang,
+  lang: detectedLang,
 
-      sourceLang: effectiveSource,
-      userLang,
+  sourceLang: effectiveSource,
+  userLang,
 
-      translation,
-      translatedText: translation,
-      translated: translation,
+  translation,
+  translatedText: translation,
+  translated: translation,
 
-      summary,
-      whatOfficeSays: summary,
-      communication: summary,
-      officeSummary: summary,
-      actions,
-urgency,
-consequences,
-help,
-
-      risks,
+  summary,
+  whatOfficeSays: summary,
+  communication: summary,
+  officeSummary: summary,
+  actions,
+  urgency,
+  consequences,
+  help,
+  legalHelpNeeded: legalHelpFinal,
+  risks,
       riskList: risks,
       riskChips: risks,
 
