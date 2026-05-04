@@ -1458,6 +1458,17 @@ legalStatusEl.innerHTML = `
 }
     // PILNOŚĆ
 const urgencyEl = document.getElementById("urgencyBox");
+const legal = (data.legalHelpNeeded || "").toUpperCase();
+
+if (legal === "URGENT") {
+  urgencyEl.textContent = "🔴 PILNA SYTUACJA – skonsultuj z prawnikiem";
+}
+else if (legal === "RECOMMENDED") {
+  urgencyEl.textContent = "🟡 Warto skonsultować sytuację";
+}
+else {
+  urgencyEl.textContent = "🟢 Brak potrzeby pomocy";
+}
 if(urgencyEl){
   const u = (data.urgency || "").toUpperCase();
   if(u === "HIGH") urgencyEl.textContent = "⚠️ PILNE – wymagane szybkie działanie";
