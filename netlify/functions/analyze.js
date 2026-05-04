@@ -49,20 +49,42 @@ exports.handler = async (event) => {
 
     // 1) ANALIZA (JSON_OBJECT) — w prompt MUSI paść słowo "JSON"
     const analysisPrompt = `
-Zadanie: przeanalizuj pismo (bez porad prawnych).
-Wykonaj:
-1) wykryj język (detectedLang)
-2) streszczenie 1–3 zdania w języku: ${userLang}
-3) ryzyka komunikacyjne 3–8 punktów
-4) 3 wersje odpowiedzi: neutralna, uprzejma, stanowcza (w języku: ${userLang})
+Zadanie: przeanalizuj pismo urzędowe lub formalne. To NIE jest porada prawna.
+Masz pomóc użytkownikowi zrozumieć:
+- o co chodzi w piśmie
+- czego nadawca oczekuje
+- co użytkownik powinien zrobić
+- jakie są możliwe konsekwencje braku reakcji
+- czy warto szukać dodatkowej pomocy
 
-Zwróć WYŁĄCZNIE poprawny JSON (JSON object), bez żadnych komentarzy i bez markdown.
-Wynik ma być JSON w dokładnie takim kształcie:
+Odpowiadaj w języku użytkownika: ${userLang}.
+
+Wykonaj:
+1) wykryj język dokumentu (detectedLang)
+2) napisz krótkie streszczenie: o co chodzi w piśmie
+3) wypisz konkretne działania użytkownika
+4) określ pilność: LOW, MEDIUM albo HIGH
+5) wypisz możliwe konsekwencje, jeśli użytkownik nic nie zrobi
+6) wypisz ryzyka komunikacyjne, ale konkretnie, bez ogólników
+7) podaj 3 wersje odpowiedzi: neutralna, uprzejma, stanowcza
+8) jeśli pismo dotyczy urzędu, długu, terminu, kary, świadczeń, sądu, podatków, pracy, mieszkania albo zdrowia — dodaj sekcję gdzie szukać pomocy.
+Nie podawaj wymyślonych lokalnych kancelarii. Podawaj ogólne i bezpieczne kierunki pomocy, np. darmowy punkt pomocy prawnej, urząd, organizacja konsumencka, Juridisch Loket w NL, Verbraucherzentrale w DE, Citizens Advice w UK, lokalna gmina/municipality.
+
+Zwróć WYŁĄCZNIE poprawny JSON (JSON object), bez markdown.
+Kształt JSON:
 {
   "detectedLang": "NL",
   "summary": "...",
+  "actions": ["...", "..."],
+  "urgency": "LOW",
+  "consequences": ["...", "..."],
   "risks": ["...", "..."],
-  "replies": { "neutral": "...", "polite": "...", "firm": "..." }
+  "help": ["...", "..."],
+  "replies": {
+    "neutral": "...",
+    "polite": "...",
+    "firm": "..."
+  }
 }
 
 TEKST:
@@ -74,6 +96,10 @@ TEKST:
     const detectedLang = str(modelJson.detectedLang || "UNKNOWN").toUpperCase();
     const summary = str(modelJson.summary || "");
     const risks = Array.isArray(modelJson.risks) ? modelJson.risks.filter(Boolean).map(String) : [];
+    const actions = Array.isArray(modelJson.actions) ? modelJson.actions.filter(Boolean).map(String) : [];
+const consequences = Array.isArray(modelJson.consequences) ? modelJson.consequences.filter(Boolean).map(String) : [];
+const help = Array.isArray(modelJson.help) ? modelJson.help.filter(Boolean).map(String) : [];
+const urgency = str(modelJson.urgency || "UNKNOWN").toUpperCase();
     const repliesFromModel = (modelJson.replies && typeof modelJson.replies === "object") ? modelJson.replies : {};
 
     // 2) TŁUMACZENIE (TEXT)
@@ -122,6 +148,10 @@ TEKST:
       whatOfficeSays: summary,
       communication: summary,
       officeSummary: summary,
+      actions,
+urgency,
+consequences,
+help,
 
       risks,
       riskList: risks,
