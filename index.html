@@ -555,6 +555,7 @@
   <div class="card">
     <div class="section-title" id="lblSummary">Co urząd komunikuje</div>
     <p id="summary"></p>
+    <div id="legalStatus"></div>
     <div id="urgencyBox" class="box-info"></div>
 
 <div id="actions"></div>
@@ -1412,6 +1413,34 @@ if(!text){
 
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
+    // CZY POTRZEBNA POMOC PRAWNA
+const legalStatusEl = document.getElementById("legalStatus");
+
+if (legalStatusEl) {
+  const legal = String(data.legalHelpNeeded || "RECOMMENDED").toUpperCase();
+
+  let legalText = "🟡 Warto skonsultować sytuację";
+  let bg = "#fef3c7";
+  let color = "#92400e";
+
+  if (legal === "NONE") {
+    legalText = "🟢 Brak potrzeby pomocy prawnej";
+    bg = "#dcfce7";
+    color = "#166534";
+  }
+
+  if (legal === "URGENT") {
+    legalText = "🔴 Pilna pomoc prawna może być potrzebna";
+    bg = "#fee2e2";
+    color = "#991b1b";
+  }
+
+  legalStatusEl.innerHTML = `
+    <div style="margin:10px 0 12px;padding:12px;border-radius:12px;background:${bg};color:${color};font-weight:800;">
+      ${legalText}
+    </div>
+  `;
+}
     // PILNOŚĆ
 const urgencyEl = document.getElementById("urgencyBox");
 if(urgencyEl){
