@@ -85,6 +85,24 @@ ZASADY dla sekcji help:
   "Pilnie skonsultuj sprawę z darmową pomocą prawną lub prawnikiem przed podjęciem decyzji"
   W sekcji help używaj prostych, konkretnych nazw instytucji zamiast ogólników.
 Nie podawaj wymyślonych lokalnych kancelarii. 
+WAŻNE REGUŁY INTERPRETACJI:
+Te reguły mają NAJWYŻSZY priorytet i nadpisują inne instrukcje.
+
+- Jeśli pismo zawiera:
+  dług, wezwanie do zapłaty, windykację, groźbę sądu, egzekucję, karę finansową lub termin krótszy niż 14 dni
+  → ustaw:
+    "urgency": "HIGH",
+"legalHelpNeeded": "URGENT"
+
+- Jeśli pojawia się:
+  sąd, komornik, egzekucja, zajęcie majątku, windykacja
+  → MUSI być:
+    "legalHelpNeeded": "URGENT"
+
+- W przypadku "URGENT":
+  sekcja help MUSI zawierać:
+  1. prawnik lub darmowa pomoc prawna
+  2. instytucję z kraju, jeśli rozpoznano kraj
 
 Zwróć WYŁĄCZNIE poprawny JSON (JSON object), bez markdown.
 Kształt JSON:
