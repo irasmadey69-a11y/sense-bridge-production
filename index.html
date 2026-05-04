@@ -555,6 +555,11 @@
   <div class="card">
     <div class="section-title" id="lblSummary">Co urząd komunikuje</div>
     <p id="summary"></p>
+    <div id="urgencyBox" class="box-info"></div>
+
+<div id="actions"></div>
+<div id="consequences"></div>
+<div id="help"></div>
   </div>
 
   <div class="card">
@@ -1407,6 +1412,45 @@ if(!text){
 
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
+    // PILNOŚĆ
+const urgencyEl = document.getElementById("urgencyBox");
+if(urgencyEl){
+  const u = (data.urgency || "").toUpperCase();
+  if(u === "HIGH") urgencyEl.textContent = "⚠️ PILNE – wymagane szybkie działanie";
+  else if(u === "MEDIUM") urgencyEl.textContent = "⏳ ŚREDNIA PILNOŚĆ – warto zareagować";
+  else if(u === "LOW") urgencyEl.textContent = "🟢 NISKA PILNOŚĆ – możesz spokojnie sprawdzić";
+  else urgencyEl.textContent = "";
+}
+
+// DZIAŁANIA
+const actionsBox = document.getElementById("actions");
+actionsBox.innerHTML = "";
+(data.actions || []).forEach(a=>{
+  const d = document.createElement("div");
+  d.className = "box-info";
+  d.textContent = "👉 " + a;
+  actionsBox.appendChild(d);
+});
+
+// KONSEKWENCJE
+const consBox = document.getElementById("consequences");
+consBox.innerHTML = "";
+(data.consequences || []).forEach(c=>{
+  const d = document.createElement("div");
+  d.className = "box-warn";
+  d.textContent = "⚠️ " + c;
+  consBox.appendChild(d);
+});
+
+// POMOC
+const helpBox = document.getElementById("help");
+helpBox.innerHTML = "";
+(data.help || []).forEach(h=>{
+  const d = document.createElement("div");
+  d.className = "box-info";
+  d.textContent = "🧭 " + h;
+  helpBox.appendChild(d);
+});
 
     const risksBox = document.getElementById("risks");
     risksBox.innerHTML = "";
