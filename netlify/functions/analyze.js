@@ -68,11 +68,23 @@ Wykonaj:
 6) wypisz ryzyka komunikacyjne, ale konkretnie, bez ogólników
 7) podaj 3 wersje odpowiedzi: neutralna, uprzejma, stanowcza
 8) jeśli pismo dotyczy urzędu, długu, terminu, kary, świadczeń, sądu, podatków, pracy, mieszkania albo zdrowia — dodaj sekcję gdzie szukać pomocy.
+
+ZASADY:
+- Jeśli można rozpoznać kraj z treści pisma (np. nazwa urzędu, waluta, język, podpis) — podaj konkretne instytucje z tego kraju.
+- Jeśli nie da się jednoznacznie rozpoznać kraju — NIE zgaduj. Podaj ogólne, bezpieczne opcje (np. darmowa pomoc prawna, urząd nadawcy).
+
 9) oceń czy potrzebna jest pomoc prawna:
 - NONE (niepotrzebna)
 - RECOMMENDED (warto skonsultować)
 - URGENT (pilnie skonsultuj)
-Nie podawaj wymyślonych lokalnych kancelarii. Podawaj ogólne i bezpieczne kierunki pomocy, np. darmowy punkt pomocy prawnej, urząd, organizacja konsumencka, Juridisch Loket w NL, Verbraucherzentrale w DE, Citizens Advice w UK, lokalna gmina/municipality.
+
+ZASADY dla sekcji help:
+- NONE → maksymalnie 1–2 spokojne opcje (np. urząd nadawcy)
+- RECOMMENDED → 2–3 opcje (np. urząd + darmowa pomoc prawna + organizacja)
+- URGENT → pierwszy punkt MUSI zawierać:
+  "Pilnie skonsultuj sprawę z darmową pomocą prawną lub prawnikiem przed podjęciem decyzji"
+  W sekcji help używaj prostych, konkretnych nazw instytucji zamiast ogólników.
+Nie podawaj wymyślonych lokalnych kancelarii. 
 
 Zwróć WYŁĄCZNIE poprawny JSON (JSON object), bez markdown.
 Kształt JSON:
