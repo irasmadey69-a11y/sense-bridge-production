@@ -1435,11 +1435,26 @@ if (legalStatusEl) {
     color = "#991b1b";
   }
 
-  legalStatusEl.innerHTML = `
-    <div style="margin:10px 0 12px;padding:12px;border-radius:12px;background:${bg};color:${color};font-weight:800;">
-      ${legalText}
-    </div>
-  `;
+  let bar = "";
+
+if (legal === "NONE") {
+  bar = "🟢────────────";
+}
+if (legal === "RECOMMENDED") {
+  bar = "🟡────────────";
+}
+if (legal === "URGENT") {
+  bar = "🔴────────────";
+}
+
+legalStatusEl.innerHTML = `
+  <div style="margin:10px 0 6px;font-size:18px;font-weight:900;">
+    ${bar}
+  </div>
+  <div style="margin-bottom:12px;font-weight:700;color:${color};">
+    ${legalText}
+  </div>
+`;
 }
     // PILNOŚĆ
 const urgencyEl = document.getElementById("urgencyBox");
