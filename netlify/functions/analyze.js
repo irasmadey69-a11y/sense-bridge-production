@@ -122,6 +122,7 @@ Jeśli występuje TYLKO prośba o dosłanie dokumentów, uzupełnienie danych, p
 NIE ustawiaj URGENT.
 
 URGENT ustaw TYLKO gdy występuje:
+
 - sąd
 - komornik
 - egzekucja
