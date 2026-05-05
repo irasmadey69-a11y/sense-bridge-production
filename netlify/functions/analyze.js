@@ -50,62 +50,89 @@ exports.handler = async (event) => {
     // 1) ANALIZA (JSON_OBJECT) — w prompt MUSI paść słowo "JSON"
     const analysisPrompt = `
 Zadanie: przeanalizuj pismo urzędowe lub formalne. To NIE jest porada prawna.
-Masz pomóc użytkownikowi zrozumieć:
-- o co chodzi w piśmie
-- czego nadawca oczekuje
+
+Twoim celem jest spokojne wyjaśnienie sytuacji użytkownikowi:
+- co oznacza pismo
+- czego urząd oczekuje
 - co użytkownik powinien zrobić
-- jakie są możliwe konsekwencje braku reakcji
-- czy warto szukać dodatkowej pomocy
+- jakie mogą być konsekwencje
+- czy potrzebna jest pomoc
 
 Odpowiadaj w języku użytkownika: ${userLang}.
 
 Wykonaj:
+
 1) wykryj język dokumentu (detectedLang)
-2) napisz krótkie streszczenie: o co chodzi w piśmie
-3) wypisz konkretne działania użytkownika
-4) określ pilność: LOW, MEDIUM albo HIGH
-5) wypisz możliwe konsekwencje, jeśli użytkownik nic nie zrobi
-6) wypisz ryzyka komunikacyjne, ale konkretnie, bez ogólników
-7) podaj 3 wersje odpowiedzi: neutralna, uprzejma, stanowcza
-8) jeśli pismo dotyczy urzędu, długu, terminu, kary, świadczeń, sądu, podatków, pracy, mieszkania albo zdrowia — dodaj sekcję gdzie szukać pomocy.
+
+2) napisz krótkie, spokojne streszczenie (bez straszenia)
+
+3) wypisz konkretne działania użytkownika (jasne kroki)
+
+4) określ pilność:
+- LOW → informacyjne
+- MEDIUM → warto zareagować
+- HIGH → pilne działanie wymagane
+
+5) wypisz możliwe konsekwencje (realne, bez przesady)
+
+6) wypisz ryzyka komunikacyjne (konkretne, nie ogólne)
+
+7) podaj 3 odpowiedzi:
+- neutralna
+- uprzejma
+- stanowcza
+
+8) sekcja "help" (bardzo ważne):
+
+Jeśli rozpoznasz kraj (np. NL, DE itd.):
+
+dla NL użyj:
+- Belastingdienst / Toeslagen (https://www.toeslagen.nl)
+- Juridisch Loket (darmowa pomoc prawna)
+- Gemeente (lokalna pomoc)
+
+dla innych krajów:
+- użyj realnych instytucji państwowych jeśli jesteś pewien
+- jeśli nie jesteś pewien → NIE zgaduj
+
+Jeśli brak kraju:
+- podaj bezpieczne opcje:
+  - urząd nadawcy
+  - darmowa pomoc prawna
+
+9) oceń potrzebę pomocy prawnej:
+
+- NONE → brak potrzeby
+- RECOMMENDED → warto skonsultować
+- URGENT → pilnie skonsultuj
 
 ZASADY:
-- Jeśli można rozpoznać kraj z treści pisma (np. nazwa urzędu, waluta, język, podpis) — podaj konkretne instytucje z tego kraju.
-- Jeśli nie da się jednoznacznie rozpoznać kraju — NIE zgaduj. Podaj ogólne, bezpieczne opcje (np. darmowa pomoc prawna, urząd nadawcy).
 
-9) oceń czy potrzebna jest pomoc prawna:
-- NONE (niepotrzebna)
-- RECOMMENDED (warto skonsultować)
-- URGENT (pilnie skonsultuj)
+- NIE strasz użytkownika bez powodu
+- NIE używaj czerwonego tonu jeśli sytuacja jest neutralna
+- NIE zakładaj najgorszego scenariusza
+- używaj prostego, ludzkiego języka
 
-ZASADY dla sekcji help:
-- NONE → maksymalnie 1–2 spokojne opcje (np. urząd nadawcy)
-- RECOMMENDED → 2–3 opcje (np. urząd + darmowa pomoc prawna + organizacja)
-- URGENT → pierwszy punkt MUSI zawierać:
-  "Pilnie skonsultuj sprawę z darmową pomocą prawną lub prawnikiem przed podjęciem decyzji"
-  W sekcji help używaj prostych, konkretnych nazw instytucji zamiast ogólników.
-Nie podawaj wymyślonych lokalnych kancelarii. 
-WAŻNE REGUŁY INTERPRETACJI:
-Te reguły mają NAJWYŻSZY priorytet i nadpisują inne instrukcje.
+REGUŁY PILNOŚCI (nadpisują wszystko):
 
-- Jeśli pismo zawiera:
-  dług, wezwanie do zapłaty, windykację, groźbę sądu, egzekucję, karę finansową lub termin krótszy niż 14 dni
-  → ustaw:
-    "urgency": "HIGH",
+Jeśli występuje:
+- dług
+- kara
+- sąd
+- windykacja
+- egzekucja
+- termin krótszy niż 14 dni
+
+→ ustaw:
+"urgency": "HIGH"
 "legalHelpNeeded": "URGENT"
 
-- Jeśli pojawia się:
-  sąd, komornik, egzekucja, zajęcie majątku, windykacja
-  → MUSI być:
-    "legalHelpNeeded": "URGENT"
+W przypadku URGENT:
+pierwszy punkt help MUSI zawierać:
+"Pilnie skonsultuj sprawę z prawnikiem lub darmową pomocą prawną"
 
-- W przypadku "URGENT":
-  sekcja help MUSI zawierać:
-  1. prawnik lub darmowa pomoc prawna
-  2. instytucję z kraju, jeśli rozpoznano kraj
+Zwróć WYŁĄCZNIE JSON (json_object):
 
-Zwróć WYŁĄCZNIE poprawny JSON (JSON object), bez markdown.
-Kształt JSON:
 {
   "detectedLang": "NL",
   "summary": "...",
@@ -115,7 +142,7 @@ Kształt JSON:
   "risks": ["...", "..."],
   "help": ["...", "..."],
   "legalHelpNeeded": "RECOMMENDED",
-"replies": {
+  "replies": {
     "neutral": "...",
     "polite": "...",
     "firm": "..."
