@@ -115,17 +115,28 @@ ZASADY:
 
 REGUŁY PILNOŚCI (nadpisują wszystko):
 
-Jeśli występuje:
-- dług
-- kara
-- sąd
-- windykacja
-- egzekucja
-- termin krótszy niż 14 dni
-
+Jeśli występuje TYLKO prośba o dosłanie dokumentów, uzupełnienie danych, potwierdzenie informacji albo zwykły termin 7–14 dni:
 → ustaw:
-"urgency": "HIGH"
-"legalHelpNeeded": "URGENT"
+"urgency": "MEDIUM"
+"legalHelpNeeded": "NONE" albo "RECOMMENDED"
+NIE ustawiaj URGENT.
+
+URGENT ustaw TYLKO gdy występuje:
+- sąd
+- komornik
+- egzekucja
+- eksmisja
+- wypowiedzenie umowy
+- deportacja
+- kara finansowa
+- windykacja długu
+- zajęcie konta lub wynagrodzenia
+- groźba postępowania prawnego
+
+Jeśli pismo dotyczy dodatku, zasiłku, huurtoeslag lub dokumentów:
+- zwykle ustaw MEDIUM
+- legalHelpNeeded ustaw RECOMMENDED tylko jeśli są duże konsekwencje
+- nie pisz „pilnie skonsultuj z prawnikiem”, jeśli chodzi tylko o dosłanie dokumentów.
 
 W przypadku URGENT:
 pierwszy punkt help MUSI zawierać:
