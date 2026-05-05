@@ -153,8 +153,15 @@ Zwróć WYŁĄCZNIE JSON (json_object):
   "consequences": ["...", "..."],
   "risks": ["...", "..."],
   "help": ["...", "..."],
-  "legalHelpNeeded": "RECOMMENDED",
-  "replies": {
+"helpLinks": [
+  {
+    "label": "Belastingdienst / Toeslagen",
+    "url": "https://www.toeslagen.nl",
+    "type": "institution"
+  }
+],
+"legalHelpNeeded": "RECOMMENDED",
+"replies": {
     "neutral": "...",
     "polite": "...",
     "firm": "..."
@@ -173,6 +180,15 @@ TEKST:
     const actions = Array.isArray(modelJson.actions) ? modelJson.actions.filter(Boolean).map(String) : [];
 const consequences = Array.isArray(modelJson.consequences) ? modelJson.consequences.filter(Boolean).map(String) : [];
 const help = Array.isArray(modelJson.help) ? modelJson.help.filter(Boolean).map(String) : [];
+    const helpLinks = Array.isArray(modelJson.helpLinks)
+  ? modelJson.helpLinks
+      .filter(x => x && typeof x === "object" && x.label && x.url)
+      .map(x => ({
+        label: String(x.label || "").trim(),
+        url: String(x.url || "").trim(),
+        type: String(x.type || "info").trim()
+      }))
+  : [];
 const legalHelpNeeded = str(modelJson.legalHelpNeeded || "UNKNOWN").toUpperCase();
 const legalHelpFinal = ["NONE","RECOMMENDED","URGENT"].includes(legalHelpNeeded)
   ? legalHelpNeeded
@@ -230,8 +246,9 @@ TEKST:
   urgency,
   consequences,
   help,
-  legalHelpNeeded: legalHelpFinal,
-  risks,
+helpLinks,
+legalHelpNeeded: legalHelpFinal,
+risks,
       riskList: risks,
       riskChips: risks,
 
