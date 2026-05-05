@@ -561,6 +561,7 @@
 <div id="actions"></div>
 <div id="consequences"></div>
 <div id="help"></div>
+<div id="helpLinks"></div>
   </div>
 
   <div class="card">
@@ -632,6 +633,13 @@
 </main>
 
 <script>
+  let deferredPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+  
 /* =========================================================
    CONFIG
    ========================================================= */
@@ -1506,6 +1514,40 @@ helpBox.innerHTML = "";
   d.textContent = "🧭 " + h;
   helpBox.appendChild(d);
 });
+    // LINKI DO POMOCY
+const helpLinksBox = document.getElementById("helpLinks");
+if (helpLinksBox) {
+  helpLinksBox.innerHTML = "";
+
+  if (Array.isArray(data.helpLinks) && data.helpLinks.length > 0) {
+    const title = document.createElement("div");
+    title.className = "section-title";
+    title.style.marginTop = "12px";
+    title.textContent = "Pomocne strony";
+    helpLinksBox.appendChild(title);
+
+    data.helpLinks.forEach(link => {
+      if (!link || !link.url || !link.label) return;
+
+      const a = document.createElement("a");
+      a.href = link.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = "🔗 " + link.label;
+      a.style.display = "block";
+      a.style.padding = "10px 12px";
+      a.style.marginBottom = "8px";
+      a.style.borderRadius = "10px";
+      a.style.border = "1px solid rgba(63,138,114,0.28)";
+      a.style.background = "#ffffff";
+      a.style.color = "#245c4d";
+      a.style.fontWeight = "700";
+      a.style.textDecoration = "none";
+
+      helpLinksBox.appendChild(a);
+    });
+  }
+}
 
     const risksBox = document.getElementById("risks");
     risksBox.innerHTML = "";
