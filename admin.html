@@ -238,7 +238,8 @@ button:hover{
     PIN zostaje tylko w tej sesji przeglądarki. Po odświeżeniu możesz wpisać go ponownie.
   </div>
 </section>
-  <section class="card">
+
+<section class="card">
   <h2>📊 Statystyki</h2>
 
   <button class="btn-main" onclick="loadStats()">Odśwież statystyki</button>
@@ -255,7 +256,7 @@ button:hover{
   </div>
 
   <div id="statsMsg" class="notice hidden"></div>
-  </section>
+</section>
 
 <section class="card">
   <h2>⚡ Szybka akcja</h2>
@@ -305,7 +306,8 @@ let localUsers = [
   { email:"test.user@email.com", status:"ACTIVE", plan:"7d", expires:"za kilka dni", last:"Aktywacja testowa" },
   { email:"pending.client@email.com", status:"PENDING", plan:"30d", expires:"oczekuje", last:"Kliknięto „Zapłaciłem”" }
 ];
-  async function loadStats(){
+
+async function loadStats(){
   const pin = getPin();
 
   if(!pin){
@@ -335,7 +337,7 @@ let localUsers = [
   }catch(e){
     showMsg("statsMsg", "❌ " + (e.message || e), true);
   }
-  }
+}
 
 function getPin(){ return document.getElementById("pin").value.trim(); }
 function getEmail(){ return document.getElementById("email").value.trim().toLowerCase(); }
@@ -355,6 +357,24 @@ function requireFields(){
   }
 
   return { pin, email };
+}
+
+function formatDate(ts){
+  if(!ts || ts === "—") return "—";
+
+  const n = Number(ts);
+  if(!Number.isFinite(n)) return String(ts);
+
+  const d = new Date(n);
+  if(isNaN(d.getTime())) return String(ts);
+
+  return d.toLocaleString("pl-PL", {
+    day:"2-digit",
+    month:"2-digit",
+    year:"numeric",
+    hour:"2-digit",
+    minute:"2-digit"
+  });
 }
 
 function badge(status){
@@ -379,7 +399,7 @@ function setResult(data, lastAction="—"){
   document.getElementById("rEmail").textContent = data.email || getEmail() || "—";
   document.getElementById("rStatus").innerHTML = badge(status);
   document.getElementById("rPlan").textContent = data.plan || "—";
-  document.getElementById("rExpires").textContent = data.expires || data.exp || "—";
+  document.getElementById("rExpires").textContent = formatDate(data.expires || data.exp);
   document.getElementById("rLast").textContent = lastAction;
 }
 
@@ -536,7 +556,7 @@ function renderUsers(users){
       <div class="user-top">
         <div>
           <div class="email">${escapeHtml(user.email)}</div>
-          <div class="small">Plan: <b>${escapeHtml(user.plan || "—")}</b> • Wygasa: ${escapeHtml(user.expires || "—")}</div>
+          <div class="small">Plan: <b>${escapeHtml(user.plan || "—")}</b> • Wygasa: ${escapeHtml(formatDate(user.expires))}</div>
           <div class="small">${escapeHtml(user.last || "—")}</div>
         </div>
         <div>${badge(user.status)}</div>
@@ -585,4 +605,3 @@ renderUsers(localUsers);
 
 </body>
 </html>
-
