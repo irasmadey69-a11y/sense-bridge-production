@@ -262,6 +262,46 @@
       color:var(--muted);
       margin-top:8px;
     }
+    .privacy-note{
+      margin-top:10px;
+      padding:12px 13px;
+      border-radius:14px;
+      border:1px solid rgba(63,138,114,0.24);
+      background:rgba(63,138,114,0.06);
+      color:#344154;
+      font-size:13px;
+    }
+    .privacy-note strong{
+      color:#172033;
+    }
+    .footer-links{
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:8px 0 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .footer-links button{
+      background:none;
+      border:none;
+      padding:4px 6px;
+      color:var(--primary);
+      cursor:pointer;
+      box-shadow:none;
+      font-size:13px;
+    }
+    .footer-links button:hover{
+      text-decoration:underline;
+    }
+    .legal-mini{
+      max-width:900px;
+      margin:10px auto 0;
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+    }
     .photo-box{
       margin:8px 0 12px;
     }
@@ -545,6 +585,10 @@
     <div class="hint" id="hintUI">
       „UI” to po prostu <strong>język strony</strong> (przycisków i opisów) — nie zmienia treści dokumentu ani analizy.
     </div>
+
+    <div class="privacy-note" id="privacyNote">
+      <strong>Prywatność:</strong> Dokumenty nie są publicznie zapisywane ani udostępniane. Wklejaj tylko treści, które chcesz przeanalizować. Sense Bridge pomaga zrozumieć pismo, ale nie zastępuje porady prawnej.
+    </div>
   </div>
 
   <div class="card">
@@ -630,15 +674,18 @@
     <button class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
   </div>
 
+  <footer class="footer-links" aria-label="Informacje prawne">
+    <button type="button" id="footerPrivacy" onclick="showFooterInfo('privacy')">Prywatność</button>
+    <span>•</span>
+    <button type="button" id="footerTerms" onclick="showFooterInfo('terms')">Warunki</button>
+    <span>•</span>
+    <button type="button" id="footerContact" onclick="showFooterInfo('contact')">Kontakt</button>
+  </footer>
+  <div class="legal-mini" id="footerText">Sense Bridge ma charakter informacyjny i nie jest kancelarią prawną.</div>
+
 </main>
 
 <script>
-  let deferredPrompt = null;
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
   
 /* =========================================================
    CONFIG
@@ -819,6 +866,14 @@ const UI = {
       fine1: "Sense Bridge nie daje porad prawnych. Pomaga zrozumieć sens, ton i ryzyka pisma, abyś mógł podjąć własną decyzję.",
       fine2: "Sprzedajemy spokój i zrozumienie, nie „AI”.",
       hintUI: "„UI” to po prostu <strong>język strony</strong> (przycisków i opisów) — nie zmienia treści dokumentu ani analizy.",
+      privacyNote: "<strong>Prywatność:</strong> Dokumenty nie są publicznie zapisywane ani udostępniane. Wklejaj tylko treści, które chcesz przeanalizować. Sense Bridge pomaga zrozumieć pismo, ale nie zastępuje porady prawnej.",
+      footerPrivacy: "Prywatność",
+      footerTerms: "Warunki",
+      footerContact: "Kontakt",
+      footerDefault: "Sense Bridge ma charakter informacyjny i nie jest kancelarią prawną.",
+      footerPrivacyText: "Prywatność: nie publikujemy dokumentów użytkownika. Dane techniczne i informacje o dostępie mogą być użyte tylko do działania usługi.",
+      footerTermsText: "Warunki: użytkownik odpowiada za treści, które wkleja. Analiza ma charakter informacyjny i nie stanowi porady prawnej.",
+      footerContactText: "Kontakt: w sprawach dostępu lub płatności użyj adresu kontaktowego podanego przez Sense Bridge.",
       srcAuto: "Język dokumentu: AUTO",
       clear: "Wyczyść",
       copyTr: "Kopiuj tłumaczenie",
@@ -859,6 +914,14 @@ const UI = {
       fine1: "Sense Bridge geeft geen juridisch advies. Het helpt je de betekenis, toon en risico’s te begrijpen zodat je zelf beslist.",
       fine2: "We verkopen rust en begrip, niet ‘AI’.",
       hintUI: "‘UI’ is gewoon de taal van de pagina (knoppen en teksten) — dit verandert de analyse niet.",
+      privacyNote: "<strong>Privacy:</strong> Documenten worden niet openbaar opgeslagen of gedeeld. Plak alleen inhoud die je wilt laten analyseren. Sense Bridge helpt je de brief te begrijpen, maar vervangt geen juridisch advies.",
+      footerPrivacy: "Privacy",
+      footerTerms: "Voorwaarden",
+      footerContact: "Contact",
+      footerDefault: "Sense Bridge is informatief en is geen advocatenkantoor.",
+      footerPrivacyText: "Privacy: wij publiceren geen documenten van gebruikers. Technische gegevens en toegangsgegevens kunnen alleen worden gebruikt om de dienst te laten werken.",
+      footerTermsText: "Voorwaarden: de gebruiker is verantwoordelijk voor de inhoud die hij plakt. De analyse is informatief en geen juridisch advies.",
+      footerContactText: "Contact: gebruik voor toegang of betaling het contactadres van Sense Bridge.",
       srcAuto: "Taal document: AUTO",
       clear: "Wissen",
       copyTr: "Kopieer vertaling",
@@ -899,6 +962,14 @@ const UI = {
       fine1: "Sense Bridge does not provide legal advice. It helps you understand meaning, tone and risks so you can decide yourself.",
       fine2: "We sell peace and understanding, not ‘AI’.",
       hintUI: "‘UI’ is simply the page language (buttons and labels) — it doesn’t change the analysis.",
+      privacyNote: "<strong>Privacy:</strong> Documents are not publicly stored or shared. Paste only content you want to analyze. Sense Bridge helps you understand the letter, but does not replace legal advice.",
+      footerPrivacy: "Privacy",
+      footerTerms: "Terms",
+      footerContact: "Contact",
+      footerDefault: "Sense Bridge is informational and is not a law firm.",
+      footerPrivacyText: "Privacy: we do not publish user documents. Technical data and access information may be used only to run the service.",
+      footerTermsText: "Terms: the user is responsible for the content they paste. The analysis is informational and is not legal advice.",
+      footerContactText: "Contact: for access or payment issues, use the contact address provided by Sense Bridge.",
       srcAuto: "Document language: AUTO",
       clear: "Clear",
       copyTr: "Copy translation",
@@ -939,6 +1010,14 @@ const UI = {
       fine1: "Sense Bridge gibt keine Rechtsberatung. Es hilft dir, Sinn, Ton und Risiken zu verstehen, damit du selbst entscheiden kannst.",
       fine2: "Wir verkaufen Ruhe und Verständnis, nicht ‘KI’.",
       hintUI: "‘UI’ ist einfach die Seitensprache (Buttons & Texte) — das ändert die Analyse nicht.",
+      privacyNote: "<strong>Datenschutz:</strong> Dokumente werden nicht öffentlich gespeichert oder geteilt. Füge nur Inhalte ein, die du analysieren möchtest. Sense Bridge hilft beim Verstehen, ersetzt aber keine Rechtsberatung.",
+      footerPrivacy: "Datenschutz",
+      footerTerms: "Bedingungen",
+      footerContact: "Kontakt",
+      footerDefault: "Sense Bridge ist informativ und keine Kanzlei.",
+      footerPrivacyText: "Datenschutz: Wir veröffentlichen keine Nutzerdokumente. Technische Daten und Zugangsdaten können nur zum Betrieb des Dienstes verwendet werden.",
+      footerTermsText: "Bedingungen: Der Nutzer ist für eingefügte Inhalte verantwortlich. Die Analyse ist informativ und keine Rechtsberatung.",
+      footerContactText: "Kontakt: Bei Zugangs- oder Zahlungsfragen nutze die von Sense Bridge angegebene Kontaktadresse.",
       srcAuto: "Dokumentsprache: AUTO",
       clear: "Leeren",
       copyTr: "Übersetzung kopieren",
@@ -979,6 +1058,14 @@ const UI = {
       fine1: "Sense Bridge ne donne pas de conseils juridiques. Il aide à comprendre le sens, le ton et les risques afin que vous puissiez décider vous-même.",
       fine2: "Nous vendons de la tranquillité et de la compréhension, pas de l’« IA ».",
       hintUI: "« UI » signifie simplement la langue de la page (boutons et textes) — cela ne change pas l’analyse.",
+      privacyNote: "<strong>Confidentialité :</strong> Les documents ne sont pas enregistrés publiquement ni partagés. Collez uniquement le contenu que vous souhaitez analyser. Sense Bridge aide à comprendre le courrier, mais ne remplace pas un conseil juridique.",
+      footerPrivacy: "Confidentialité",
+      footerTerms: "Conditions",
+      footerContact: "Contact",
+      footerDefault: "Sense Bridge est informatif et n’est pas un cabinet juridique.",
+      footerPrivacyText: "Confidentialité : nous ne publions pas les documents des utilisateurs. Les données techniques et d’accès peuvent être utilisées uniquement pour faire fonctionner le service.",
+      footerTermsText: "Conditions : l’utilisateur est responsable du contenu collé. L’analyse est informative et ne constitue pas un conseil juridique.",
+      footerContactText: "Contact : pour l’accès ou le paiement, utilisez l’adresse de contact indiquée par Sense Bridge.",
       srcAuto: "Langue du document: AUTO",
       clear: "Effacer",
       copyTr: "Copier la traduction",
@@ -1019,6 +1106,14 @@ const UI = {
       fine1: "Sense Bridge non fornisce consulenza legale. Aiuta a capire significato, tono e rischi, così puoi decidere tu.",
       fine2: "Vendiamo tranquillità e comprensione, non ‘AI’.",
       hintUI: "‘UI’ è semplicemente la lingua della pagina (pulsanti e testi) — non cambia l’analisi.",
+      privacyNote: "<strong>Privacy:</strong> I documenti non vengono salvati pubblicamente né condivisi. Incolla solo contenuti che vuoi analizzare. Sense Bridge aiuta a capire la lettera, ma non sostituisce una consulenza legale.",
+      footerPrivacy: "Privacy",
+      footerTerms: "Termini",
+      footerContact: "Contatto",
+      footerDefault: "Sense Bridge ha carattere informativo e non è uno studio legale.",
+      footerPrivacyText: "Privacy: non pubblichiamo i documenti degli utenti. Dati tecnici e informazioni di accesso possono essere usati solo per il funzionamento del servizio.",
+      footerTermsText: "Termini: l’utente è responsabile dei contenuti che incolla. L’analisi è informativa e non è consulenza legale.",
+      footerContactText: "Contatto: per accesso o pagamenti usa l’indirizzo di contatto indicato da Sense Bridge.",
       srcAuto: "Lingua del documento: AUTO",
       clear: "Cancella",
       copyTr: "Copia traduzione",
@@ -1059,6 +1154,14 @@ const UI = {
       fine1: "Sense Bridge no ofrece asesoramiento legal. Ayuda a entender el significado, el tono y los riesgos para que puedas decidir por ti mismo.",
       fine2: "Vendemos tranquilidad y comprensión, no ‘IA’.",
       hintUI: "‘UI’ es simplemente el idioma de la página (botones y textos) — no cambia el análisis.",
+      privacyNote: "<strong>Privacidad:</strong> Los documentos no se guardan públicamente ni se comparten. Pega solo el contenido que quieras analizar. Sense Bridge ayuda a entender la carta, pero no sustituye el asesoramiento legal.",
+      footerPrivacy: "Privacidad",
+      footerTerms: "Condiciones",
+      footerContact: "Contacto",
+      footerDefault: "Sense Bridge es informativo y no es un despacho legal.",
+      footerPrivacyText: "Privacidad: no publicamos documentos de usuarios. Los datos técnicos y de acceso pueden usarse solo para el funcionamiento del servicio.",
+      footerTermsText: "Condiciones: el usuario es responsable del contenido que pega. El análisis es informativo y no constituye asesoramiento legal.",
+      footerContactText: "Contacto: para acceso o pagos usa la dirección de contacto indicada por Sense Bridge.",
       srcAuto: "Idioma del documento: AUTO",
       clear: "Borrar",
       copyTr: "Copiar traducción",
@@ -1099,6 +1202,14 @@ const UI = {
       fine1: "Sense Bridge não fornece aconselhamento jurídico. Ajuda a entender o significado, o tom e os riscos para que possa decidir por si.",
       fine2: "Vendemos tranquilidade e compreensão, não ‘IA’.",
       hintUI: "‘UI’ é simplesmente o idioma da página (botões e textos) — isso não altera a análise.",
+      privacyNote: "<strong>Privacidade:</strong> Os documentos não são guardados publicamente nem partilhados. Cole apenas conteúdo que deseja analisar. O Sense Bridge ajuda a compreender a carta, mas não substitui aconselhamento jurídico.",
+      footerPrivacy: "Privacidade",
+      footerTerms: "Termos",
+      footerContact: "Contacto",
+      footerDefault: "O Sense Bridge é informativo e não é um escritório de advocacia.",
+      footerPrivacyText: "Privacidade: não publicamos documentos de utilizadores. Dados técnicos e informações de acesso podem ser usados apenas para o funcionamento do serviço.",
+      footerTermsText: "Termos: o utilizador é responsável pelo conteúdo que cola. A análise é informativa e não constitui aconselhamento jurídico.",
+      footerContactText: "Contacto: para acesso ou pagamentos use o endereço de contacto indicado pelo Sense Bridge.",
       srcAuto: "Idioma do documento: AUTO",
       clear: "Limpar",
       copyTr: "Copiar tradução",
@@ -1173,6 +1284,18 @@ function applyUiLang(){
   document.getElementById("fine2").textContent = t.fine2;
   document.getElementById("hintUI").innerHTML = t.hintUI;
 
+  const privacyNote = document.getElementById("privacyNote");
+  if(privacyNote) privacyNote.innerHTML = t.privacyNote;
+
+  const footerPrivacy = document.getElementById("footerPrivacy");
+  const footerTerms = document.getElementById("footerTerms");
+  const footerContact = document.getElementById("footerContact");
+  const footerText = document.getElementById("footerText");
+  if(footerPrivacy) footerPrivacy.textContent = t.footerPrivacy;
+  if(footerTerms) footerTerms.textContent = t.footerTerms;
+  if(footerContact) footerContact.textContent = t.footerContact;
+  if(footerText) footerText.textContent = t.footerDefault;
+
   const src = document.getElementById("sourceLang");
   if(src && src.options && src.options.length){
     src.options[0].textContent = t.srcAuto;
@@ -1189,6 +1312,19 @@ function applyUiLang(){
     toolButtons[2].textContent = t.copyEx;
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
   }
+}
+
+function showFooterInfo(type){
+  const t = UI.dict[UI.lang] || UI.dict.PL;
+  const footerText = document.getElementById("footerText");
+  if(!footerText) return;
+
+  if(type === "privacy") footerText.textContent = t.footerPrivacyText || t.footerDefault;
+  else if(type === "terms") footerText.textContent = t.footerTermsText || t.footerDefault;
+  else if(type === "contact") footerText.textContent = t.footerContactText || t.footerDefault;
+  else footerText.textContent = t.footerDefault;
+
+  footerText.scrollIntoView({ behavior:"smooth", block:"nearest" });
 }
 
 /* =========================================================
@@ -1421,7 +1557,7 @@ if(!text){
 
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
-    // CZY POTRZEBNA POMOC PRAWNA
+      // CZY POTRZEBNA POMOC PRAWNA
 const legalStatusEl = document.getElementById("legalStatus");
 
 if (legalStatusEl) {
@@ -1464,7 +1600,7 @@ legalStatusEl.innerHTML = `
   </div>
 `;
 }
-    // PILNOŚĆ
+      // PILNOŚĆ
 const urgencyEl = document.getElementById("urgencyBox");
 const legal = (data.legalHelpNeeded || "").toUpperCase();
 
@@ -1514,7 +1650,7 @@ helpBox.innerHTML = "";
   d.textContent = "🧭 " + h;
   helpBox.appendChild(d);
 });
-    // LINKI DO POMOCY
+// LINKI DO POMOCY
 const helpLinksBox = document.getElementById("helpLinks");
 if (helpLinksBox) {
   helpLinksBox.innerHTML = "";
@@ -1618,6 +1754,7 @@ if (examplesDocEl) {
     }
 
     document.getElementById("translation").textContent = translation;
+
 fetch("/.netlify/functions/analyze_count", {
   method: "POST",
   headers: { "X-SB-Event": "analyze" }
@@ -1817,6 +1954,14 @@ fetch("/.netlify/functions/analyze_count", {
     }
   });
 })();
+
+// INSTALL APP (PWA)
+let deferredPrompt = null;
+
+window.addEventListener("beforeinstallprompt", function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+});
 
 function installApp() {
   if (deferredPrompt) {
