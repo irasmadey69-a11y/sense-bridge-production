@@ -8,21 +8,6 @@
 
 html,body{ background:#fff; color:var(--sb-text); }
 
-/* GŁÓWNY PRZYCISK (Analizuj) */
-button.primary,
-.btn-primary,
-#analyzeBtn{
-  background:var(--sb-accent) !important;
-  border-color:var(--sb-accent) !important;
-  color:#fff !important;
-}
-button.primary:hover,
-.btn-primary:hover,
-#analyzeBtn:hover{
-  background:var(--sb-accent-2) !important;
-  border-color:var(--sb-accent-2) !important;
-}
-
 /* Przyciski języków – aktywny */
 .langBtn.active,
 .lang button.active,
@@ -46,4 +31,167 @@ select:focus{
   outline:none !important;
   border-color:var(--sb-border) !important;
   box-shadow:0 0 0 3px rgba(79,143,122,.15) !important;
+}
+/* =========================================================
+   SENSE BRIDGE — PRO TRUST STYLE PATCH
+   Wklej na samym końcu <style> w index.html
+   albo dopisz na końcu style.css.
+   Tylko wygląd — bez zmiany logiki JS.
+   ========================================================= */
+
+/* Delikatniejsze, bardziej premium tło */
+body{
+  background:
+    radial-gradient(circle at top, rgba(63,138,114,0.10), transparent 34%),
+    linear-gradient(180deg,#f8fbfa 0%, #eef3f4 100%);
+}
+
+/* Karty: spokojniejsze, bardziej profesjonalne */
+.card{
+  border:1px solid rgba(63,138,114,0.20);
+  box-shadow:
+    0 12px 30px rgba(15,23,42,0.055),
+    0 1px 0 rgba(255,255,255,0.78) inset;
+}
+
+/* Główna karta */
+.top-card{
+  border-top-color:#3f8a72;
+  box-shadow:
+    0 16px 38px rgba(15,23,42,0.075),
+    0 1px 0 rgba(255,255,255,0.82) inset;
+}
+
+.top-card h1{
+  letter-spacing:-0.045em;
+}
+
+.top-card p{
+  line-height:1.35;
+}
+
+/* Przyciski główne */
+button.primary,
+#btnAnalyze{
+  border-radius:18px;
+  letter-spacing:0.01em;
+  box-shadow:0 12px 26px rgba(14,42,71,0.22);
+}
+
+button.primary:hover,
+#btnAnalyze:hover{
+  transform:translateY(-1px);
+}
+
+/* Przyciski zdjęcia */
+#sbChoosePhotoBtn,
+#sbReadPhotoBtn{
+  border-radius:16px;
+  box-shadow:0 8px 18px rgba(63,138,114,0.18);
+}
+
+/* Pola i wyniki */
+textarea,
+select,
+pre{
+  background:#fbfdfc;
+  border-color:rgba(63,138,114,0.22);
+}
+
+textarea:focus,
+select:focus{
+  background:#ffffff;
+}
+
+/* Chipy FREE / dostęp */
+.chip{
+  background:#ffffff;
+  border-color:rgba(63,138,114,0.22);
+  box-shadow:0 4px 12px rgba(15,23,42,0.035);
+}
+
+/* Privacy note — trust box */
+.privacy-note{
+  margin-top:14px;
+  padding:15px 16px;
+  border-radius:18px;
+  background:
+    linear-gradient(180deg, rgba(63,138,114,0.075), rgba(255,255,255,0.94));
+  border:1px solid rgba(63,138,114,0.24);
+  color:#243b35;
+  box-shadow:0 6px 18px rgba(15,23,42,0.035);
+}
+
+.privacy-note strong{
+  color:#172033;
+}
+
+/* Footer — spokojna strefa zaufania */
+.footer-links{
+  margin-top:28px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:14px;
+}
+
+.footer-link{
+  color:#3f8a72;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.footer-link:hover{
+  text-decoration:underline;
+}
+
+.footer-separator{
+  color:#94a3b8;
+}
+
+.footer-box{
+  max-width:720px;
+  margin:12px auto 0;
+  text-align:center;
+  color:#667085;
+  line-height:1.5;
+}
+
+/* Sekcje wyników — więcej oddechu */
+#translation,
+#examples,
+#examplesDoc{
+  min-height:40px;
+}
+
+/* Mobilne dopieszczenie */
+@media(max-width:640px){
+  main{
+    padding-top:18px;
+  }
+
+  .card{
+    border-radius:22px;
+  }
+
+  .privacy-note{
+    font-size:14px;
+    line-height:1.55;
+  }
+
+  .footer-links{
+    font-size:14px;
+    gap:10px;
+  }
+
+  .footer-box{
+    font-size:14px;
+    padding:0 8px;
+  }
+
+  button.primary,
+  #btnAnalyze{
+    min-height:58px;
+  }
 }
