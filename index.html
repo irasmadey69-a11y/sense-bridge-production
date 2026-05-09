@@ -653,6 +653,72 @@
       }
     }
 
+    /* Manual payment / PENDING confirmation box */
+    .pending-confirm-box{
+      display:none;
+      margin-top:14px;
+      padding:16px;
+      border-radius:18px;
+      border:1px solid rgba(63,138,114,0.34);
+      background:
+        linear-gradient(135deg, rgba(63,138,114,0.12), rgba(255,255,255,0.98));
+      box-shadow:0 12px 26px rgba(15,23,42,0.06);
+    }
+    .pending-confirm-box.show{
+      display:block;
+    }
+    .pending-confirm-title{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font-size:18px;
+      font-weight:900;
+      color:#132033;
+      margin-bottom:8px;
+    }
+    .pending-confirm-text{
+      color:#344154;
+      font-size:14px;
+      margin-bottom:10px;
+    }
+    .pending-bank-box{
+      background:#ffffff;
+      border:1px dashed rgba(63,138,114,0.42);
+      border-radius:14px;
+      padding:12px;
+      margin:10px 0;
+      color:#172033;
+      font-size:14px;
+    }
+    .pending-code{
+      display:block;
+      margin-top:6px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#0e2a47;
+      color:#ffffff;
+      font-size:16px;
+      font-weight:900;
+      letter-spacing:.03em;
+      word-break:break-word;
+    }
+    .pending-small{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:8px;
+    }
+    .pending-copy-btn{
+      margin-top:10px;
+      background:#ffffff;
+      color:#245c4d;
+      border:1px solid rgba(63,138,114,0.28);
+      font-weight:800;
+      cursor:pointer;
+    }
+    .pending-copy-btn:hover{
+      background:rgba(63,138,114,0.08);
+    }
+
   </style>
 </head>
 
@@ -853,6 +919,23 @@
     </p>
 
     <button class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
+
+    <div id="pendingConfirmBox" class="pending-confirm-box">
+      <div class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
+      <div class="pending-confirm-text">
+        Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
+      </div>
+      <div class="pending-bank-box">
+        <div><strong>IBAN:</strong> NL60 RABO 0324 8128 84</div>
+        <div><strong>Odbiorca:</strong> I. Madej</div>
+        <div><strong>Tytuł przelewu:</strong></div>
+        <span id="pendingCodeView" class="pending-code"></span>
+      </div>
+      <button class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
+      <div class="pending-small">
+        Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail.
+      </div>
+    </div>
   </div>
 
   <footer class="footer-links" aria-label="Informacje prawne">
@@ -876,7 +959,7 @@ const STRIPE_LINKS = {};
 const ENDPOINTS = {
   analyze: "/.netlify/functions/analyze",
   translate: "/.netlify/functions/translate",
-  accessSet: "/.netlify/functions/access_set",
+  accessSet: "/.netlify/functions/pending_set",
   accessCheck: "/.netlify/functions/access_check"
 };
 
@@ -1681,6 +1764,41 @@ function goPay(which){
   document.getElementById("paymentBox").scrollIntoView({ behavior: "smooth" });
 }
 
+
+function showPendingConfirmBox(){
+  const box = document.getElementById("pendingConfirmBox");
+  const codeView = document.getElementById("pendingCodeView");
+  const transferTitleEl = document.getElementById("transferTitle");
+
+  if(codeView && transferTitleEl){
+    codeView.textContent = (transferTitleEl.textContent || "").trim();
+  }
+
+  if(box){
+    box.classList.add("show");
+    box.scrollIntoView({ behavior:"smooth", block:"center" });
+  }
+}
+
+async function copyPendingCode(){
+  const transferTitleEl = document.getElementById("transferTitle");
+  const txt = transferTitleEl ? (transferTitleEl.textContent || "").trim() : "";
+  if(!txt) return;
+
+  try{
+    await navigator.clipboard.writeText(txt);
+    alert("Tytuł przelewu skopiowany ✔");
+  }catch{
+    const ta = document.createElement("textarea");
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    alert("Tytuł przelewu skopiowany ✔");
+  }
+}
+
 async function confirmPaid(){
   const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
 
@@ -1719,13 +1837,18 @@ if (accessCheck && accessCheck.status === "BLOCKED") {
       throw new Error(data.error || "Błąd aktywacji");
     }
 
-    setPass(currentPlan, data.expires);
+    clearPass();
 
-    alert("Dostęp aktywny ✔");
+    showPendingConfirmBox();
+
+    alert(
+      "Zgłoszenie zostało zapisane ✔\n\n" +
+      "Wykonaj przelew z podanym tytułem.\n\n" +
+      "Dostęp zostanie aktywowany po potwierdzeniu płatności."
+    );
 
     refreshUI();
     updatePaidMessage();
-    location.reload();
 
   } catch (e) {
     alert("Błąd: " + (e.message || e));
