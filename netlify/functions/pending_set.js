@@ -9,7 +9,10 @@ exports.handler = async (event) => {
     }
 
     const body = JSON.parse(event.body || "{}");
+
     const email = String(body.email || "").trim().toLowerCase();
+    const plan = String(body.plan || "—").trim();
+    const paymentTitle = String(body.paymentTitle || "").trim();
 
     if (!email) {
       return json(400, { ok: false, error: "Missing email" });
@@ -25,11 +28,11 @@ exports.handler = async (event) => {
 
     const raw = await store.get(email);
 
-    // 👉 jeśli user już istnieje
+    // Jeśli user już istnieje
     if (raw) {
       const existing = JSON.parse(raw);
 
-      // 🔴 NIE RUSZAJ aktywnego lub zablokowanego
+      // Nie ruszaj aktywnego lub zablokowanego
       if (existing.status === "ACTIVE" || existing.status === "BLOCKED") {
         return json(200, {
           ok: true,
@@ -38,10 +41,12 @@ exports.handler = async (event) => {
         });
       }
 
-      // 🟡 jeśli już PENDING → tylko odśwież czas
+      // Jeśli już PENDING — odśwież dane
       if (existing.status === "PENDING") {
         existing.createdAt = now;
-        existing.last = "Ponownie kliknięto 'Zapłaciłem'";
+        existing.last = "Ponownie kliknięto Zapłaciłem";
+        existing.plan = plan || existing.plan;
+        existing.paymentTitle = paymentTitle || existing.paymentTitle;
 
         await store.set(email, JSON.stringify(existing));
 
@@ -53,13 +58,14 @@ exports.handler = async (event) => {
       }
     }
 
-    // 🆕 nowy user
+    // Nowy user
     const userData = {
       email,
       status: "PENDING",
-      plan: "—",
+      plan,
+      paymentTitle,
       createdAt: now,
-      last: "Kliknięto 'Zapłaciłem'"
+      last: "Kliknięto Zapłaciłem"
     };
 
     await store.set(email, JSON.stringify(userData));
