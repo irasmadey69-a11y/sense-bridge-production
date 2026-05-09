@@ -4,6 +4,10 @@ exports.handler = async (event) => {
   try {
     connectLambda(event);
 
+    if (event.httpMethod === "OPTIONS") {
+      return json(200, { ok: true });
+    }
+
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
     }
@@ -28,11 +32,9 @@ exports.handler = async (event) => {
 
     const raw = await store.get(email);
 
-    // Jeśli user już istnieje
     if (raw) {
       const existing = JSON.parse(raw);
 
-      // Nie ruszaj aktywnego lub zablokowanego
       if (existing.status === "ACTIVE" || existing.status === "BLOCKED") {
         return json(200, {
           ok: true,
@@ -41,7 +43,6 @@ exports.handler = async (event) => {
         });
       }
 
-      // Jeśli już PENDING — odśwież dane
       if (existing.status === "PENDING") {
         existing.createdAt = now;
         existing.last = "Ponownie kliknięto Zapłaciłem";
@@ -49,6 +50,14 @@ exports.handler = async (event) => {
         existing.paymentTitle = paymentTitle || existing.paymentTitle;
 
         await store.set(email, JSON.stringify(existing));
+
+        await sendPendingEmail({
+          email,
+          plan: existing.plan,
+          paymentTitle: existing.paymentTitle,
+          createdAt: now,
+          repeated: true
+        });
 
         return json(200, {
           ok: true,
@@ -58,7 +67,6 @@ exports.handler = async (event) => {
       }
     }
 
-    // Nowy user
     const userData = {
       email,
       status: "PENDING",
@@ -70,6 +78,14 @@ exports.handler = async (event) => {
 
     await store.set(email, JSON.stringify(userData));
 
+    await sendPendingEmail({
+      email,
+      plan,
+      paymentTitle,
+      createdAt: now,
+      repeated: false
+    });
+
     return json(200, {
       ok: true,
       status: "PENDING"
@@ -80,12 +96,55 @@ exports.handler = async (event) => {
   }
 };
 
+async function sendPendingEmail({ email, plan, paymentTitle, createdAt, repeated }) {
+  if (!process.env.RESEND_API_KEY) return;
+
+  const subject = repeated
+    ? "Ponowne zgłoszenie płatności Sense Bridge"
+    : "Nowe zgłoszenie płatności Sense Bridge";
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + process.env.RESEND_API_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: "Sense Bridge <onboarding@resend.dev>",
+      to: ["madey.verpakken@gmail.com"],
+      subject,
+      html: `
+        <h2>${subject}</h2>
+        <p><b>Status:</b> PENDING</p>
+        <p><b>Email użytkownika:</b> ${escapeHtml(email)}</p>
+        <p><b>Plan:</b> ${escapeHtml(plan || "—")}</p>
+        <p><b>Tytuł przelewu / kod:</b> ${escapeHtml(paymentTitle || "—")}</p>
+        <p><b>Kliknięto:</b> ${new Date(createdAt).toLocaleString("pl-PL")}</p>
+        <hr>
+        <p>Sprawdź konto bankowe. Jeśli przelew się zgadza, aktywuj użytkownika w panelu admina.</p>
+      `
+    })
+  });
+}
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (s) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[s]));
+}
+
 function json(statusCode, obj) {
   return {
     statusCode,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*"
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "POST, OPTIONS"
     },
     body: JSON.stringify(obj)
   };
