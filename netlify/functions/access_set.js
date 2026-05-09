@@ -30,10 +30,11 @@ exports.handler = async (event) => {
     const now = Date.now();
     const expires = now + ms;
 
-    const store = getStore("sb-users", {
-      siteID: process.env.NETLIFY_SITE_ID,
-      token: process.env.NETLIFY_AUTH_TOKEN
-    });
+    const store = getStore({
+  name: "sb-users",
+  siteID: process.env.NETLIFY_SITE_ID,
+  token: process.env.NETLIFY_AUTH_TOKEN
+});
 
     // 🔐 sprawdzamy PIN tylko jeśli ktoś go poda
     const adminPin = String(body.adminPin || "");
