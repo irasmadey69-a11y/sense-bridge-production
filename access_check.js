@@ -1,9 +1,7 @@
-const { getStore, connectLambda } = require("@netlify/blobs");
+const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
   try {
-    connectLambda(event);
-
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
     }
