@@ -87,7 +87,7 @@ exports.handler = async (event) => {
           status,
           plan: data.plan || "—",
           expires: data.expires || "—",
-          paymentCode: data.paymentCode || "—",
+          paymentCode: data.paymentTitle || data.paymentCode || "—",
           createdAt: data.createdAt || "—",
           last: data.last || "—"
         });
