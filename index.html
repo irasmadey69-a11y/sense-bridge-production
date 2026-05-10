@@ -2307,6 +2307,25 @@ fetch("/.netlify/functions/analyze_count", {
   });
 })();
 
+  async function trackEvent(eventName) {
+  try {
+    await fetch(
+      "https://sense-bridge-production.netlify.app/.netlify/functions/track_event",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          event: eventName
+        })
+      }
+    );
+  } catch (e) {
+    console.log("trackEvent error", e);
+  }
+  }
+
 // INSTALL APP (PWA)
 let deferredPrompt = null;
 
@@ -2318,6 +2337,7 @@ window.addEventListener("beforeinstallprompt", function(e) {
 function installApp() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
+    trackEvent("shortcut_add");
     deferredPrompt.userChoice.then(function() {
       deferredPrompt = null;
     });
