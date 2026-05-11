@@ -1837,6 +1837,8 @@ if (accessCheck && accessCheck.status === "BLOCKED") {
       throw new Error(data.error || "Błąd aktywacji");
     }
 
+    trackEvent("pending");
+
     clearPass();
 
     showPendingConfirmBox();
@@ -2134,6 +2136,15 @@ fetch("/.netlify/functions/analyze_count", {
 (async function init(){
   UI.lang = getUiLang();
   applyUiLang();
+  
+  trackEvent("app_open");
+
+  if (localStorage.getItem("sb_seen_before") === "1") {
+  trackEvent("return_user");
+} else {
+  localStorage.setItem("sb_seen_before", "1");
+  }
+  
   applyPaidFromQuery();
   fetch("/.netlify/functions/visit", {
   method: "POST",
@@ -2262,6 +2273,7 @@ fetch("/.netlify/functions/analyze_count", {
       textarea.dispatchEvent(new Event("input", { bubbles: true }));
 
       setStatus(text ? msg("statusInserted") : "Nie udało się odczytać tekstu.");
+      if (text) trackEvent("ocr_use");
       return text;
 
     } catch (err) {
