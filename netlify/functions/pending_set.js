@@ -28,9 +28,27 @@ exports.handler = async (event) => {
       token: process.env.NETLIFY_AUTH_TOKEN
     });
 
+    const paymentsStore = getStore({
+  name: "sb-payments",
+  siteID: process.env.NETLIFY_SITE_ID,
+  token: process.env.NETLIFY_AUTH_TOKEN
+});
+
     const now = Date.now();
 
-    const raw = await store.get(email);
+const paymentRecord = {
+  email,
+  plan,
+  paymentTitle,
+  createdAt: now
+};
+
+await paymentsStore.set(
+  `${now}_${email}`,
+  JSON.stringify(paymentRecord)
+);
+
+const raw = await store.get(email);
 
     let repeated = false;
     let finalStatus = "PENDING";
