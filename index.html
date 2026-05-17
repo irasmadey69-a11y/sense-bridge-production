@@ -719,6 +719,198 @@
       background:rgba(63,138,114,0.08);
     }
 
+    /* =========================================================
+   SENSE BRIDGE DARK PREMIUM THEME — test Acode
+   Safe visual layer only
+   ========================================================= */
+
+:root{
+  --bg:#050b12;
+  --card:#0b1420;
+  --text:#eafdf4;
+  --muted:#9fb5ad;
+  --primary:#2cff9a;
+  --primary-hover:#19d982;
+  --warn:#2a1d08;
+  --warn-text:#ffd36a;
+  --border:rgba(44,255,154,0.28);
+  --ok:#2cff9a;
+  --ok-hover:#19d982;
+  --danger:#ff4d6d;
+}
+
+body{
+  background:
+    radial-gradient(circle at top right, rgba(44,255,154,0.14), transparent 32%),
+    radial-gradient(circle at bottom left, rgba(0,180,255,0.10), transparent 28%),
+    var(--bg);
+  color:var(--text);
+}
+
+p,
+.fine,
+.hint,
+.small,
+#sbPhotoFileName,
+.legal-mini{
+  color:var(--muted) !important;
+}
+
+.card,
+.access,
+.plan,
+.status-box,
+.photo-box,
+.pending-bank-box{
+  background:
+    linear-gradient(180deg, rgba(14,28,42,0.96), rgba(7,15,24,0.96)) !important;
+  border-color:rgba(44,255,154,0.24) !important;
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+
+.top-card{
+  background:
+    radial-gradient(circle at top right, rgba(44,255,154,0.18), transparent 38%),
+    linear-gradient(180deg, #0c1725, #07111d) !important;
+  border-top-color:var(--primary) !important;
+}
+
+.top-card h1,
+h1,h2,h3,
+.section-title,
+#lblPhotoTitle,
+.pending-confirm-title{
+  color:var(--text) !important;
+}
+
+.top-card p{
+  color:#b7c9c2 !important;
+}
+
+textarea,
+select,
+input{
+  background:#07111d !important;
+  color:var(--text) !important;
+  border-color:rgba(44,255,154,0.28) !important;
+}
+
+textarea::placeholder{
+  color:#6f8a82 !important;
+}
+
+textarea:focus,
+select:focus,
+input:focus{
+  border-color:var(--primary) !important;
+  box-shadow:0 0 0 4px rgba(44,255,154,0.16) !important;
+}
+
+pre{
+  background:#050b12 !important;
+  color:#eafdf4 !important;
+  border-color:rgba(44,255,154,0.22) !important;
+}
+
+button.primary,
+#sbChoosePhotoBtn,
+#sbReadPhotoBtn{
+  background:linear-gradient(135deg,#12d87d,#2cff9a) !important;
+  color:#04110b !important;
+  box-shadow:0 10px 22px rgba(44,255,154,0.20) !important;
+}
+
+#btnAnalyze{
+  background:linear-gradient(135deg,#0ddf80,#2cff9a) !important;
+  color:#04110b !important;
+  box-shadow:0 12px 28px rgba(44,255,154,0.22) !important;
+}
+
+button.primary:hover,
+#btnAnalyze:hover,
+#sbChoosePhotoBtn:hover,
+#sbReadPhotoBtn:hover{
+  background:linear-gradient(135deg,#19d982,#73ffc0) !important;
+}
+
+.ui-btn,
+.tool-btn,
+.chip,
+.install-btn,
+.pending-copy-btn,
+.footer-links button{
+  background:#081522 !important;
+  color:#c8e8dc !important;
+  border-color:rgba(44,255,154,0.22) !important;
+}
+
+.ui-btn.active{
+  color:#04110b !important;
+  background:var(--primary) !important;
+  border-color:var(--primary) !important;
+  box-shadow:0 0 0 3px rgba(44,255,154,0.20) !important;
+}
+
+.chip strong{
+  color:var(--primary) !important;
+}
+
+.privacy-note{
+  background:
+    linear-gradient(135deg, rgba(44,255,154,0.14), rgba(7,15,24,0.96)) !important;
+  color:#c8e8dc !important;
+  border-color:rgba(44,255,154,0.30) !important;
+  border-left:5px solid var(--primary) !important;
+}
+
+.privacy-note strong{
+  color:var(--primary) !important;
+}
+
+.box-warn{
+  background:#261b08 !important;
+  color:#ffd36a !important;
+  border:1px solid rgba(255,211,106,0.22);
+}
+
+.lock{
+  background:#2a0710 !important;
+  color:#ffb4c2 !important;
+  border-color:rgba(255,77,109,0.35) !important;
+}
+
+.badge{
+  background:rgba(44,255,154,0.16) !important;
+  color:var(--primary) !important;
+  border-color:rgba(44,255,154,0.35) !important;
+}
+
+.plan.best{
+  border-color:var(--primary) !important;
+}
+
+.pending-code{
+  background:#02070c !important;
+  color:var(--primary) !important;
+  border:1px solid rgba(44,255,154,0.28);
+}
+
+a{
+  color:var(--primary);
+}
+
+.card:not(.top-card)::after{
+  background:linear-gradient(90deg, rgba(44,255,154,0.75), rgba(44,255,154,0.05)) !important;
+}
+
+.section-title::before,
+#lblPhotoTitle::before{
+  background:rgba(44,255,154,0.12) !important;
+  border-color:rgba(44,255,154,0.28) !important;
+  }
+
   </style>
 </head>
 
