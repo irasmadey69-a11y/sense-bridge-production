@@ -718,7 +718,7 @@
     .pending-copy-btn:hover{
       background:rgba(63,138,114,0.08);
     }
-
+    
     /* =========================================================
    SENSE BRIDGE DARK PREMIUM THEME — test Acode
    Safe visual layer only
@@ -909,9 +909,9 @@ a{
 #lblPhotoTitle::before{
   background:rgba(44,255,154,0.12) !important;
   border-color:rgba(44,255,154,0.28) !important;
-  }
+}
 
-    /* PLAN TEXT FIX */
+/* PLAN TEXT FIX */
 
 .plan .name,
 .plan .price,
@@ -936,6 +936,97 @@ a{
 #fine1,
 #fine2{
   color:#b7c9c2 !important;
+}
+
+/* =========================================================
+   SENSE BRIDGE DARK MODAL
+   ========================================================= */
+
+.sb-modal{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,0.72);
+  backdrop-filter:blur(8px);
+}
+
+.sb-modal.hidden{
+  display:none;
+}
+
+.sb-modal-box{
+  width:100%;
+  max-width:420px;
+  border-radius:24px;
+  padding:22px;
+  background:
+    radial-gradient(circle at top right, rgba(44,255,154,0.18), transparent 36%),
+    linear-gradient(180deg, #0d1a28, #06101a);
+  border:1px solid rgba(44,255,154,0.30);
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+.sb-modal-box h3{
+  margin:0 0 10px;
+  color:#eafdf4;
+  font-size:24px;
+  line-height:1.15;
+}
+
+.sb-modal-box p{
+  margin:0 0 16px;
+  color:#b7c9c2;
+  font-size:15px;
+  line-height:1.45;
+}
+
+.sb-modal-input{
+  width:100%;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(44,255,154,0.30);
+  background:#050b12;
+  color:#eafdf4;
+  font-size:16px;
+  margin-bottom:16px;
+}
+
+.sb-modal-input:focus{
+  outline:none;
+  border-color:#2cff9a;
+  box-shadow:0 0 0 4px rgba(44,255,154,0.16);
+}
+
+.sb-modal-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+.sb-modal-actions button{
+  border-radius:14px;
+  padding:11px 15px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.sb-modal-cancel{
+  background:#081522;
+  color:#c8e8dc;
+  border:1px solid rgba(44,255,154,0.22);
+}
+
+.sb-modal-ok{
+  background:linear-gradient(135deg,#12d87d,#2cff9a);
+  color:#04110b;
+  border:none;
+  box-shadow:0 10px 22px rgba(44,255,154,0.20);
 }
 
   </style>
@@ -1167,8 +1258,77 @@ a{
   <div class="legal-mini" id="footerText">Sense Bridge ma charakter informacyjny i nie jest kancelarią prawną.</div>
 
 </main>
+<!-- Sense Bridge custom modal -->
+<div id="sbModal" class="sb-modal hidden">
+  <div class="sb-modal-box">
+    <h3 id="sbModalTitle">Sense Bridge</h3>
+    <p id="sbModalText"></p>
+
+    <input id="sbModalInput" class="sb-modal-input" type="text" style="display:none;" />
+
+    <div class="sb-modal-actions">
+      <button type="button" class="sb-modal-cancel" onclick="sbModalCancel()">Anuluj</button>
+      <button type="button" class="sb-modal-ok" onclick="sbModalOk()">OK</button>
+    </div>
+  </div>
+</div>
 
 <script>
+  
+  /* =========================================================
+   SENSE BRIDGE CUSTOM MODAL
+   ========================================================= */
+let sbModalResolve = null;
+
+function sbShowModal({ title = "Sense Bridge", text = "", input = false, placeholder = "" }) {
+  return new Promise((resolve) => {
+    sbModalResolve = resolve;
+
+    const modal = document.getElementById("sbModal");
+    const titleEl = document.getElementById("sbModalTitle");
+    const textEl = document.getElementById("sbModalText");
+    const inputEl = document.getElementById("sbModalInput");
+
+    titleEl.textContent = title;
+    textEl.textContent = text;
+
+    if (input) {
+      inputEl.style.display = "block";
+      inputEl.value = "";
+      inputEl.placeholder = placeholder;
+      inputEl.type = "email";
+      setTimeout(() => inputEl.focus(), 150);
+    } else {
+      inputEl.style.display = "none";
+      inputEl.value = "";
+    }
+
+    modal.classList.remove("hidden");
+  });
+}
+
+function sbModalOk() {
+  const modal = document.getElementById("sbModal");
+  const inputEl = document.getElementById("sbModalInput");
+  const value = inputEl.style.display === "block" ? inputEl.value.trim() : true;
+
+  modal.classList.add("hidden");
+
+  if (sbModalResolve) {
+    sbModalResolve(value);
+    sbModalResolve = null;
+  }
+}
+
+function sbModalCancel() {
+  const modal = document.getElementById("sbModal");
+  modal.classList.add("hidden");
+
+  if (sbModalResolve) {
+    sbModalResolve(null);
+    sbModalResolve = null;
+  }
+}
 
 /* =========================================================
    CONFIG
@@ -1943,14 +2103,20 @@ async function syncAccess(){
    ========================================================= */
 let currentPlan = null;
 
-function goPay(which){
+async function goPay(which){
   currentPlan = which;
 
   let amount = "";
   let title = "";
 
-  const email = prompt("Podaj swój email:");
-  if(!email) return;
+  const email = await sbShowModal({
+  title: "Podaj swój email",
+  text: "Na ten adres przypiszemy zgłoszenie płatności i dostęp.",
+  input: true,
+  placeholder: "twoj@email.com"
+});
+
+if(!email) return;
 
   let planNum = "24";
 
@@ -2581,4 +2747,4 @@ function installApp() {
 </script>
 
 </body>
-  </html>
+      </html>
