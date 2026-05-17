@@ -1029,6 +1029,34 @@ a{
   box-shadow:0 10px 22px rgba(44,255,154,0.20);
 }
 
+/* FINAL FIX - pending box readability */
+.pending-confirm-box{
+  background:
+    radial-gradient(circle at top right, rgba(44,255,154,0.14), transparent 36%),
+    linear-gradient(180deg, #0d1a28, #06101a) !important;
+  border:1px solid rgba(44,255,154,0.30) !important;
+  color:#eafdf4 !important;
+}
+
+.pending-confirm-title{
+  color:#eafdf4 !important;
+}
+
+.pending-confirm-text,
+.pending-small{
+  color:#c8e8dc !important;
+}
+
+.pending-bank-box{
+  background:#07111d !important;
+  color:#c8e8dc !important;
+  border:1px dashed rgba(44,255,154,0.35) !important;
+}
+
+.pending-bank-box strong{
+  color:#eafdf4 !important;
+}
+
   </style>
 </head>
 
@@ -2172,7 +2200,6 @@ async function copyPendingCode(){
 
   try{
     await navigator.clipboard.writeText(txt);
-    alert("Tytuł przelewu skopiowany ✔");
   }catch{
     const ta = document.createElement("textarea");
     ta.value = txt;
@@ -2180,9 +2207,15 @@ async function copyPendingCode(){
     ta.select();
     document.execCommand("copy");
     document.body.removeChild(ta);
-    alert("Tytuł przelewu skopiowany ✔");
   }
+
+  await sbShowModal({
+    title: "Skopiowano ✔",
+    text: "Tytuł przelewu został skopiowany.",
+    input: false
+  });
 }
+
 
 async function confirmPaid(){
   const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
@@ -2228,11 +2261,11 @@ if (accessCheck && accessCheck.status === "BLOCKED") {
 
     showPendingConfirmBox();
 
-    alert(
-      "Zgłoszenie zostało zapisane ✔\n\n" +
-      "Wykonaj przelew z podanym tytułem.\n\n" +
-      "Dostęp zostanie aktywowany po potwierdzeniu płatności."
-    );
+    await sbShowModal({
+  title: "Zgłoszenie zapisane ✔",
+  text: "Wykonaj przelew z podanym tytułem. Dostęp zostanie aktywowany po potwierdzeniu płatności.",
+  input: false
+});
 
     refreshUI();
     updatePaidMessage();
@@ -2747,4 +2780,4 @@ function installApp() {
 </script>
 
 </body>
-      </html>
+</html>
