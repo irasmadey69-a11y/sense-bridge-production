@@ -1057,6 +1057,49 @@ a{
   color:#eafdf4 !important;
 }
 
+/* Sense Bridge — fraud risk UI */
+#lblFraudRisk::before{content:"🛡️";}
+.fraud-box{
+  border-radius:16px;
+  padding:14px;
+  border:1px solid rgba(44,255,154,0.24);
+  background:linear-gradient(180deg, rgba(7,17,29,0.96), rgba(5,11,18,0.96));
+  color:#eafdf4;
+}
+.fraud-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.fraud-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 10px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:13px;
+  border:1px solid rgba(255,255,255,0.14);
+}
+.fraud-low{background:rgba(44,255,154,0.16);color:#7dffbf;border-color:rgba(44,255,154,0.35);}
+.fraud-medium{background:rgba(255,211,106,0.14);color:#ffd36a;border-color:rgba(255,211,106,0.35);}
+.fraud-high{background:rgba(255,77,109,0.14);color:#ff9aae;border-color:rgba(255,77,109,0.35);}
+.fraud-unknown{background:rgba(159,181,173,0.12);color:#c8e8dc;border-color:rgba(159,181,173,0.26);}
+.fraud-box p{color:#c8e8dc !important;margin:0 0 10px;}
+.fraud-list{margin:10px 0 0;padding:0;list-style:none;}
+.fraud-list li{
+  margin:7px 0;
+  padding:9px 10px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.035);
+  border:1px solid rgba(255,255,255,0.07);
+  color:#eafdf4;
+}
+.fraud-small{font-size:12px;color:#9fb5ad !important;margin-top:10px !important;}
+
   </style>
 </head>
 
@@ -1176,6 +1219,19 @@ a{
     </div>
   </div>
 
+<div class="card" id="fraudInfoCard">
+
+  <div class="section-title" id="lblFraudInfo">
+    🛡️ Sprawdzenie bezpieczeństwa dokumentu
+  </div>
+
+  <div class="resultBox" id="fraudInfoText">
+    Sense Bridge po analizie sprawdzi również możliwe ryzyko oszustwa,
+    podszywania się pod instytucję oraz podejrzane elementy dokumentu.
+  </div>
+
+</div>
+
   <div class="card">
     <div class="section-title" id="lblTranslation">Tłumaczenie</div>
     <pre id="translation"></pre>
@@ -1191,6 +1247,12 @@ a{
 <div id="consequences"></div>
 <div id="help"></div>
 <div id="helpLinks"></div>
+  </div>
+  
+  <div class="card" id="fraudCard" style="display:none;">
+    
+    <div class="section-title" id="lblFraudRisk">Analiza ryzyka oszustwa</div>
+    <div id="fraudRiskBox"></div>
   </div>
 
   <div class="card">
@@ -1513,6 +1575,8 @@ const UI = {
       placeholder: "Wklej treść pisma lub e-maila z urzędu…",
       btnAnalyze: "Analizuj pismo",
       userLang: "Twój język",
+      fraudInfoTitle:"🛡️ Sprawdzenie bezpieczeństwa dokumentu",
+fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszustwa, podszywania się pod instytucję oraz podejrzane elementy dokumentu.",
       installApp: '📲 Dodaj skrót aplikacji do telefonu',
       installHelp: 'Aby dodać skrót aplikacji do telefonu:\\n\\nKliknij 3 kropki w przeglądarce\\n→ Dodaj do ekranu głównego',
       free: "FREE:",
@@ -1561,6 +1625,8 @@ const UI = {
       placeholder: "Вставте текст офіційного листа або e-mail…",
       btnAnalyze: "Аналізувати лист",
       userLang: "Ваша мова",
+      fraudInfoTitle:"🛡️ Перевірка безпеки документа",
+fraudInfoText:"Після аналізу Sense Bridge також перевірить можливий ризик шахрайства, підробки установи та підозрілі елементи документа.",
       installApp: '📲 Додати ярлик застосунку на телефон',
       installHelp: 'Щоб додати ярлик застосунку на телефон:\\n\\nНатисніть 3 крапки у браузері\\n→ Додати на головний екран',
       free: "FREE:",
@@ -1609,6 +1675,8 @@ const UI = {
       placeholder: "Plak de tekst van de brief of e-mail…",
       btnAnalyze: "Analyseer brief",
       userLang: "Jouw taal",
+      fraudInfoTitle:"🛡️ Controle van documentveiligheid",
+fraudInfoText:"Sense Bridge controleert na de analyse ook mogelijke fraude, imitatie van instanties en verdachte elementen in het document.",
       installApp: '📲 Snelkoppeling op telefoon zetten',
       installHelp: 'Om een snelkoppeling op je telefoon te zetten:\\n\\nTik op de 3 puntjes in de browser\\n→ Toevoegen aan startscherm',
       free: "FREE:",
@@ -1657,6 +1725,8 @@ const UI = {
       placeholder: "Paste the content of the letter or email…",
       btnAnalyze: "Analyze letter",
       userLang: "Your language",
+      fraudInfoTitle:"🛡️ Document safety check",
+fraudInfoText:"After the analysis, Sense Bridge will also check for possible fraud risk, impersonation of an institution, and suspicious elements in the document.",
       installApp: '📲 Add app shortcut to phone',
       installHelp: 'To add an app shortcut to your phone:\\n\\nTap the 3 dots in your browser\\n→ Add to Home screen',
       free: "FREE:",
@@ -1705,6 +1775,8 @@ const UI = {
       placeholder: "Füge den Text des Schreibens oder der E-Mail ein…",
       btnAnalyze: "Schreiben analysieren",
       userLang: "Deine Sprache",
+      fraudInfoTitle:"🛡️ Sicherheitsprüfung des Dokuments",
+fraudInfoText:"Nach der Analyse prüft Sense Bridge auch ein mögliches Betrugsrisiko, die Nachahmung einer Institution und verdächtige Elemente im Dokument.",
       installApp: '📲 App-Verknüpfung zum Handy hinzufügen',
       installHelp: 'So fügst du eine App-Verknüpfung hinzu:\\n\\nTippe auf die 3 Punkte im Browser\\n→ Zum Startbildschirm hinzufügen',
       free: "FREE:",
@@ -1753,6 +1825,8 @@ const UI = {
       placeholder: "Collez le texte du courrier ou de l’e-mail…",
       btnAnalyze: "Analyser le courrier",
       userLang: "Votre langue",
+      fraudInfoTitle:"🛡️ Vérification de sécurité du document",
+fraudInfoText:"Après l’analyse, Sense Bridge vérifiera également les risques possibles de fraude, d’usurpation d’une institution et les éléments suspects du document.",
       installApp: '📲 Ajouter le raccourci au téléphone',
       installHelp: 'Pour ajouter le raccourci sur le téléphone:\\n\\nAppuyez sur les 3 points du navigateur\\n→ Ajouter à l’écran d’accueil',
       free: "FREE:",
@@ -1801,6 +1875,8 @@ const UI = {
       placeholder: "Incolla il testo della lettera o dell’e-mail…",
       btnAnalyze: "Analizza lettera",
       userLang: "La tua lingua",
+      fraudInfoTitle:"🛡️ Controllo di sicurezza del documento",
+fraudInfoText:"Dopo l’analisi, Sense Bridge controllerà anche il possibile rischio di frode, imitazione di un’istituzione ed elementi sospetti nel documento.",
       installApp: '📲 Aggiungi scorciatoia al telefono',
       installHelp: 'Per aggiungere la scorciatoia al telefono:\\n\\nTocca i 3 puntini nel browser\\n→ Aggiungi alla schermata iniziale',
       free: "FREE:",
@@ -1849,6 +1925,9 @@ const UI = {
       placeholder: "Pega el texto de la carta o del correo…",
       btnAnalyze: "Analizar carta",
       userLang: "Tu idioma",
+      fraudInfoTitle:"🛡️ Comprobación de seguridad del documento",
+fraudInfoText:"Después del análisis, Sense Bridge también comprobará posibles riesgos de fraude, suplantación de una institución y elementos sospechosos del documento.",
+
       installApp: '📲 Añadir acceso directo al teléfono',
       installHelp: 'Para añadir el acceso directo al teléfono:\\n\\nToca los 3 puntos del navegador\\n→ Añadir a pantalla de inicio',
       free: "FREE:",
@@ -1897,6 +1976,8 @@ const UI = {
       placeholder: "Cole o texto da carta ou do e-mail…",
       btnAnalyze: "Analisar carta",
       userLang: "O seu idioma",
+      fraudInfoTitle:"🛡️ Verificação de segurança do documento",
+fraudInfoText:"Após a análise, o Sense Bridge também verificará possíveis riscos de fraude, falsificação de uma instituição e elementos suspeitos no documento.",
       installApp: '📲 Adicionar atalho ao telefone',
       installHelp: 'Para adicionar o atalho ao telefone:\\n\\nToque nos 3 pontos do navegador\\n→ Adicionar ao ecrã inicial',
       free: "FREE:",
@@ -1988,6 +2069,11 @@ function applyUiLang(){
   document.getElementById("lockBox").textContent = t.lock;
 
   document.getElementById("lblTranslation").textContent = t.translation;
+  document.getElementById("lblFraudInfo").textContent =
+UI.dict[UI.lang].fraudInfoTitle;
+
+document.getElementById("fraudInfoText").textContent =
+UI.dict[UI.lang].fraudInfoText;
   document.getElementById("lblSummary").textContent = t.summary;
   document.getElementById("lblRisks").textContent = t.risks;
   document.getElementById("lblExamples").textContent = t.examplesUser || t.examples;
@@ -2076,6 +2162,7 @@ function clearInput(){
   const risks = document.getElementById("risks");
   if(risks) risks.innerHTML = "";
 }
+  
 async function copyText(id){
   const el = document.getElementById(id);
   const txt = (el && (el.textContent || "")).trim();
@@ -2096,6 +2183,83 @@ async function copyText(id){
 }
 function safeArr(a){
   return Array.isArray(a) ? a : [];
+}
+
+function renderFraudRisk(data){
+  const card = document.getElementById("fraudCard");
+  const box = document.getElementById("fraudRiskBox");
+  if(!card || !box) return;
+
+  const fr = data.fraudRisk || data.scamRisk || data.authenticityRisk || null;
+  if(!fr || typeof fr !== "object"){
+    card.style.display = "none";
+    box.innerHTML = "";
+    return;
+  }
+
+  const level = String(fr.level || "UNKNOWN").toUpperCase();
+  const confidence = Number(fr.confidence || 0);
+
+  let cls = "fraud-unknown";
+  let icon = "⚪";
+  let defaultLabel = "Nie da się ocenić autentyczności";
+
+  if(level === "LOW"){
+    cls = "fraud-low";
+    icon = "🟢";
+    defaultLabel = "Wygląda raczej wiarygodnie";
+  }
+  if(level === "MEDIUM"){
+    cls = "fraud-medium";
+    icon = "🟡";
+    defaultLabel = "Warto zweryfikować nadawcę";
+  }
+  if(level === "HIGH"){
+    cls = "fraud-high";
+    icon = "🔴";
+    defaultLabel = "Wysokie ryzyko oszustwa";
+  }
+
+  const label = String(fr.label || defaultLabel);
+  const summary = String(fr.summary || "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu.");
+  const signals = safeArr(fr.signals);
+  const suspicious = safeArr(fr.suspiciousElements);
+  const steps = safeArr(fr.safeSteps);
+  const disclaimer = String(fr.disclaimer || "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu.");
+
+  function list(title, arr){
+    if(!arr || !arr.length) return "";
+    return `
+      <p style="font-weight:900;margin-top:12px;">${title}</p>
+      <ul class="fraud-list">
+        ${arr.map(x => `<li>${escapeHtml(String(x))}</li>`).join("")}
+      </ul>
+    `;
+  }
+
+  box.innerHTML = `
+    <div class="fraud-box">
+      <div class="fraud-head">
+        <div class="fraud-pill ${cls}">${icon} ${escapeHtml(label)}</div>
+        <div class="chip"><span>Pewność:</span> <strong>${Number.isFinite(confidence) ? confidence : 0}%</strong></div>
+      </div>
+      <p>${escapeHtml(summary)}</p>
+      ${list("Sygnały do sprawdzenia", signals)}
+      ${list("Podejrzane elementy", suspicious)}
+      ${list("Bezpieczne kroki", steps)}
+      <p class="fraud-small">${escapeHtml(disclaimer)}</p>
+    </div>
+  `;
+  card.style.display = "block";
+}
+
+function escapeHtml(s){
+  return String(s || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
 async function syncAccess(){
@@ -2329,6 +2493,7 @@ if(!text){
 
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
+      renderFraudRisk(data);
       // CZY POTRZEBNA POMOC PRAWNA
 const legalStatusEl = document.getElementById("legalStatus");
 
@@ -2780,4 +2945,4 @@ function installApp() {
 </script>
 
 </body>
-</html>
+                                                    </html>
