@@ -120,6 +120,53 @@ Jeśli brak kraju:
 
 10) Oceń ryzyko oszustwa w obiekcie fraudRisk:
 
+11) Rozpoznaj możliwą instytucję, kraj i oficjalną stronę.
+
+Jeśli rozpoznajesz urząd, bank lub instytucję:
+- zwróć institution.name
+- zwróć institution.country
+- zwróć institution.officialWebsite
+- zwróć institution.confidence (0-100)
+
+Rozpoznawaj m.in.:
+- DigiD
+- UWV
+- Belastingdienst
+- Toeslagen
+- Gemeente
+- IND
+- SVB
+- DUO
+- CJIB
+- RDW
+- ING
+- Rabobank
+- ABN AMRO
+- ASN Bank
+- European housing departments
+- tax offices
+- immigration offices
+- official municipalities
+
+Jeśli nie jesteś pewien:
+- NIE zgaduj
+- ustaw confidence niżej
+- officialWebsite może być pusty
+
+12) Wykryj linki i numery telefonu z tekstu.
+
+Zwróć:
+- detectedLinks
+- suspiciousLinks
+- detectedPhones
+
+Link uznaj za podejrzany jeśli:
+- podszywa się pod urząd
+- wygląda nietypowo
+- ma dziwną domenę
+- używa presji czasu
+- wygląda jak phishing
+
 fraudRisk.level:
 - LOW → wygląda raczej wiarygodnie, brak mocnych sygnałów oszustwa
 - MEDIUM → są nietypowe elementy, warto zweryfikować oficjalnym kanałem
@@ -204,6 +251,18 @@ Zwróć WYŁĄCZNIE JSON (json_object):
     "safeSteps": ["...", "..."],
     "disclaimer": "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu."
   },
+  
+  "institution": {
+  "name": "DigiD",
+  "country": "NL",
+  "officialWebsite": "https://www.digid.nl",
+  "confidence": 92
+},
+
+"detectedLinks": ["https://example.com"],
+"suspiciousLinks": ["http://fake-example-login.com"],
+"detectedPhones": ["+31 6 12345678"],
+
   "replies": {
     "neutral": "...",
     "polite": "...",
@@ -243,6 +302,53 @@ TEKST:
     const repliesFromModel = (modelJson.replies && typeof modelJson.replies === "object") ? modelJson.replies : {};
 
     const fraudRisk = normalizeFraudRisk(modelJson.fraudRisk, userLang);
+    if (
+  matchedSuspiciousLinks.length > 0 ||
+  suspiciousPhoneMatches.length > 0
+) {
+  fraudRisk.level = "HIGH";
+
+  if (!fraudRisk.label) {
+    fraudRisk.label =
+      "Wykryto znane sygnały phishingu";
+  }
+
+  fraudRisk.confidence =
+    Math.max(fraudRisk.confidence || 0, 85);
+
+  fraudRisk.signals = [
+    ...(fraudRisk.signals || []),
+    "Wykryto podejrzaną domenę lub numer telefonu"
+  ];
+}
+    
+    const institution = normalizeInstitution(modelJson.institution);
+const detectedLinks = arr(modelJson.detectedLinks);
+const suspiciousLinks = arr(modelJson.suspiciousLinks);
+const detectedPhones = arr(modelJson.detectedPhones);
+const suspiciousDomains = [
+  "digid-login.com",
+  "uwv-controle.net",
+  "belasting-check.info",
+  "verify-digid.com",
+  "secure-toeslagen.net"
+];
+
+const suspiciousPhones = [
+  "+3197004499999",
+  "+31880000000"
+];
+
+const matchedSuspiciousLinks = detectedLinks
+filter(link =>
+  suspiciousDomains.some(domain =>
+    link.toLowerCase().includes(domain)
+  )
+);
+
+const suspiciousPhoneMatches = detectedPhones.filter(phone =>
+  suspiciousPhones.includes(phone)
+);
 
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
@@ -293,6 +399,11 @@ TEKST:
       fraudRisk,
       scamRisk: fraudRisk,
       authenticityRisk: fraudRisk,
+      institution,
+detectedLinks,
+suspiciousLinks: [...suspiciousLinks, ...matchedSuspiciousLinks],
+suspiciousPhoneMatches,
+detectedPhones,
       risks,
       riskList: risks,
       riskChips: risks,
