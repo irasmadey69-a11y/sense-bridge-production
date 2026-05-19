@@ -302,25 +302,6 @@ TEKST:
     const repliesFromModel = (modelJson.replies && typeof modelJson.replies === "object") ? modelJson.replies : {};
 
     const fraudRisk = normalizeFraudRisk(modelJson.fraudRisk, userLang);
-    if (
-  matchedSuspiciousLinks.length > 0 ||
-  suspiciousPhoneMatches.length > 0
-) {
-  fraudRisk.level = "HIGH";
-
-  if (!fraudRisk.label) {
-    fraudRisk.label =
-      "Wykryto znane sygnały phishingu";
-  }
-
-  fraudRisk.confidence =
-    Math.max(fraudRisk.confidence || 0, 85);
-
-  fraudRisk.signals = [
-    ...(fraudRisk.signals || []),
-    "Wykryto podejrzaną domenę lub numer telefonu"
-  ];
-}
     
     const institution = normalizeInstitution(modelJson.institution);
 const detectedLinks = arr(modelJson.detectedLinks);
@@ -349,6 +330,25 @@ filter(link =>
 const suspiciousPhoneMatches = detectedPhones.filter(phone =>
   suspiciousPhones.includes(phone)
 );
+if (
+  matchedSuspiciousLinks.length > 0 ||
+  suspiciousPhoneMatches.length > 0
+) {
+  fraudRisk.level = "HIGH";
+
+  if (!fraudRisk.label) {
+    fraudRisk.label =
+      "Wykryto znane sygnały phishingu";
+  }
+
+  fraudRisk.confidence =
+    Math.max(fraudRisk.confidence || 0, 85);
+
+  fraudRisk.signals = [
+    ...(fraudRisk.signals || []),
+    "Wykryto podejrzaną domenę lub numer telefonu"
+  ];
+}
 
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
