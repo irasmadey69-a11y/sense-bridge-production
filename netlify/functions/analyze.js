@@ -271,7 +271,7 @@ Zwróć WYŁĄCZNIE JSON (json_object):
 }
 
 TEKST:
-"""${text}"""
+${text}
 `.trim();
 
     const modelJson = await callOpenAIJsonObject(apiKey, analysisPrompt);
@@ -303,7 +303,8 @@ TEKST:
 
     const fraudRisk = normalizeFraudRisk(modelJson.fraudRisk, userLang);
     
-    const institution = modelJson.institution || null;
+    const institution =
+  normalizeInstitution(modelJson.institution);
 const detectedLinks = arr(modelJson.detectedLinks);
 const suspiciousLinks = arr(modelJson.suspiciousLinks);
 const detectedPhones = arr(modelJson.detectedPhones);
@@ -361,7 +362,7 @@ Zachowaj sens, ton i format (akapity, listy).
 Zwróć WYŁĄCZNIE przetłumaczony tekst, bez komentarzy.
 
 TEKST:
-"""${text}"""
+${text}
 `.trim();
 
       translation = await callOpenAIText(apiKey, translatePrompt);
@@ -465,6 +466,20 @@ function normalizeFraudRisk(v, userLang) {
     suspiciousElements: arr(obj.suspiciousElements),
     safeSteps: arr(obj.safeSteps).length ? arr(obj.safeSteps) : fallback.safeSteps,
     disclaimer: str(obj.disclaimer) || fallback.disclaimer
+  };
+}
+
+function normalizeInstitution(v) {
+  const obj = (v && typeof v === "object") ? v : {};
+
+  return {
+    name: str(obj.name || ""),
+    country: str(obj.country || "").toUpperCase(),
+    officialWebsite: str(obj.officialWebsite || ""),
+    confidence: Math.max(
+      0,
+      Math.min(100, Number(obj.confidence || 0))
+    )
   };
 }
 
