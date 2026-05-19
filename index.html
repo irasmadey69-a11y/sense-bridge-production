@@ -2227,30 +2227,6 @@ function renderFraudRisk(data){
   const suspicious = safeArr(fr.suspiciousElements);
   const steps = safeArr(fr.safeSteps);
   const disclaimer = String(fr.disclaimer || "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu.");
-  
-  function renderInstitution(data){
-  const box = document.getElementById("institutionBox");
-  if(!box) return;
-
-  const inst = data.institution;
-  if(!inst || !inst.name){
-    box.innerHTML = "";
-    return;
-  }
-
-  const website = inst.officialWebsite || "";
-  const confidence = Number(inst.confidence || 0);
-
-  box.innerHTML = `
-    <div class="box-info" style="margin-top:12px;">
-      <strong>🏛 ${escapeHtml(inst.name)}</strong><br>
-      ${inst.country ? "🌍 Kraj: " + escapeHtml(inst.country) + "<br>" : ""}
-      ${website ? `🌐 Oficjalna strona: <a href="${escapeHtml(website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(website)}</a><br>` : ""}
-      ✅ Zweryfikuj sytuację przez oficjalną stronę instytucji.
-      ${confidence ? `<br><small>Pewność rozpoznania: ${confidence}%</small>` : ""}
-    </div>
-  `;
-}
 
   function list(title, arr){
     if(!arr || !arr.length) return "";
@@ -2276,6 +2252,45 @@ function renderFraudRisk(data){
     </div>
   `;
   card.style.display = "block";
+}
+function renderInstitution(data){
+  const box = document.getElementById("institutionBox");
+  if(!box) return;
+
+  const inst = data.institution;
+
+  if(!inst || !inst.name){
+    box.innerHTML = "";
+    return;
+  }
+
+  const website = inst.officialWebsite || "";
+  const confidence = Number(inst.confidence || 0);
+
+  box.innerHTML = `
+    <div class="box-info" style="margin-top:12px;">
+      <strong>🏛 ${escapeHtml(inst.name)}</strong><br>
+
+      ${inst.country ? `🌍 Kraj: ${escapeHtml(inst.country)}<br>` : ""}
+
+      ${website
+        ? `🌐 Oficjalna strona:
+        <a href="${escapeHtml(website)}"
+        target="_blank"
+        rel="noopener noreferrer">
+        ${escapeHtml(website)}
+        </a><br>`
+        : ""
+      }
+
+      ✅ Zweryfikuj sytuację przez oficjalną stronę instytucji.
+
+      ${confidence
+        ? `<br><small>Pewność rozpoznania: ${confidence}%</small>`
+        : ""
+      }
+    </div>
+  `;
 }
 
 function escapeHtml(s){
