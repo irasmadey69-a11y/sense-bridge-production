@@ -1,5 +1,4 @@
 // netlify/functions/analyze.js  (CommonJS)
-// Sense Bridge — analiza pisma + spokojna analiza ryzyka oszustwa
 
 exports.handler = async (event) => {
   const headers = corsHeaders();
@@ -11,8 +10,8 @@ exports.handler = async (event) => {
   try {
     const body = safeJson(event.body);
     const text = str(body.text || body.input || body.content || body.document || "");
-    const sourceLang = str(body.sourceLang || body.source || "AUTO").toUpperCase();
-    const userLang = str(body.userLang || body.targetLang || body.target || "PL").toUpperCase();
+    const sourceLang = str(body.sourceLang || body.source || "AUTO").toUpperCase(); // AUTO | NL | DE | EN | PL
+    const userLang = str(body.userLang || body.targetLang || body.target || "PL").toUpperCase(); // PL | DE | NL | EN
     const tone = str(body.tone || body.style || "neutral").toLowerCase();
 
     if (!text) {
@@ -22,7 +21,7 @@ exports.handler = async (event) => {
         detectedLang: "UNKNOWN",
         detected: "UNKNOWN",
         lang: "UNKNOWN",
-        sourceLang,
+        sourceLang: sourceLang,
         userLang,
         translation: "",
         translatedText: "",
@@ -34,16 +33,6 @@ exports.handler = async (event) => {
         risks: [],
         riskList: [],
         riskChips: [],
-        fraudRisk: {
-          level: "UNKNOWN",
-          confidence: 0,
-          label: "Brak tekstu do analizy.",
-          summary: "Brak tekstu do analizy ryzyka oszustwa.",
-          signals: [],
-          suspiciousElements: [],
-          safeSteps: [],
-          disclaimer: "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu."
-        },
         replies: fallbackReplies,
         examples: fallbackReplies,
         responseExamples: fallbackReplies
@@ -58,19 +47,16 @@ exports.handler = async (event) => {
       });
     }
 
+    // 1) ANALIZA (JSON_OBJECT) — w prompt MUSI paść słowo "JSON"
     const analysisPrompt = `
 Zadanie: przeanalizuj pismo urzędowe lub formalne. To NIE jest porada prawna.
 
-DODATKOWE ZADANIE: oceń spokojnie ryzyko możliwego oszustwa / phishingu / podszywania się.
-To ma być ANALIZA RYZYKA, nie wyrok. Nigdy nie pisz, że dokument jest na 100% prawdziwy albo na 100% fałszywy.
-
 Twoim celem jest spokojne wyjaśnienie sytuacji użytkownikowi:
 - co oznacza pismo
-- czego urząd lub nadawca oczekuje
+- czego urząd oczekuje
 - co użytkownik powinien zrobić
 - jakie mogą być konsekwencje
 - czy potrzebna jest pomoc
-- czy są sygnały typowe dla oszustw
 
 Odpowiadaj w języku użytkownika: ${userLang}.
 
@@ -96,7 +82,8 @@ Wykonaj:
 - uprzejma
 - stanowcza
 
-8) sekcja "help":
+8) sekcja "help" (bardzo ważne):
+
 Jeśli rozpoznasz kraj (np. NL, DE itd.):
 
 dla NL użyj:
@@ -104,7 +91,7 @@ dla NL użyj:
 - Juridisch Loket (darmowa pomoc prawna)
 - Gemeente (lokalna pomoc)
 
-Dla innych krajów:
+dla innych krajów:
 - użyj realnych instytucji państwowych jeśli jesteś pewien
 - jeśli nie jesteś pewien → NIE zgaduj
 
@@ -114,85 +101,17 @@ Jeśli brak kraju:
   - darmowa pomoc prawna
 
 9) oceń potrzebę pomocy prawnej:
+
 - NONE → brak potrzeby
 - RECOMMENDED → warto skonsultować
 - URGENT → pilnie skonsultuj
 
-10) Oceń ryzyko oszustwa w obiekcie fraudRisk:
+ZASADY:
 
-11) Rozpoznaj możliwą instytucję, kraj i oficjalną stronę.
-
-Jeśli rozpoznajesz urząd, bank lub instytucję:
-- zwróć institution.name
-- zwróć institution.country
-- zwróć institution.officialWebsite
-- zwróć institution.confidence (0-100)
-
-Rozpoznawaj m.in.:
-- DigiD
-- UWV
-- Belastingdienst
-- Toeslagen
-- Gemeente
-- IND
-- SVB
-- DUO
-- CJIB
-- RDW
-- ING
-- Rabobank
-- ABN AMRO
-- ASN Bank
-- European housing departments
-- tax offices
-- immigration offices
-- official municipalities
-
-Jeśli nie jesteś pewien:
-- NIE zgaduj
-- ustaw confidence niżej
-- officialWebsite może być pusty
-
-12) Wykryj linki i numery telefonu z tekstu.
-
-Zwróć:
-- detectedLinks
-- suspiciousLinks
-- detectedPhones
-
-Link uznaj za podejrzany jeśli:
-- podszywa się pod urząd
-- wygląda nietypowo
-- ma dziwną domenę
-- używa presji czasu
-- wygląda jak phishing
-
-fraudRisk.level:
-- LOW → wygląda raczej wiarygodnie, brak mocnych sygnałów oszustwa
-- MEDIUM → są nietypowe elementy, warto zweryfikować oficjalnym kanałem
-- HIGH → wiele sygnałów typowych dla oszustwa/phishingu
-- UNKNOWN → za mało danych, nie da się ocenić
-
-fraudRisk.confidence:
-liczba 0-100 określająca pewność analizy ryzyka, ale bez udawania 100% pewności.
-
-fraudRisk.signals:
-krótkie sygnały, np. presja czasu, nietypowy link, dziwny adres e-mail, prośba o login, IBAN, płatność, groźby.
-
-fraudRisk.suspiciousElements:
-konkretne elementy z tekstu, które warto sprawdzić. Jeśli nie ma takich elementów, zwróć pustą tablicę.
-
-fraudRisk.safeSteps:
-spokojne bezpieczne kroki, np. nie klikaj linku, nie podawaj danych, sprawdź przez oficjalną stronę, zadzwoń na numer z oficjalnej strony, zaloguj się ręcznie przez oficjalną domenę.
-
-ZASADY OGÓLNE:
 - NIE strasz użytkownika bez powodu
 - NIE używaj czerwonego tonu jeśli sytuacja jest neutralna
 - NIE zakładaj najgorszego scenariusza
 - używaj prostego, ludzkiego języka
-- przy oszustwach pisz spokojnie: "warto zweryfikować", "nie da się potwierdzić autentyczności tylko z tekstu", "sprawdź oficjalnym kanałem"
-- jeśli dokument wygląda normalnie, nie wymyślaj podejrzeń
-- jeśli są linki, IBAN, numery telefonu, adresy e-mail lub presja czasu — oceń je jako osobne sygnały
 
 REGUŁY PILNOŚCI (nadpisują wszystko):
 
@@ -203,6 +122,7 @@ Jeśli występuje TYLKO prośba o dosłanie dokumentów, uzupełnienie danych, p
 NIE ustawiaj URGENT.
 
 URGENT ustaw TYLKO gdy występuje:
+
 - sąd
 - komornik
 - egzekucja
@@ -233,37 +153,15 @@ Zwróć WYŁĄCZNIE JSON (json_object):
   "consequences": ["...", "..."],
   "risks": ["...", "..."],
   "help": ["...", "..."],
-  "helpLinks": [
-    {
-      "label": "Belastingdienst / Toeslagen",
-      "url": "https://www.toeslagen.nl",
-      "type": "institution"
-    }
-  ],
-  "legalHelpNeeded": "RECOMMENDED",
-  "fraudRisk": {
-    "level": "MEDIUM",
-    "confidence": 72,
-    "label": "Warto zweryfikować nadawcę",
-    "summary": "...",
-    "signals": ["...", "..."],
-    "suspiciousElements": ["...", "..."],
-    "safeSteps": ["...", "..."],
-    "disclaimer": "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu."
-  },
-  
-  "institution": {
-  "name": "DigiD",
-  "country": "NL",
-  "officialWebsite": "https://www.digid.nl",
-  "confidence": 92
-},
-
-"detectedLinks": ["https://example.com"],
-"suspiciousLinks": ["http://fake-example-login.com"],
-"detectedPhones": ["+31 6 12345678"],
-
-  "replies": {
+"helpLinks": [
+  {
+    "label": "Belastingdienst / Toeslagen",
+    "url": "https://www.toeslagen.nl",
+    "type": "institution"
+  }
+],
+"legalHelpNeeded": "RECOMMENDED",
+"replies": {
     "neutral": "...",
     "polite": "...",
     "firm": "..."
@@ -278,78 +176,27 @@ TEKST:
 
     const detectedLang = str(modelJson.detectedLang || "UNKNOWN").toUpperCase();
     const summary = str(modelJson.summary || "");
-    const risks = arr(modelJson.risks);
-    const actions = arr(modelJson.actions);
-    const consequences = arr(modelJson.consequences);
-    const help = arr(modelJson.help);
-
+    const risks = Array.isArray(modelJson.risks) ? modelJson.risks.filter(Boolean).map(String) : [];
+    const actions = Array.isArray(modelJson.actions) ? modelJson.actions.filter(Boolean).map(String) : [];
+const consequences = Array.isArray(modelJson.consequences) ? modelJson.consequences.filter(Boolean).map(String) : [];
+const help = Array.isArray(modelJson.help) ? modelJson.help.filter(Boolean).map(String) : [];
     const helpLinks = Array.isArray(modelJson.helpLinks)
-      ? modelJson.helpLinks
-          .filter(x => x && typeof x === "object" && x.label && x.url)
-          .map(x => ({
-            label: String(x.label || "").trim(),
-            url: String(x.url || "").trim(),
-            type: String(x.type || "info").trim()
-          }))
-      : [];
-
-    const legalHelpNeeded = str(modelJson.legalHelpNeeded || "UNKNOWN").toUpperCase();
-    const legalHelpFinal = ["NONE", "RECOMMENDED", "URGENT"].includes(legalHelpNeeded)
-      ? legalHelpNeeded
-      : "RECOMMENDED";
-
-    const urgency = str(modelJson.urgency || "UNKNOWN").toUpperCase();
+  ? modelJson.helpLinks
+      .filter(x => x && typeof x === "object" && x.label && x.url)
+      .map(x => ({
+        label: String(x.label || "").trim(),
+        url: String(x.url || "").trim(),
+        type: String(x.type || "info").trim()
+      }))
+  : [];
+const legalHelpNeeded = str(modelJson.legalHelpNeeded || "UNKNOWN").toUpperCase();
+const legalHelpFinal = ["NONE","RECOMMENDED","URGENT"].includes(legalHelpNeeded)
+  ? legalHelpNeeded
+  : "RECOMMENDED";
+const urgency = str(modelJson.urgency || "UNKNOWN").toUpperCase();
     const repliesFromModel = (modelJson.replies && typeof modelJson.replies === "object") ? modelJson.replies : {};
 
-    const fraudRisk = normalizeFraudRisk(modelJson.fraudRisk, userLang);
-    
-    const institution = normalizeInstitution(modelJson.institution);
-const detectedLinks = arr(modelJson.detectedLinks);
-const suspiciousLinks = arr(modelJson.suspiciousLinks);
-const detectedPhones = arr(modelJson.detectedPhones);
-const suspiciousDomains = [
-  "digid-login.com",
-  "uwv-controle.net",
-  "belasting-check.info",
-  "verify-digid.com",
-  "secure-toeslagen.net"
-];
-
-const suspiciousPhones = [
-  "+3197004499999",
-  "+31880000000"
-];
-
-const matchedSuspiciousLinks = detectedLinks
-filter(link =>
-  suspiciousDomains.some(domain =>
-    link.toLowerCase().includes(domain)
-  )
-);
-
-const suspiciousPhoneMatches = detectedPhones.filter(phone =>
-  suspiciousPhones.includes(phone)
-);
-if (
-  matchedSuspiciousLinks.length > 0 ||
-  suspiciousPhoneMatches.length > 0
-) {
-  fraudRisk.level = "HIGH";
-
-  if (!fraudRisk.label) {
-    fraudRisk.label =
-      "Wykryto znane sygnały phishingu";
-  }
-
-  fraudRisk.confidence =
-    Math.max(fraudRisk.confidence || 0, 85);
-
-  fraudRisk.signals = [
-    ...(fraudRisk.signals || []),
-    "Wykryto podejrzaną domenę lub numer telefonu"
-  ];
-}
-
+    // 2) TŁUMACZENIE (TEXT)
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
     let translation = "";
@@ -368,45 +215,43 @@ TEKST:
       translation = await callOpenAIText(apiKey, translatePrompt);
     }
 
+    // Fallback odpowiedzi
     const fallbackReplies = buildReplies(userLang, tone);
 
     const replies = {
       neutral: str(repliesFromModel.neutral || fallbackReplies.neutral),
-      polite: str(repliesFromModel.polite || fallbackReplies.polite),
-      firm: str(repliesFromModel.firm || fallbackReplies.firm)
+      polite:  str(repliesFromModel.polite  || fallbackReplies.polite),
+      firm:    str(repliesFromModel.firm    || fallbackReplies.firm)
     };
 
     const payload = {
-      ok: true,
-      detectedLang,
-      detected: detectedLang,
-      lang: detectedLang,
-      sourceLang: effectiveSource,
-      userLang,
-      translation,
-      translatedText: translation,
-      translated: translation,
-      summary,
-      whatOfficeSays: summary,
-      communication: summary,
-      officeSummary: summary,
-      actions,
-      urgency,
-      consequences,
-      help,
-      helpLinks,
-      legalHelpNeeded: legalHelpFinal,
-      fraudRisk,
-      scamRisk: fraudRisk,
-      authenticityRisk: fraudRisk,
-      institution,
-detectedLinks,
-suspiciousLinks: [...suspiciousLinks, ...matchedSuspiciousLinks],
-suspiciousPhoneMatches,
-detectedPhones,
-      risks,
+  ok: true,
+
+  detectedLang,
+  detected: detectedLang,
+  lang: detectedLang,
+
+  sourceLang: effectiveSource,
+  userLang,
+
+  translation,
+  translatedText: translation,
+  translated: translation,
+
+  summary,
+  whatOfficeSays: summary,
+  communication: summary,
+  officeSummary: summary,
+  actions,
+  urgency,
+  consequences,
+  help,
+helpLinks,
+legalHelpNeeded: legalHelpFinal,
+risks,
       riskList: risks,
       riskChips: risks,
+
       replies,
       examples: replies,
       responseExamples: replies
@@ -440,76 +285,6 @@ function safeJson(s) {
 
 function str(v) {
   return (typeof v === "string" ? v : "").trim();
-}
-
-function arr(v) {
-  return Array.isArray(v) ? v.filter(Boolean).map(x => String(x).trim()).filter(Boolean) : [];
-}
-
-function normalizeFraudRisk(v, userLang) {
-  const obj = (v && typeof v === "object") ? v : {};
-  let level = String(obj.level || "UNKNOWN").trim().toUpperCase();
-  if (!["LOW", "MEDIUM", "HIGH", "UNKNOWN"].includes(level)) level = "UNKNOWN";
-
-  let confidence = Number(obj.confidence || 0);
-  if (!Number.isFinite(confidence)) confidence = 0;
-  confidence = Math.max(0, Math.min(100, Math.round(confidence)));
-
-  const fallback = fraudFallback(userLang, level);
-
-  return {
-    level,
-    confidence,
-    label: str(obj.label) || fallback.label,
-    summary: str(obj.summary) || fallback.summary,
-    signals: arr(obj.signals),
-    suspiciousElements: arr(obj.suspiciousElements),
-    safeSteps: arr(obj.safeSteps).length ? arr(obj.safeSteps) : fallback.safeSteps,
-    disclaimer: str(obj.disclaimer) || fallback.disclaimer
-  };
-}
-
-function fraudFallback(lang, level) {
-  const L = (lang || "PL").toUpperCase();
-  const map = {
-    PL: {
-      LOW: "Wygląda raczej wiarygodnie",
-      MEDIUM: "Warto zweryfikować nadawcę",
-      HIGH: "Wysokie ryzyko oszustwa",
-      UNKNOWN: "Nie da się ocenić autentyczności"
-    },
-    EN: {
-      LOW: "Looks rather credible",
-      MEDIUM: "Verify the sender",
-      HIGH: "High fraud risk",
-      UNKNOWN: "Authenticity cannot be assessed"
-    },
-    NL: {
-      LOW: "Lijkt redelijk betrouwbaar",
-      MEDIUM: "Controleer de afzender",
-      HIGH: "Hoog risico op fraude",
-      UNKNOWN: "Echtheid kan niet worden beoordeeld"
-    },
-    DE: {
-      LOW: "Wirkt eher glaubwürdig",
-      MEDIUM: "Absender prüfen",
-      HIGH: "Hohes Betrugsrisiko",
-      UNKNOWN: "Echtheit kann nicht beurteilt werden"
-    }
-  };
-  const labels = map[L] || map.PL;
-  return {
-    label: labels[level] || labels.UNKNOWN,
-    summary: L === "PL"
-      ? "To jest spokojna analiza ryzyka. Nie potwierdza autentyczności dokumentu."
-      : "This is a calm risk analysis. It does not confirm document authenticity.",
-    safeSteps: L === "PL"
-      ? ["Nie klikaj podejrzanych linków.", "Nie podawaj loginu, hasła ani danych bankowych.", "Zweryfikuj sprawę przez oficjalną stronę lub numer telefonu instytucji."]
-      : ["Do not click suspicious links.", "Do not share login, password or banking details.", "Verify through the official website or phone number of the institution."],
-    disclaimer: L === "PL"
-      ? "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu."
-      : "This is a risk analysis, not confirmation of document authenticity."
-  };
 }
 
 function buildReplies(lang, tone) {
@@ -589,7 +364,7 @@ async function callOpenAIJsonObject(apiKey, prompt) {
     body: JSON.stringify({
       model: "gpt-4o-mini",
       temperature: 0,
-      max_output_tokens: 2200,
+      max_output_tokens: 1000,
       input: prompt,
       text: { format: { type: "json_object" } }
     })
