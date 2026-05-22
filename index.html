@@ -1579,7 +1579,7 @@ const UI = {
       fraudInfoTitle:"🛡️ Sprawdzenie bezpieczeństwa dokumentu",
 fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszustwa, podszywania się pod instytucję oraz podejrzane elementy dokumentu.",
       installApp: '📲 Dodaj skrót aplikacji do telefonu',
-      installHelp: 'Aby dodać skrót aplikacji do telefonu:\\n\\nKliknij 3 kropki w przeglądarce\\n→ Dodaj do ekranu głównego',
+      installHelp: '',
       free: "FREE:",
       analyses: "analizy",
       access: "Dostęp:",
@@ -2971,15 +2971,142 @@ window.addEventListener("beforeinstallprompt", function(e) {
 });
 
 function installApp() {
+
   if (deferredPrompt) {
+
     deferredPrompt.prompt();
-    trackEvent("shortcut_add");
+
+    if (typeof trackEvent === "function") {
+      trackEvent("shortcut_add");
+    }
+
     deferredPrompt.userChoice.then(function() {
       deferredPrompt = null;
     });
+
   } else {
-    const t = UI.dict[UI.lang] || UI.dict.PL;
-    alert(t.installHelp || UI.dict.PL.installHelp);
+
+    var oldBox = document.getElementById("sbInstallBox");
+    if (oldBox) oldBox.remove();
+
+    var overlay = document.createElement("div");
+    overlay.id = "sbInstallBox";
+
+    overlay.style.position = "fixed";
+    overlay.style.left = "0";
+    overlay.style.top = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.background = "rgba(0,0,0,.55)";
+    overlay.style.display = "flex";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.zIndex = "99999";
+    overlay.style.padding = "18px";
+    overlay.style.backdropFilter = "blur(4px)";
+
+    var box = document.createElement("div");
+
+    box.style.maxWidth = "420px";
+    box.style.width = "100%";
+    box.style.background = "linear-gradient(180deg,#0e2a47,#123e61)";
+    box.style.border = "2px solid #32d296";
+    box.style.borderRadius = "24px";
+    box.style.padding = "20px";
+    box.style.color = "#fff";
+    box.style.boxShadow = "0 0 35px rgba(50,210,150,.25)";
+    box.style.fontFamily = "system-ui,sans-serif";
+    box.style.textAlign = "center";
+
+    box.innerHTML = `
+
+      <div style="
+        font-size:26px;
+        margin-bottom:8px;
+      ">
+        📲
+      </div>
+
+      <div style="
+        font-size:25px;
+        font-weight:900;
+        line-height:1.15;
+        margin-bottom:14px;
+      ">
+        Dodaj Sense Bridge<br>
+        do telefonu
+      </div>
+
+      <div style="
+        font-size:16px;
+        line-height:1.55;
+        color:rgba(255,255,255,.92);
+        margin-bottom:16px;
+      ">
+        To dziala jak aplikacja — bez sklepu Google Play.
+      </div>
+
+      <div style="
+        background:rgba(50,210,150,.10);
+        border:1px solid rgba(50,210,150,.28);
+        border-radius:18px;
+        padding:14px;
+        margin-bottom:16px;
+        line-height:1.5;
+        color:#dffdf2;
+        font-size:14px;
+      ">
+        🔒 Sense Bridge nie zapisuje i nie udostepnia Twoich dokumentow.<br><br>
+
+        Dlatego dziala bez konta i bez klasycznej instalacji.
+      </div>
+
+      <div style="
+        font-size:15px;
+        line-height:1.55;
+        margin-bottom:18px;
+      ">
+        Kliknij <b>3 kropki</b> w przegladarce<br>
+        i wybierz:
+      </div>
+
+      <div style="
+        display:inline-block;
+        background:#32d296;
+        color:#062b1f;
+        padding:8px 12px;
+        border-radius:12px;
+        font-weight:900;
+        font-size:14px;
+        margin-bottom:20px;
+      ">
+        Dodaj do ekranu glownego
+      </div>
+
+      <button id="sbCloseInstall" style="
+        width:100%;
+        border:none;
+        border-radius:16px;
+        padding:14px;
+        background:#32d296;
+        color:#062b1f;
+        font-size:17px;
+        font-weight:900;
+        cursor:pointer;
+      ">
+        Rozumiem
+      </button>
+
+    `;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    document
+      .getElementById("sbCloseInstall")
+      .onclick = function() {
+        overlay.remove();
+      };
   }
 }
 
