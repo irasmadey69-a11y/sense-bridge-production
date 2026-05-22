@@ -1579,7 +1579,7 @@ const UI = {
       fraudInfoTitle:"🛡️ Sprawdzenie bezpieczeństwa dokumentu",
 fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszustwa, podszywania się pod instytucję oraz podejrzane elementy dokumentu.",
       installApp: '📲 Dodaj skrót aplikacji do telefonu',
-      installHelp: '',
+      installHelp: 'Aby dodać skrót aplikacji do telefonu:\\n\\nKliknij 3 kropki w przeglądarce\\n→ Dodaj do ekranu głównego',
       free: "FREE:",
       analyses: "analizy",
       access: "Dostęp:",
@@ -2335,20 +2335,156 @@ async function syncAccess(){
    ========================================================= */
 let currentPlan = null;
 
+function getPayText(){
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+
+  const txt = {
+    PL:{
+      emailTitle:"Podaj swój email",
+      emailText:"Na ten adres przypiszemy zgłoszenie płatności i dostęp.",
+      placeholder:"twoj@email.com",
+      copied:"Skopiowano ✔",
+      copiedText:"Tytuł przelewu został skopiowany.",
+      noEmail:"Podaj email najpierw.",
+      noPlan:"Brak wybranego planu.",
+      blocked:"Ten email jest zablokowany.",
+      error:"Błąd: ",
+      activationError:"Błąd aktywacji",
+      pendingTitle:"Zgłoszenie zapisane ✔",
+      pendingText:"Wykonaj przelew z podanym tytułem. Dostęp zostanie aktywowany po potwierdzeniu płatności."
+    },
+    NL:{
+      emailTitle:"Voer je e-mailadres in",
+      emailText:"Aan dit adres koppelen we de betalingsmelding en toegang.",
+      placeholder:"jouw@email.com",
+      copied:"Gekopieerd ✔",
+      copiedText:"De omschrijving is gekopieerd.",
+      noEmail:"Voer eerst je e-mailadres in.",
+      noPlan:"Geen plan geselecteerd.",
+      blocked:"Dit e-mailadres is geblokkeerd.",
+      error:"Fout: ",
+      activationError:"Activatiefout",
+      pendingTitle:"Aanvraag opgeslagen ✔",
+      pendingText:"Voer de overschrijving uit met de opgegeven omschrijving. Toegang wordt geactiveerd na bevestiging van betaling."
+    },
+    EN:{
+      emailTitle:"Enter your email",
+      emailText:"We will assign the payment request and access to this address.",
+      placeholder:"your@email.com",
+      copied:"Copied ✔",
+      copiedText:"The transfer title has been copied.",
+      noEmail:"Enter your email first.",
+      noPlan:"No plan selected.",
+      blocked:"This email is blocked.",
+      error:"Error: ",
+      activationError:"Activation error",
+      pendingTitle:"Request saved ✔",
+      pendingText:"Make the transfer using the provided title. Access will be activated after payment confirmation."
+    },
+    DE:{
+      emailTitle:"Gib deine E-Mail-Adresse ein",
+      emailText:"An diese Adresse wird die Zahlungsanfrage und der Zugang zugewiesen.",
+      placeholder:"deine@email.com",
+      copied:"Kopiert ✔",
+      copiedText:"Der Verwendungszweck wurde kopiert.",
+      noEmail:"Bitte zuerst deine E-Mail eingeben.",
+      noPlan:"Kein Paket ausgewählt.",
+      blocked:"Diese E-Mail ist blockiert.",
+      error:"Fehler: ",
+      activationError:"Aktivierungsfehler",
+      pendingTitle:"Anfrage gespeichert ✔",
+      pendingText:"Führe die Überweisung mit dem angegebenen Verwendungszweck aus. Der Zugang wird nach Zahlungsbestätigung aktiviert."
+    },
+    UA:{
+      emailTitle:"Введіть свою електронну пошту",
+      emailText:"На цю адресу буде прив’язано заявку на оплату та доступ.",
+      placeholder:"your@email.com",
+      copied:"Скопійовано ✔",
+      copiedText:"Призначення платежу скопійовано.",
+      noEmail:"Спочатку введіть email.",
+      noPlan:"План не вибрано.",
+      blocked:"Цей email заблоковано.",
+      error:"Помилка: ",
+      activationError:"Помилка активації",
+      pendingTitle:"Запит збережено ✔",
+      pendingText:"Виконайте переказ із вказаним призначенням платежу. Доступ буде активовано після підтвердження оплати."
+    },
+    FR:{
+      emailTitle:"Entrez votre e-mail",
+      emailText:"Nous associerons la demande de paiement et l’accès à cette adresse.",
+      placeholder:"votre@email.com",
+      copied:"Copié ✔",
+      copiedText:"Le libellé du virement a été copié.",
+      noEmail:"Entrez d’abord votre e-mail.",
+      noPlan:"Aucun accès sélectionné.",
+      blocked:"Cet e-mail est bloqué.",
+      error:"Erreur : ",
+      activationError:"Erreur d’activation",
+      pendingTitle:"Demande enregistrée ✔",
+      pendingText:"Effectuez le virement avec le libellé indiqué. L’accès sera activé après confirmation du paiement."
+    },
+    IT:{
+      emailTitle:"Inserisci la tua email",
+      emailText:"A questo indirizzo assoceremo la richiesta di pagamento e l'accesso.",
+      placeholder:"tuo@email.com",
+      copied:"Copiato ✔",
+      copiedText:"La causale del bonifico è stata copiata.",
+      noEmail:"Inserisci prima la tua email.",
+      noPlan:"Nessun piano selezionato.",
+      blocked:"Questa email è bloccata.",
+      error:"Errore: ",
+      activationError:"Errore di attivazione",
+      pendingTitle:"Richiesta salvata ✔",
+      pendingText:"Effettua il bonifico usando la causale indicata. L'accesso sarà attivato dopo la conferma del pagamento."
+    },
+    ES:{
+      emailTitle:"Introduce tu email",
+      emailText:"Asignaremos la solicitud de pago y el acceso a esta dirección.",
+      placeholder:"tu@email.com",
+      copied:"Copiado ✔",
+      copiedText:"El concepto de la transferencia ha sido copiado.",
+      noEmail:"Introduce primero tu email.",
+      noPlan:"No se ha seleccionado ningún plan.",
+      blocked:"Este email está bloqueado.",
+      error:"Error: ",
+      activationError:"Error de activación",
+      pendingTitle:"Solicitud guardada ✔",
+      pendingText:"Realiza la transferencia con el concepto indicado. El acceso se activará después de confirmar el pago."
+    },
+    PT:{
+      emailTitle:"Introduza o seu email",
+      emailText:"Vamos associar o pedido de pagamento e o acesso a este endereço.",
+      placeholder:"seu@email.com",
+      copied:"Copiado ✔",
+      copiedText:"A referência da transferência foi copiada.",
+      noEmail:"Introduza primeiro o seu email.",
+      noPlan:"Nenhum plano selecionado.",
+      blocked:"Este email está bloqueado.",
+      error:"Erro: ",
+      activationError:"Erro de ativação",
+      pendingTitle:"Pedido guardado ✔",
+      pendingText:"Faça a transferência com a referência indicada. O acesso será ativado após confirmação do pagamento."
+    }
+  };
+
+  return txt[lang] || txt.PL;
+}
+
 async function goPay(which){
   currentPlan = which;
 
   let amount = "";
   let title = "";
+  const tPay = getPayText();
 
   const email = await sbShowModal({
-  title: "Podaj swój email",
-  text: "Na ten adres przypiszemy zgłoszenie płatności i dostęp.",
-  input: true,
-  placeholder: "twoj@email.com"
-});
+    title: tPay.emailTitle,
+    text: tPay.emailText,
+    input: true,
+    placeholder: tPay.placeholder
+  });
 
-if(!email) return;
+  if(!email) return;
 
   let planNum = "24";
 
@@ -2381,7 +2517,6 @@ if(!email) return;
   document.getElementById("paymentBox").scrollIntoView({ behavior: "smooth" });
 }
 
-
 function showPendingConfirmBox(){
   const box = document.getElementById("pendingConfirmBox");
   const codeView = document.getElementById("pendingCodeView");
@@ -2398,6 +2533,7 @@ function showPendingConfirmBox(){
 }
 
 async function copyPendingCode(){
+  const tPay = getPayText();
   const transferTitleEl = document.getElementById("transferTitle");
   const txt = transferTitleEl ? (transferTitleEl.textContent || "").trim() : "";
   if(!txt) return;
@@ -2414,34 +2550,36 @@ async function copyPendingCode(){
   }
 
   await sbShowModal({
-    title: "Skopiowano ✔",
-    text: "Tytuł przelewu został skopiowany.",
+    title: tPay.copied,
+    text: tPay.copiedText,
     input: false
   });
 }
 
-
 async function confirmPaid(){
+  const tPay = getPayText();
   const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
 
   if(!email){
-    alert("Podaj email najpierw.");
+    alert(tPay.noEmail);
     return;
   }
 
   if(!currentPlan){
-    alert("Brak wybranego planu.");
+    alert(tPay.noPlan);
     return;
   }
-const accessCheck = await checkAccessServer(email);
 
-if (accessCheck && accessCheck.status === "BLOCKED") {
-  clearPass();
-  refreshUI();
-  updatePaidMessage();
-  alert("Ten email jest zablokowany.");
-  return;
-}
+  const accessCheck = await checkAccessServer(email);
+
+  if (accessCheck && accessCheck.status === "BLOCKED") {
+    clearPass();
+    refreshUI();
+    updatePaidMessage();
+    alert(tPay.blocked);
+    return;
+  }
+
   try {
     const res = await fetch(ENDPOINTS.accessSet, {
       method: "POST",
@@ -2456,7 +2594,7 @@ if (accessCheck && accessCheck.status === "BLOCKED") {
     const data = await res.json();
 
     if(!res.ok || !data.ok){
-      throw new Error(data.error || "Błąd aktywacji");
+      throw new Error(data.error || tPay.activationError);
     }
 
     trackEvent("pending");
@@ -2466,18 +2604,19 @@ if (accessCheck && accessCheck.status === "BLOCKED") {
     showPendingConfirmBox();
 
     await sbShowModal({
-  title: "Zgłoszenie zapisane ✔",
-  text: "Wykonaj przelew z podanym tytułem. Dostęp zostanie aktywowany po potwierdzeniu płatności.",
-  input: false
-});
+      title: tPay.pendingTitle,
+      text: tPay.pendingText,
+      input: false
+    });
 
     refreshUI();
     updatePaidMessage();
 
   } catch (e) {
-    alert("Błąd: " + (e.message || e));
+    alert(tPay.error + (e.message || e));
   }
 }
+
 
 /* =========================================================
    CORE: analyze + translate fallback
@@ -2973,7 +3112,6 @@ window.addEventListener("beforeinstallprompt", function(e) {
 function installApp() {
 
   if (deferredPrompt) {
-
     deferredPrompt.prompt();
 
     if (typeof trackEvent === "function") {
@@ -2985,6 +3123,104 @@ function installApp() {
     });
 
   } else {
+
+    var lang = (UI && UI.lang) ? UI.lang : "PL";
+
+    var txt = {
+
+      PL: {
+        title: "Dodaj Sense Bridge<br>do telefonu",
+        text: "To dziala jak aplikacja — bez sklepu Google Play.",
+        privacy: "Sense Bridge nie zapisuje i nie udostepnia Twoich dokumentow.",
+        why: "Dlatego dziala bez konta i bez klasycznej instalacji.",
+        step: "Kliknij <b>3 kropki</b> w przegladarce<br>i wybierz:",
+        add: "Dodaj do ekranu glownego",
+        ok: "Rozumiem"
+      },
+
+      NL: {
+        title: "Zet Sense Bridge<br>op je telefoon",
+        text: "Het werkt als een app — zonder Google Play.",
+        privacy: "Sense Bridge bewaart en deelt jouw documenten niet.",
+        why: "Daarom werkt het zonder account en zonder klassieke installatie.",
+        step: "Klik op de <b>3 puntjes</b> in de browser<br>en kies:",
+        add: "Toevoegen aan startscherm",
+        ok: "Ik begrijp het"
+      },
+
+      EN: {
+        title: "Add Sense Bridge<br>to your phone",
+        text: "It works like an app — without Google Play.",
+        privacy: "Sense Bridge does not save or share your documents.",
+        why: "That is why it works without an account and without classic installation.",
+        step: "Tap the <b>3 dots</b> in your browser<br>and choose:",
+        add: "Add to Home screen",
+        ok: "I understand"
+      },
+
+      DE: {
+        title: "Fuege Sense Bridge<br>zum Telefon hinzu",
+        text: "Es funktioniert wie eine App — ohne Google Play.",
+        privacy: "Sense Bridge speichert und teilt deine Dokumente nicht.",
+        why: "Deshalb funktioniert es ohne Konto und ohne klassische Installation.",
+        step: "Klicke auf die <b>3 Punkte</b> im Browser<br>und waehle:",
+        add: "Zum Startbildschirm hinzufuegen",
+        ok: "Verstanden"
+      },
+
+      UA: {
+  title: "Додайте Sense Bridge<br>на телефон",
+  text: "Працює як додаток — без Google Play.",
+  privacy: "Sense Bridge не зберігає і не передає ваші документи.",
+  why: "Тому працює без акаунта і без класичного встановлення.",
+  step: "Натисніть <b>3 крапки</b> у браузері<br>і виберіть:",
+  add: "Додати на головний екран",
+  ok: "Зрозуміло"
+},
+
+      FR: {
+        title: "Ajouter Sense Bridge<br>au telephone",
+        text: "Cela fonctionne comme une application — sans Google Play.",
+        privacy: "Sense Bridge ne sauvegarde ni ne partage vos documents.",
+        why: "C'est pourquoi cela fonctionne sans compte et sans installation classique.",
+        step: "Cliquez sur les <b>3 points</b> du navigateur<br>et choisissez :",
+        add: "Ajouter a l'ecran d'accueil",
+        ok: "Je comprends"
+      },
+
+      IT: {
+        title: "Aggiungi Sense Bridge<br>al telefono",
+        text: "Funziona come un'app — senza Google Play.",
+        privacy: "Sense Bridge non salva e non condivide i tuoi documenti.",
+        why: "Per questo funziona senza account e senza installazione classica.",
+        step: "Premi i <b>3 puntini</b> nel browser<br>e scegli:",
+        add: "Aggiungi alla schermata Home",
+        ok: "Ho capito"
+      },
+
+      ES: {
+        title: "Agregar Sense Bridge<br>al telefono",
+        text: "Funciona como una aplicacion — sin Google Play.",
+        privacy: "Sense Bridge no guarda ni comparte tus documentos.",
+        why: "Por eso funciona sin cuenta y sin instalacion clasica.",
+        step: "Pulsa los <b>3 puntos</b> del navegador<br>y elige:",
+        add: "Agregar a pantalla de inicio",
+        ok: "Entiendo"
+      },
+
+      PT: {
+        title: "Adicionar Sense Bridge<br>ao telefone",
+        text: "Funciona como uma aplicacao — sem Google Play.",
+        privacy: "Sense Bridge nao guarda nem partilha os teus documentos.",
+        why: "Por isso funciona sem conta e sem instalacao classica.",
+        step: "Clica nos <b>3 pontos</b> do navegador<br>e escolhe:",
+        add: "Adicionar ao ecra inicial",
+        ok: "Entendi"
+      }
+
+    };
+
+    var m = txt[lang] || txt.PL;
 
     var oldBox = document.getElementById("sbInstallBox");
     if (oldBox) oldBox.remove();
@@ -3019,31 +3255,14 @@ function installApp() {
     box.style.textAlign = "center";
 
     box.innerHTML = `
+      <div style="font-size:26px;margin-bottom:8px;">📲</div>
 
-      <div style="
-        font-size:26px;
-        margin-bottom:8px;
-      ">
-        📲
+      <div style="font-size:25px;font-weight:900;line-height:1.15;margin-bottom:14px;">
+        ${m.title}
       </div>
 
-      <div style="
-        font-size:25px;
-        font-weight:900;
-        line-height:1.15;
-        margin-bottom:14px;
-      ">
-        Dodaj Sense Bridge<br>
-        do telefonu
-      </div>
-
-      <div style="
-        font-size:16px;
-        line-height:1.55;
-        color:rgba(255,255,255,.92);
-        margin-bottom:16px;
-      ">
-        To dziala jak aplikacja — bez sklepu Google Play.
+      <div style="font-size:16px;line-height:1.55;color:rgba(255,255,255,.92);margin-bottom:16px;">
+        ${m.text}
       </div>
 
       <div style="
@@ -3056,18 +3275,11 @@ function installApp() {
         color:#dffdf2;
         font-size:14px;
       ">
-        🔒 Sense Bridge nie zapisuje i nie udostepnia Twoich dokumentow.<br><br>
-
-        Dlatego dziala bez konta i bez klasycznej instalacji.
+        🔒 ${m.privacy}<br><br>${m.why}
       </div>
 
-      <div style="
-        font-size:15px;
-        line-height:1.55;
-        margin-bottom:18px;
-      ">
-        Kliknij <b>3 kropki</b> w przegladarce<br>
-        i wybierz:
+      <div style="font-size:15px;line-height:1.55;margin-bottom:18px;">
+        ${m.step}
       </div>
 
       <div style="
@@ -3080,37 +3292,37 @@ function installApp() {
         font-size:14px;
         margin-bottom:20px;
       ">
-        Dodaj do ekranu glownego
+        ${m.add}
       </div>
 
-      <button id="sbCloseInstall" style="
-        width:100%;
-        border:none;
-        border-radius:16px;
-        padding:14px;
-        background:#32d296;
-        color:#062b1f;
-        font-size:17px;
-        font-weight:900;
-        cursor:pointer;
-      ">
-        Rozumiem
+      <button id="sbCloseInstall"
+        style="
+          width:100%;
+          border:none;
+          border-radius:16px;
+          padding:14px;
+          background:#32d296;
+          color:#062b1f;
+          font-size:17px;
+          font-weight:900;
+          cursor:pointer;
+        ">
+        ${m.ok}
       </button>
-
     `;
 
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
-    document
-      .getElementById("sbCloseInstall")
-      .onclick = function() {
-        overlay.remove();
-      };
+    document.getElementById("sbCloseInstall").onclick = function() {
+      overlay.remove();
+    };
   }
 }
+
+
 
 </script>
 
 </body>
-      </html>
+  </html>
