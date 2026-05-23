@@ -1306,37 +1306,38 @@ a{
   </section>
 
   <div id="paymentBox" class="card" style="display:none;">
-    <h3 id="payBoxTitleLabel">Zakup dostępu</h3>
-    <p><b id="amountLabel">Kwota:</b> <span id="amountText"></span></p>
+    <h3>Zakup dostępu</h3>
+    <p><b>Kwota:</b> <span id="amountText"></span></p>
 
-    <p><b id="transferLabel">Zapłać przelewem:</b></p>
+    <p><b>Zapłać przelewem:</b></p>
     <p>
       IBAN: <b>NL60 RABO 0324 8128 84</b><br>
-      <b id="receiverLabel">Odbiorca:</b> <b>I. Madej</b>
+      Odbiorca: <b>I. Madej</b>
     </p>
 
-    <p><b id="transferTitleLabel">Tytuł przelewu:</b><br>
+    <p><b>Tytuł przelewu:</b><br>
       <span id="transferTitle"></span>
     </p>
 
-    <button id="pendingCloseBtn" class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
+    <button class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
 
     <div id="pendingConfirmBox" class="pending-confirm-box">
-      <div id="pendingBoxTitle" class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
-      <div id="pendingBoxText" class="pending-confirm-text">
+      <div class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
+      <div class="pending-confirm-text">
         Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
       </div>
       <div class="pending-bank-box">
         <div><strong>IBAN:</strong> NL60 RABO 0324 8128 84</div>
-        <div><strong id="pendingReceiverLabel">Odbiorca:</strong> I. Madej</div>
-        <div><strong id="pendingTransferLabel">Tytuł przelewu:</strong></div>
+        <div><strong>Odbiorca:</strong> I. Madej</div>
+        <div><strong>Tytuł przelewu:</strong></div>
         <span id="pendingCodeView" class="pending-code"></span>
       </div>
-      <button id="pendingCopyBtn" class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
-      <div id="pendingFooter" class="pending-small">
+      <button class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
+      <div class="pending-small">
         Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail.
       </div>
     </div>
+  </div>
 
   <footer class="footer-links" aria-label="Informacje prawne">
     <button type="button" id="footerPrivacy" onclick="showFooterInfo('privacy')">Prywatność</button>
@@ -1578,7 +1579,7 @@ const UI = {
       fraudInfoTitle:"🛡️ Sprawdzenie bezpieczeństwa dokumentu",
 fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszustwa, podszywania się pod instytucję oraz podejrzane elementy dokumentu.",
       installApp: '📲 Dodaj skrót aplikacji do telefonu',
-      installHelp: 'Aby dodać skrót aplikacji do telefonu:\\n\\nKliknij 3 kropki w przeglądarce\\n→ Dodaj do ekranu głównego',
+      installHelp: '',
       free: "FREE:",
       analyses: "analizy",
       access: "Dostęp:",
@@ -2032,7 +2033,6 @@ function setUiLang(lang){
 }
 function applyUiLang(){
   const t = UI.dict[UI.lang];
-  const p = getPayText();
 
   document.getElementById("hTitle").textContent = t.title;
   document.getElementById("hDesc").textContent = t.desc;
@@ -2101,33 +2101,6 @@ UI.dict[UI.lang].fraudInfoText;
   if(footerTerms) footerTerms.textContent = t.footerTerms;
   if(footerContact) footerContact.textContent = t.footerContact;
   if(footerText) footerText.textContent = t.footerDefault;
-  const pay = getPayText();
-
-  document.getElementById("payBoxTitleLabel").textContent = pay.title;
-  document.getElementById("amountLabel").textContent = pay.amount;
-  document.getElementById("transferLabel").textContent = pay.transfer;
-  document.getElementById("pendingReceiverLabel").textContent = pay.receiver;
-
-  document.getElementById("pendingBoxTitle").textContent = pay.pendingTitle;
-  document.getElementById("pendingBoxText").textContent = pay.pendingText;
-
-  document.getElementById("copyTransferBtn").textContent = pay.copyBtn;
-  document.getElementById("pendingBottomText").textContent = pay.bottomText;
-  const setText = (id, value) => {
-  const el = document.getElementById(id);
-  if(el && value) el.textContent = value;
-};
-
-setText("payBoxTitleLabel", p.payBoxTitleLabel);
-setText("amountLabel", p.amountLabel);
-setText("transferLabel", p.transferLabel);
-
-setText("pendingBoxTitle", p.pendingBoxTitle);
-setText("pendingBoxText", p.pendingBoxText);
-
-setText("pendingReceiverLabel", p.pendingReceiverLabel);
-setText("pendingTransferLabel", p.pendingTransferLabel);
-setText("pendingFooter", p.pendingFooter);
 
   const src = document.getElementById("sourceLang");
   if(src && src.options && src.options.length){
@@ -2392,16 +2365,7 @@ function getPayText(){
       error:"Fout: ",
       activationError:"Activatiefout",
       pendingTitle:"Aanvraag opgeslagen ✔",
-      pendingText:"Voer de overschrijving uit met de opgegeven omschrijving. Toegang wordt geactiveerd na bevestiging van betaling.",
-
-title:"Toegang kopen",
-amount:"Bedrag:",
-transfer:"Betaal via overschrijving:",
-receiver:"Ontvanger:",
-pendingTitle:"✅ Aanvraag opgeslagen",
-copyBtn:"Kopieer betalingsreferentie",
-bottomText:"Na ontvangst van de betaling activeren we de toegang. Je kunt later terugkomen en toegang controleren met hetzelfde e-mailadres.",
-pendingFooter:"Na ontvangst van de betaling activeren wij de toegang. Je kunt later terugkomen en de toegang controleren met hetzelfde e-mailadres.",
+      pendingText:"Voer de overschrijving uit met de opgegeven omschrijving. Toegang wordt geactiveerd na bevestiging van betaling."
     },
     EN:{
       emailTitle:"Enter your email",
@@ -2415,16 +2379,7 @@ pendingFooter:"Na ontvangst van de betaling activeren wij de toegang. Je kunt la
       error:"Error: ",
       activationError:"Activation error",
       pendingTitle:"Request saved ✔",
-      pendingText:"Make the transfer using the provided title. Access will be activated after payment confirmation.",
-
-title:"Buy access",
-amount:"Amount:",
-transfer:"Pay by bank transfer:",
-receiver:"Receiver:",
-pendingTitle:"✅ Request saved",
-copyBtn:"Copy transfer title",
-bottomText:"After receiving the payment we will activate your access. You can later return and check access using the same e-mail address.",
-pendingFooter:"After receiving the payment we will activate your access. You can later return and check access using the same e-mail address.",
+      pendingText:"Make the transfer using the provided title. Access will be activated after payment confirmation."
     },
     DE:{
       emailTitle:"Gib deine E-Mail-Adresse ein",
@@ -2438,15 +2393,7 @@ pendingFooter:"After receiving the payment we will activate your access. You can
       error:"Fehler: ",
       activationError:"Aktivierungsfehler",
       pendingTitle:"Anfrage gespeichert ✔",
-      pendingText:"Führe die Überweisung mit dem angegebenen Verwendungszweck aus. Der Zugang wird nach Zahlungsbestätigung aktiviert.",
-      title:"Zugang kaufen",
-amount:"Betrag:",
-transfer:"Per Überweisung bezahlen:",
-receiver:"Empfänger:",
-pendingTitle:"✅ Anfrage gespeichert",
-copyBtn:"Verwendungszweck kopieren",
-bottomText:"Nach Zahlungseingang aktivieren wir den Zugang. Du kannst später mit derselben E-Mail-Adresse zurückkehren und den Zugang prüfen.",
-pendingFooter:"Nach Zahlungseingang aktivieren wir den Zugang. Du kannst später mit derselben E-Mail-Adresse zurückkehren und den Zugang prüfen.",
+      pendingText:"Führe die Überweisung mit dem angegebenen Verwendungszweck aus. Der Zugang wird nach Zahlungsbestätigung aktiviert."
     },
     UA:{
       emailTitle:"Введіть свою електронну пошту",
@@ -2460,15 +2407,7 @@ pendingFooter:"Nach Zahlungseingang aktivieren wir den Zugang. Du kannst später
       error:"Помилка: ",
       activationError:"Помилка активації",
       pendingTitle:"Запит збережено ✔",
-      pendingText:"Виконайте переказ із вказаним призначенням платежу. Доступ буде активовано після підтвердження оплати.",
-      title:"Купити доступ",
-amount:"Сума:",
-transfer:"Оплатіть банківським переказом:",
-receiver:"Отримувач:",
-pendingTitle:"✅ Запит збережено",
-copyBtn:"Скопіювати призначення платежу",
-bottomText:"Після отримання платежу ми активуємо доступ. Ви зможете пізніше повернутися та перевірити доступ, використовуючи ту саму електронну адресу.",
-pendingFooter:"Після отримання платежу ми активуємо доступ. Ви зможете пізніше повернутися та перевірити доступ, використовуючи ту саму електронну адресу.",
+      pendingText:"Виконайте переказ із вказаним призначенням платежу. Доступ буде активовано після підтвердження оплати."
     },
     FR:{
       emailTitle:"Entrez votre e-mail",
@@ -2482,15 +2421,7 @@ pendingFooter:"Після отримання платежу ми активує�
       error:"Erreur : ",
       activationError:"Erreur d’activation",
       pendingTitle:"Demande enregistrée ✔",
-      pendingText:"Effectuez le virement avec le libellé indiqué. L’accès sera activé après confirmation du paiement.",
-      title:"Acheter un accès",
-amount:"Montant :",
-transfer:"Payer par virement bancaire :",
-receiver:"Bénéficiaire :",
-pendingTitle:"✅ Demande enregistrée",
-copyBtn:"Copier la référence du virement",
-bottomText:"Après réception du paiement, nous activerons l’accès. Vous pourrez revenir plus tard et vérifier l’accès avec la même adresse e-mail.",
-pendingFooter:"Après réception du paiement, nous activerons l’accès. Vous pourrez revenir plus tard et vérifier l’accès avec la même adresse e-mail.",
+      pendingText:"Effectuez le virement avec le libellé indiqué. L’accès sera activé après confirmation du paiement."
     },
     IT:{
       emailTitle:"Inserisci la tua email",
@@ -2518,15 +2449,7 @@ pendingFooter:"Après réception du paiement, nous activerons l’accès. Vous p
       error:"Error: ",
       activationError:"Error de activación",
       pendingTitle:"Solicitud guardada ✔",
-      pendingText:"Realiza la transferencia con el concepto indicado. El acceso se activará después de confirmar el pago.",
-      title:"Comprar acceso",
-amount:"Cantidad:",
-transfer:"Pagar por transferencia bancaria:",
-receiver:"Beneficiario:",
-pendingTitle:"✅ Solicitud guardada",
-copyBtn:"Copiar concepto de transferencia",
-bottomText:"Después de recibir el pago activaremos el acceso. Más tarde podrás volver y comprobar el acceso usando el mismo correo electrónico.",
-pendingFooter:"Después de recibir el pago activaremos el acceso. Más tarde podrás volver y comprobar el acceso usando el mismo correo electrónico.",
+      pendingText:"Realiza la transferencia con el concepto indicado. El acceso se activará después de confirmar el pago."
     },
     PT:{
       emailTitle:"Introduza o seu email",
@@ -2540,15 +2463,7 @@ pendingFooter:"Después de recibir el pago activaremos el acceso. Más tarde pod
       error:"Erro: ",
       activationError:"Erro de ativação",
       pendingTitle:"Pedido guardado ✔",
-      pendingText:"Faça a transferência com a referência indicada. O acesso será ativado após confirmação do pagamento.",
-      title:"Comprar acesso",
-amount:"Valor:",
-transfer:"Pagar por transferência bancária:",
-receiver:"Beneficiário:",
-pendingTitle:"✅ Pedido guardado",
-copyBtn:"Copiar referência da transferência",
-bottomText:"Após a receção do pagamento ativaremos o acesso. Poderá voltar mais tarde e verificar o acesso usando o mesmo endereço de e-mail.",
-pendingFooter:"Após a receção do pagamento ativaremos o acesso. Poderá voltar mais tarde e verificar o acesso usando o mesmo endereço de e-mail.",
+      pendingText:"Faça a transferência com a referência indicada. O acesso será ativado após confirmação do pagamento."
     }
   };
 
@@ -3404,7 +3319,6 @@ function installApp() {
     };
   }
 }
-
 
 
 </script>
