@@ -1306,33 +1306,33 @@ a{
   </section>
 
   <div id="paymentBox" class="card" style="display:none;">
-    <h3>Zakup dostępu</h3>
-    <p><b>Kwota:</b> <span id="amountText"></span></p>
+    <h3 id="payBoxTitleLabel">Zakup dostępu</h3>
+    <p><b id="amountLabel">Kwota:</b> <span id="amountText"></span></p>
 
-    <p><b>Zapłać przelewem:</b></p>
+    <p><b id="transferLabel">Zapłać przelewem:</b></p>
     <p>
       IBAN: <b>NL60 RABO 0324 8128 84</b><br>
-      Odbiorca: <b>I. Madej</b>
+      <b id="receiverLabel">Odbiorca:</b> <b>I. Madej</b>
     </p>
 
-    <p><b>Tytuł przelewu:</b><br>
+    <p><b id="transferTitleLabel">Tytuł przelewu:</b><br>
       <span id="transferTitle"></span>
     </p>
 
-    <button class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
+    <button id="pendingCloseBtn" class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
 
     <div id="pendingConfirmBox" class="pending-confirm-box">
-      <div class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
-      <div class="pending-confirm-text">
+      <div id="pendingBoxTitle" class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
+      <div id="pendingBoxText" class="pending-confirm-text">
         Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
       </div>
       <div class="pending-bank-box">
         <div><strong>IBAN:</strong> NL60 RABO 0324 8128 84</div>
-        <div><strong>Odbiorca:</strong> I. Madej</div>
-        <div><strong>Tytuł przelewu:</strong></div>
+        <div><strong id="pendingReceiverLabel">Odbiorca:</strong> I. Madej</div>
+        <div><strong id="pendingTransferLabel">Tytuł przelewu:</strong></div>
         <span id="pendingCodeView" class="pending-code"></span>
       </div>
-      <button class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
+      <button id="pendingCopyBtn" class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
       <div class="pending-small">
         Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail.
       </div>
@@ -2101,6 +2101,21 @@ UI.dict[UI.lang].fraudInfoText;
   if(footerTerms) footerTerms.textContent = t.footerTerms;
   if(footerContact) footerContact.textContent = t.footerContact;
   if(footerText) footerText.textContent = t.footerDefault;
+  const setText = (id, value) => {
+  const el = document.getElementById(id);
+  if(el && value) el.textContent = value;
+};
+
+setText("payBoxTitleLabel", p.payBoxTitleLabel);
+setText("amountLabel", p.amountLabel);
+setText("transferLabel", p.transferLabel);
+
+setText("pendingBoxTitle", p.pendingBoxTitle);
+setText("pendingBoxText", p.pendingBoxText);
+
+setText("pendingReceiverLabel", p.pendingReceiverLabel);
+setText("pendingTransferLabel", p.pendingTransferLabel);
+setText("pendingCopyBtn", p.pendingCopyBtn);
 
   const src = document.getElementById("sourceLang");
   if(src && src.options && src.options.length){
@@ -3325,4 +3340,4 @@ function installApp() {
 </script>
 
 </body>
-          </html>
+</html>
