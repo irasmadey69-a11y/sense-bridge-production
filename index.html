@@ -2484,7 +2484,19 @@ function applyPaymentLang(){
       "✅ Zgłoszenie zapisane",
       "Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.",
       "Kopiuj tytuł przelewu",
-      "Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail."
+      "Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail.",
+NL: [
+  "Toegang kopen",
+  "Bedrag:",
+  "Betaal via overschrijving:",
+  "Ontvanger:",
+  "Omschrijving:",
+  "✔ Ik heb betaald",
+  "✅ Aanvraag opgeslagen",
+  "Dank je. Maak de overschrijving met exact onderstaande omschrijving. De toegang wordt handmatig geactiveerd na bevestiging van betaling.",
+  "Kopieer betalingsomschrijving",
+  "Na ontvangst van de betaling activeren wij de toegang. Je kunt later terugkomen en de toegang controleren met hetzelfde e-mailadres."
+]
     ]
   };
 
@@ -2507,9 +2519,11 @@ function applyPaymentLang(){
   const pendingText = box.querySelector(".pending-confirm-text");
   if(pendingText) pendingText.textContent = t[7];
 
-  const pendingBankStrong = box.querySelectorAll(".pending-bank-box strong");
-  if(pendingBankStrong[1]) pendingBankStrong[1].textContent = t[3];
-  if(pendingBankStrong[2]) pendingBankStrong[2].textContent = t[4];
+  const pendingRows = box.querySelectorAll(".pending-bank-box div");
+
+if(pendingRows[0]) pendingRows[0].innerHTML = "<strong>IBAN:</strong> NL60 RABO 0324 8128 84";
+if(pendingRows[1]) pendingRows[1].innerHTML = "<strong>" + t[3] + "</strong> I. Madej";
+if(pendingRows[2]) pendingRows[2].innerHTML = "<strong>" + t[4] + "</strong>";
 
   const copyBtn = box.querySelector(".pending-copy-btn");
   if(copyBtn) copyBtn.textContent = t[8];
@@ -2562,6 +2576,7 @@ async function goPay(which){
   localStorage.setItem("sb_user_email", email);
 
   document.getElementById("paymentBox").style.display = "block";
+  applyPaymentLang();
   document.getElementById("paymentBox").scrollIntoView({ behavior: "smooth" });
 }
 
@@ -2650,6 +2665,7 @@ async function confirmPaid(){
     clearPass();
 
     showPendingConfirmBox();
+    applyPaymentLang();
 
     await sbShowModal({
       title: tPay.pendingTitle,
