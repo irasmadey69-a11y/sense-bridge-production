@@ -2119,7 +2119,7 @@ UI.dict[UI.lang].fraudInfoText;
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
   }
 }
-
+applyPaymentLang();
 function showFooterInfo(type){
   const t = UI.dict[UI.lang] || UI.dict.PL;
   const footerText = document.getElementById("footerText");
@@ -2468,6 +2468,54 @@ function getPayText(){
   };
 
   return txt[lang] || txt.PL;
+}
+
+function applyPaymentLang(){
+  const lang = UI.lang || "PL";
+
+  const pay = {
+    PL: [
+      "Zakup dostępu",
+      "Kwota:",
+      "Zapłać przelewem:",
+      "Odbiorca:",
+      "Tytuł przelewu:",
+      "✔ Zapłaciłem",
+      "✅ Zgłoszenie zapisane",
+      "Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.",
+      "Kopiuj tytuł przelewu",
+      "Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail."
+    ]
+  };
+
+  const t = pay[lang] || pay.PL;
+  const box = document.getElementById("paymentBox");
+  if(!box) return;
+
+  const h3 = box.querySelector("h3");
+  if(h3) h3.textContent = t[0];
+
+  const bolds = box.querySelectorAll("strong");
+  if(bolds[0]) bolds[0].textContent = t[1];
+  if(bolds[1]) bolds[1].textContent = t[2];
+  const paidBtn = box.querySelector("button.primary");
+  if(paidBtn) paidBtn.textContent = t[5];
+
+  const pendingTitle = box.querySelector(".pending-confirm-title");
+  if(pendingTitle) pendingTitle.textContent = t[6];
+
+  const pendingText = box.querySelector(".pending-confirm-text");
+  if(pendingText) pendingText.textContent = t[7];
+
+  const pendingBankStrong = box.querySelectorAll(".pending-bank-box strong");
+  if(pendingBankStrong[1]) pendingBankStrong[1].textContent = t[3];
+  if(pendingBankStrong[2]) pendingBankStrong[2].textContent = t[4];
+
+  const copyBtn = box.querySelector(".pending-copy-btn");
+  if(copyBtn) copyBtn.textContent = t[8];
+
+  const pendingSmall = box.querySelector(".pending-small");
+  if(pendingSmall) pendingSmall.textContent = t[9];
 }
 
 async function goPay(which){
