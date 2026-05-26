@@ -27,18 +27,18 @@ exports.handler = async (event) => {
         translation: "",
         translatedText: "",
         translated: "",
-        summary: "Brak tekstu do analizy.",
-        whatOfficeSays: "Brak tekstu do analizy.",
-        communication: "Brak tekstu do analizy.",
-        officeSummary: "Brak tekstu do analizy.",
+        summary: emptyAnalysisText(userLang),
+        whatOfficeSays: emptyAnalysisText(userLang),
+        communication: emptyAnalysisText(userLang),
+        officeSummary: emptyAnalysisText(userLang),
         risks: [],
         riskList: [],
         riskChips: [],
         fraudRisk: {
           level: "UNKNOWN",
           confidence: 0,
-          label: "Brak tekstu do analizy.",
-          summary: "Brak tekstu do analizy ryzyka oszustwa.",
+          label: emptyAnalysisText(userLang),
+          summary: emptyFraudText(userLang),
           signals: [],
           suspiciousElements: [],
           safeSteps: [],
@@ -74,13 +74,30 @@ Twoim celem jest spokojne wyjaśnienie sytuacji użytkownikowi:
 
 Odpowiadaj w języku użytkownika: ${userLang}.
 
+DOPRACOWANIE WIELOJĘZYCZNE SENSE BRIDGE:
+Obsługiwane języki użytkownika: PL, UA, NL, EN, DE, FR, IT, ES, PT.
+Wszystkie pola tekstowe JSON mają być w języku użytkownika ${userLang}, w tym:
+summary, actions, consequences, risks, help, fraudRisk.label, fraudRisk.summary, fraudRisk.signals, fraudRisk.suspiciousElements, fraudRisk.safeSteps, fraudRisk.disclaimer oraz replies.
+Nie mieszaj języków w jednej analizie. Nazwy instytucji i oficjalne adresy stron zostaw w oryginale.
+Używaj prostego, ludzkiego języka. Dla zwykłych pism informacyjnych używaj spokojnego tonu.
+
+
 Wykonaj:
 
 1) wykryj język dokumentu (detectedLang)
 
 2) napisz krótkie, spokojne streszczenie (bez straszenia)
 
-3) wypisz konkretne działania użytkownika (jasne kroki)
+3) wypisz konkretne działania użytkownika (jasne kroki).
+Pierwsze 2-3 działania mają tworzyć praktyczny blok „Co zrobić teraz?”.
+Nie dawaj ogólników, tylko proste kroki typu: sprawdź datę, zaloguj się ręcznie przez oficjalną stronę, przygotuj dokument, zadzwoń na numer z oficjalnej strony.
+
+3a) oceń, czy odpowiedź jest wymagana:
+- jeśli pismo jest tylko informacyjne → responseRequired = "NO"
+- jeśli trzeba dosłać dokumenty / potwierdzić / zareagować → responseRequired = "YES"
+- jeśli nie da się ocenić → responseRequired = "UNKNOWN"
+
+3b) określ ton pisma: documentTone, np. informacyjny, formalny, ostrzegawczy, pilny, techniczny, neutralny.
 
 4) określ pilność:
 - LOW → informacyjne
@@ -189,10 +206,24 @@ ZASADY OGÓLNE:
 - NIE strasz użytkownika bez powodu
 - NIE używaj czerwonego tonu jeśli sytuacja jest neutralna
 - NIE zakładaj najgorszego scenariusza
+- przy zwykłych pismach ze szpitala, szkoły, gminy lub portalu pacjenta unikaj słów „oszustwo” w sekcji risks, jeśli nie ma mocnych sygnałów fałszu
+- zamiast „Możliwość oszustwa...” pisz łagodniej: „Warto potwierdzić autentyczność nadawcy przez oficjalną stronę”
+- jeśli pismo wygląda normalnie i rozpoznano instytucję z oficjalną stroną, fraudRisk.level ustaw LOW albo spokojne MEDIUM, nigdy HIGH bez mocnych sygnałów
 - używaj prostego, ludzkiego języka
 - przy oszustwach pisz spokojnie: "warto zweryfikować", "nie da się potwierdzić autentyczności tylko z tekstu", "sprawdź oficjalnym kanałem"
 - jeśli dokument wygląda normalnie, nie wymyślaj podejrzeń
 - jeśli są linki, IBAN, numery telefonu, adresy e-mail lub presja czasu — oceń je jako osobne sygnały
+
+REGUŁY PILNOŚCI (nadpisują wszystko):
+
+Jeśli pismo dotyczy wizyty medycznej, rejestracji, portalu pacjenta, terminu, przygotowania do wizyty lub zwykłej informacji organizacyjnej:
+→ urgency ustaw LOW albo MEDIUM
+→ legalHelpNeeded ustaw NONE
+→ consequences mają być praktyczne i spokojne, np. „wizyta może zostać przełożona”, a nie prawne lub alarmujące.
+→ fraudRisk nie powinien sugerować oszustwa bez wyraźnych sygnałów.
+
+Jeśli pismo jest informacyjne i nie prosi o odpowiedź, ustaw responseRequired = "NO".
+Jeśli trzeba wykonać czynność, ale nie odpisać, wyjaśnij to w actions.
 
 REGUŁY PILNOŚCI (nadpisują wszystko):
 
@@ -228,6 +259,9 @@ Zwróć WYŁĄCZNIE JSON (json_object):
 {
   "detectedLang": "NL",
   "summary": "...",
+  "documentTone": "informacyjny",
+  "responseRequired": "NO",
+  "nextSteps": ["...", "...", "..."],
   "actions": ["...", "..."],
   "urgency": "LOW",
   "consequences": ["...", "..."],
@@ -277,28 +311,32 @@ ${text}
     const modelJson = await callOpenAIJsonObject(apiKey, analysisPrompt);
 
     const detectedLang = str(modelJson.detectedLang || "UNKNOWN").toUpperCase();
-    const summary = str(modelJson.summary || "");
-    const risks = arr(modelJson.risks);
-    const actions = arr(modelJson.actions);
-    const consequences = arr(modelJson.consequences);
-    const help = arr(modelJson.help);
+    const summary = cleanAiText(str(modelJson.summary || ""));
+    const documentTone = cleanAiText(str(modelJson.documentTone || ""));
+    const responseRequiredRaw = str(modelJson.responseRequired || "UNKNOWN").toUpperCase();
+    const responseRequired = ["YES", "NO", "UNKNOWN"].includes(responseRequiredRaw) ? responseRequiredRaw : "UNKNOWN";
+    const nextSteps = arr(modelJson.nextSteps).map(cleanAiText);
+    let risks = arr(modelJson.risks).map(cleanAiText);
+    let actions = arr(modelJson.actions).map(cleanAiText);
+    let consequences = arr(modelJson.consequences).map(cleanAiText);
+    let help = arr(modelJson.help).map(cleanAiText);
 
     const helpLinks = Array.isArray(modelJson.helpLinks)
       ? modelJson.helpLinks
           .filter(x => x && typeof x === "object" && x.label && x.url)
           .map(x => ({
-            label: String(x.label || "").trim(),
+            label: cleanAiText(String(x.label || "").trim()),
             url: String(x.url || "").trim(),
-            type: String(x.type || "info").trim()
+            type: cleanAiText(String(x.type || "info").trim())
           }))
       : [];
 
     const legalHelpNeeded = str(modelJson.legalHelpNeeded || "UNKNOWN").toUpperCase();
-    const legalHelpFinal = ["NONE", "RECOMMENDED", "URGENT"].includes(legalHelpNeeded)
+    let legalHelpFinal = ["NONE", "RECOMMENDED", "URGENT"].includes(legalHelpNeeded)
       ? legalHelpNeeded
       : "RECOMMENDED";
 
-    const urgency = str(modelJson.urgency || "UNKNOWN").toUpperCase();
+    let urgency = str(modelJson.urgency || "UNKNOWN").toUpperCase();
     const repliesFromModel = (modelJson.replies && typeof modelJson.replies === "object") ? modelJson.replies : {};
 
     const fraudRisk = normalizeFraudRisk(modelJson.fraudRisk, userLang);
@@ -350,6 +388,25 @@ if (
   ];
 }
 
+applyKnownInstitutionFix(institution, text);
+postProcessNormalDocument({
+  fraudRisk,
+  institution,
+  detectedLinks,
+  matchedSuspiciousLinks,
+  suspiciousPhoneMatches,
+  userLang,
+  text
+});
+
+const contextFix = classifyDocumentContext(text);
+if (contextFix.medicalAppointment) {
+  legalHelpFinal = "NONE";
+  if (!urgency || urgency === "UNKNOWN" || urgency === "HIGH") urgency = "MEDIUM";
+  risks = softenRisksForNormalDocument(risks, userLang);
+  consequences = softenConsequencesForAppointment(consequences, userLang);
+}
+
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
     let translation = "";
@@ -365,16 +422,18 @@ TEKST:
 ${text}
 `.trim();
 
-      translation = await callOpenAIText(apiKey, translatePrompt);
+      translation = cleanAiText(await callOpenAIText(apiKey, translatePrompt));
     }
 
     const fallbackReplies = buildReplies(userLang, tone);
 
     const replies = {
-      neutral: str(repliesFromModel.neutral || fallbackReplies.neutral),
-      polite: str(repliesFromModel.polite || fallbackReplies.polite),
-      firm: str(repliesFromModel.firm || fallbackReplies.firm)
+      neutral: cleanAiText(str(repliesFromModel.neutral || fallbackReplies.neutral)),
+      polite: cleanAiText(str(repliesFromModel.polite || fallbackReplies.polite)),
+      firm: cleanAiText(str(repliesFromModel.firm || fallbackReplies.firm))
     };
+
+    translation = cleanAiText(translation);
 
     const payload = {
       ok: true,
@@ -387,6 +446,9 @@ ${text}
       translatedText: translation,
       translated: translation,
       summary,
+      documentTone,
+      responseRequired,
+      nextSteps: nextSteps.length ? nextSteps : actions.slice(0, 3),
       whatOfficeSays: summary,
       communication: summary,
       officeSummary: summary,
@@ -446,6 +508,160 @@ function arr(v) {
   return Array.isArray(v) ? v.filter(Boolean).map(x => String(x).trim()).filter(Boolean) : [];
 }
 
+
+function emptyAnalysisText(lang) {
+  const L = (lang || "PL").toUpperCase();
+  const map = {
+    PL: "Brak tekstu do analizy.",
+    EN: "No text to analyze.",
+    NL: "Geen tekst om te analyseren.",
+    DE: "Kein Text zur Analyse.",
+    UA: "Немає тексту для аналізу.",
+    FR: "Aucun texte à analyser.",
+    IT: "Nessun testo da analizzare.",
+    ES: "No hay texto para analizar.",
+    PT: "Não há texto para analisar."
+  };
+  return map[L] || map.PL;
+}
+
+function emptyFraudText(lang) {
+  const L = (lang || "PL").toUpperCase();
+  const map = {
+    PL: "Brak tekstu do analizy ryzyka oszustwa.",
+    EN: "No text for fraud risk analysis.",
+    NL: "Geen tekst voor fraude-risicoanalyse.",
+    DE: "Kein Text für die Betrugsrisikoanalyse.",
+    UA: "Немає тексту для аналізу ризику шахрайства.",
+    FR: "Aucun texte pour l’analyse du risque de fraude.",
+    IT: "Nessun testo per l’analisi del rischio di frode.",
+    ES: "No hay texto para el análisis de riesgo de fraude.",
+    PT: "Não há texto para a análise de risco de fraude."
+  };
+  return map[L] || map.PL;
+}
+
+function cleanAiText(value) {
+  return String(value || "")
+    .replace(/```(?:json|text)?/gi, "")
+    .replace(/```/g, "")
+    .replace(/^[\s\"'“”„`]+/, "")
+    .replace(/[\s\"'“”„`]+$/, "")
+    .replace(/"""/g, "")
+    .replace(/'''/g, "")
+    .trim();
+}
+
+function classifyDocumentContext(text) {
+  const t = String(text || "").toLowerCase();
+  return {
+    medicalAppointment: /afspraak|appointment|wizyta|ziekenhuis|hospital|patient|pati[eë]nt|mijnetz|etz|elisabeth|tweesteden|aanmeldzuil/.test(t),
+    payment: /iban|betaling|betaal|payment|overmaken|kwota|amount|bankrekening/.test(t),
+    legalThreat: /rechtbank|court|komornik|deurwaarder|egzekuc|eviction|uitzetting|deport|boete|fine|incasso|debt|schuld|beslag/.test(t),
+    strongPressure: /vandaag|direct|immediately|urgent|laatste kans|last chance|binnen 24 uur|within 24 hours/.test(t)
+  };
+}
+
+function applyKnownInstitutionFix(institution, text) {
+  if (!institution) return;
+  const t = String(text || "").toLowerCase();
+
+  if (/elisabeth|tweesteden|etz|mijnetz/.test(t)) {
+    institution.name = institution.name || "Elisabeth-TweeSteden Ziekenhuis";
+    institution.country = institution.country || "NL";
+    institution.officialWebsite = institution.officialWebsite || "https://www.etz.nl";
+    institution.confidence = Math.max(Number(institution.confidence || 0), 85);
+  }
+
+  if (/belastingdienst/.test(t)) {
+    institution.name = institution.name || "Belastingdienst";
+    institution.country = institution.country || "NL";
+    institution.officialWebsite = institution.officialWebsite || "https://www.belastingdienst.nl";
+    institution.confidence = Math.max(Number(institution.confidence || 0), 85);
+  }
+}
+
+function postProcessNormalDocument(ctx) {
+  const { fraudRisk, institution, detectedLinks, matchedSuspiciousLinks, suspiciousPhoneMatches, userLang, text } = ctx;
+  if (!fraudRisk) return;
+
+  const doc = classifyDocumentContext(text);
+  const knownInstitution = institution && institution.officialWebsite && Number(institution.confidence || 0) >= 75;
+  const hasKnownBad = (matchedSuspiciousLinks || []).length > 0 || (suspiciousPhoneMatches || []).length > 0;
+  const hasHardRisk = hasKnownBad || doc.payment || doc.legalThreat || doc.strongPressure;
+
+  if (knownInstitution && !hasHardRisk) {
+    fraudRisk.level = "LOW";
+    fraudRisk.confidence = Math.max(60, Math.min(Number(fraudRisk.confidence || 70), 78));
+    fraudRisk.label = calmFraudLabel(userLang, "LOW");
+    fraudRisk.summary = calmFraudSummary(userLang, institution.name);
+    fraudRisk.suspiciousElements = [];
+    fraudRisk.signals = filterAlarmSignals(fraudRisk.signals);
+    fraudRisk.safeSteps = calmSafeSteps(userLang, institution.officialWebsite);
+  } else if (knownInstitution && fraudRisk.level === "HIGH" && !hasKnownBad) {
+    fraudRisk.level = "MEDIUM";
+    fraudRisk.confidence = Math.min(Number(fraudRisk.confidence || 70), 75);
+    fraudRisk.label = calmFraudLabel(userLang, "MEDIUM");
+  }
+}
+
+function filterAlarmSignals(list) {
+  return arr(list).filter(x => !/oszust|fraud|phishing|scam/i.test(x));
+}
+
+function calmFraudLabel(lang, level) {
+  const L = (lang || "PL").toUpperCase();
+  const map = {
+    PL: { LOW: "Wygląda spokojnie, warto tylko sprawdzić źródło", MEDIUM: "Warto zweryfikować nadawcę" },
+    EN: { LOW: "Looks calm, just verify the source", MEDIUM: "Verify the sender" },
+    NL: { LOW: "Lijkt rustig, controleer alleen de bron", MEDIUM: "Controleer de afzender" },
+    DE: { LOW: "Wirkt unauffällig, Quelle kurz prüfen", MEDIUM: "Absender prüfen" },
+    UA: { LOW: "Виглядає спокійно, лише перевірте джерело", MEDIUM: "Варто перевірити відправника" }
+  };
+  return (map[L] || map.PL)[level] || (map[L] || map.PL).MEDIUM;
+}
+
+function calmFraudSummary(lang, institutionName) {
+  const name = institutionName || "the institution";
+  const L = (lang || "PL").toUpperCase();
+  if (L === "NL") return `Het bericht lijkt normaal voor ${name}. Controleer bij twijfel via de officiële website.`;
+  if (L === "EN") return `The letter looks normal for ${name}. If unsure, verify it through the official website.`;
+  if (L === "DE") return `Das Schreiben wirkt für ${name} normal. Bei Zweifel über die offizielle Website prüfen.`;
+  if (L === "UA") return `Лист виглядає типовим для ${name}. Якщо є сумніви, перевірте через офіційний сайт.`;
+  return `Pismo wygląda normalnie dla instytucji ${name}. Jeśli masz wątpliwości, zweryfikuj je przez oficjalną stronę.`;
+}
+
+function calmSafeSteps(lang, website) {
+  const L = (lang || "PL").toUpperCase();
+  if (L === "NL") return ["Open de officiële website handmatig.", "Log alleen in via het officiële portaal.", "Bel bij twijfel het nummer van de officiële website."];
+  if (L === "EN") return ["Open the official website manually.", "Log in only through the official portal.", "If unsure, call the number from the official website."];
+  if (L === "DE") return ["Öffnen Sie die offizielle Website manuell.", "Melden Sie sich nur über das offizielle Portal an.", "Bei Zweifel die Nummer von der offiziellen Website anrufen."];
+  if (L === "UA") return ["Відкрийте офіційний сайт вручну.", "Заходьте лише через офіційний портал.", "Якщо сумніваєтесь, телефонуйте за номером з офіційного сайту."];
+  return ["Otwórz oficjalną stronę ręcznie.", "Loguj się tylko przez oficjalny portal.", "W razie wątpliwości zadzwoń na numer z oficjalnej strony."];
+}
+
+function softenRisksForNormalDocument(risks, lang) {
+  const L = (lang || "PL").toUpperCase();
+  const cleaned = arr(risks).filter(r => !/oszust|phishing|scam|fałsz|fraud/i.test(r));
+  if (cleaned.length) return cleaned;
+  if (L === "NL") return ["Controleer de afspraakgegevens via het officiële portaal.", "Onvoldoende voorbereiding kan de afspraak vertragen of verplaatsen."];
+  if (L === "EN") return ["Check the appointment details through the official portal.", "If you are not prepared, the appointment may be delayed or rescheduled."];
+  if (L === "DE") return ["Prüfen Sie die Termindaten über das offizielle Portal.", "Bei fehlender Vorbereitung kann der Termin verschoben werden."];
+  if (L === "UA") return ["Перевірте деталі візиту через офіційний портал.", "Якщо ви не підготовані, візит можуть перенести."];
+  return ["Sprawdź szczegóły wizyty przez oficjalny portal.", "Brak przygotowania może opóźnić lub przesunąć wizytę."];
+}
+
+function softenConsequencesForAppointment(consequences, lang) {
+  const L = (lang || "PL").toUpperCase();
+  const base = arr(consequences).filter(c => !/praw|legal|kara|boete|fine|oszust|scam/i.test(c));
+  if (base.length) return base;
+  if (L === "NL") return ["De afspraak kan niet doorgaan als u niet voorbereid bent.", "U moet mogelijk opnieuw een afspraak maken."];
+  if (L === "EN") return ["The appointment may not go ahead if you are not prepared.", "You may need to make a new appointment."];
+  if (L === "DE") return ["Der Termin kann ausfallen, wenn Sie nicht vorbereitet sind.", "Möglicherweise müssen Sie einen neuen Termin vereinbaren."];
+  if (L === "UA") return ["Візит може не відбутися, якщо ви не підготовані.", "Можливо, доведеться записатися знову."];
+  return ["Wizyta może się nie odbyć, jeśli nie będziesz przygotowany.", "Może być potrzebne umówienie nowego terminu."];
+}
+
 function normalizeFraudRisk(v, userLang) {
   const obj = (v && typeof v === "object") ? v : {};
   let level = String(obj.level || "UNKNOWN").trim().toUpperCase();
@@ -460,12 +676,12 @@ function normalizeFraudRisk(v, userLang) {
   return {
     level,
     confidence,
-    label: str(obj.label) || fallback.label,
-    summary: str(obj.summary) || fallback.summary,
-    signals: arr(obj.signals),
-    suspiciousElements: arr(obj.suspiciousElements),
-    safeSteps: arr(obj.safeSteps).length ? arr(obj.safeSteps) : fallback.safeSteps,
-    disclaimer: str(obj.disclaimer) || fallback.disclaimer
+    label: cleanAiText(str(obj.label) || fallback.label),
+    summary: cleanAiText(str(obj.summary) || fallback.summary),
+    signals: arr(obj.signals).map(cleanAiText),
+    suspiciousElements: arr(obj.suspiciousElements).map(cleanAiText),
+    safeSteps: arr(obj.safeSteps).length ? arr(obj.safeSteps).map(cleanAiText) : fallback.safeSteps,
+    disclaimer: cleanAiText(str(obj.disclaimer) || fallback.disclaimer)
   };
 }
 
@@ -485,112 +701,234 @@ function normalizeInstitution(v) {
 
 function fraudFallback(lang, level) {
   const L = (lang || "PL").toUpperCase();
+
   const map = {
     PL: {
       LOW: "Wygląda raczej wiarygodnie",
       MEDIUM: "Warto zweryfikować nadawcę",
       HIGH: "Wysokie ryzyko oszustwa",
-      UNKNOWN: "Nie da się ocenić autentyczności"
+      UNKNOWN: "Nie da się ocenić autentyczności",
+      summary: "To jest spokojna analiza ryzyka. Nie potwierdza autentyczności dokumentu.",
+      safeSteps: ["Nie klikaj podejrzanych linków.", "Nie podawaj loginu, hasła ani danych bankowych.", "Zweryfikuj sprawę przez oficjalną stronę lub numer telefonu instytucji."],
+      disclaimer: "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu."
     },
     EN: {
       LOW: "Looks rather credible",
       MEDIUM: "Verify the sender",
       HIGH: "High fraud risk",
-      UNKNOWN: "Authenticity cannot be assessed"
+      UNKNOWN: "Authenticity cannot be assessed",
+      summary: "This is a calm risk analysis. It does not confirm document authenticity.",
+      safeSteps: ["Do not click suspicious links.", "Do not share login, password or banking details.", "Verify through the official website or phone number of the institution."],
+      disclaimer: "This is a risk analysis, not confirmation of document authenticity."
     },
     NL: {
       LOW: "Lijkt redelijk betrouwbaar",
       MEDIUM: "Controleer de afzender",
       HIGH: "Hoog risico op fraude",
-      UNKNOWN: "Echtheid kan niet worden beoordeeld"
+      UNKNOWN: "Echtheid kan niet worden beoordeeld",
+      summary: "Dit is een rustige risicoanalyse. Het bevestigt niet of het document echt is.",
+      safeSteps: ["Klik niet op verdachte links.", "Deel geen login, wachtwoord of bankgegevens.", "Controleer via de officiële website of het officiële telefoonnummer van de instantie."],
+      disclaimer: "Dit is een risicoanalyse, geen bevestiging van de echtheid van het document."
     },
     DE: {
       LOW: "Wirkt eher glaubwürdig",
       MEDIUM: "Absender prüfen",
       HIGH: "Hohes Betrugsrisiko",
-      UNKNOWN: "Echtheit kann nicht beurteilt werden"
+      UNKNOWN: "Echtheit kann nicht beurteilt werden",
+      summary: "Dies ist eine ruhige Risikoanalyse. Sie bestätigt nicht die Echtheit des Dokuments.",
+      safeSteps: ["Klicke nicht auf verdächtige Links.", "Gib keine Login-, Passwort- oder Bankdaten weiter.", "Prüfe die Situation über die offizielle Website oder Telefonnummer der Institution."],
+      disclaimer: "Dies ist eine Risikoanalyse, keine Bestätigung der Echtheit des Dokuments."
+    },
+    UA: {
+      LOW: "Виглядає досить достовірно",
+      MEDIUM: "Варто перевірити відправника",
+      HIGH: "Високий ризик шахрайства",
+      UNKNOWN: "Неможливо оцінити автентичність",
+      summary: "Це спокійний аналіз ризику. Він не підтверджує автентичність документа.",
+      safeSteps: ["Не натискайте підозрілі посилання.", "Не передавайте логін, пароль або банківські дані.", "Перевірте ситуацію через офіційний сайт або офіційний номер телефону установи."],
+      disclaimer: "Це аналіз ризику, а не підтвердження автентичності документа."
+    },
+    FR: {
+      LOW: "Semble plutôt crédible",
+      MEDIUM: "Vérifiez l’expéditeur",
+      HIGH: "Risque élevé de fraude",
+      UNKNOWN: "L’authenticité ne peut pas être évaluée",
+      summary: "Il s’agit d’une analyse calme du risque. Elle ne confirme pas l’authenticité du document.",
+      safeSteps: ["Ne cliquez pas sur les liens suspects.", "Ne partagez pas vos identifiants, mots de passe ou données bancaires.", "Vérifiez via le site officiel ou le numéro officiel de l’institution."],
+      disclaimer: "Il s’agit d’une analyse de risque, pas d’une confirmation de l’authenticité du document."
+    },
+    IT: {
+      LOW: "Sembra abbastanza credibile",
+      MEDIUM: "Verifica il mittente",
+      HIGH: "Alto rischio di frode",
+      UNKNOWN: "Non è possibile valutare l’autenticità",
+      summary: "Questa è un’analisi del rischio tranquilla. Non conferma l’autenticità del documento.",
+      safeSteps: ["Non cliccare su link sospetti.", "Non condividere login, password o dati bancari.", "Verifica tramite il sito ufficiale o il numero ufficiale dell’istituzione."],
+      disclaimer: "Questa è un’analisi del rischio, non una conferma dell’autenticità del documento."
+    },
+    ES: {
+      LOW: "Parece bastante creíble",
+      MEDIUM: "Verifica el remitente",
+      HIGH: "Alto riesgo de fraude",
+      UNKNOWN: "No se puede evaluar la autenticidad",
+      summary: "Este es un análisis de riesgo tranquilo. No confirma la autenticidad del documento.",
+      safeSteps: ["No hagas clic en enlaces sospechosos.", "No compartas usuario, contraseña ni datos bancarios.", "Verifica a través del sitio web oficial o el número oficial de la institución."],
+      disclaimer: "Este es un análisis de riesgo, no una confirmación de la autenticidad del documento."
+    },
+    PT: {
+      LOW: "Parece bastante credível",
+      MEDIUM: "Verifique o remetente",
+      HIGH: "Alto risco de fraude",
+      UNKNOWN: "Não é possível avaliar a autenticidade",
+      summary: "Esta é uma análise calma de risco. Não confirma a autenticidade do documento.",
+      safeSteps: ["Não clique em links suspeitos.", "Não partilhe login, palavra-passe ou dados bancários.", "Verifique através do site oficial ou do número oficial da instituição."],
+      disclaimer: "Esta é uma análise de risco, não uma confirmação da autenticidade do documento."
     }
   };
-  const labels = map[L] || map.PL;
+
+  const t = map[L] || map.PL;
+
   return {
-    label: labels[level] || labels.UNKNOWN,
-    summary: L === "PL"
-      ? "To jest spokojna analiza ryzyka. Nie potwierdza autentyczności dokumentu."
-      : "This is a calm risk analysis. It does not confirm document authenticity.",
-    safeSteps: L === "PL"
-      ? ["Nie klikaj podejrzanych linków.", "Nie podawaj loginu, hasła ani danych bankowych.", "Zweryfikuj sprawę przez oficjalną stronę lub numer telefonu instytucji."]
-      : ["Do not click suspicious links.", "Do not share login, password or banking details.", "Verify through the official website or phone number of the institution."],
-    disclaimer: L === "PL"
-      ? "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu."
-      : "This is a risk analysis, not confirmation of document authenticity."
+    label: t[level] || t.UNKNOWN,
+    summary: t.summary,
+    safeSteps: t.safeSteps,
+    disclaimer: t.disclaimer
   };
 }
 
 function buildReplies(lang, tone) {
   const L = (lang || "PL").toUpperCase();
 
-  const pl = {
-    neutral:
+  const replies = {
+    PL: {
+      neutral:
 `Dzień dobry,
 dziękuję za wiadomość. Proszę o informację, czy pismo wymaga ode mnie działania oraz jakie są terminy.
 Z poważaniem,`,
-    polite:
+      polite:
 `Dzień dobry,
 uprzejmie proszę o potwierdzenie, czy wymagane są dalsze kroki z mojej strony oraz do kiedy.
 Z wyrazami szacunku,`,
-    firm:
+      firm:
 `Dzień dobry,
 proszę o jasne wskazanie wymaganych działań i terminów.
 Z poważaniem,`
-  };
-
-  const en = {
-    neutral:
+    },
+    EN: {
+      neutral:
 `Hello,
 thank you for your message. Please confirm whether any action is required from me and what the deadlines are.
 Kind regards,`,
-    polite:
+      polite:
 `Hello,
 could you please confirm whether any further steps are required from my side and by when?
 Yours sincerely,`,
-    firm:
+      firm:
 `Hello,
 please clearly indicate the required actions and deadlines.
 Kind regards,`
-  };
-
-  const nl = {
-    neutral:
+    },
+    NL: {
+      neutral:
 `Goedemiddag,
 dank voor uw bericht. Kunt u aangeven of ik actie moet ondernemen en wat de termijnen zijn?
 Met vriendelijke groet,`,
-    polite:
+      polite:
 `Goedemiddag,
 kunt u alstublieft bevestigen of er verdere stappen van mijn kant nodig zijn en vóór welke datum?
 Met vriendelijke groet,`,
-    firm:
+      firm:
 `Goedemiddag,
 graag ontvang ik een duidelijke opsomming van de vereiste acties en termijnen.
 Met vriendelijke groet,`
-  };
-
-  const de = {
-    neutral:
+    },
+    DE: {
+      neutral:
 `Guten Tag,
 vielen Dank für Ihre Nachricht. Bitte teilen Sie mir mit, ob ich etwas tun muss und welche Fristen gelten.
 Mit freundlichen Grüßen,`,
-    polite:
+      polite:
 `Guten Tag,
 könnten Sie bitte bestätigen, ob weitere Schritte von meiner Seite erforderlich sind und bis wann?
 Mit freundlichen Grüßen,`,
-    firm:
+      firm:
 `Guten Tag,
 bitte nennen Sie die erforderlichen Maßnahmen und Fristen eindeutig.
 Mit freundlichen Grüßen,`
+    },
+    UA: {
+      neutral:
+`Доброго дня,
+дякую за повідомлення. Будь ласка, підтвердьте, чи потрібні від мене якісь дії та які строки діють.
+З повагою,`,
+      polite:
+`Доброго дня,
+будь ласка, підтвердьте, чи потрібні подальші кроки з мого боку і до якої дати.
+З повагою,`,
+      firm:
+`Доброго дня,
+прошу чітко вказати необхідні дії та строки.
+З повагою,`
+    },
+    FR: {
+      neutral:
+`Bonjour,
+merci pour votre message. Pouvez-vous confirmer si une action est attendue de ma part et quels sont les délais ?
+Cordialement,`,
+      polite:
+`Bonjour,
+pourriez-vous s’il vous plaît confirmer si des démarches supplémentaires sont nécessaires de ma part et avant quelle date ?
+Cordialement,`,
+      firm:
+`Bonjour,
+merci d’indiquer clairement les actions requises et les délais.
+Cordialement,`
+    },
+    IT: {
+      neutral:
+`Buongiorno,
+grazie per il messaggio. Potreste confermare se è richiesta un’azione da parte mia e quali sono le scadenze?
+Cordiali saluti,`,
+      polite:
+`Buongiorno,
+potreste cortesemente confermare se sono necessari ulteriori passi da parte mia e entro quale data?
+Cordiali saluti,`,
+      firm:
+`Buongiorno,
+vi chiedo di indicare chiaramente le azioni richieste e le relative scadenze.
+Cordiali saluti,`
+    },
+    ES: {
+      neutral:
+`Buenos días,
+gracias por su mensaje. ¿Podrían confirmar si se requiere alguna acción por mi parte y cuáles son los plazos?
+Atentamente,`,
+      polite:
+`Buenos días,
+¿podrían confirmar por favor si debo realizar algún paso adicional y antes de qué fecha?
+Atentamente,`,
+      firm:
+`Buenos días,
+por favor indiquen claramente las acciones requeridas y los plazos.
+Atentamente,`
+    },
+    PT: {
+      neutral:
+`Bom dia,
+obrigado pela mensagem. Poderia confirmar se é necessária alguma ação da minha parte e quais são os prazos?
+Com os melhores cumprimentos,`,
+      polite:
+`Bom dia,
+poderia confirmar, por favor, se são necessários mais passos da minha parte e até quando?
+Com os melhores cumprimentos,`,
+      firm:
+`Bom dia,
+por favor indique claramente as ações necessárias e os respetivos prazos.
+Com os melhores cumprimentos,`
+    }
   };
 
-  const map = { PL: pl, EN: en, NL: nl, DE: de };
-  return map[L] || pl;
+  return replies[L] || replies.PL;
 }
 
 async function callOpenAIJsonObject(apiKey, prompt) {
