@@ -558,7 +558,7 @@ function classifyDocumentContext(text) {
     medicalAppointment: /afspraak|appointment|wizyta|ziekenhuis|hospital|patient|pati[eë]nt|mijnetz|etz|elisabeth|tweesteden|aanmeldzuil/.test(t),
     payment: /iban|betaling|betaal|payment|overmaken|kwota|amount|bankrekening/.test(t),
     legalThreat: /rechtbank|court|komornik|deurwaarder|egzekuc|eviction|uitzetting|deport|boete|fine|incasso|debt|schuld|beslag/.test(t),
-    strongPressure: /vandaag|direct|immediately|urgent|laatste kans|last chance|binnen 24 uur|within 24 hours/.test(t)
+    strongPressure: /vandaag|direct|onmiddellijk|met spoed|immediately|urgent|urgently|laatste kans|last chance|binnen 24 uur|within 24 hours|24 hours|24 uur|24 ore|entro 24 ore|sofort|dringend|unverzüglich|konto gesperrt|account blocked|account suspended|conto sospeso|account sospeso|konto blokkeren|bloccare il conto|verify now|verifica ora|confirm identity|conferma identit|identit[aà]|tożsamość|potwierdź/i.test(t)
   };
 }
 
@@ -588,9 +588,36 @@ function postProcessNormalDocument(ctx) {
   const doc = classifyDocumentContext(text);
   const knownInstitution = institution && institution.officialWebsite && Number(institution.confidence || 0) >= 75;
   const hasKnownBad = (matchedSuspiciousLinks || []).length > 0 || (suspiciousPhoneMatches || []).length > 0;
-  const hasHardRisk = hasKnownBad || doc.payment || doc.legalThreat || doc.strongPressure;
+  const phishing = detectStrongPhishingSignals(text, detectedLinks);
+  const modelAlreadyAlarmed = hasModelHardFraudSignal(fraudRisk);
+  const hasHardRisk = hasKnownBad || phishing.high || modelAlreadyAlarmed || doc.legalThreat;
 
-  if (knownInstitution && !hasHardRisk) {
+  // Najważniejsza zasada: silny phishing NIE może zostać uspokojony do LOW tylko dlatego,
+  // że rozpoznano nazwę banku/urzędu. To usuwa sprzeczność między sekcjami.
+  if (phishing.high || hasKnownBad) {
+    fraudRisk.level = "HIGH";
+    fraudRisk.confidence = Math.max(Number(fraudRisk.confidence || 0), phishing.high ? 90 : 85);
+    fraudRisk.label = strongFraudLabel(userLang);
+    fraudRisk.summary = strongFraudSummary(userLang, institution && institution.name);
+    fraudRisk.signals = uniqueList([...(fraudRisk.signals || []), ...phishing.signals]);
+    fraudRisk.suspiciousElements = uniqueList([...(fraudRisk.suspiciousElements || []), ...phishing.suspiciousElements]);
+    fraudRisk.safeSteps = strongFraudSafeSteps(userLang, institution && institution.officialWebsite);
+    return;
+  }
+
+  // Gdy są pojedyncze sygnały ostrożności, nie straszymy HIGH, ale też nie udajemy LOW.
+  if (phishing.medium || doc.strongPressure || modelAlreadyAlarmed) {
+    fraudRisk.level = "MEDIUM";
+    fraudRisk.confidence = Math.max(70, Math.min(Number(fraudRisk.confidence || 75), 82));
+    fraudRisk.label = calmFraudLabel(userLang, "MEDIUM");
+    fraudRisk.summary = mediumFraudSummary(userLang, institution && institution.name);
+    fraudRisk.signals = uniqueList([...(fraudRisk.signals || []), ...phishing.signals]).slice(0, 5);
+    fraudRisk.suspiciousElements = uniqueList([...(fraudRisk.suspiciousElements || []), ...phishing.suspiciousElements]).slice(0, 5);
+    fraudRisk.safeSteps = cautiousSafeSteps(userLang, institution && institution.officialWebsite);
+    return;
+  }
+
+  if (knownInstitution && !hasHardRisk && !doc.payment) {
     fraudRisk.level = "LOW";
     fraudRisk.confidence = Math.max(60, Math.min(Number(fraudRisk.confidence || 70), 78));
     fraudRisk.label = calmFraudLabel(userLang, "LOW");
@@ -598,15 +625,156 @@ function postProcessNormalDocument(ctx) {
     fraudRisk.suspiciousElements = [];
     fraudRisk.signals = filterAlarmSignals(fraudRisk.signals);
     fraudRisk.safeSteps = calmSafeSteps(userLang, institution.officialWebsite);
-  } else if (knownInstitution && fraudRisk.level === "HIGH" && !hasKnownBad) {
+  } else if (knownInstitution && fraudRisk.level === "HIGH" && !hasKnownBad && !phishing.high) {
     fraudRisk.level = "MEDIUM";
-    fraudRisk.confidence = Math.min(Number(fraudRisk.confidence || 70), 75);
+    fraudRisk.confidence = Math.min(Number(fraudRisk.confidence || 70), 78);
     fraudRisk.label = calmFraudLabel(userLang, "MEDIUM");
   }
 }
 
 function filterAlarmSignals(list) {
   return arr(list).filter(x => !/oszust|fraud|phishing|scam/i.test(x));
+}
+
+function uniqueList(list) {
+  const out = [];
+  for (const item of arr(list)) {
+    const v = cleanAiText(item);
+    if (v && !out.some(x => x.toLowerCase() === v.toLowerCase())) out.push(v);
+  }
+  return out;
+}
+
+function hasModelHardFraudSignal(fraudRisk) {
+  const blob = [
+    fraudRisk && fraudRisk.label,
+    fraudRisk && fraudRisk.summary,
+    ...(arr(fraudRisk && fraudRisk.signals)),
+    ...(arr(fraudRisk && fraudRisk.suspiciousElements))
+  ].join(" ").toLowerCase();
+
+  return /phishing|scam|fraud|oszust|podszyw|suplantaci[oó]n|usurpation|frode|betrug|шахрай|tan|sms|password|has[łl]o|login|dane logowania|credentials|konto.*blok|account.*block|conto.*sospes|24\s*(h|uur|ore|hours)/i.test(blob);
+}
+
+function detectStrongPhishingSignals(text, detectedLinks) {
+  const t = String(text || "").toLowerCase();
+  const links = arr(detectedLinks).map(x => String(x || "").toLowerCase());
+  const signals = [];
+  const suspiciousElements = [];
+
+  const add = (condition, signal, element) => {
+    if (condition) {
+      signals.push(signal);
+      if (element) suspiciousElements.push(element);
+    }
+  };
+
+  add(/\btan\b|kod\s*sms|sms\s*code|code\s*sms|codice\s*(sms|tan)|mfa|2fa|one[-\s]?time|einmalcode/i.test(t),
+      "Prośba o kod TAN/SMS lub kod jednorazowy.", "Kod TAN/SMS");
+  add(/password|passwort|has[łl]o|wachtwoord|mot\s*de\s*passe|contrase[nñ]a|senha|пароль/i.test(t),
+      "Prośba o hasło lub dane logowania.", "Hasło / dane logowania");
+  add(/login|logowanie|accesso|accedi|einloggen|inloggen|sign\s*in|credentials|dane\s*logowania/i.test(t),
+      "Prośba o logowanie lub potwierdzenie danych dostępu.", "Logowanie / dane dostępu");
+  add(/verify\s*(your)?\s*identity|confirm\s*(your)?\s*identity|potwierd[zź].*tożsamo|verifica.*identit|conferma.*identit|identiteit.*bevestig|identiteit.*control|identit[eé].*confirmer|best[aä]tigen.*identit/i.test(t),
+      "Prośba o potwierdzenie tożsamości.", "Potwierdzenie tożsamości");
+  add(/within\s*24|24\s*hours|24\s*uur|24\s*ore|entro\s*24|binnen\s*24|w\s*ciągu\s*24|natychmiast|immediately|urgent|pilne|dringend|sofort|subito|laatste\s*kans|last\s*chance|ultima\s*possibilit/i.test(t),
+      "Presja czasu lub groźba szybkich konsekwencji.", "Presja czasu");
+  add(/account.*(blocked|suspended|locked)|konto.*(blok|zablok)|conto.*(sospes|bloccat)|rekening.*(geblokkeerd|blokkeren)|karte.*gesperrt|account.*gesperrt/i.test(t),
+      "Groźba blokady konta lub karty.", "Groźba blokady konta/karty");
+  add(/bank|sparkasse|intesa|sanpaolo|rabobank|ing|abn|bnp|santander|revolut|paypal|visa|mastercard/i.test(t) && /link|klik|click|apri|öffnen|open|http|www\./i.test(t),
+      "Wiadomość bankowa kieruje do linku lub logowania.", "Link/logowanie w wiadomości bankowej");
+
+  const hasHttp = /https?:\/\//i.test(t) || links.length > 0;
+  const linkLooksOdd = links.some(link =>
+    /login|verify|secure|account|update|confirm|support|auth|client|bank/i.test(link) &&
+    !/belastingdienst\.nl|uwv\.nl|digid\.nl|etz\.nl|sparkasse\.de|intesasanpaolo\.com|rabobank\.nl|ing\.nl|abnamro\.nl/i.test(link)
+  );
+  add(hasHttp && linkLooksOdd, "Link prowadzi do nietypowej lub podejrzanej domeny.", "Nietypowy link");
+
+  const score = signals.length;
+  return {
+    score,
+    high: score >= 3 || (/\btan\b|kod\s*sms|codice\s*(sms|tan)/i.test(t) && (/bank|konto|account|conto|sparkasse|intesa/i.test(t))),
+    medium: score >= 1,
+    signals: uniqueList(signals),
+    suspiciousElements: uniqueList(suspiciousElements)
+  };
+}
+
+function strongFraudLabel(lang) {
+  const L = (lang || "PL").toUpperCase();
+  const map = {
+    PL: "Wysokie ryzyko oszustwa",
+    EN: "High fraud risk",
+    NL: "Hoog risico op fraude",
+    DE: "Hohes Betrugsrisiko",
+    FR: "Risque élevé de fraude",
+    IT: "Alto rischio di frode",
+    ES: "Alto riesgo de fraude",
+    PT: "Alto risco de fraude",
+    UA: "Високий ризик шахрайства"
+  };
+  return map[L] || map.PL;
+}
+
+function strongFraudSummary(lang, institutionName) {
+  const name = institutionName || "instytucję";
+  const L = (lang || "PL").toUpperCase();
+  const map = {
+    PL: `Wykryto silne sygnały phishingu lub podszywania się pod ${name}. Nie używaj linków z wiadomości.`,
+    EN: `Strong phishing or impersonation signals were detected. Do not use links from the message.`,
+    NL: `Er zijn sterke signalen van phishing of imitatie gevonden. Gebruik geen links uit het bericht.`,
+    DE: `Es wurden starke Hinweise auf Phishing oder Identitätsmissbrauch erkannt. Verwenden Sie keine Links aus der Nachricht.`,
+    FR: `Des signaux forts de phishing ou d’usurpation ont été détectés. N’utilisez pas les liens du message.`,
+    IT: `Sono stati rilevati forti segnali di phishing o impersonificazione. Non usare i link del messaggio.`,
+    ES: `Se detectaron señales fuertes de phishing o suplantación. No uses los enlaces del mensaje.`,
+    PT: `Foram detectados fortes sinais de phishing ou falsificação. Não use links da mensagem.`,
+    UA: `Виявлено сильні ознаки фішингу або підробки. Не використовуйте посилання з повідомлення.`
+  };
+  return map[L] || map.PL;
+}
+
+function strongFraudSafeSteps(lang, website) {
+  const L = (lang || "PL").toUpperCase();
+  const map = {
+    PL: ["Nie klikaj linków z wiadomości.", "Nie podawaj loginu, hasła ani kodu TAN/SMS.", "Wejdź ręcznie na oficjalną stronę instytucji.", "Skontaktuj się z instytucją oficjalnym kanałem."],
+    EN: ["Do not click links from the message.", "Do not share login, password or TAN/SMS codes.", "Open the official website manually.", "Contact the institution through official channels."],
+    NL: ["Klik niet op links in het bericht.", "Deel geen login, wachtwoord of TAN/SMS-code.", "Open de officiële website handmatig.", "Neem contact op via officiële kanalen."],
+    DE: ["Klicken Sie nicht auf Links in der Nachricht.", "Geben Sie keine Login-Daten, Passwörter oder TAN/SMS-Codes weiter.", "Öffnen Sie die offizielle Website manuell.", "Kontaktieren Sie die Institution über offizielle Kanäle."],
+    FR: ["Ne cliquez pas sur les liens du message.", "Ne partagez pas vos identifiants, mots de passe ou codes SMS/TAN.", "Ouvrez le site officiel manuellement.", "Contactez l’institution par un canal officiel."],
+    IT: ["Non cliccare sui link del messaggio.", "Non fornire login, password o codici TAN/SMS.", "Apri manualmente il sito ufficiale.", "Contatta l’istituzione tramite canali ufficiali."],
+    ES: ["No hagas clic en los enlaces del mensaje.", "No compartas usuario, contraseña ni códigos TAN/SMS.", "Abre manualmente el sitio oficial.", "Contacta con la institución por canales oficiales."],
+    PT: ["Não clique nos links da mensagem.", "Não partilhe login, palavra-passe ou códigos TAN/SMS.", "Abra manualmente o site oficial.", "Contacte a instituição por canais oficiais."],
+    UA: ["Не натискайте посилання з повідомлення.", "Не вводьте логін, пароль або TAN/SMS-код.", "Відкрийте офіційний сайт вручну.", "Зв’яжіться з установою офіційним каналом."]
+  };
+  return map[L] || map.PL;
+}
+
+function mediumFraudSummary(lang, institutionName) {
+  const name = institutionName || "instytucji";
+  const L = (lang || "PL").toUpperCase();
+  if (L === "EN") return `There are some elements worth checking. Verify the message through the official website of ${name}.`;
+  if (L === "NL") return `Er zijn enkele punten om te controleren. Verifieer het bericht via de officiële website van ${name}.`;
+  if (L === "DE") return `Einige Punkte sollten überprüft werden. Prüfen Sie die Nachricht über die offizielle Website von ${name}.`;
+  if (L === "FR") return `Certains éléments doivent être vérifiés. Vérifiez le message via le site officiel de ${name}.`;
+  if (L === "IT") return `Ci sono alcuni elementi da verificare. Controlla il messaggio tramite il sito ufficiale di ${name}.`;
+  if (L === "ES") return `Hay algunos elementos que conviene verificar. Comprueba el mensaje a través del sitio oficial de ${name}.`;
+  if (L === "PT") return `Há alguns elementos que devem ser verificados. Confirme a mensagem pelo site oficial de ${name}.`;
+  if (L === "UA") return `Є елементи, які варто перевірити. Перевірте повідомлення через офіційний сайт ${name}.`;
+  return `Są elementy, które warto sprawdzić. Zweryfikuj wiadomość przez oficjalną stronę ${name}.`;
+}
+
+function cautiousSafeSteps(lang, website) {
+  const L = (lang || "PL").toUpperCase();
+  if (L === "EN") return ["Open the official website manually.", "Do not use links if you are unsure.", "Contact the institution through official channels."];
+  if (L === "NL") return ["Open de officiële website handmatig.", "Gebruik geen links als u twijfelt.", "Neem contact op via officiële kanalen."];
+  if (L === "DE") return ["Öffnen Sie die offizielle Website manuell.", "Nutzen Sie keine Links, wenn Sie unsicher sind.", "Kontaktieren Sie die Institution über offizielle Kanäle."];
+  if (L === "FR") return ["Ouvrez le site officiel manuellement.", "N’utilisez pas les liens en cas de doute.", "Contactez l’institution par un canal officiel."];
+  if (L === "IT") return ["Apri manualmente il sito ufficiale.", "Non usare i link se hai dubbi.", "Contatta l’istituzione tramite canali ufficiali."];
+  if (L === "ES") return ["Abre manualmente el sitio oficial.", "No uses enlaces si tienes dudas.", "Contacta por canales oficiales."];
+  if (L === "PT") return ["Abra manualmente o site oficial.", "Não use links se tiver dúvidas.", "Contacte por canais oficiais."];
+  if (L === "UA") return ["Відкрийте офіційний сайт вручну.", "Не використовуйте посилання, якщо маєте сумніви.", "Зв’яжіться з установою офіційним каналом."];
+  return ["Otwórz oficjalną stronę ręcznie.", "Nie używaj linków, jeśli masz wątpliwości.", "Skontaktuj się z instytucją oficjalnym kanałem."];
 }
 
 function calmFraudLabel(lang, level) {
