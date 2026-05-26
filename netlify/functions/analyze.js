@@ -4,7 +4,8 @@
 exports.handler = async (event) => {
   const headers = corsHeaders();
 
-  if (event.httpMethod === "OPTIONS") {
+  if (event.httpMethod === "OPTIONS") {    result.fraudRisk = fraudOverrideBySignals(inputText, result.fraudRisk, userLang);
+
     return { statusCode: 200, headers, body: "" };
   }
 
@@ -80,6 +81,10 @@ Wszystkie pola tekstowe JSON mają być w języku użytkownika ${userLang}, w ty
 summary, actions, consequences, risks, help, fraudRisk.label, fraudRisk.summary, fraudRisk.signals, fraudRisk.suspiciousElements, fraudRisk.safeSteps, fraudRisk.disclaimer oraz replies.
 Nie mieszaj języków w jednej analizie. Nazwy instytucji i oficjalne adresy stron zostaw w oryginale.
 Używaj prostego, ludzkiego języka. Dla zwykłych pism informacyjnych używaj spokojnego tonu.
+
+PHISHING OVERRIDE RULE:
+Jeżeli dokument zawiera presję czasu, groźbę blokady konta, nietypową domenę/link oraz prośbę o login, hasło, TAN, kod lub potwierdzenie tożsamości, ustaw fraudRisk.level = "HIGH".
+Nie opisuj takiej wiadomości jako spokojnej ani normalnej, nawet jeśli podszywa się pod znaną instytucję.
 
 
 Wykonaj:
@@ -697,6 +702,150 @@ function normalizeInstitution(v) {
       Math.min(100, Number(obj.confidence || 0))
     )
   };
+}
+
+
+function detectHardFraudSignals(rawText) {
+  const t = String(rawText || "").toLowerCase();
+
+  const suspiciousDomain =
+    /(security|verify|verifizierung|verification|konto|account|login|secure|check)[a-z0-9\-]*\.(com|net|info|top|xyz|click|site|online)/i.test(t) ||
+    /https?:\/\/(?![^\/]*(sparkasse\.de|belastingdienst\.nl|digid\.nl|uwv\.nl|etz\.nl|ind\.nl|svb\.nl|duo\.nl|paypal\.com|amazon\.[a-z.]+|rabobank\.nl|ing\.nl|abnamro\.nl))[^\/\s]+/i.test(t);
+
+  const timePressure =
+    /(24\s*(uur|u|hours|stunden|std|godzin|h)|binnen\s*24|within\s*24|innerhalb\s*24|pilnie|urgent|urgently|dringend|sofort|natychmiast|immediately)/i.test(t);
+
+  const accountThreat =
+    /(konto|account|rekening|bankkonto).{0,80}(sperr|blocked|block|deaktiv|deactiv|zamkni|zablok|suspended|suspend|gesperrt)/i.test(t) ||
+    /(sperrung|blokada|deactivation|deaktivierung|suspension)/i.test(t);
+
+  const credentialRequest =
+    /(tan|2fa|code|password|passwort|hasło|login|zugangsdaten|bankgegevens|gegevens|identity|identiteit|tożsamość|verify your identity|bestätigen sie.*identität)/i.test(t);
+
+  const financialBrand =
+    /(sparkasse|bank|paypal|ing|rabobank|abn|creditcard|visa|mastercard|konto|rekening|bankkonto)/i.test(t);
+
+  const suspiciousScore =
+    [suspiciousDomain, timePressure, accountThreat, credentialRequest, financialBrand].filter(Boolean).length;
+
+  return {
+    suspiciousDomain,
+    timePressure,
+    accountThreat,
+    credentialRequest,
+    financialBrand,
+    suspiciousScore,
+    hardHigh: suspiciousScore >= 3 && (suspiciousDomain || credentialRequest),
+    hardMedium: suspiciousScore >= 2
+  };
+}
+
+function fraudOverrideBySignals(rawText, fraudRisk, lang) {
+  const L = (lang || "PL").toUpperCase();
+  const s = detectHardFraudSignals(rawText);
+
+  const labels = {
+    PL: {
+      high: "Wysokie ryzyko oszustwa",
+      medium: "Podejrzana wiadomość — sprawdź źródło",
+      summaryHigh: "Wiadomość zawiera silne sygnały phishingu: presję czasu, nietypowy link lub prośbę o dane logowania.",
+      summaryMedium: "Wiadomość zawiera elementy wymagające ostrożności. Zweryfikuj ją wyłącznie przez oficjalne kanały."
+    },
+    EN: {
+      high: "High fraud risk",
+      medium: "Suspicious message — verify the source",
+      summaryHigh: "The message contains strong phishing signals: time pressure, an unusual link or a request for login details.",
+      summaryMedium: "The message contains elements that require caution. Verify it only through official channels."
+    },
+    NL: {
+      high: "Hoog risico op fraude",
+      medium: "Verdacht bericht — controleer de bron",
+      summaryHigh: "Het bericht bevat sterke phishing-signalen: tijdsdruk, een ongebruikelijke link of een verzoek om inloggegevens.",
+      summaryMedium: "Het bericht bevat elementen die om voorzichtigheid vragen. Controleer dit alleen via officiële kanalen."
+    },
+    DE: {
+      high: "Hohes Betrugsrisiko",
+      medium: "Verdächtige Nachricht — Quelle prüfen",
+      summaryHigh: "Die Nachricht enthält starke Phishing-Signale: Zeitdruck, einen ungewöhnlichen Link oder die Aufforderung zu Zugangsdaten.",
+      summaryMedium: "Die Nachricht enthält Elemente, die Vorsicht erfordern. Prüfen Sie sie nur über offizielle Kanäle."
+    },
+    UA: {
+      high: "Високий ризик шахрайства",
+      medium: "Підозріле повідомлення — перевірте джерело",
+      summaryHigh: "Повідомлення містить сильні ознаки фішингу: тиск часу, незвичне посилання або запит даних для входу.",
+      summaryMedium: "Повідомлення містить елементи, що потребують обережності. Перевіряйте лише через офіційні канали."
+    },
+    FR: {
+      high: "Risque élevé de fraude",
+      medium: "Message suspect — vérifiez la source",
+      summaryHigh: "Le message contient de forts signaux de phishing : pression temporelle, lien inhabituel ou demande d’identifiants.",
+      summaryMedium: "Le message contient des éléments qui demandent de la prudence. Vérifiez uniquement via les canaux officiels."
+    },
+    IT: {
+      high: "Alto rischio di frode",
+      medium: "Messaggio sospetto — verifica la fonte",
+      summaryHigh: "Il messaggio contiene forti segnali di phishing: pressione temporale, link insolito o richiesta di dati di accesso.",
+      summaryMedium: "Il messaggio contiene elementi che richiedono cautela. Verifica solo tramite canali ufficiali."
+    },
+    ES: {
+      high: "Alto riesgo de fraude",
+      medium: "Mensaje sospechoso — verifica la fuente",
+      summaryHigh: "El mensaje contiene señales fuertes de phishing: presión de tiempo, enlace inusual o solicitud de datos de acceso.",
+      summaryMedium: "El mensaje contiene elementos que requieren cautela. Verifícalo solo por canales oficiales."
+    },
+    PT: {
+      high: "Alto risco de fraude",
+      medium: "Mensagem suspeita — verifique a fonte",
+      summaryHigh: "A mensagem contém fortes sinais de phishing: pressão de tempo, link incomum ou pedido de dados de acesso.",
+      summaryMedium: "A mensagem contém elementos que exigem cautela. Verifique apenas por canais oficiais."
+    }
+  };
+
+  const tr = labels[L] || labels.PL;
+  const fr = fraudRisk || {};
+
+  if (s.hardHigh) {
+    fr.level = "HIGH";
+    fr.label = tr.high;
+    fr.summary = tr.summaryHigh;
+    fr.confidence = Math.max(Number(fr.confidence || 0), 90);
+  } else if (s.hardMedium && String(fr.level || "").toUpperCase() !== "HIGH") {
+    fr.level = "MEDIUM";
+    fr.label = tr.medium;
+    fr.summary = tr.summaryMedium;
+    fr.confidence = Math.max(Number(fr.confidence || 0), 75);
+  }
+
+  const extraSignals = [];
+  if (s.timePressure) extraSignals.push({
+    PL:"Presja czasu lub groźba szybkiej blokady.", EN:"Time pressure or threat of quick blocking.", NL:"Tijdsdruk of dreiging van snelle blokkade.", DE:"Zeitdruck oder Drohung einer schnellen Sperrung.", UA:"Тиск часу або погроза швидкого блокування.", FR:"Pression temporelle ou menace de blocage rapide.", IT:"Pressione temporale o minaccia di blocco rapido.", ES:"Presión de tiempo o amenaza de bloqueo rápido.", PT:"Pressão de tempo ou ameaça de bloqueio rápido."
+  }[L] || "Presja czasu lub groźba szybkiej blokady.");
+  if (s.credentialRequest) extraSignals.push({
+    PL:"Prośba o dane logowania, TAN, kod lub potwierdzenie tożsamości.", EN:"Request for login details, TAN, code or identity confirmation.", NL:"Verzoek om inloggegevens, TAN, code of identiteitsbevestiging.", DE:"Aufforderung zu Zugangsdaten, TAN, Code oder Identitätsbestätigung.", UA:"Запит даних для входу, TAN, коду або підтвердження особи.", FR:"Demande d’identifiants, de code TAN ou de confirmation d’identité.", IT:"Richiesta di credenziali, TAN, codice o conferma dell’identità.", ES:"Solicitud de datos de acceso, TAN, código o confirmación de identidad.", PT:"Pedido de dados de acesso, TAN, código ou confirmação de identidade."
+  }[L] || "Prośba o dane logowania, TAN, kod lub potwierdzenie tożsamości.");
+  if (s.suspiciousDomain) extraSignals.push({
+    PL:"Nietypowa domena lub link spoza oficjalnej strony.", EN:"Unusual domain or link outside the official website.", NL:"Ongebruikelijk domein of link buiten de officiële website.", DE:"Ungewöhnliche Domain oder Link außerhalb der offiziellen Website.", UA:"Незвичний домен або посилання поза офіційним сайтом.", FR:"Domaine inhabituel ou lien hors du site officiel.", IT:"Dominio insolito o link fuori dal sito ufficiale.", ES:"Dominio inusual o enlace fuera del sitio oficial.", PT:"Domínio incomum ou link fora do site oficial."
+  }[L] || "Nietypowa domena lub link spoza oficjalnej strony.");
+
+  fr.signals = Array.from(new Set([...(Array.isArray(fr.signals) ? fr.signals : []), ...extraSignals])).slice(0, 6);
+
+  const safe = {
+    PL:["Nie klikaj linku z wiadomości.", "Otwórz oficjalną stronę ręcznie.", "Nie podawaj loginu, hasła, TAN ani danych bankowych.", "Skontaktuj się z instytucją przez oficjalny numer."],
+    EN:["Do not click the link in the message.", "Open the official website manually.", "Do not share login, password, TAN or banking details.", "Contact the institution using the official phone number."],
+    NL:["Klik niet op de link in het bericht.", "Open de officiële website handmatig.", "Deel geen login, wachtwoord, TAN of bankgegevens.", "Neem contact op via het officiële telefoonnummer."],
+    DE:["Klicken Sie nicht auf den Link in der Nachricht.", "Öffnen Sie die offizielle Website manuell.", "Geben Sie keine Zugangsdaten, Passwörter, TANs oder Bankdaten ein.", "Kontaktieren Sie die Institution über die offizielle Telefonnummer."],
+    UA:["Не натискайте посилання в повідомленні.", "Відкрийте офіційний сайт вручну.", "Не вводьте логін, пароль, TAN або банківські дані.", "Зв’яжіться з установою через офіційний номер."],
+    FR:["Ne cliquez pas sur le lien du message.", "Ouvrez le site officiel manuellement.", "Ne partagez pas vos identifiants, mot de passe, TAN ou données bancaires.", "Contactez l’institution via le numéro officiel."],
+    IT:["Non cliccare sul link nel messaggio.", "Apri manualmente il sito ufficiale.", "Non condividere login, password, TAN o dati bancari.", "Contatta l’istituzione tramite il numero ufficiale."],
+    ES:["No hagas clic en el enlace del mensaje.", "Abre el sitio oficial manualmente.", "No compartas usuario, contraseña, TAN ni datos bancarios.", "Contacta con la institución por el número oficial."],
+    PT:["Não clique no link da mensagem.", "Abra o site oficial manualmente.", "Não partilhe login, palavra-passe, TAN ou dados bancários.", "Contacte a instituição através do número oficial."]
+  }[L] || [];
+
+  if (s.hardHigh || s.hardMedium) {
+    fr.safeSteps = Array.from(new Set([...safe, ...(Array.isArray(fr.safeSteps) ? fr.safeSteps : [])])).slice(0, 6);
+  }
+
+  return fr;
 }
 
 function fraudFallback(lang, level) {
