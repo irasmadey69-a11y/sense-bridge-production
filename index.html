@@ -795,11 +795,6 @@ body.light-mode .fraud-list li{
 }
 body.light-mode .fraud-small{color:#687385 !important;}
 
-/* FIX v6: readable fraud section in light mode */
-body.light-mode .fraud-pill{font-weight:900;}
-body.light-mode .fraud-box{border-color:rgba(63,138,114,0.30);}
-
-
 body.dark-mode{
   --bg:#050b12;
   --card:#0b1420;
@@ -1054,10 +1049,10 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
   font-size:13px;
   border:1px solid rgba(255,255,255,0.14);
 }
-.fraud-low{background:#dcfce7;color:#14532d;border-color:#86efac;}
-.fraud-medium{background:#fef3c7;color:#92400e;border-color:#facc15;}
-.fraud-high{background:#fee2e2;color:#991b1b;border-color:#f87171;}
-.fraud-unknown{background:#e5e7eb;color:#374151;border-color:#cbd5e1;}
+.fraud-low{background:rgba(44,255,154,0.16);color:#7dffbf;border-color:rgba(44,255,154,0.35);}
+.fraud-medium{background:rgba(255,211,106,0.14);color:#ffd36a;border-color:rgba(255,211,106,0.35);}
+.fraud-high{background:rgba(255,77,109,0.14);color:#ff9aae;border-color:rgba(255,77,109,0.35);}
+.fraud-unknown{background:rgba(159,181,173,0.12);color:#c8e8dc;border-color:rgba(159,181,173,0.26);}
 .fraud-box p{color:#c8e8dc !important;margin:0 0 10px;}
 .fraud-list{margin:10px 0 0;padding:0;list-style:none;}
 .fraud-list li{
@@ -1069,13 +1064,6 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
   color:#eafdf4;
 }
 .fraud-small{font-size:12px;color:#9fb5ad !important;margin-top:10px !important;}
-
-/* FIX v6: readable fraud badges in dark mode */
-body.dark-mode .fraud-low{background:rgba(44,255,154,0.18) !important;color:#d8ffe9 !important;border-color:rgba(44,255,154,0.55) !important;}
-body.dark-mode .fraud-medium{background:rgba(255,211,106,0.18) !important;color:#fff3bf !important;border-color:rgba(255,211,106,0.55) !important;}
-body.dark-mode .fraud-high{background:rgba(255,77,109,0.18) !important;color:#ffd1da !important;border-color:rgba(255,77,109,0.55) !important;}
-body.dark-mode .fraud-unknown{background:rgba(159,181,173,0.16) !important;color:#eafdf4 !important;border-color:rgba(159,181,173,0.38) !important;}
-
 
   
 /* FIX: modal hidden by default */
@@ -1122,6 +1110,137 @@ body.dark-mode .fraud-unknown{background:rgba(159,181,173,0.16) !important;color
   cursor:pointer;
 }
 
+
+
+/* ============================================================
+   Sense Bridge UX SAFE PATCH v8
+   - readability + psychological separation
+   - CSS only visual layer
+   ============================================================ */
+
+body.light-mode .fraud-pill,
+.fraud-pill{
+  font-weight:900;
+  letter-spacing:-0.01em;
+}
+
+body.light-mode .fraud-low,
+.fraud-low{
+  background:#dcfce7 !important;
+  color:#14532d !important;
+  border-color:#86efac !important;
+}
+
+body.light-mode .fraud-medium,
+.fraud-medium{
+  background:#fef3c7 !important;
+  color:#92400e !important;
+  border-color:#facc15 !important;
+}
+
+body.light-mode .fraud-high,
+.fraud-high{
+  background:#fee2e2 !important;
+  color:#991b1b !important;
+  border-color:#ef4444 !important;
+  box-shadow:0 10px 28px rgba(239,68,68,.16) !important;
+}
+
+body.light-mode .fraud-unknown,
+.fraud-unknown{
+  background:#e5e7eb !important;
+  color:#374151 !important;
+  border-color:#cbd5e1 !important;
+}
+
+body.dark-mode .fraud-low{
+  background:rgba(44,255,154,0.18) !important;
+  color:#d8ffe9 !important;
+  border-color:rgba(44,255,154,0.55) !important;
+}
+
+body.dark-mode .fraud-medium{
+  background:rgba(255,211,106,0.18) !important;
+  color:#fff3bf !important;
+  border-color:rgba(255,211,106,0.55) !important;
+}
+
+body.dark-mode .fraud-high{
+  background:rgba(255,77,109,0.20) !important;
+  color:#ffd1da !important;
+  border-color:rgba(255,77,109,0.70) !important;
+  box-shadow:0 12px 30px rgba(255,77,109,.20) !important;
+}
+
+body.dark-mode .fraud-unknown{
+  background:rgba(159,181,173,0.16) !important;
+  color:#eafdf4 !important;
+  border-color:rgba(159,181,173,0.38) !important;
+}
+
+.fraud-box.fraud-box-high{
+  border-color:rgba(239,68,68,.42) !important;
+  background:linear-gradient(180deg, rgba(254,242,242,.94), rgba(255,255,255,.98)) !important;
+}
+
+body.dark-mode .fraud-box.fraud-box-high{
+  border-color:rgba(255,77,109,.46) !important;
+  background:linear-gradient(180deg, rgba(80,15,30,.26), rgba(10,18,28,.88)) !important;
+}
+
+.fraud-box.fraud-box-high .fraud-summary{
+  border-left:5px solid #ef4444;
+  padding-left:14px;
+}
+
+.fraud-box.fraud-box-low .fraud-summary{
+  border-left:5px solid #22c55e;
+  padding-left:14px;
+}
+
+.sb-source-note{
+  margin:12px 0 0;
+  padding:12px 14px;
+  border-radius:18px;
+  border:1px solid rgba(63,138,114,.22);
+  color:var(--muted);
+  background:rgba(63,138,114,.06);
+  font-size:14px;
+  line-height:1.45;
+}
+
+body.dark-mode .sb-source-note{
+  background:rgba(44,255,154,.06);
+  border-color:rgba(44,255,154,.18);
+}
+
+.sb-high-source-note{
+  border-color:rgba(239,68,68,.35) !important;
+  background:rgba(254,226,226,.62) !important;
+  color:#7f1d1d !important;
+}
+
+body.dark-mode .sb-high-source-note{
+  border-color:rgba(255,77,109,.38) !important;
+  background:rgba(255,77,109,.12) !important;
+  color:#ffd1da !important;
+}
+
+.risk-list.high-risk .risk-item,
+#risks.high-risk .risk-item,
+#risks .risk-item.high-risk{
+  background:#fee2e2 !important;
+  color:#7f1d1d !important;
+  border-color:#fca5a5 !important;
+}
+
+body.dark-mode .risk-list.high-risk .risk-item,
+body.dark-mode #risks.high-risk .risk-item,
+body.dark-mode #risks .risk-item.high-risk{
+  background:rgba(255,77,109,.16) !important;
+  color:#ffd1da !important;
+  border-color:rgba(255,77,109,.45) !important;
+}
 
 </style>
 </head>
@@ -2923,6 +3042,7 @@ if(!text){
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
       renderFraudRisk(data);
+      sbApplyResultUxPatchV8(data);
       renderInstitution(data);
       // CZY POTRZEBNA POMOC PRAWNA
 const legalStatusEl = document.getElementById("legalStatus");
@@ -3562,6 +3682,123 @@ function installApp() {
   }
 }
 
+
+
+/* ============================================================
+   Sense Bridge UX SAFE PATCH v8
+   Dynamic heading + visual separation after render
+   ============================================================ */
+
+function sbDetectMessageKindV8(data){
+  try{
+    const raw = [
+      data && data.summary,
+      data && data.translation,
+      data && data.institution && data.institution.name,
+      data && data.fraudRisk && data.fraudRisk.summary,
+      data && data.fraudRisk && Array.isArray(data.fraudRisk.signals) ? data.fraudRisk.signals.join(" ") : "",
+      data && Array.isArray(data.risks) ? data.risks.join(" ") : ""
+    ].join(" ").toLowerCase();
+
+    if(/bank|banco|sparkasse|millennium|bcp|ing|rabobank|abn|paypal|account|konto|login|tan|sms/.test(raw)) return "message";
+    if(/sms|email|e-mail|mail|wiadomość|message|bericht|mensaje|mensagem/.test(raw)) return "message";
+    if(/tax|irs|belastingdienst|uwv|gemeente|ind|toeslagen|government|urząd|administration|administracja/.test(raw)) return "office";
+    return "letter";
+  }catch(e){
+    return "letter";
+  }
+}
+
+function sbHeadingV8(kind, lang){
+  const L = String(lang || window.currentLang || "PL").toUpperCase();
+  const map = {
+    PL:{office:"Co urząd komunikuje", message:"Co wiadomość komunikuje", letter:"Co pismo komunikuje"},
+    EN:{office:"What the authority says", message:"What the message says", letter:"What the letter says"},
+    NL:{office:"Wat de instantie communiceert", message:"Wat het bericht communiceert", letter:"Wat de brief communiceert"},
+    DE:{office:"Was die Behörde mitteilt", message:"Was die Nachricht mitteilt", letter:"Was das Schreiben mitteilt"},
+    FR:{office:"Ce que l’administration communique", message:"Ce que le message communique", letter:"Ce que le courrier communique"},
+    IT:{office:"Cosa comunica l’ente", message:"Cosa comunica il messaggio", letter:"Cosa comunica la lettera"},
+    ES:{office:"Qué comunica la institución", message:"Qué comunica el mensaje", letter:"Qué comunica la carta"},
+    PT:{office:"O que a entidade comunica", message:"O que a mensagem comunica", letter:"O que a carta comunica"},
+    UA:{office:"Що повідомляє установа", message:"Що повідомляє повідомлення", letter:"Що повідомляє лист"}
+  };
+  return (map[L] || map.PL)[kind] || (map[L] || map.PL).letter;
+}
+
+function sbApplyResultUxPatchV8(data){
+  try{
+    const level = String(data && data.fraudRisk && data.fraudRisk.level || "").toUpperCase();
+    const kind = sbDetectMessageKindV8(data);
+    const lang = String(window.currentLang || (data && data.userLang) || "PL").toUpperCase();
+    const headingText = sbHeadingV8(kind, lang);
+
+    document.querySelectorAll("h2,h3,.section-title,.card-title").forEach(function(el){
+      const t = (el.textContent || "").trim();
+      if(
+        /^Co urząd komunikuje$/i.test(t) ||
+        /^What the authority says$/i.test(t) ||
+        /^Wat de instantie communiceert$/i.test(t) ||
+        /^Was die Behörde mitteilt$/i.test(t)
+      ){
+        el.textContent = headingText;
+      }
+    });
+
+    const fraudBox = document.getElementById("fraudRiskBox");
+    if(fraudBox){
+      fraudBox.classList.remove("fraud-box-high","fraud-box-medium","fraud-box-low","fraud-box-unknown");
+      fraudBox.classList.add(
+        level === "HIGH" ? "fraud-box-high" :
+        level === "MEDIUM" ? "fraud-box-medium" :
+        level === "LOW" ? "fraud-box-low" :
+        "fraud-box-unknown"
+      );
+
+      if(!fraudBox.querySelector(".sb-source-note")){
+        const note = document.createElement("div");
+        note.className = "sb-source-note" + (level === "HIGH" ? " sb-high-source-note" : "");
+
+        if(level === "HIGH"){
+          note.textContent =
+            lang === "EN" ? "Sense Bridge assessment: this looks suspicious. Treat the message as unverified until checked through official channels." :
+            lang === "NL" ? "Beoordeling van Sense Bridge: dit lijkt verdacht. Beschouw het bericht als niet bevestigd totdat u dit via officiële kanalen controleert." :
+            lang === "DE" ? "Bewertung von Sense Bridge: Dies wirkt verdächtig. Behandeln Sie die Nachricht als ungeprüft, bis sie über offizielle Kanäle bestätigt ist." :
+            lang === "FR" ? "Évaluation Sense Bridge : cela semble suspect. Considérez le message comme non confirmé tant qu’il n’est pas vérifié par des canaux officiels." :
+            lang === "IT" ? "Valutazione Sense Bridge: il messaggio sembra sospetto. Consideralo non verificato finché non viene controllato tramite canali ufficiali." :
+            lang === "ES" ? "Evaluación de Sense Bridge: parece sospechoso. Trata el mensaje como no verificado hasta comprobarlo por canales oficiales." :
+            lang === "PT" ? "Avaliação do Sense Bridge: isto parece suspeito. Trate a mensagem como não verificada até confirmar por canais oficiais." :
+            lang === "UA" ? "Оцінка Sense Bridge: повідомлення виглядає підозріло. Вважайте його непідтвердженим, доки не перевірите офіційними каналами." :
+            "Ocena Sense Bridge: to wygląda podejrzanie. Traktuj treść wiadomości jako niepotwierdzoną, dopóki nie sprawdzisz jej oficjalnym kanałem.";
+        }else{
+          note.textContent =
+            lang === "EN" ? "Sense Bridge assessment: no strong fraud signals were found. Standard caution is enough." :
+            lang === "NL" ? "Beoordeling van Sense Bridge: er zijn geen sterke fraudesignalen gevonden. Standaard voorzichtigheid is voldoende." :
+            lang === "DE" ? "Bewertung von Sense Bridge: Es wurden keine starken Betrugssignale gefunden. Normale Vorsicht reicht aus." :
+            lang === "FR" ? "Évaluation Sense Bridge : aucun signal fort de fraude n’a été détecté. Une prudence normale suffit." :
+            lang === "IT" ? "Valutazione Sense Bridge: non sono stati rilevati forti segnali di frode. È sufficiente la normale prudenza." :
+            lang === "ES" ? "Evaluación de Sense Bridge: no se detectaron señales fuertes de fraude. Basta con precaución normal." :
+            lang === "PT" ? "Avaliação do Sense Bridge: não foram encontrados sinais fortes de fraude. Basta cautela normal." :
+            lang === "UA" ? "Оцінка Sense Bridge: сильних ознак шахрайства не виявлено. Достатньо звичайної обережності." :
+            "Ocena Sense Bridge: nie wykryto mocnych sygnałów oszustwa. Wystarczy standardowa ostrożność.";
+        }
+
+        fraudBox.appendChild(note);
+      }
+    }
+
+    if(level === "HIGH"){
+      const risks = document.getElementById("risks");
+      if(risks){
+        risks.classList.add("high-risk");
+        risks.querySelectorAll(".risk-item,.warn,.notice,.pill").forEach(function(el){
+          el.classList.add("high-risk");
+        });
+      }
+    }
+  }catch(e){
+    console.warn("SB UX patch v8 skipped:", e);
+  }
+}
 
 </script>
 
