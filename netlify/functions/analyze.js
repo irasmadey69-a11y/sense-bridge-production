@@ -407,6 +407,27 @@ if (contextFix.medicalAppointment) {
   consequences = softenConsequencesForAppointment(consequences, userLang);
 }
 
+
+const sbFraudSyncV8 = sbApplyFraudLogicSyncV8({
+  text,
+  userLang,
+  fraudRisk,
+  institution,
+  detectedLinks,
+  risks,
+  consequences,
+  help,
+  urgency,
+  legalHelpFinal
+});
+if (sbFraudSyncV8) {
+  risks = sbFraudSyncV8.risks || risks;
+  consequences = sbFraudSyncV8.consequences || consequences;
+  help = sbFraudSyncV8.help || help;
+  urgency = sbFraudSyncV8.urgency || urgency;
+  legalHelpFinal = sbFraudSyncV8.legalHelpFinal || legalHelpFinal;
+}
+
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
     let translation = "";
@@ -558,7 +579,7 @@ function classifyDocumentContext(text) {
     medicalAppointment: /afspraak|appointment|wizyta|ziekenhuis|hospital|patient|pati[eë]nt|mijnetz|etz|elisabeth|tweesteden|aanmeldzuil/.test(t),
     payment: /iban|betaling|betaal|payment|overmaken|kwota|amount|bankrekening/.test(t),
     legalThreat: /rechtbank|court|komornik|deurwaarder|egzekuc|eviction|uitzetting|deport|boete|fine|incasso|debt|schuld|beslag/.test(t),
-    strongPressure: /vandaag|direct|onmiddellijk|met spoed|immediately|urgent|urgently|laatste kans|last chance|binnen 24 uur|within 24 hours|24 hours|24 uur|24 ore|entro 24 ore|sofort|dringend|unverzüglich|konto gesperrt|account blocked|account suspended|conto sospeso|account sospeso|konto blokkeren|bloccare il conto|verify now|verifica ora|confirm identity|conferma identit|identit[aà]|tożsamość|potwierdź/i.test(t)
+    strongPressure: /vandaag|direct|immediately|urgent|laatste kans|last chance|binnen 24 uur|within 24 hours/.test(t)
   };
 }
 
@@ -588,36 +609,9 @@ function postProcessNormalDocument(ctx) {
   const doc = classifyDocumentContext(text);
   const knownInstitution = institution && institution.officialWebsite && Number(institution.confidence || 0) >= 75;
   const hasKnownBad = (matchedSuspiciousLinks || []).length > 0 || (suspiciousPhoneMatches || []).length > 0;
-  const phishing = detectStrongPhishingSignals(text, detectedLinks);
-  const modelAlreadyAlarmed = hasModelHardFraudSignal(fraudRisk);
-  const hasHardRisk = hasKnownBad || phishing.high || modelAlreadyAlarmed || doc.legalThreat;
+  const hasHardRisk = hasKnownBad || doc.payment || doc.legalThreat || doc.strongPressure;
 
-  // Najważniejsza zasada: silny phishing NIE może zostać uspokojony do LOW tylko dlatego,
-  // że rozpoznano nazwę banku/urzędu. To usuwa sprzeczność między sekcjami.
-  if (phishing.high || hasKnownBad) {
-    fraudRisk.level = "HIGH";
-    fraudRisk.confidence = Math.max(Number(fraudRisk.confidence || 0), phishing.high ? 90 : 85);
-    fraudRisk.label = strongFraudLabel(userLang);
-    fraudRisk.summary = strongFraudSummary(userLang, institution && institution.name);
-    fraudRisk.signals = uniqueList([...(fraudRisk.signals || []), ...phishing.signals]);
-    fraudRisk.suspiciousElements = uniqueList([...(fraudRisk.suspiciousElements || []), ...phishing.suspiciousElements]);
-    fraudRisk.safeSteps = strongFraudSafeSteps(userLang, institution && institution.officialWebsite);
-    return;
-  }
-
-  // Gdy są pojedyncze sygnały ostrożności, nie straszymy HIGH, ale też nie udajemy LOW.
-  if (phishing.medium || doc.strongPressure || modelAlreadyAlarmed) {
-    fraudRisk.level = "MEDIUM";
-    fraudRisk.confidence = Math.max(70, Math.min(Number(fraudRisk.confidence || 75), 82));
-    fraudRisk.label = calmFraudLabel(userLang, "MEDIUM");
-    fraudRisk.summary = mediumFraudSummary(userLang, institution && institution.name);
-    fraudRisk.signals = uniqueList([...(fraudRisk.signals || []), ...phishing.signals]).slice(0, 5);
-    fraudRisk.suspiciousElements = uniqueList([...(fraudRisk.suspiciousElements || []), ...phishing.suspiciousElements]).slice(0, 5);
-    fraudRisk.safeSteps = cautiousSafeSteps(userLang, institution && institution.officialWebsite);
-    return;
-  }
-
-  if (knownInstitution && !hasHardRisk && !doc.payment) {
+  if (knownInstitution && !hasHardRisk) {
     fraudRisk.level = "LOW";
     fraudRisk.confidence = Math.max(60, Math.min(Number(fraudRisk.confidence || 70), 78));
     fraudRisk.label = calmFraudLabel(userLang, "LOW");
@@ -625,156 +619,15 @@ function postProcessNormalDocument(ctx) {
     fraudRisk.suspiciousElements = [];
     fraudRisk.signals = filterAlarmSignals(fraudRisk.signals);
     fraudRisk.safeSteps = calmSafeSteps(userLang, institution.officialWebsite);
-  } else if (knownInstitution && fraudRisk.level === "HIGH" && !hasKnownBad && !phishing.high) {
+  } else if (knownInstitution && fraudRisk.level === "HIGH" && !hasKnownBad) {
     fraudRisk.level = "MEDIUM";
-    fraudRisk.confidence = Math.min(Number(fraudRisk.confidence || 70), 78);
+    fraudRisk.confidence = Math.min(Number(fraudRisk.confidence || 70), 75);
     fraudRisk.label = calmFraudLabel(userLang, "MEDIUM");
   }
 }
 
 function filterAlarmSignals(list) {
   return arr(list).filter(x => !/oszust|fraud|phishing|scam/i.test(x));
-}
-
-function uniqueList(list) {
-  const out = [];
-  for (const item of arr(list)) {
-    const v = cleanAiText(item);
-    if (v && !out.some(x => x.toLowerCase() === v.toLowerCase())) out.push(v);
-  }
-  return out;
-}
-
-function hasModelHardFraudSignal(fraudRisk) {
-  const blob = [
-    fraudRisk && fraudRisk.label,
-    fraudRisk && fraudRisk.summary,
-    ...(arr(fraudRisk && fraudRisk.signals)),
-    ...(arr(fraudRisk && fraudRisk.suspiciousElements))
-  ].join(" ").toLowerCase();
-
-  return /phishing|scam|fraud|oszust|podszyw|suplantaci[oó]n|usurpation|frode|betrug|шахрай|tan|sms|password|has[łl]o|login|dane logowania|credentials|konto.*blok|account.*block|conto.*sospes|24\s*(h|uur|ore|hours)/i.test(blob);
-}
-
-function detectStrongPhishingSignals(text, detectedLinks) {
-  const t = String(text || "").toLowerCase();
-  const links = arr(detectedLinks).map(x => String(x || "").toLowerCase());
-  const signals = [];
-  const suspiciousElements = [];
-
-  const add = (condition, signal, element) => {
-    if (condition) {
-      signals.push(signal);
-      if (element) suspiciousElements.push(element);
-    }
-  };
-
-  add(/\btan\b|kod\s*sms|sms\s*code|code\s*sms|codice\s*(sms|tan)|mfa|2fa|one[-\s]?time|einmalcode/i.test(t),
-      "Prośba o kod TAN/SMS lub kod jednorazowy.", "Kod TAN/SMS");
-  add(/password|passwort|has[łl]o|wachtwoord|mot\s*de\s*passe|contrase[nñ]a|senha|пароль/i.test(t),
-      "Prośba o hasło lub dane logowania.", "Hasło / dane logowania");
-  add(/login|logowanie|accesso|accedi|einloggen|inloggen|sign\s*in|credentials|dane\s*logowania/i.test(t),
-      "Prośba o logowanie lub potwierdzenie danych dostępu.", "Logowanie / dane dostępu");
-  add(/verify\s*(your)?\s*identity|confirm\s*(your)?\s*identity|potwierd[zź].*tożsamo|verifica.*identit|conferma.*identit|identiteit.*bevestig|identiteit.*control|identit[eé].*confirmer|best[aä]tigen.*identit/i.test(t),
-      "Prośba o potwierdzenie tożsamości.", "Potwierdzenie tożsamości");
-  add(/within\s*24|24\s*hours|24\s*uur|24\s*ore|entro\s*24|binnen\s*24|w\s*ciągu\s*24|natychmiast|immediately|urgent|pilne|dringend|sofort|subito|laatste\s*kans|last\s*chance|ultima\s*possibilit/i.test(t),
-      "Presja czasu lub groźba szybkich konsekwencji.", "Presja czasu");
-  add(/account.*(blocked|suspended|locked)|konto.*(blok|zablok)|conto.*(sospes|bloccat)|rekening.*(geblokkeerd|blokkeren)|karte.*gesperrt|account.*gesperrt/i.test(t),
-      "Groźba blokady konta lub karty.", "Groźba blokady konta/karty");
-  add(/bank|sparkasse|intesa|sanpaolo|rabobank|ing|abn|bnp|santander|revolut|paypal|visa|mastercard/i.test(t) && /link|klik|click|apri|öffnen|open|http|www\./i.test(t),
-      "Wiadomość bankowa kieruje do linku lub logowania.", "Link/logowanie w wiadomości bankowej");
-
-  const hasHttp = /https?:\/\//i.test(t) || links.length > 0;
-  const linkLooksOdd = links.some(link =>
-    /login|verify|secure|account|update|confirm|support|auth|client|bank/i.test(link) &&
-    !/belastingdienst\.nl|uwv\.nl|digid\.nl|etz\.nl|sparkasse\.de|intesasanpaolo\.com|rabobank\.nl|ing\.nl|abnamro\.nl/i.test(link)
-  );
-  add(hasHttp && linkLooksOdd, "Link prowadzi do nietypowej lub podejrzanej domeny.", "Nietypowy link");
-
-  const score = signals.length;
-  return {
-    score,
-    high: score >= 3 || (/\btan\b|kod\s*sms|codice\s*(sms|tan)/i.test(t) && (/bank|konto|account|conto|sparkasse|intesa/i.test(t))),
-    medium: score >= 1,
-    signals: uniqueList(signals),
-    suspiciousElements: uniqueList(suspiciousElements)
-  };
-}
-
-function strongFraudLabel(lang) {
-  const L = (lang || "PL").toUpperCase();
-  const map = {
-    PL: "Wysokie ryzyko oszustwa",
-    EN: "High fraud risk",
-    NL: "Hoog risico op fraude",
-    DE: "Hohes Betrugsrisiko",
-    FR: "Risque élevé de fraude",
-    IT: "Alto rischio di frode",
-    ES: "Alto riesgo de fraude",
-    PT: "Alto risco de fraude",
-    UA: "Високий ризик шахрайства"
-  };
-  return map[L] || map.PL;
-}
-
-function strongFraudSummary(lang, institutionName) {
-  const name = institutionName || "instytucję";
-  const L = (lang || "PL").toUpperCase();
-  const map = {
-    PL: `Wykryto silne sygnały phishingu lub podszywania się pod ${name}. Nie używaj linków z wiadomości.`,
-    EN: `Strong phishing or impersonation signals were detected. Do not use links from the message.`,
-    NL: `Er zijn sterke signalen van phishing of imitatie gevonden. Gebruik geen links uit het bericht.`,
-    DE: `Es wurden starke Hinweise auf Phishing oder Identitätsmissbrauch erkannt. Verwenden Sie keine Links aus der Nachricht.`,
-    FR: `Des signaux forts de phishing ou d’usurpation ont été détectés. N’utilisez pas les liens du message.`,
-    IT: `Sono stati rilevati forti segnali di phishing o impersonificazione. Non usare i link del messaggio.`,
-    ES: `Se detectaron señales fuertes de phishing o suplantación. No uses los enlaces del mensaje.`,
-    PT: `Foram detectados fortes sinais de phishing ou falsificação. Não use links da mensagem.`,
-    UA: `Виявлено сильні ознаки фішингу або підробки. Не використовуйте посилання з повідомлення.`
-  };
-  return map[L] || map.PL;
-}
-
-function strongFraudSafeSteps(lang, website) {
-  const L = (lang || "PL").toUpperCase();
-  const map = {
-    PL: ["Nie klikaj linków z wiadomości.", "Nie podawaj loginu, hasła ani kodu TAN/SMS.", "Wejdź ręcznie na oficjalną stronę instytucji.", "Skontaktuj się z instytucją oficjalnym kanałem."],
-    EN: ["Do not click links from the message.", "Do not share login, password or TAN/SMS codes.", "Open the official website manually.", "Contact the institution through official channels."],
-    NL: ["Klik niet op links in het bericht.", "Deel geen login, wachtwoord of TAN/SMS-code.", "Open de officiële website handmatig.", "Neem contact op via officiële kanalen."],
-    DE: ["Klicken Sie nicht auf Links in der Nachricht.", "Geben Sie keine Login-Daten, Passwörter oder TAN/SMS-Codes weiter.", "Öffnen Sie die offizielle Website manuell.", "Kontaktieren Sie die Institution über offizielle Kanäle."],
-    FR: ["Ne cliquez pas sur les liens du message.", "Ne partagez pas vos identifiants, mots de passe ou codes SMS/TAN.", "Ouvrez le site officiel manuellement.", "Contactez l’institution par un canal officiel."],
-    IT: ["Non cliccare sui link del messaggio.", "Non fornire login, password o codici TAN/SMS.", "Apri manualmente il sito ufficiale.", "Contatta l’istituzione tramite canali ufficiali."],
-    ES: ["No hagas clic en los enlaces del mensaje.", "No compartas usuario, contraseña ni códigos TAN/SMS.", "Abre manualmente el sitio oficial.", "Contacta con la institución por canales oficiales."],
-    PT: ["Não clique nos links da mensagem.", "Não partilhe login, palavra-passe ou códigos TAN/SMS.", "Abra manualmente o site oficial.", "Contacte a instituição por canais oficiais."],
-    UA: ["Не натискайте посилання з повідомлення.", "Не вводьте логін, пароль або TAN/SMS-код.", "Відкрийте офіційний сайт вручну.", "Зв’яжіться з установою офіційним каналом."]
-  };
-  return map[L] || map.PL;
-}
-
-function mediumFraudSummary(lang, institutionName) {
-  const name = institutionName || "instytucji";
-  const L = (lang || "PL").toUpperCase();
-  if (L === "EN") return `There are some elements worth checking. Verify the message through the official website of ${name}.`;
-  if (L === "NL") return `Er zijn enkele punten om te controleren. Verifieer het bericht via de officiële website van ${name}.`;
-  if (L === "DE") return `Einige Punkte sollten überprüft werden. Prüfen Sie die Nachricht über die offizielle Website von ${name}.`;
-  if (L === "FR") return `Certains éléments doivent être vérifiés. Vérifiez le message via le site officiel de ${name}.`;
-  if (L === "IT") return `Ci sono alcuni elementi da verificare. Controlla il messaggio tramite il sito ufficiale di ${name}.`;
-  if (L === "ES") return `Hay algunos elementos que conviene verificar. Comprueba el mensaje a través del sitio oficial de ${name}.`;
-  if (L === "PT") return `Há alguns elementos que devem ser verificados. Confirme a mensagem pelo site oficial de ${name}.`;
-  if (L === "UA") return `Є елементи, які варто перевірити. Перевірте повідомлення через офіційний сайт ${name}.`;
-  return `Są elementy, które warto sprawdzić. Zweryfikuj wiadomość przez oficjalną stronę ${name}.`;
-}
-
-function cautiousSafeSteps(lang, website) {
-  const L = (lang || "PL").toUpperCase();
-  if (L === "EN") return ["Open the official website manually.", "Do not use links if you are unsure.", "Contact the institution through official channels."];
-  if (L === "NL") return ["Open de officiële website handmatig.", "Gebruik geen links als u twijfelt.", "Neem contact op via officiële kanalen."];
-  if (L === "DE") return ["Öffnen Sie die offizielle Website manuell.", "Nutzen Sie keine Links, wenn Sie unsicher sind.", "Kontaktieren Sie die Institution über offizielle Kanäle."];
-  if (L === "FR") return ["Ouvrez le site officiel manuellement.", "N’utilisez pas les liens en cas de doute.", "Contactez l’institution par un canal officiel."];
-  if (L === "IT") return ["Apri manualmente il sito ufficiale.", "Non usare i link se hai dubbi.", "Contatta l’istituzione tramite canali ufficiali."];
-  if (L === "ES") return ["Abre manualmente el sitio oficial.", "No uses enlaces si tienes dudas.", "Contacta por canales oficiales."];
-  if (L === "PT") return ["Abra manualmente o site oficial.", "Não use links se tiver dúvidas.", "Contacte por canais oficiais."];
-  if (L === "UA") return ["Відкрийте офіційний сайт вручну.", "Не використовуйте посилання, якщо маєте сумніви.", "Зв’яжіться з установою офіційним каналом."];
-  return ["Otwórz oficjalną stronę ręcznie.", "Nie używaj linków, jeśli masz wątpliwości.", "Skontaktuj się z instytucją oficjalnym kanałem."];
 }
 
 function calmFraudLabel(lang, level) {
@@ -1177,3 +1030,224 @@ function extractJson(s) {
 
   throw new Error("Nie udało się wyciągnąć JSON z odpowiedzi modelu.");
 }
+
+
+/* ============================================================
+   Sense Bridge ANALYZE LOGIC SYNC v8
+   Strong phishing cannot be calmed down by known institution.
+   No extra API calls. Local post-processing only.
+   ============================================================ */
+
+function sbFraudTextMapV8(lang) {
+  const L = (lang || "PL").toUpperCase();
+  const map = {
+    PL: {
+      highLabel: "Wysokie ryzyko phishingu lub podszywania się",
+      highSummary: "Wiadomość zawiera kilka mocnych sygnałów oszustwa: presję czasu, prośbę o dane dostępowe lub nietypowy link.",
+      risk1: "Nie klikaj linku z wiadomości.",
+      risk2: "Nie podawaj loginu, hasła, kodu SMS ani TAN.",
+      risk3: "Sprawdź sprawę wyłącznie przez oficjalną stronę lub aplikację instytucji.",
+      consequence1: "Jeżeli podasz dane, ktoś może uzyskać dostęp do konta.",
+      consequence2: "Dane mogą zostać wykorzystane do oszustwa lub kradzieży pieniędzy."
+    },
+    EN: {
+      highLabel: "High phishing or impersonation risk",
+      highSummary: "The message contains several strong fraud signals: time pressure, request for access details or an unusual link.",
+      risk1: "Do not click the link in the message.",
+      risk2: "Do not share login, password, SMS code or TAN.",
+      risk3: "Check the matter only through the official website or app of the institution.",
+      consequence1: "If you provide the data, someone may gain access to the account.",
+      consequence2: "The data may be used for fraud or theft."
+    },
+    NL: {
+      highLabel: "Hoog risico op phishing of imitatie",
+      highSummary: "Het bericht bevat meerdere sterke fraudesignalen: tijdsdruk, vraag om toegangsgegevens of een ongebruikelijke link.",
+      risk1: "Klik niet op de link in het bericht.",
+      risk2: "Deel geen login, wachtwoord, sms-code of TAN.",
+      risk3: "Controleer dit alleen via de officiële website of app van de instantie.",
+      consequence1: "Als u gegevens invoert, kan iemand toegang krijgen tot het account.",
+      consequence2: "De gegevens kunnen worden gebruikt voor fraude of diefstal."
+    },
+    DE: {
+      highLabel: "Hohes Risiko für Phishing oder Identitätsmissbrauch",
+      highSummary: "Die Nachricht enthält mehrere starke Betrugssignale: Zeitdruck, Aufforderung zu Zugangsdaten oder einen ungewöhnlichen Link.",
+      risk1: "Klicken Sie nicht auf den Link in der Nachricht.",
+      risk2: "Geben Sie keinen Login, kein Passwort, keinen SMS-Code und keine TAN weiter.",
+      risk3: "Prüfen Sie die Sache nur über die offizielle Website oder App der Institution.",
+      consequence1: "Wenn Sie Daten eingeben, kann jemand Zugriff auf das Konto erhalten.",
+      consequence2: "Die Daten können für Betrug oder Diebstahl verwendet werden."
+    },
+    FR: {
+      highLabel: "Risque élevé de phishing ou d’usurpation",
+      highSummary: "Le message contient plusieurs signaux forts de fraude : pression temporelle, demande d’identifiants ou lien inhabituel.",
+      risk1: "Ne cliquez pas sur le lien du message.",
+      risk2: "Ne partagez pas votre identifiant, mot de passe, code SMS ou TAN.",
+      risk3: "Vérifiez uniquement via le site ou l’application officielle de l’institution.",
+      consequence1: "Si vous donnez ces données, quelqu’un peut accéder au compte.",
+      consequence2: "Les données peuvent être utilisées pour une fraude ou un vol."
+    },
+    IT: {
+      highLabel: "Alto rischio di phishing o impersonificazione",
+      highSummary: "Il messaggio contiene diversi forti segnali di frode: pressione temporale, richiesta di dati di accesso o link insolito.",
+      risk1: "Non cliccare sul link nel messaggio.",
+      risk2: "Non condividere login, password, codice SMS o TAN.",
+      risk3: "Verifica solo tramite il sito o l’app ufficiale dell’istituzione.",
+      consequence1: "Se inserisci i dati, qualcuno potrebbe accedere al conto.",
+      consequence2: "I dati possono essere usati per frode o furto."
+    },
+    ES: {
+      highLabel: "Alto riesgo de phishing o suplantación",
+      highSummary: "El mensaje contiene varias señales fuertes de fraude: presión de tiempo, solicitud de datos de acceso o enlace inusual.",
+      risk1: "No hagas clic en el enlace del mensaje.",
+      risk2: "No compartas usuario, contraseña, código SMS ni TAN.",
+      risk3: "Verifica solo mediante el sitio web o la app oficial de la institución.",
+      consequence1: "Si proporcionas los datos, alguien podría acceder a la cuenta.",
+      consequence2: "Los datos pueden usarse para fraude o robo."
+    },
+    PT: {
+      highLabel: "Alto risco de phishing ou falsificação",
+      highSummary: "A mensagem contém vários sinais fortes de fraude: pressão de tempo, pedido de dados de acesso ou link invulgar.",
+      risk1: "Não clique no link da mensagem.",
+      risk2: "Não partilhe login, palavra-passe, código SMS ou TAN.",
+      risk3: "Verifique apenas pelo site ou pela aplicação oficial da instituição.",
+      consequence1: "Se fornecer os dados, alguém pode obter acesso à conta.",
+      consequence2: "Os dados podem ser usados para fraude ou roubo."
+    },
+    UA: {
+      highLabel: "Високий ризик фішингу або підробки",
+      highSummary: "Повідомлення містить кілька сильних ознак шахрайства: тиск часу, запит даних доступу або незвичне посилання.",
+      risk1: "Не натискайте посилання в повідомленні.",
+      risk2: "Не передавайте логін, пароль, SMS-код або TAN.",
+      risk3: "Перевіряйте лише через офіційний сайт або додаток установи.",
+      consequence1: "Якщо ви введете дані, хтось може отримати доступ до акаунта.",
+      consequence2: "Дані можуть бути використані для шахрайства або крадіжки."
+    }
+  };
+  return map[L] || map.PL;
+}
+
+function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
+  const t = String(text || "").toLowerCase();
+  const links = Array.isArray(detectedLinks) ? detectedLinks : [];
+
+  const credential =
+    /(tan|sms[\s-]*(code|kod|codigo|c[oó]digo|codice)|password|passwort|wachtwoord|hasło|senha|palavra[-\s]?passe|login|logowanie|access code|c[oó]digo de acesso|dane dostępowe|zugangsdaten|credenciais|credenziali)/i.test(t);
+
+  const timePressure =
+    /(24\s*(h|hours|uur|stunden|ore|horas|godzin)|12\s*(h|hours|uur|stunden|ore|horas)|immediately|urgent|urgente|dringend|sofort|natychmiast|onmiddellijk|imediatamente|immediat|binnen\s*24|within\s*24|dentro de\s*24|entro\s*24)/i.test(t);
+
+  const accountThreat =
+    /(account|konto|rekening|bankkonto|conta|compte|cuenta).{0,90}(suspend|suspended|suspenso|sospeso|gesperrt|blocked|block|zablok|deaktiv|deactiv|suspensão|sospensione|bloquead)/i.test(t) ||
+    /(suspens|suspensão|sospensione|bloqueio|blocco|blokada|sperrung).{0,90}(account|konto|rekening|conta|bank)/i.test(t);
+
+  const financialBrand =
+    /(bank|banco|sparkasse|millennium|bcp|ing|rabobank|abn|paypal|creditcard|visa|mastercard|rekening|bankkonto|conta banc[aá]ria)/i.test(t);
+
+  const rawSuspiciousLink =
+    /(security|secure|verify|verifica|verification|verifizierung|login|check|account|konto|conta|bank).{0,80}\.(com|net|info|top|xyz|click|site|online|live|app)/i.test(t) ||
+    /http:\/\/[^\s]+/i.test(t);
+
+  let nonOfficialLink = false;
+  try {
+    const official = String(institution && institution.officialWebsite || "").toLowerCase();
+    const officialHost = official ? new URL(official).hostname.replace(/^www\./, "") : "";
+    for (const link of links) {
+      try {
+        const host = new URL(String(link)).hostname.replace(/^www\./, "").toLowerCase();
+        if (officialHost && !host.endsWith(officialHost)) nonOfficialLink = true;
+        if (!officialHost && /(security|verify|verifica|verification|login|check|secure)/i.test(host)) nonOfficialLink = true;
+      } catch {}
+    }
+  } catch {}
+
+  const suspiciousLink = rawSuspiciousLink || nonOfficialLink;
+
+  const score = [credential, timePressure, accountThreat, financialBrand, suspiciousLink].filter(Boolean).length;
+
+  return {
+    credential,
+    timePressure,
+    accountThreat,
+    financialBrand,
+    suspiciousLink,
+    score,
+    hardHigh: credential && suspiciousLink && (timePressure || accountThreat || financialBrand),
+    hardMedium: score >= 3
+  };
+}
+
+function sbApplyFraudLogicSyncV8(ctx) {
+  const {
+    text,
+    userLang,
+    fraudRisk,
+    institution,
+    detectedLinks
+  } = ctx || {};
+
+  if (!fraudRisk) return ctx;
+
+  const sig = sbDetectStrongPhishingV8(text, detectedLinks, institution);
+  const labels = sbFraudTextMapV8(userLang);
+
+  if (sig.hardHigh || sig.hardMedium) {
+    fraudRisk.level = sig.hardHigh ? "HIGH" : "MEDIUM";
+    fraudRisk.confidence = Math.max(Number(fraudRisk.confidence || 0), sig.hardHigh ? 90 : 78);
+    fraudRisk.label = sig.hardHigh ? labels.highLabel : (fraudRisk.label || labels.highLabel);
+    fraudRisk.summary = sig.hardHigh ? labels.highSummary : (fraudRisk.summary || labels.highSummary);
+
+    const signals = Array.isArray(fraudRisk.signals) ? fraudRisk.signals : [];
+    const extraSignals = [];
+    if (sig.credential) extraSignals.push(labels.risk2);
+    if (sig.timePressure) extraSignals.push("Presja czasu / time pressure / urgência.");
+    if (sig.suspiciousLink) extraSignals.push(labels.risk1);
+    if (sig.accountThreat) extraSignals.push("Groźba blokady lub utraty dostępu / account suspension threat.");
+
+    fraudRisk.signals = Array.from(new Set([...signals, ...extraSignals])).slice(0, 8);
+
+    const safeSteps = Array.isArray(fraudRisk.safeSteps) ? fraudRisk.safeSteps : [];
+    fraudRisk.safeSteps = Array.from(new Set([
+      labels.risk1,
+      labels.risk2,
+      labels.risk3,
+      ...safeSteps
+    ])).slice(0, 6);
+
+    const suspicious = Array.isArray(fraudRisk.suspiciousElements) ? fraudRisk.suspiciousElements : [];
+    const suspiciousExtra = [];
+    if (sig.credential) suspiciousExtra.push(labels.risk2);
+    if (sig.suspiciousLink) suspiciousExtra.push(labels.risk1);
+    if (sig.timePressure) suspiciousExtra.push("Presja czasu / pilna weryfikacja.");
+    fraudRisk.suspiciousElements = Array.from(new Set([...suspicious, ...suspiciousExtra])).slice(0, 8);
+
+    if (Array.isArray(ctx.risks)) {
+      ctx.risks = Array.from(new Set([
+        labels.risk1,
+        labels.risk2,
+        labels.risk3,
+        ...ctx.risks
+      ])).slice(0, 8);
+    }
+
+    if (Array.isArray(ctx.consequences)) {
+      ctx.consequences = Array.from(new Set([
+        labels.consequence1,
+        labels.consequence2,
+        ...ctx.consequences
+      ])).slice(0, 8);
+    }
+
+    if (Array.isArray(ctx.help)) {
+      ctx.help = Array.from(new Set([
+        labels.risk3,
+        ...ctx.help
+      ])).slice(0, 8);
+    }
+
+    if (ctx.urgency !== "HIGH") ctx.urgency = "HIGH";
+    if (ctx.legalHelpFinal === "URGENT") ctx.legalHelpFinal = "RECOMMENDED";
+  }
+
+  return ctx;
+}
+
