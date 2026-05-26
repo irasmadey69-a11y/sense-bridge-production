@@ -1499,6 +1499,44 @@ const ENDPOINTS = {
   accessCheck: "/.netlify/functions/access_check"
 };
 
+async function fetchJsonStrict(url, options = {}, label = "Zapytanie") {
+  const res = await fetch(url, options);
+  const contentType = (res.headers.get("content-type") || "").toLowerCase();
+  const raw = await res.text();
+
+  let data = null;
+  if (raw) {
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {
+      const start = raw.trim().slice(0, 120).replace(/\s+/g, " ");
+      if (raw.trim().startsWith("<")) {
+        throw new Error(
+          label + ": backend zwrócił stronę HTML zamiast JSON. " +
+          "Najczęściej oznacza to, że Netlify Function nie jest w ostatnim deployu albo endpoint " +
+          url + " zwraca 404. Początek odpowiedzi: " + start
+        );
+      }
+      throw new Error(label + ": odpowiedź backendu nie jest JSON. Początek odpowiedzi: " + start);
+    }
+  }
+
+  if (!res.ok) {
+    throw new Error((data && (data.error || data.message)) ? (data.error || data.message) : (label + " HTTP " + res.status));
+  }
+
+  return data || {};
+}
+
+function postJson(url, payload, label) {
+  return fetchJsonStrict(url, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  }, label);
+}
+
+
 /* =========================================================
    PAYWALL (local + stable)
    ========================================================= */
@@ -2351,15 +2389,11 @@ function applyPaymentLang(){
    ========================================================= */
 async function checkAccessServer(email){
   try{
-    const res = await fetch("/.netlify/functions/access_check",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ email })
-    });
-
-    const data = await res.json();
-
-    if(!res.ok) return null;
+    const data = await postJson(
+      ENDPOINTS.accessCheck || "/.netlify/functions/access_check",
+      { email },
+      "Sprawdzenie dostępu"
+    );
 
     return data;
   } catch(e){
@@ -2520,15 +2554,13 @@ async function syncAccess(){
   if(!email) return;
 
   try {
-    const res = await fetch(ENDPOINTS.accessCheck, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ email })
-    });
+    const data = await postJson(
+      ENDPOINTS.accessCheck,
+      { email },
+      "Synchronizacja dostępu"
+    );
 
-    const data = await res.json();
-
-    if(!res.ok || !data.ok) return;
+    if(!data.ok) return;
 
     if(data.status === "ACTIVE"){
       setPass(data.plan, data.expires);
@@ -2794,19 +2826,17 @@ async function confirmPaid(){
   }
 
   try {
-    const res = await fetch(ENDPOINTS.accessSet, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const data = await postJson(
+      ENDPOINTS.accessSet,
+      {
         email,
         plan: currentPlan,
         paymentTitle: document.getElementById("transferTitle").textContent.trim()
-      })
-    });
+      },
+      tPay.activationError
+    );
 
-    const data = await res.json();
-
-    if(!res.ok || !data.ok){
+    if(!data.ok){
       throw new Error(data.error || tPay.activationError);
     }
 
@@ -2872,16 +2902,11 @@ if(!text){
   return;
 }
 
-    const res = await fetch(ENDPOINTS.analyze,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ text, sourceLang, userLang })
-    });
-
-    const data = await res.json();
-    if(!res.ok){
-      throw new Error((data && (data.error || data.message)) ? (data.error || data.message) : ("HTTP " + res.status));
-    }
+    const data = await postJson(
+      ENDPOINTS.analyze,
+      { text, sourceLang, userLang },
+      "Analiza"
+    );
 
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
@@ -3038,27 +3063,23 @@ const docTargetLang = sourceLang !== "AUTO" ? sourceLang : (data.detectedLang ||
 
 if (docTargetLang && docTargetLang !== userLang && parts.length > 0) {
   try {
-    const trDocRes = await fetch(ENDPOINTS.translate, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-  text: parts.join("\n\n"),
-  sourceLang: userLang,
-  targetLang: docTargetLang,
-  userLang: docTargetLang
-})
-    });
+    const trDocData = await postJson(
+      ENDPOINTS.translate,
+      {
+        text: parts.join("\n\n"),
+        sourceLang: userLang,
+        targetLang: docTargetLang,
+        userLang: docTargetLang
+      },
+      "Tłumaczenie odpowiedzi"
+    );
 
-    const trDocData = await trDocRes.json();
-
-    if (trDocRes.ok) {
-      docText = (
-        trDocData.translation ||
-        trDocData.translatedText ||
-        trDocData.translated ||
-        ""
-      ).trim();
-    }
+    docText = (
+      trDocData.translation ||
+      trDocData.translatedText ||
+      trDocData.translated ||
+      ""
+    ).trim();
   } catch (e) {
     console.log("examplesDoc translate error", e);
   }
@@ -3071,15 +3092,11 @@ if (examplesDocEl) {
     let translation = (data.translation || data.translatedText || data.translated || "").trim();
 
     if(!translation){
-      const trRes = await fetch(ENDPOINTS.translate,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ text, sourceLang, userLang })
-      });
-      const trData = await trRes.json();
-      if(!trRes.ok){
-        throw new Error((trData && (trData.error || trData.message)) ? (trData.error || trData.message) : ("Translate HTTP " + trRes.status));
-      }
+      const trData = await postJson(
+        ENDPOINTS.translate,
+        { text, sourceLang, userLang },
+        "Tłumaczenie"
+      );
       translation = (trData.translation || trData.translatedText || trData.translated || "").trim();
     }
 
@@ -3234,15 +3251,13 @@ fetch("/.netlify/functions/analyze_count", {
       const originalDataUrl = await fileToDataUrl(file);
       const imageDataUrl = await imageToCanvasDataUrl(originalDataUrl);
 
-      const res = await fetch("/.netlify/functions/ocr", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageDataUrl })
-      });
+      const data = await postJson(
+        "/.netlify/functions/ocr",
+        { imageDataUrl },
+        "OCR"
+      );
 
-      const data = await res.json();
-
-      if (!res.ok || !data.ok) {
+      if (!data.ok) {
         throw new Error(data.error || "OCR error");
       }
 
