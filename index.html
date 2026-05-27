@@ -1066,180 +1066,117 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
 .fraud-small{font-size:12px;color:#9fb5ad !important;margin-top:10px !important;}
 
   
-/* FIX: modal hidden by default */
-.sb-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.45);
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  z-index:9999;
-}
-.sb-modal.hidden{
-  display:none !important;
-}
-.sb-modal:not(.hidden){
-  display:flex;
-}
-.sb-modal-box{
-  width:100%;
-  max-width:520px;
-  margin:20px;
-  border-radius:24px;
-  padding:20px;
-}
-.sb-modal-actions{
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top:16px;
-}
-.sb-modal-input{
-  width:100%;
-  margin-top:12px;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(63,138,114,0.28);
-}
-.sb-modal-cancel,
-.sb-modal-ok{
-  padding:10px 18px;
-  border-radius:14px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-
-
 /* ============================================================
-   Sense Bridge UX SAFE PATCH v8
-   - readability + psychological separation
-   - CSS only visual layer
+   Sense Bridge UX SAFE PATCH v9
+   - LOW: calm info visuals, no warning feeling
+   - HIGH: stronger red danger visuals
+   - separator between document content and Sense Bridge guidance
+   CSS only + class hooks from JS
    ============================================================ */
 
-body.light-mode .fraud-pill,
-.fraud-pill{
-  font-weight:900;
-  letter-spacing:-0.01em;
+.box-info{
+  background:rgba(63,138,114,0.065);
+  color:#245c4d;
+  border:1px solid rgba(63,138,114,0.16);
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:8px;
 }
 
-body.light-mode .fraud-low,
-.fraud-low{
-  background:#dcfce7 !important;
-  color:#14532d !important;
-  border-color:#86efac !important;
+.sb-summary-separator{
+  margin:16px 0 14px;
+  border-top:1px dashed rgba(104,115,133,.42);
+  position:relative;
+  height:1px;
+}
+.sb-summary-separator span{
+  position:relative;
+  top:-12px;
+  display:inline-block;
+  background:var(--card);
+  padding:0 10px 0 0;
+  font-size:12px;
+  font-weight:850;
+  letter-spacing:.01em;
+  color:var(--muted);
+}
+body.dark-mode .sb-summary-separator{
+  border-top-color:rgba(200,232,220,.24);
+}
+body.dark-mode .sb-summary-separator span{
+  background:#0b1420;
+  color:#9fb5ad;
 }
 
-body.light-mode .fraud-medium,
-.fraud-medium{
+.sb-low-risk-card #lblRisks::before{
+  content:"ℹ️" !important;
+}
+.sb-high-risk-card #lblRisks::before{
+  content:"🚨" !important;
+}
+
+#risks.low-risk .box-warn,
+#risks.low-risk .box-info,
+#consequences.low-risk .box-warn,
+#consequences.low-risk .box-info{
+  background:#eef7f3 !important;
+  color:#245c4d !important;
+  border:1px solid rgba(63,138,114,.16) !important;
+}
+
+#risks.medium-risk .box-warn,
+#risks.medium-risk .box-info,
+#consequences.medium-risk .box-warn,
+#consequences.medium-risk .box-info{
   background:#fef3c7 !important;
   color:#92400e !important;
-  border-color:#facc15 !important;
+  border:1px solid rgba(250,204,21,.34) !important;
 }
 
-body.light-mode .fraud-high,
-.fraud-high{
+#risks.high-risk .box-warn,
+#risks.high-risk .box-info,
+#consequences.high-risk .box-warn,
+#consequences.high-risk .box-info{
   background:#fee2e2 !important;
-  color:#991b1b !important;
-  border-color:#ef4444 !important;
-  box-shadow:0 10px 28px rgba(239,68,68,.16) !important;
+  color:#7f1d1d !important;
+  border:1px solid #fca5a5 !important;
+  box-shadow:0 8px 22px rgba(239,68,68,.10) !important;
 }
 
-body.light-mode .fraud-unknown,
-.fraud-unknown{
-  background:#e5e7eb !important;
-  color:#374151 !important;
-  border-color:#cbd5e1 !important;
+#consequences.high-risk{
+  border-top:2px solid rgba(239,68,68,.45);
+  margin-top:14px;
+  padding-top:12px;
 }
 
-body.dark-mode .fraud-low{
-  background:rgba(44,255,154,0.18) !important;
+body.dark-mode #risks.low-risk .box-warn,
+body.dark-mode #risks.low-risk .box-info,
+body.dark-mode #consequences.low-risk .box-warn,
+body.dark-mode #consequences.low-risk .box-info{
+  background:rgba(44,255,154,.08) !important;
   color:#d8ffe9 !important;
-  border-color:rgba(44,255,154,0.55) !important;
+  border-color:rgba(44,255,154,.22) !important;
 }
 
-body.dark-mode .fraud-medium{
-  background:rgba(255,211,106,0.18) !important;
-  color:#fff3bf !important;
-  border-color:rgba(255,211,106,0.55) !important;
-}
-
-body.dark-mode .fraud-high{
-  background:rgba(255,77,109,0.20) !important;
+body.dark-mode #risks.high-risk .box-warn,
+body.dark-mode #risks.high-risk .box-info,
+body.dark-mode #consequences.high-risk .box-warn,
+body.dark-mode #consequences.high-risk .box-info{
+  background:rgba(255,77,109,.16) !important;
   color:#ffd1da !important;
-  border-color:rgba(255,77,109,0.70) !important;
-  box-shadow:0 12px 30px rgba(255,77,109,.20) !important;
+  border-color:rgba(255,77,109,.45) !important;
 }
 
-body.dark-mode .fraud-unknown{
-  background:rgba(159,181,173,0.16) !important;
-  color:#eafdf4 !important;
-  border-color:rgba(159,181,173,0.38) !important;
-}
-
+#fraudRiskBox.fraud-box-high .fraud-box,
 .fraud-box.fraud-box-high{
   border-color:rgba(239,68,68,.42) !important;
   background:linear-gradient(180deg, rgba(254,242,242,.94), rgba(255,255,255,.98)) !important;
 }
 
-body.dark-mode .fraud-box.fraud-box-high{
-  border-color:rgba(255,77,109,.46) !important;
-  background:linear-gradient(180deg, rgba(80,15,30,.26), rgba(10,18,28,.88)) !important;
-}
-
-.fraud-box.fraud-box-high .fraud-summary{
-  border-left:5px solid #ef4444;
-  padding-left:14px;
-}
-
-.fraud-box.fraud-box-low .fraud-summary{
-  border-left:5px solid #22c55e;
-  padding-left:14px;
-}
-
-.sb-source-note{
-  margin:12px 0 0;
-  padding:12px 14px;
-  border-radius:18px;
-  border:1px solid rgba(63,138,114,.22);
-  color:var(--muted);
-  background:rgba(63,138,114,.06);
-  font-size:14px;
-  line-height:1.45;
-}
-
-body.dark-mode .sb-source-note{
-  background:rgba(44,255,154,.06);
-  border-color:rgba(44,255,154,.18);
-}
-
-.sb-high-source-note{
-  border-color:rgba(239,68,68,.35) !important;
-  background:rgba(254,226,226,.62) !important;
-  color:#7f1d1d !important;
-}
-
-body.dark-mode .sb-high-source-note{
-  border-color:rgba(255,77,109,.38) !important;
-  background:rgba(255,77,109,.12) !important;
-  color:#ffd1da !important;
-}
-
-.risk-list.high-risk .risk-item,
-#risks.high-risk .risk-item,
-#risks .risk-item.high-risk{
-  background:#fee2e2 !important;
-  color:#7f1d1d !important;
-  border-color:#fca5a5 !important;
-}
-
-body.dark-mode .risk-list.high-risk .risk-item,
-body.dark-mode #risks.high-risk .risk-item,
-body.dark-mode #risks .risk-item.high-risk{
-  background:rgba(255,77,109,.16) !important;
-  color:#ffd1da !important;
-  border-color:rgba(255,77,109,.45) !important;
+#fraudRiskBox.fraud-box-low .fraud-box,
+.fraud-box.fraud-box-low{
+  border-color:rgba(34,197,94,.25) !important;
+  background:linear-gradient(180deg, rgba(240,253,244,.90), rgba(255,255,255,.98)) !important;
 }
 
 </style>
@@ -1384,8 +1321,9 @@ body.dark-mode #risks .risk-item.high-risk{
   </div>
 
   <div class="card">
-    <div class="section-title" id="lblSummary">Co urząd komunikuje</div>
+    <div class="section-title" id="lblSummary">Co pismo komunikuje</div>
     <p id="summary"></p>
+    <div id="sbSummarySeparator" class="sb-summary-separator" style="display:none;"><span>Ocena i kroki Sense Bridge</span></div>
     <div id="legalStatus"></div>
     <div id="urgencyBox" class="box-info"></div>
 
@@ -1452,34 +1390,34 @@ body.dark-mode #risks .risk-item.high-risk{
   </section>
 
   <div id="paymentBox" class="card" style="display:none;">
-    <h3 id="paymentBoxTitle">Zakup dostępu</h3>
-    <p><b id="paymentAmountLabel">Kwota:</b> <span id="amountText"></span></p>
+    <h3>Zakup dostępu</h3>
+    <p><b>Kwota:</b> <span id="amountText"></span></p>
 
-    <p><b id="paymentTransferLabel">Zapłać przelewem:</b></p>
+    <p><b>Zapłać przelewem:</b></p>
     <p>
       IBAN: <b>NL60 RABO 0324 8128 84</b><br>
-      <span id="paymentReceiverLabel">Odbiorca:</span> <b>I. Madej</b>
+      Odbiorca: <b>I. Madej</b>
     </p>
 
-    <p><b id="paymentTitleLabel">Tytuł przelewu:</b><br>
+    <p><b>Tytuł przelewu:</b><br>
       <span id="transferTitle"></span>
     </p>
 
-    <button id="confirmPaidBtn" class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
+    <button class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
 
     <div id="pendingConfirmBox" class="pending-confirm-box">
-      <div id="pendingConfirmTitle" class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
-      <div id="pendingConfirmText" class="pending-confirm-text">
+      <div class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
+      <div class="pending-confirm-text">
         Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
       </div>
       <div class="pending-bank-box">
         <div><strong>IBAN:</strong> NL60 RABO 0324 8128 84</div>
-        <div><strong id="pendingReceiverLabel">Odbiorca:</strong> I. Madej</div>
-        <div><strong id="pendingTitleLabel">Tytuł przelewu:</strong></div>
+        <div><strong>Odbiorca:</strong> I. Madej</div>
+        <div><strong>Tytuł przelewu:</strong></div>
         <span id="pendingCodeView" class="pending-code"></span>
       </div>
-      <button id="pendingCopyBtn" class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
-      <div id="pendingSmallText" class="pending-small">
+      <button class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
+      <div class="pending-small">
         Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail.
       </div>
     </div>
@@ -1629,44 +1567,6 @@ const ENDPOINTS = {
   accessSet: "/.netlify/functions/pending_set",
   accessCheck: "/.netlify/functions/access_check"
 };
-
-async function fetchJsonStrict(url, options = {}, label = "Zapytanie") {
-  const res = await fetch(url, options);
-  const contentType = (res.headers.get("content-type") || "").toLowerCase();
-  const raw = await res.text();
-
-  let data = null;
-  if (raw) {
-    try {
-      data = JSON.parse(raw);
-    } catch (e) {
-      const start = raw.trim().slice(0, 120).replace(/\s+/g, " ");
-      if (raw.trim().startsWith("<")) {
-        throw new Error(
-          label + ": backend zwrócił stronę HTML zamiast JSON. " +
-          "Najczęściej oznacza to, że Netlify Function nie jest w ostatnim deployu albo endpoint " +
-          url + " zwraca 404. Początek odpowiedzi: " + start
-        );
-      }
-      throw new Error(label + ": odpowiedź backendu nie jest JSON. Początek odpowiedzi: " + start);
-    }
-  }
-
-  if (!res.ok) {
-    throw new Error((data && (data.error || data.message)) ? (data.error || data.message) : (label + " HTTP " + res.status));
-  }
-
-  return data || {};
-}
-
-function postJson(url, payload, label) {
-  return fetchJsonStrict(url, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(payload)
-  }, label);
-}
-
 
 /* =========================================================
    PAYWALL (local + stable)
@@ -1821,7 +1721,7 @@ fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszus
       reset: "Reset testowy",
       lock: "Limit FREE został wykorzystany. Wybierz dostęp poniżej, aby kontynuować.",
       translation: "Tłumaczenie",
-      summary: "Co urząd komunikuje",
+      summary: "Co pismo komunikuje",
       risks: "Ryzyka komunikacyjne",
       examples: "Przykłady odpowiedzi",
       examplesUser: 'Przykłady odpowiedzi (Twój język)',
@@ -2354,8 +2254,6 @@ UI.dict[UI.lang].fraudInfoText;
     toolButtons[2].textContent = t.copyEx;
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
   }
-
-  applyPaymentLang();
 }
 
 function showFooterInfo(type){
@@ -2371,160 +2269,20 @@ function showFooterInfo(type){
   footerText.scrollIntoView({ behavior:"smooth", block:"nearest" });
 }
 
-
-/* =========================================================
-   PAYMENT BOX LANGUAGE — all UI languages
-   ========================================================= */
-function getPaymentLangText(){
-  const lang = (UI && UI.lang) ? UI.lang : "PL";
-
-  const map = {
-    PL:{
-      title:"Zakup dostępu",
-      amount:"Kwota:",
-      transfer:"Zapłać przelewem:",
-      receiver:"Odbiorca:",
-      transferTitle:"Tytuł przelewu:",
-      paid:"✔ Zapłaciłem",
-      saved:"✅ Zgłoszenie zapisane",
-      savedText:"Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.",
-      copy:"Kopiuj tytuł przelewu",
-      small:"Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail."
-    },
-    EN:{
-      title:"Purchase access",
-      amount:"Amount:",
-      transfer:"Pay by bank transfer:",
-      receiver:"Recipient:",
-      transferTitle:"Transfer title:",
-      paid:"✔ I paid",
-      saved:"✅ Request saved",
-      savedText:"Thank you. Make the bank transfer using exactly the transfer title below. Access will be activated after manual payment confirmation.",
-      copy:"Copy transfer title",
-      small:"After the payment is received, we will activate access. You can later return to the page and check access using the same email address."
-    },
-    NL:{
-      title:"Toegang kopen",
-      amount:"Bedrag:",
-      transfer:"Betaal via bankoverschrijving:",
-      receiver:"Ontvanger:",
-      transferTitle:"Omschrijving:",
-      paid:"✔ Ik heb betaald",
-      saved:"✅ Aanvraag opgeslagen",
-      savedText:"Dank je. Doe de overschrijving met exact de onderstaande omschrijving. Toegang wordt geactiveerd na handmatige bevestiging van de betaling.",
-      copy:"Kopieer omschrijving",
-      small:"Na ontvangst van de betaling activeren we de toegang. Je kunt later terugkomen naar de pagina en de toegang controleren met hetzelfde e-mailadres."
-    },
-    DE:{
-      title:"Zugang kaufen",
-      amount:"Betrag:",
-      transfer:"Per Banküberweisung bezahlen:",
-      receiver:"Empfänger:",
-      transferTitle:"Verwendungszweck:",
-      paid:"✔ Ich habe bezahlt",
-      saved:"✅ Anfrage gespeichert",
-      savedText:"Danke. Führe die Überweisung genau mit dem unten angegebenen Verwendungszweck aus. Der Zugang wird nach manueller Zahlungsbestätigung aktiviert.",
-      copy:"Verwendungszweck kopieren",
-      small:"Nach Zahlungseingang aktivieren wir den Zugang. Du kannst später zur Seite zurückkehren und den Zugang mit derselben E-Mail-Adresse prüfen."
-    },
-    UA:{
-      title:"Купівля доступу",
-      amount:"Сума:",
-      transfer:"Оплатіть банківським переказом:",
-      receiver:"Отримувач:",
-      transferTitle:"Призначення платежу:",
-      paid:"✔ Я оплатив",
-      saved:"✅ Запит збережено",
-      savedText:"Дякуємо. Виконайте переказ, використовуючи точно вказане нижче призначення платежу. Доступ буде активовано після ручного підтвердження оплати.",
-      copy:"Скопіювати призначення платежу",
-      small:"Після зарахування платежу ми активуємо доступ. Пізніше ви можете повернутися на сторінку і перевірити доступ за тією ж електронною адресою."
-    },
-    FR:{
-      title:"Acheter l’accès",
-      amount:"Montant :",
-      transfer:"Payer par virement bancaire :",
-      receiver:"Bénéficiaire :",
-      transferTitle:"Libellé du virement :",
-      paid:"✔ J’ai payé",
-      saved:"✅ Demande enregistrée",
-      savedText:"Merci. Effectuez le virement en utilisant exactement le libellé ci-dessous. L’accès sera activé après confirmation manuelle du paiement.",
-      copy:"Copier le libellé du virement",
-      small:"Après réception du paiement, nous activerons l’accès. Vous pourrez revenir plus tard sur la page et vérifier l’accès avec la même adresse e-mail."
-    },
-    IT:{
-      title:"Acquisto accesso",
-      amount:"Importo:",
-      transfer:"Paga con bonifico bancario:",
-      receiver:"Beneficiario:",
-      transferTitle:"Causale del bonifico:",
-      paid:"✔ Ho pagato",
-      saved:"✅ Richiesta salvata",
-      savedText:"Grazie. Effettua il bonifico usando esattamente la causale indicata qui sotto. L’accesso sarà attivato dopo la conferma manuale del pagamento.",
-      copy:"Copia causale del bonifico",
-      small:"Dopo la ricezione del pagamento, attiveremo l’accesso. Potrai tornare più tardi alla pagina e verificare l’accesso con lo stesso indirizzo email."
-    },
-    ES:{
-      title:"Comprar acceso",
-      amount:"Importe:",
-      transfer:"Paga por transferencia bancaria:",
-      receiver:"Beneficiario:",
-      transferTitle:"Concepto de la transferencia:",
-      paid:"✔ He pagado",
-      saved:"✅ Solicitud guardada",
-      savedText:"Gracias. Realiza la transferencia usando exactamente el concepto indicado abajo. El acceso se activará tras la confirmación manual del pago.",
-      copy:"Copiar concepto de transferencia",
-      small:"Después de recibir el pago, activaremos el acceso. Puedes volver más tarde a la página y comprobar el acceso con el mismo correo electrónico."
-    },
-    PT:{
-      title:"Comprar acesso",
-      amount:"Valor:",
-      transfer:"Pagar por transferência bancária:",
-      receiver:"Beneficiário:",
-      transferTitle:"Referência da transferência:",
-      paid:"✔ Já paguei",
-      saved:"✅ Pedido guardado",
-      savedText:"Obrigado. Faça a transferência usando exatamente a referência abaixo. O acesso será ativado após confirmação manual do pagamento.",
-      copy:"Copiar referência da transferência",
-      small:"Após recebermos o pagamento, ativaremos o acesso. Pode voltar mais tarde à página e verificar o acesso com o mesmo endereço de email."
-    }
-  };
-
-  return map[lang] || map.PL;
-}
-
-function applyPaymentLang(){
-  const t = getPaymentLangText();
-
-  const setText = (id, value) => {
-    const el = document.getElementById(id);
-    if(el) el.textContent = value;
-  };
-
-  setText("paymentBoxTitle", t.title);
-  setText("paymentAmountLabel", t.amount);
-  setText("paymentTransferLabel", t.transfer);
-  setText("paymentReceiverLabel", t.receiver);
-  setText("paymentTitleLabel", t.transferTitle);
-  setText("confirmPaidBtn", t.paid);
-  setText("pendingConfirmTitle", t.saved);
-  setText("pendingConfirmText", t.savedText);
-  setText("pendingReceiverLabel", t.receiver);
-  setText("pendingTitleLabel", t.transferTitle);
-  setText("pendingCopyBtn", t.copy);
-  setText("pendingSmallText", t.small);
-}
-
-
 /* =========================================================
    HELPERS
    ========================================================= */
 async function checkAccessServer(email){
   try{
-    const data = await postJson(
-      ENDPOINTS.accessCheck || "/.netlify/functions/access_check",
-      { email },
-      "Sprawdzenie dostępu"
-    );
+    const res = await fetch("/.netlify/functions/access_check",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok) return null;
 
     return data;
   } catch(e){
@@ -2685,13 +2443,15 @@ async function syncAccess(){
   if(!email) return;
 
   try {
-    const data = await postJson(
-      ENDPOINTS.accessCheck,
-      { email },
-      "Synchronizacja dostępu"
-    );
+    const res = await fetch(ENDPOINTS.accessCheck, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email })
+    });
 
-    if(!data.ok) return;
+    const data = await res.json();
+
+    if(!res.ok || !data.ok) return;
 
     if(data.status === "ACTIVE"){
       setPass(data.plan, data.expires);
@@ -2957,17 +2717,19 @@ async function confirmPaid(){
   }
 
   try {
-    const data = await postJson(
-      ENDPOINTS.accessSet,
-      {
+    const res = await fetch(ENDPOINTS.accessSet, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         email,
         plan: currentPlan,
         paymentTitle: document.getElementById("transferTitle").textContent.trim()
-      },
-      tPay.activationError
-    );
+      })
+    });
 
-    if(!data.ok){
+    const data = await res.json();
+
+    if(!res.ok || !data.ok){
       throw new Error(data.error || tPay.activationError);
     }
 
@@ -3033,16 +2795,20 @@ if(!text){
   return;
 }
 
-    const data = await postJson(
-      ENDPOINTS.analyze,
-      { text, sourceLang, userLang },
-      "Analiza"
-    );
+    const res = await fetch(ENDPOINTS.analyze,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ text, sourceLang, userLang })
+    });
+
+    const data = await res.json();
+    if(!res.ok){
+      throw new Error((data && (data.error || data.message)) ? (data.error || data.message) : ("HTTP " + res.status));
+    }
 
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
       renderFraudRisk(data);
-      sbApplyResultUxPatchV8(data);
       renderInstitution(data);
       // CZY POTRZEBNA POMOC PRAWNA
 const legalStatusEl = document.getElementById("legalStatus");
@@ -3123,8 +2889,16 @@ const consBox = document.getElementById("consequences");
 consBox.innerHTML = "";
 (data.consequences || []).forEach(c=>{
   const d = document.createElement("div");
-  d.className = "box-warn";
-  d.textContent = "⚠️ " + c;
+  if (fraudLevel === "LOW") {
+    d.className = "box-info";
+    d.textContent = String(c);
+  } else if (fraudLevel === "HIGH") {
+    d.className = "box-warn";
+    d.textContent = "⚠️ " + c;
+  } else {
+    d.className = "box-warn";
+    d.textContent = "⚠️ " + c;
+  }
   consBox.appendChild(d);
 });
 
@@ -3176,10 +2950,12 @@ if (helpLinksBox) {
     risksBox.innerHTML = "";
     safeArr(data.risks || data.riskList || data.riskChips).forEach(r=>{
       const d=document.createElement("div");
-      d.className="box-warn";
+      d.className = fraudLevel === "LOW" ? "box-info" : "box-warn";
       d.textContent=String(r);
       risksBox.appendChild(d);
     });
+
+    sbApplyResultUxPatchV9(data);
 
     const ex = data.examples || data.responseExamples || data.replies || {};
     const parts = [];
@@ -3195,23 +2971,27 @@ const docTargetLang = sourceLang !== "AUTO" ? sourceLang : (data.detectedLang ||
 
 if (docTargetLang && docTargetLang !== userLang && parts.length > 0) {
   try {
-    const trDocData = await postJson(
-      ENDPOINTS.translate,
-      {
-        text: parts.join("\n\n"),
-        sourceLang: userLang,
-        targetLang: docTargetLang,
-        userLang: docTargetLang
-      },
-      "Tłumaczenie odpowiedzi"
-    );
+    const trDocRes = await fetch(ENDPOINTS.translate, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+  text: parts.join("\n\n"),
+  sourceLang: userLang,
+  targetLang: docTargetLang,
+  userLang: docTargetLang
+})
+    });
 
-    docText = (
-      trDocData.translation ||
-      trDocData.translatedText ||
-      trDocData.translated ||
-      ""
-    ).trim();
+    const trDocData = await trDocRes.json();
+
+    if (trDocRes.ok) {
+      docText = (
+        trDocData.translation ||
+        trDocData.translatedText ||
+        trDocData.translated ||
+        ""
+      ).trim();
+    }
   } catch (e) {
     console.log("examplesDoc translate error", e);
   }
@@ -3224,11 +3004,15 @@ if (examplesDocEl) {
     let translation = (data.translation || data.translatedText || data.translated || "").trim();
 
     if(!translation){
-      const trData = await postJson(
-        ENDPOINTS.translate,
-        { text, sourceLang, userLang },
-        "Tłumaczenie"
-      );
+      const trRes = await fetch(ENDPOINTS.translate,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ text, sourceLang, userLang })
+      });
+      const trData = await trRes.json();
+      if(!trRes.ok){
+        throw new Error((trData && (trData.error || trData.message)) ? (trData.error || trData.message) : ("Translate HTTP " + trRes.status));
+      }
       translation = (trData.translation || trData.translatedText || trData.translated || "").trim();
     }
 
@@ -3383,13 +3167,15 @@ fetch("/.netlify/functions/analyze_count", {
       const originalDataUrl = await fileToDataUrl(file);
       const imageDataUrl = await imageToCanvasDataUrl(originalDataUrl);
 
-      const data = await postJson(
-        "/.netlify/functions/ocr",
-        { imageDataUrl },
-        "OCR"
-      );
+      const res = await fetch("/.netlify/functions/ocr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageDataUrl })
+      });
 
-      if (!data.ok) {
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
         throw new Error(data.error || "OCR error");
       }
 
@@ -3684,119 +3470,71 @@ function installApp() {
 
 
 
-/* ============================================================
-   Sense Bridge UX SAFE PATCH v8
-   Dynamic heading + visual separation after render
-   ============================================================ */
-
-function sbDetectMessageKindV8(data){
-  try{
-    const raw = [
-      data && data.summary,
-      data && data.translation,
-      data && data.institution && data.institution.name,
-      data && data.fraudRisk && data.fraudRisk.summary,
-      data && data.fraudRisk && Array.isArray(data.fraudRisk.signals) ? data.fraudRisk.signals.join(" ") : "",
-      data && Array.isArray(data.risks) ? data.risks.join(" ") : ""
-    ].join(" ").toLowerCase();
-
-    if(/bank|banco|sparkasse|millennium|bcp|ing|rabobank|abn|paypal|account|konto|login|tan|sms/.test(raw)) return "message";
-    if(/sms|email|e-mail|mail|wiadomość|message|bericht|mensaje|mensagem/.test(raw)) return "message";
-    if(/tax|irs|belastingdienst|uwv|gemeente|ind|toeslagen|government|urząd|administration|administracja/.test(raw)) return "office";
-    return "letter";
-  }catch(e){
-    return "letter";
-  }
-}
-
-function sbHeadingV8(kind, lang){
-  const L = String(lang || window.currentLang || "PL").toUpperCase();
-  const map = {
-    PL:{office:"Co urząd komunikuje", message:"Co wiadomość komunikuje", letter:"Co pismo komunikuje"},
-    EN:{office:"What the authority says", message:"What the message says", letter:"What the letter says"},
-    NL:{office:"Wat de instantie communiceert", message:"Wat het bericht communiceert", letter:"Wat de brief communiceert"},
-    DE:{office:"Was die Behörde mitteilt", message:"Was die Nachricht mitteilt", letter:"Was das Schreiben mitteilt"},
-    FR:{office:"Ce que l’administration communique", message:"Ce que le message communique", letter:"Ce que le courrier communique"},
-    IT:{office:"Cosa comunica l’ente", message:"Cosa comunica il messaggio", letter:"Cosa comunica la lettera"},
-    ES:{office:"Qué comunica la institución", message:"Qué comunica el mensaje", letter:"Qué comunica la carta"},
-    PT:{office:"O que a entidade comunica", message:"O que a mensagem comunica", letter:"O que a carta comunica"},
-    UA:{office:"Що повідомляє установа", message:"Що повідомляє повідомлення", letter:"Що повідомляє лист"}
-  };
-  return (map[L] || map.PL)[kind] || (map[L] || map.PL).letter;
-}
-
-function sbApplyResultUxPatchV8(data){
+function sbApplyResultUxPatchV9(data){
   try{
     const level = String(data && data.fraudRisk && data.fraudRisk.level || "").toUpperCase();
-    const kind = sbDetectMessageKindV8(data);
-    const lang = String(window.currentLang || (data && data.userLang) || "PL").toUpperCase();
-    const headingText = sbHeadingV8(kind, lang);
+    const isHigh = level === "HIGH";
+    const isMedium = level === "MEDIUM";
+    const isLow = level === "LOW";
+    const lang = String((UI && UI.lang) || (data && data.userLang) || "PL").toUpperCase();
 
-    document.querySelectorAll("h2,h3,.section-title,.card-title").forEach(function(el){
-      const t = (el.textContent || "").trim();
-      if(
-        /^Co urząd komunikuje$/i.test(t) ||
-        /^What the authority says$/i.test(t) ||
-        /^Wat de instantie communiceert$/i.test(t) ||
-        /^Was die Behörde mitteilt$/i.test(t)
-      ){
-        el.textContent = headingText;
-      }
+    const risks = document.getElementById("risks");
+    const cons = document.getElementById("consequences");
+    const risksCard = risks ? risks.closest(".card") : null;
+
+    [risks, cons].forEach(function(el){
+      if(!el) return;
+      el.classList.remove("low-risk","medium-risk","high-risk");
+      el.classList.add(isHigh ? "high-risk" : isMedium ? "medium-risk" : "low-risk");
     });
 
-    const fraudBox = document.getElementById("fraudRiskBox");
-    if(fraudBox){
-      fraudBox.classList.remove("fraud-box-high","fraud-box-medium","fraud-box-low","fraud-box-unknown");
-      fraudBox.classList.add(
-        level === "HIGH" ? "fraud-box-high" :
-        level === "MEDIUM" ? "fraud-box-medium" :
-        level === "LOW" ? "fraud-box-low" :
-        "fraud-box-unknown"
-      );
-
-      if(!fraudBox.querySelector(".sb-source-note")){
-        const note = document.createElement("div");
-        note.className = "sb-source-note" + (level === "HIGH" ? " sb-high-source-note" : "");
-
-        if(level === "HIGH"){
-          note.textContent =
-            lang === "EN" ? "Sense Bridge assessment: this looks suspicious. Treat the message as unverified until checked through official channels." :
-            lang === "NL" ? "Beoordeling van Sense Bridge: dit lijkt verdacht. Beschouw het bericht als niet bevestigd totdat u dit via officiële kanalen controleert." :
-            lang === "DE" ? "Bewertung von Sense Bridge: Dies wirkt verdächtig. Behandeln Sie die Nachricht als ungeprüft, bis sie über offizielle Kanäle bestätigt ist." :
-            lang === "FR" ? "Évaluation Sense Bridge : cela semble suspect. Considérez le message comme non confirmé tant qu’il n’est pas vérifié par des canaux officiels." :
-            lang === "IT" ? "Valutazione Sense Bridge: il messaggio sembra sospetto. Consideralo non verificato finché non viene controllato tramite canali ufficiali." :
-            lang === "ES" ? "Evaluación de Sense Bridge: parece sospechoso. Trata el mensaje como no verificado hasta comprobarlo por canales oficiales." :
-            lang === "PT" ? "Avaliação do Sense Bridge: isto parece suspeito. Trate a mensagem como não verificada até confirmar por canais oficiais." :
-            lang === "UA" ? "Оцінка Sense Bridge: повідомлення виглядає підозріло. Вважайте його непідтвердженим, доки не перевірите офіційними каналами." :
-            "Ocena Sense Bridge: to wygląda podejrzanie. Traktuj treść wiadomości jako niepotwierdzoną, dopóki nie sprawdzisz jej oficjalnym kanałem.";
-        }else{
-          note.textContent =
-            lang === "EN" ? "Sense Bridge assessment: no strong fraud signals were found. Standard caution is enough." :
-            lang === "NL" ? "Beoordeling van Sense Bridge: er zijn geen sterke fraudesignalen gevonden. Standaard voorzichtigheid is voldoende." :
-            lang === "DE" ? "Bewertung von Sense Bridge: Es wurden keine starken Betrugssignale gefunden. Normale Vorsicht reicht aus." :
-            lang === "FR" ? "Évaluation Sense Bridge : aucun signal fort de fraude n’a été détecté. Une prudence normale suffit." :
-            lang === "IT" ? "Valutazione Sense Bridge: non sono stati rilevati forti segnali di frode. È sufficiente la normale prudenza." :
-            lang === "ES" ? "Evaluación de Sense Bridge: no se detectaron señales fuertes de fraude. Basta con precaución normal." :
-            lang === "PT" ? "Avaliação do Sense Bridge: não foram encontrados sinais fortes de fraude. Basta cautela normal." :
-            lang === "UA" ? "Оцінка Sense Bridge: сильних ознак шахрайства не виявлено. Достатньо звичайної обережності." :
-            "Ocena Sense Bridge: nie wykryto mocnych sygnałów oszustwa. Wystarczy standardowa ostrożność.";
-        }
-
-        fraudBox.appendChild(note);
-      }
+    if(risksCard){
+      risksCard.classList.remove("sb-low-risk-card","sb-medium-risk-card","sb-high-risk-card");
+      risksCard.classList.add(isHigh ? "sb-high-risk-card" : isMedium ? "sb-medium-risk-card" : "sb-low-risk-card");
     }
 
-    if(level === "HIGH"){
-      const risks = document.getElementById("risks");
-      if(risks){
-        risks.classList.add("high-risk");
-        risks.querySelectorAll(".risk-item,.warn,.notice,.pill").forEach(function(el){
-          el.classList.add("high-risk");
+    if(isLow){
+      [risks, cons].forEach(function(parent){
+        if(!parent) return;
+        parent.querySelectorAll(".box-warn").forEach(function(el){
+          el.classList.remove("box-warn");
+          el.classList.add("box-info");
+          el.textContent = (el.textContent || "").replace(/^⚠️\s*/,"");
         });
-      }
+      });
+    }
+
+    if(isHigh){
+      [risks, cons].forEach(function(parent){
+        if(!parent) return;
+        parent.querySelectorAll(".box-warn,.box-info").forEach(function(el){
+          el.classList.remove("box-info");
+          el.classList.add("box-warn");
+          const t = (el.textContent || "").trim();
+          if(t && !t.startsWith("⚠️")) el.textContent = "⚠️ " + t;
+        });
+      });
+    }
+
+    const sep = document.getElementById("sbSummarySeparator");
+    if(sep){
+      sep.style.display = "block";
+      const labels = {
+        PL:"Ocena i kroki Sense Bridge",
+        EN:"Sense Bridge assessment and steps",
+        NL:"Beoordeling en stappen van Sense Bridge",
+        DE:"Bewertung und Schritte von Sense Bridge",
+        FR:"Évaluation et étapes Sense Bridge",
+        IT:"Valutazione e passi Sense Bridge",
+        ES:"Evaluación y pasos de Sense Bridge",
+        PT:"Avaliação e passos do Sense Bridge",
+        UA:"Оцінка та кроки Sense Bridge"
+      };
+      const span = sep.querySelector("span");
+      if(span) span.textContent = labels[lang] || labels.PL;
     }
   }catch(e){
-    console.warn("SB UX patch v8 skipped:", e);
+    console.warn("SB UX patch v9 skipped:", e);
   }
 }
 
