@@ -2884,6 +2884,12 @@ actionsBox.innerHTML = "";
   actionsBox.appendChild(d);
 });
 
+const fraudLevel = String(
+  data?.fraudRisk?.level ||
+  data?.fraudLevel ||
+  "UNKNOWN"
+).toUpperCase();
+
 // KONSEKWENCJE
 const consBox = document.getElementById("consequences");
 consBox.innerHTML = "";
