@@ -1179,6 +1179,31 @@ body.dark-mode #consequences.high-risk .box-info{
   background:linear-gradient(180deg, rgba(240,253,244,.90), rgba(255,255,255,.98)) !important;
 }
 
+
+/* ============================================================
+   Sense Bridge UX SAFE PATCH v10
+   LOW fraud badge contrast fix only
+   ============================================================ */
+
+body.light-mode .fraud-low,
+.fraud-low{
+  background:#dcfce7 !important;
+  color:#14532d !important;
+  border-color:#86efac !important;
+  text-shadow:none !important;
+}
+
+body.light-mode .fraud-box .fraud-low,
+.fraud-box .fraud-low{
+  color:#14532d !important;
+}
+
+body.dark-mode .fraud-low{
+  background:rgba(44,255,154,0.20) !important;
+  color:#d8ffe9 !important;
+  border-color:rgba(44,255,154,0.55) !important;
+}
+
 </style>
 </head>
 
