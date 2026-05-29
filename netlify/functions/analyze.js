@@ -428,6 +428,25 @@ if (sbFraudSyncV8) {
   legalHelpFinal = sbFraudSyncV8.legalHelpFinal || legalHelpFinal;
 }
 
+calmOfficialFraudRiskAfterSync({
+  fraudRisk,
+  institution,
+  detectedLinks,
+  matchedSuspiciousLinks,
+  suspiciousPhoneMatches,
+  userLang,
+  text
+});
+
+if (
+  institution &&
+  institution.officialWebsite &&
+  Number(institution.confidence || 0) >= 85 &&
+  !hasHardFraudSignalsForOfficial(text, detectedLinks, institution, matchedSuspiciousLinks, suspiciousPhoneMatches)
+) {
+  risks = softenRisksForOfficialInstitution(risks, userLang, institution);
+}
+
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
     let translation = "";
@@ -608,24 +627,46 @@ function postProcessNormalDocument(ctx) {
 
   const doc = classifyDocumentContext(text);
   const knownInstitution = institution && institution.officialWebsite && Number(institution.confidence || 0) >= 75;
+  const strongKnownInstitution = institution && institution.officialWebsite && Number(institution.confidence || 0) >= 85;
   const hasKnownBad = (matchedSuspiciousLinks || []).length > 0 || (suspiciousPhoneMatches || []).length > 0;
-  const hasHardRisk = hasKnownBad || doc.payment || doc.legalThreat || doc.strongPressure;
 
-  if (knownInstitution && !hasHardRisk) {
+  let sig = { hardHigh:false, hardMedium:false, credential:false, suspiciousLink:false, timePressure:false, accountThreat:false, financialBrand:false, score:0 };
+  try {
+    sig = sbDetectStrongPhishingV8(text, detectedLinks, institution);
+  } catch {}
+
+  /*
+    Important distinction:
+    - payment, tax, debt or official deadline can be ADMINISTRATIVE risk
+    - it is NOT automatically fraud risk
+    Fraud should stay high mainly when there are hard phishing signals:
+    login/password/SMS/TAN + suspicious link + pressure/account threat.
+  */
+  const hardFraudSignal = hasKnownBad || sig.hardHigh || (
+    sig.credential && sig.suspiciousLink && (sig.timePressure || sig.accountThreat || sig.financialBrand)
+  );
+
+  const softFraudSignal = sig.hardMedium || (
+    sig.suspiciousLink && (sig.timePressure || sig.accountThreat)
+  );
+
+  if (strongKnownInstitution && !hardFraudSignal && !softFraudSignal) {
     fraudRisk.level = "LOW";
-    fraudRisk.confidence = Math.max(60, Math.min(Number(fraudRisk.confidence || 70), 78));
+    fraudRisk.confidence = Math.max(25, Math.min(Number(fraudRisk.confidence || 45), 55));
     fraudRisk.label = calmFraudLabel(userLang, "LOW");
     fraudRisk.summary = calmFraudSummary(userLang, institution.name);
     fraudRisk.suspiciousElements = [];
     fraudRisk.signals = filterAlarmSignals(fraudRisk.signals);
     fraudRisk.safeSteps = calmSafeSteps(userLang, institution.officialWebsite);
-  } else if (knownInstitution && fraudRisk.level === "HIGH" && !hasKnownBad) {
+    return;
+  }
+
+  if (knownInstitution && fraudRisk.level === "HIGH" && !hardFraudSignal) {
     fraudRisk.level = "MEDIUM";
-    fraudRisk.confidence = Math.min(Number(fraudRisk.confidence || 70), 75);
+    fraudRisk.confidence = Math.min(Number(fraudRisk.confidence || 70), 70);
     fraudRisk.label = calmFraudLabel(userLang, "MEDIUM");
   }
 }
-
 function filterAlarmSignals(list) {
   return arr(list).filter(x => !/oszust|fraud|phishing|scam/i.test(x));
 }
@@ -671,6 +712,60 @@ function softenRisksForNormalDocument(risks, lang) {
   if (L === "UA") return ["Перевірте деталі візиту через офіційний портал.", "Якщо ви не підготовані, візит можуть перенести."];
   return ["Sprawdź szczegóły wizyty przez oficjalny portal.", "Brak przygotowania może opóźnić lub przesunąć wizytę."];
 }
+
+
+function hasHardFraudSignalsForOfficial(text, detectedLinks, institution, matchedSuspiciousLinks, suspiciousPhoneMatches) {
+  const hasKnownBad = (matchedSuspiciousLinks || []).length > 0 || (suspiciousPhoneMatches || []).length > 0;
+  if (hasKnownBad) return true;
+  try {
+    const sig = sbDetectStrongPhishingV8(text, detectedLinks, institution);
+    return !!(sig.hardHigh || (sig.credential && sig.suspiciousLink && (sig.timePressure || sig.accountThreat || sig.financialBrand)));
+  } catch {
+    return false;
+  }
+}
+
+function calmOfficialFraudRiskAfterSync(ctx) {
+  const { fraudRisk, institution, detectedLinks, matchedSuspiciousLinks, suspiciousPhoneMatches, userLang, text } = ctx || {};
+  if (!fraudRisk || !institution) return;
+  const strongKnownInstitution = institution.officialWebsite && Number(institution.confidence || 0) >= 85;
+  if (!strongKnownInstitution) return;
+
+  const hard = hasHardFraudSignalsForOfficial(text, detectedLinks, institution, matchedSuspiciousLinks, suspiciousPhoneMatches);
+  if (hard) return;
+
+  fraudRisk.level = "LOW";
+  fraudRisk.confidence = Math.max(25, Math.min(Number(fraudRisk.confidence || 45), 55));
+  fraudRisk.label = calmFraudLabel(userLang, "LOW");
+  fraudRisk.summary = calmFraudSummary(userLang, institution.name);
+  fraudRisk.signals = filterAlarmSignals(fraudRisk.signals);
+  fraudRisk.suspiciousElements = [];
+  fraudRisk.safeSteps = calmSafeSteps(userLang, institution.officialWebsite);
+}
+
+function softenRisksForOfficialInstitution(risks, lang, institution) {
+  const L = (lang || "PL").toUpperCase();
+  const cleaned = arr(risks).filter(r =>
+    !/możliwość oszustwa|oszustw|phishing|scam|fraud|fałsz|fausse|frode|estafa|betrug/i.test(r)
+  );
+
+  const name = institution && institution.name ? institution.name : "";
+  const officialStep = {
+    PL: `Nie wykryto typowych sygnałów phishingu. Dla pewności sprawdź sprawę przez oficjalną stronę ${name}.`,
+    EN: `No typical phishing signals were detected. If unsure, verify through the official website of ${name}.`,
+    NL: `Er zijn geen typische phishing-signalen gevonden. Controleer bij twijfel via de officiële website van ${name}.`,
+    DE: `Es wurden keine typischen Phishing-Signale erkannt. Prüfen Sie bei Zweifel über die offizielle Website von ${name}.`,
+    FR: `Aucun signal typique de phishing n’a été détecté. En cas de doute, vérifiez via le site officiel de ${name}.`,
+    IT: `Non sono stati rilevati segnali tipici di phishing. In caso di dubbio, verifica tramite il sito ufficiale di ${name}.`,
+    ES: `No se detectaron señales típicas de phishing. En caso de duda, verifica a través del sitio oficial de ${name}.`,
+    PT: `Não foram detetados sinais típicos de phishing. Em caso de dúvida, verifique pelo site oficial de ${name}.`,
+    UA: `Типових ознак фішингу не виявлено. Якщо є сумніви, перевірте через офіційний сайт ${name}.`
+  };
+
+  if (!cleaned.length) return [officialStep[L] || officialStep.PL];
+  return cleaned.slice(0, 5);
+}
+
 
 function softenConsequencesForAppointment(consequences, lang) {
   const L = (lang || "PL").toUpperCase();
@@ -1134,7 +1229,7 @@ function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
     /(tan|sms[\s-]*(code|kod|codigo|c[oó]digo|codice)|password|passwort|wachtwoord|hasło|senha|palavra[-\s]?passe|login|logowanie|access code|c[oó]digo de acesso|dane dostępowe|zugangsdaten|credenciais|credenziali)/i.test(t);
 
   const timePressure =
-    /(24\s*(h|hours|uur|stunden|ore|horas|godzin)|12\s*(h|hours|uur|stunden|ore|horas)|immediately|urgent|urgente|dringend|sofort|natychmiast|onmiddellijk|imediatamente|immediat|binnen\s*24|within\s*24|dentro de\s*24|entro\s*24)/i.test(t);
+    /((2|3|6|8|12|24)\s*(h|hours|hour|uur|stunden|ore|heures|horas|godzin)|dans un délai de\s*(2|3|6|8|12|24)\s*heures|within\s*(2|3|6|8|12|24)\s*hours|binnen\s*(2|3|6|8|12|24)\s*uur|dentro de\s*(2|3|6|8|12|24)\s*horas|entro\s*(2|3|6|8|12|24)\s*ore|immediately|urgent|urgente|dringend|sofort|natychmiast|onmiddellijk|imediatamente|immediat)/i.test(t);
 
   const accountThreat =
     /(account|konto|rekening|bankkonto|conta|compte|cuenta).{0,90}(suspend|suspended|suspenso|sospeso|gesperrt|blocked|block|zablok|deaktiv|deactiv|suspensão|sospensione|bloquead)/i.test(t) ||
