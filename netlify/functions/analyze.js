@@ -674,11 +674,15 @@ function filterAlarmSignals(list) {
 function calmFraudLabel(lang, level) {
   const L = (lang || "PL").toUpperCase();
   const map = {
-    PL: { LOW: "Wygląda spokojnie, warto tylko sprawdzić źródło", MEDIUM: "Warto zweryfikować nadawcę" },
-    EN: { LOW: "Looks calm, just verify the source", MEDIUM: "Verify the sender" },
-    NL: { LOW: "Lijkt rustig, controleer alleen de bron", MEDIUM: "Controleer de afzender" },
-    DE: { LOW: "Wirkt unauffällig, Quelle kurz prüfen", MEDIUM: "Absender prüfen" },
-    UA: { LOW: "Виглядає спокійно, лише перевірте джерело", MEDIUM: "Варто перевірити відправника" }
+    PL: { LOW: "Oficjalna instytucja rozpoznana", MEDIUM: "Warto zweryfikować nadawcę" },
+    EN: { LOW: "Official institution recognized", MEDIUM: "Verify the sender" },
+    NL: { LOW: "Officiële instantie herkend", MEDIUM: "Controleer de afzender" },
+    DE: { LOW: "Offizielle Institution erkannt", MEDIUM: "Absender prüfen" },
+    FR: { LOW: "Institution officielle reconnue", MEDIUM: "Vérifiez l’expéditeur" },
+    IT: { LOW: "Istituzione ufficiale riconosciuta", MEDIUM: "Verifica il mittente" },
+    ES: { LOW: "Institución oficial reconocida", MEDIUM: "Verifica el remitente" },
+    PT: { LOW: "Instituição oficial reconhecida", MEDIUM: "Verifique o remetente" },
+    UA: { LOW: "Офіційну установу розпізнано", MEDIUM: "Варто перевірити відправника" }
   };
   return (map[L] || map.PL)[level] || (map[L] || map.PL).MEDIUM;
 }
@@ -686,11 +690,15 @@ function calmFraudLabel(lang, level) {
 function calmFraudSummary(lang, institutionName) {
   const name = institutionName || "the institution";
   const L = (lang || "PL").toUpperCase();
-  if (L === "NL") return `Het bericht lijkt normaal voor ${name}. Controleer bij twijfel via de officiële website.`;
-  if (L === "EN") return `The letter looks normal for ${name}. If unsure, verify it through the official website.`;
-  if (L === "DE") return `Das Schreiben wirkt für ${name} normal. Bei Zweifel über die offizielle Website prüfen.`;
-  if (L === "UA") return `Лист виглядає типовим для ${name}. Якщо є сумніви, перевірте через офіційний сайт.`;
-  return `Pismo wygląda normalnie dla instytucji ${name}. Jeśli masz wątpliwości, zweryfikuj je przez oficjalną stronę.`;
+  if (L === "NL") return `Officiële instantie ${name} is herkend en er zijn geen typische phishing-signalen gevonden. Controleer bij twijfel via de officiële website.`;
+  if (L === "EN") return `Official institution ${name} was recognized and no typical phishing signals were detected. If unsure, verify the document through the official website.`;
+  if (L === "DE") return `Die offizielle Institution ${name} wurde erkannt und es wurden keine typischen Phishing-Signale gefunden. Bei Zweifel über die offizielle Website prüfen.`;
+  if (L === "FR") return `L’institution officielle ${name} a été reconnue et aucun signal typique de phishing n’a été détecté. En cas de doute, vérifiez via le site officiel.`;
+  if (L === "IT") return `L’istituzione ufficiale ${name} è stata riconosciuta e non sono stati rilevati segnali tipici di phishing. In caso di dubbio, verifica tramite il sito ufficiale.`;
+  if (L === "ES") return `La institución oficial ${name} fue reconocida y no se detectaron señales típicas de phishing. En caso de duda, verifica el documento a través del sitio oficial.`;
+  if (L === "PT") return `A instituição oficial ${name} foi reconhecida e não foram detetados sinais típicos de phishing. Em caso de dúvida, verifique pelo site oficial.`;
+  if (L === "UA") return `Офіційну установу ${name} розпізнано, типових ознак фішингу не виявлено. Якщо є сумніви, перевірте через офіційний сайт.`;
+  return `Rozpoznano oficjalną instytucję ${name} i nie wykryto typowych sygnałów phishingu. Jeśli masz wątpliwości, zweryfikuj dokument przez oficjalną stronę instytucji.`;
 }
 
 function calmSafeSteps(lang, website) {
