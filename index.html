@@ -754,6 +754,65 @@
   .theme-toggle{min-width:106px;}
 }
 
+
+
+/* Sense Bridge custom modal — fixed overlay */
+.hidden{display:none !important;}
+.sb-modal{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(8,18,28,0.54);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.sb-modal-box{
+  width:min(92vw,420px);
+  border-radius:24px;
+  padding:24px;
+}
+.sb-modal-box h3{
+  margin:0 0 10px;
+  font-size:22px;
+  line-height:1.2;
+  font-weight:900;
+}
+.sb-modal-box p{
+  margin:0 0 16px;
+  font-size:16px;
+  line-height:1.45;
+}
+.sb-modal-input{
+  width:100%;
+  box-sizing:border-box;
+  min-height:48px;
+  border-radius:14px;
+  padding:12px 14px;
+  font-size:16px;
+  outline:none;
+}
+.sb-modal-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:16px;
+}
+.sb-modal-actions button{
+  min-height:44px;
+  border-radius:14px;
+  padding:10px 18px;
+  font-weight:900;
+  cursor:pointer;
+}
+@media (max-width:640px){
+  .sb-modal{padding:16px; align-items:center;}
+  .sb-modal-box{width:100%; padding:20px; border-radius:22px;}
+}
+
 body.light-mode{
   color:#172033;
 }
@@ -1179,31 +1238,6 @@ body.dark-mode #consequences.high-risk .box-info{
   background:linear-gradient(180deg, rgba(240,253,244,.90), rgba(255,255,255,.98)) !important;
 }
 
-
-/* ============================================================
-   Sense Bridge UX SAFE PATCH v10
-   LOW fraud badge contrast fix only
-   ============================================================ */
-
-body.light-mode .fraud-low,
-.fraud-low{
-  background:#dcfce7 !important;
-  color:#14532d !important;
-  border-color:#86efac !important;
-  text-shadow:none !important;
-}
-
-body.light-mode .fraud-box .fraud-low,
-.fraud-box .fraud-low{
-  color:#14532d !important;
-}
-
-body.dark-mode .fraud-low{
-  background:rgba(44,255,154,0.20) !important;
-  color:#d8ffe9 !important;
-  border-color:rgba(44,255,154,0.55) !important;
-}
-
 </style>
 </head>
 
@@ -1415,34 +1449,34 @@ body.dark-mode .fraud-low{
   </section>
 
   <div id="paymentBox" class="card" style="display:none;">
-    <h3>Zakup dostępu</h3>
-    <p><b>Kwota:</b> <span id="amountText"></span></p>
+    <h3 id="paymentBoxTitle">Zakup dostępu</h3>
+    <p><b id="paymentAmountLabel">Kwota:</b> <span id="amountText"></span></p>
 
-    <p><b>Zapłać przelewem:</b></p>
+    <p><b id="paymentTransferLabel">Zapłać przelewem:</b></p>
     <p>
       IBAN: <b>NL60 RABO 0324 8128 84</b><br>
-      Odbiorca: <b>I. Madej</b>
+      <span id="paymentReceiverLabel">Odbiorca:</span> <b>I. Madej</b>
     </p>
 
-    <p><b>Tytuł przelewu:</b><br>
+    <p><b id="paymentTitleLabel">Tytuł przelewu:</b><br>
       <span id="transferTitle"></span>
     </p>
 
-    <button class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
+    <button id="confirmPaidBtn" class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
 
     <div id="pendingConfirmBox" class="pending-confirm-box">
-      <div class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
-      <div class="pending-confirm-text">
+      <div id="pendingConfirmTitle" class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
+      <div id="pendingConfirmText" class="pending-confirm-text">
         Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
       </div>
       <div class="pending-bank-box">
         <div><strong>IBAN:</strong> NL60 RABO 0324 8128 84</div>
-        <div><strong>Odbiorca:</strong> I. Madej</div>
-        <div><strong>Tytuł przelewu:</strong></div>
+        <div><strong id="pendingReceiverLabel">Odbiorca:</strong> I. Madej</div>
+        <div><strong id="pendingTitleLabel">Tytuł przelewu:</strong></div>
         <span id="pendingCodeView" class="pending-code"></span>
       </div>
-      <button class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
-      <div class="pending-small">
+      <button id="pendingCopyBtn" class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
+      <div id="pendingSmallText" class="pending-small">
         Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail.
       </div>
     </div>
@@ -2279,6 +2313,8 @@ UI.dict[UI.lang].fraudInfoText;
     toolButtons[2].textContent = t.copyEx;
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
   }
+
+  applyPaymentLang();
 }
 
 function showFooterInfo(type){
@@ -2293,6 +2329,146 @@ function showFooterInfo(type){
 
   footerText.scrollIntoView({ behavior:"smooth", block:"nearest" });
 }
+
+function getPaymentLangText(){
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+
+  const map = {
+    PL:{
+      title:"Zakup dostępu",
+      amount:"Kwota:",
+      transfer:"Zapłać przelewem:",
+      receiver:"Odbiorca:",
+      transferTitle:"Tytuł przelewu:",
+      paid:"✔ Zapłaciłem",
+      saved:"✅ Zgłoszenie zapisane",
+      savedText:"Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.",
+      copy:"Kopiuj tytuł przelewu",
+      small:"Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail."
+    },
+    EN:{
+      title:"Purchase access",
+      amount:"Amount:",
+      transfer:"Pay by bank transfer:",
+      receiver:"Recipient:",
+      transferTitle:"Transfer title:",
+      paid:"✔ I paid",
+      saved:"✅ Request saved",
+      savedText:"Thank you. Make the bank transfer using exactly the transfer title below. Access will be activated after manual payment confirmation.",
+      copy:"Copy transfer title",
+      small:"After the payment is received, we will activate access. You can later return to the page and check access using the same email address."
+    },
+    NL:{
+      title:"Toegang kopen",
+      amount:"Bedrag:",
+      transfer:"Betaal via bankoverschrijving:",
+      receiver:"Ontvanger:",
+      transferTitle:"Omschrijving:",
+      paid:"✔ Ik heb betaald",
+      saved:"✅ Aanvraag opgeslagen",
+      savedText:"Dank je. Doe de overschrijving met exact de onderstaande omschrijving. Toegang wordt geactiveerd na handmatige bevestiging van de betaling.",
+      copy:"Kopieer omschrijving",
+      small:"Na ontvangst van de betaling activeren we de toegang. Je kunt later terugkomen naar de pagina en de toegang controleren met hetzelfde e-mailadres."
+    },
+    DE:{
+      title:"Zugang kaufen",
+      amount:"Betrag:",
+      transfer:"Per Banküberweisung bezahlen:",
+      receiver:"Empfänger:",
+      transferTitle:"Verwendungszweck:",
+      paid:"✔ Ich habe bezahlt",
+      saved:"✅ Anfrage gespeichert",
+      savedText:"Danke. Führe die Überweisung genau mit dem unten angegebenen Verwendungszweck aus. Der Zugang wird nach manueller Zahlungsbestätigung aktiviert.",
+      copy:"Verwendungszweck kopieren",
+      small:"Nach Zahlungseingang aktivieren wir den Zugang. Du kannst später zur Seite zurückkehren und den Zugang mit derselben E-Mail-Adresse prüfen."
+    },
+    UA:{
+      title:"Купівля доступу",
+      amount:"Сума:",
+      transfer:"Оплатіть банківським переказом:",
+      receiver:"Отримувач:",
+      transferTitle:"Призначення платежу:",
+      paid:"✔ Я оплатив",
+      saved:"✅ Запит збережено",
+      savedText:"Дякуємо. Виконайте переказ, використовуючи точно вказане нижче призначення платежу. Доступ буде активовано після ручного підтвердження оплати.",
+      copy:"Скопіювати призначення платежу",
+      small:"Після зарахування платежу ми активуємо доступ. Пізніше ви можете повернутися на сторінку і перевірити доступ за тією ж електронною адресою."
+    },
+    FR:{
+      title:"Acheter l’accès",
+      amount:"Montant :",
+      transfer:"Payer par virement bancaire :",
+      receiver:"Bénéficiaire :",
+      transferTitle:"Libellé du virement :",
+      paid:"✔ J’ai payé",
+      saved:"✅ Demande enregistrée",
+      savedText:"Merci. Effectuez le virement en utilisant exactement le libellé ci-dessous. L’accès sera activé après confirmation manuelle du paiement.",
+      copy:"Copier le libellé du virement",
+      small:"Après réception du paiement, nous activerons l’accès. Vous pourrez revenir plus tard sur la page et vérifier l’accès avec la même adresse e-mail."
+    },
+    IT:{
+      title:"Acquisto accesso",
+      amount:"Importo:",
+      transfer:"Paga con bonifico bancario:",
+      receiver:"Beneficiario:",
+      transferTitle:"Causale del bonifico:",
+      paid:"✔ Ho pagato",
+      saved:"✅ Richiesta salvata",
+      savedText:"Grazie. Effettua il bonifico usando esattamente la causale indicata qui sotto. L’accesso sarà attivato dopo la conferma manuale del pagamento.",
+      copy:"Copia causale del bonifico",
+      small:"Dopo la ricezione del pagamento, attiveremo l’accesso. Potrai tornare più tardi alla pagina e verificare l’accesso con lo stesso indirizzo email."
+    },
+    ES:{
+      title:"Comprar acceso",
+      amount:"Importe:",
+      transfer:"Paga por transferencia bancaria:",
+      receiver:"Beneficiario:",
+      transferTitle:"Concepto de la transferencia:",
+      paid:"✔ He pagado",
+      saved:"✅ Solicitud guardada",
+      savedText:"Gracias. Realiza la transferencia usando exactamente el concepto indicado abajo. El acceso se activará tras la confirmación manual del pago.",
+      copy:"Copiar concepto de transferencia",
+      small:"Después de recibir el pago, activaremos el acceso. Puedes volver más tarde a la página y comprobar el acceso con el mismo correo electrónico."
+    },
+    PT:{
+      title:"Comprar acesso",
+      amount:"Valor:",
+      transfer:"Pagar por transferência bancária:",
+      receiver:"Beneficiário:",
+      transferTitle:"Referência da transferência:",
+      paid:"✔ Já paguei",
+      saved:"✅ Pedido guardado",
+      savedText:"Obrigado. Faça a transferência usando exatamente a referência abaixo. O acesso será ativado após confirmação manual do pagamento.",
+      copy:"Copiar referência da transferência",
+      small:"Após recebermos o pagamento, ativaremos o acesso. Pode voltar mais tarde à página e verificar o acesso com o mesmo endereço de email."
+    }
+  };
+
+  return map[lang] || map.PL;
+}
+
+function applyPaymentLang(){
+  const t = getPaymentLangText();
+
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
+  };
+
+  setText("paymentBoxTitle", t.title);
+  setText("paymentAmountLabel", t.amount);
+  setText("paymentTransferLabel", t.transfer);
+  setText("paymentReceiverLabel", t.receiver);
+  setText("paymentTitleLabel", t.transferTitle);
+  setText("confirmPaidBtn", t.paid);
+  setText("pendingConfirmTitle", t.saved);
+  setText("pendingConfirmText", t.savedText);
+  setText("pendingReceiverLabel", t.receiver);
+  setText("pendingTitleLabel", t.transferTitle);
+  setText("pendingCopyBtn", t.copy);
+  setText("pendingSmallText", t.small);
+}
+
 
 /* =========================================================
    HELPERS
