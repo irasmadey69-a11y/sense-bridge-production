@@ -751,15 +751,15 @@ function softenRisksForOfficialInstitution(risks, lang, institution) {
 
   const name = institution && institution.name ? institution.name : "";
   const officialStep = {
-    PL: `Nie wykryto typowych sygnałów phishingu. Dla pewności sprawdź sprawę przez oficjalną stronę ${name}.`,
-    EN: `No typical phishing signals were detected. If unsure, verify through the official website of ${name}.`,
-    NL: `Er zijn geen typische phishing-signalen gevonden. Controleer bij twijfel via de officiële website van ${name}.`,
-    DE: `Es wurden keine typischen Phishing-Signale erkannt. Prüfen Sie bei Zweifel über die offizielle Website von ${name}.`,
-    FR: `Aucun signal typique de phishing n’a été détecté. En cas de doute, vérifiez via le site officiel de ${name}.`,
-    IT: `Non sono stati rilevati segnali tipici di phishing. In caso di dubbio, verifica tramite il sito ufficiale di ${name}.`,
-    ES: `No se detectaron señales típicas de phishing. En caso de duda, verifica a través del sitio oficial de ${name}.`,
-    PT: `Não foram detetados sinais típicos de phishing. Em caso de dúvida, verifique pelo site oficial de ${name}.`,
-    UA: `Типових ознак фішингу не виявлено. Якщо є сумніви, перевірте через офіційний сайт ${name}.`
+    PL: `Rozpoznano nazwę instytucji ${name}. Jeśli link użyty w wiadomości nie należy do oficjalnej domeny, dokument wymaga dodatkowej weryfikacji.`,
+    EN: `The institution name ${name} was recognized. If the link used in the message does not belong to the official domain, the document requires additional verification.`,
+    NL: `De naam van de instantie ${name} is herkend. Als de link in het bericht niet bij het officiële domein hoort, moet het document extra worden gecontroleerd.`,
+    DE: `Der Name der Institution ${name} wurde erkannt. Wenn der Link in der Nachricht nicht zur offiziellen Domain gehört, muss das Dokument zusätzlich geprüft werden.`,
+    FR: `Le nom de l’institution ${name} a été reconnu. Si le lien utilisé dans le message n’appartient pas au domaine officiel, le document nécessite une vérification supplémentaire.`,
+    IT: `Il nome dell’istituzione ${name} è stato riconosciuto. Se il link usato nel messaggio non appartiene al dominio ufficiale, il documento richiede un’ulteriore verifica.`,
+    ES: `Se reconoció el nombre de la institución ${name}. Si el enlace usado en el mensaje no pertenece al dominio oficial, el documento requiere verificación adicional.`,
+    PT: `O nome da instituição ${name} foi reconhecido. Se o link usado na mensagem não pertencer ao domínio oficial, o documento requer verificação adicional.`,
+    UA: `Назву установи ${name} розпізнано. Якщо посилання в повідомленні не належить до офіційного домену, документ потребує додаткової перевірки.`
   };
 
   if (!cleaned.length) return [officialStep[L] || officialStep.PL];
@@ -790,15 +790,15 @@ function officialInstitutionSummary(lang, institutionName) {
   const L = (lang || "PL").toUpperCase();
   const name = institutionName || "the institution";
   const map = {
-    PL: `Rozpoznano oficjalną instytucję ${name} i nie wykryto typowych sygnałów phishingu. Nadal warto sprawdzić szczegóły dokumentu przez oficjalną stronę tej instytucji.`,
-    EN: `Official institution ${name} was recognized and no typical phishing signals were detected. Still verify the document details through the official website of this institution.`,
-    NL: `Officiële instantie ${name} is herkend en er zijn geen typische phishing-signalen gevonden. Controleer de details nog steeds via de officiële website van deze instantie.`,
-    DE: `Die offizielle Institution ${name} wurde erkannt und es wurden keine typischen Phishing-Signale gefunden. Prüfen Sie die Details trotzdem über die offizielle Website dieser Institution.`,
-    FR: `L’institution officielle ${name} a été reconnue et aucun signal typique de phishing n’a été détecté. Vérifiez tout de même les détails via le site officiel de cette institution.`,
-    IT: `L’istituzione ufficiale ${name} è stata riconosciuta e non sono stati rilevati segnali tipici di phishing. Verifica comunque i dettagli tramite il sito ufficiale dell’istituzione.`,
-    ES: `La institución oficial ${name} fue reconocida y no se detectaron señales típicas de phishing. Aun así, verifica los detalles del documento a través del sitio oficial de la institución.`,
-    PT: `A instituição oficial ${name} foi reconhecida e não foram detetados sinais típicos de phishing. Ainda assim, verifique os detalhes pelo site oficial da instituição.`,
-    UA: `Офіційну установу ${name} розпізнано, типових ознак фішингу не виявлено. Все одно перевірте деталі документа через офіційний сайт цієї установи.`
+    PL: `Rozpoznano nazwę instytucji ${name}. Jeżeli link lub domena w wiadomości nie należy do oficjalnej strony tej instytucji, dokument wymaga dodatkowej weryfikacji.`,
+    EN: `The institution name ${name} was recognized. If the link or domain in the message does not belong to the institution’s official website, the document requires additional verification.`,
+    NL: `De naam van de instantie ${name} is herkend. Als de link of het domein in het bericht niet bij de officiële website van deze instantie hoort, moet het document extra worden gecontroleerd.`,
+    DE: `Der Name der Institution ${name} wurde erkannt. Wenn der Link oder die Domain in der Nachricht nicht zur offiziellen Website dieser Institution gehört, muss das Dokument zusätzlich geprüft werden.`,
+    FR: `Le nom de l’institution ${name} a été reconnu. Si le lien ou le domaine du message n’appartient pas au site officiel de cette institution, le document nécessite une vérification supplémentaire.`,
+    IT: `Il nome dell’istituzione ${name} è stato riconosciuto. Se il link o il dominio nel messaggio non appartiene al sito ufficiale di questa istituzione, il documento richiede un’ulteriore verifica.`,
+    ES: `Se reconoció el nombre de la institución ${name}. Si el enlace o dominio del mensaje no pertenece al sitio oficial de esta institución, el documento requiere verificación adicional.`,
+    PT: `O nome da instituição ${name} foi reconhecido. Se o link ou domínio da mensagem não pertencer ao site oficial desta instituição, o documento requer verificação adicional.`,
+    UA: `Назву установи ${name} розпізнано. Якщо посилання або домен у повідомленні не належить до офіційного сайту цієї установи, документ потребує додаткової перевірки.`
   };
   return map[L] || map.PL;
 }
