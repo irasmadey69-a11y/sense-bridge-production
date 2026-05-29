@@ -652,12 +652,12 @@ function postProcessNormalDocument(ctx) {
 
   if (strongKnownInstitution && !hardFraudSignal && !softFraudSignal) {
     fraudRisk.level = "LOW";
-    fraudRisk.confidence = Math.max(25, Math.min(Number(fraudRisk.confidence || 45), 55));
-    fraudRisk.label = calmFraudLabel(userLang, "LOW");
-    fraudRisk.summary = calmFraudSummary(userLang, institution.name);
+    fraudRisk.confidence = officialInstitutionConfidence(institution);
+    fraudRisk.label = officialInstitutionLabel(userLang, institution.name);
+    fraudRisk.summary = officialInstitutionSummary(userLang, institution.name);
     fraudRisk.suspiciousElements = [];
     fraudRisk.signals = filterAlarmSignals(fraudRisk.signals);
-    fraudRisk.safeSteps = calmSafeSteps(userLang, institution.officialWebsite);
+    fraudRisk.safeSteps = officialInstitutionSafeSteps(userLang, institution);
     return;
   }
 
@@ -735,12 +735,12 @@ function calmOfficialFraudRiskAfterSync(ctx) {
   if (hard) return;
 
   fraudRisk.level = "LOW";
-  fraudRisk.confidence = Math.max(25, Math.min(Number(fraudRisk.confidence || 45), 55));
-  fraudRisk.label = calmFraudLabel(userLang, "LOW");
-  fraudRisk.summary = calmFraudSummary(userLang, institution.name);
+  fraudRisk.confidence = officialInstitutionConfidence(institution);
+  fraudRisk.label = officialInstitutionLabel(userLang, institution.name);
+  fraudRisk.summary = officialInstitutionSummary(userLang, institution.name);
   fraudRisk.signals = filterAlarmSignals(fraudRisk.signals);
   fraudRisk.suspiciousElements = [];
-  fraudRisk.safeSteps = calmSafeSteps(userLang, institution.officialWebsite);
+  fraudRisk.safeSteps = officialInstitutionSafeSteps(userLang, institution);
 }
 
 function softenRisksForOfficialInstitution(risks, lang, institution) {
@@ -764,6 +764,104 @@ function softenRisksForOfficialInstitution(risks, lang, institution) {
 
   if (!cleaned.length) return [officialStep[L] || officialStep.PL];
   return cleaned.slice(0, 5);
+}
+
+
+
+function officialInstitutionLabel(lang, institutionName) {
+  const L = (lang || "PL").toUpperCase();
+  const name = institutionName || "";
+  const suffix = name ? ` – ${name}` : "";
+  const map = {
+    PL: `✅ Oficjalna instytucja rozpoznana${suffix}`,
+    EN: `✅ Official institution recognized${suffix}`,
+    NL: `✅ Officiële instantie herkend${suffix}`,
+    DE: `✅ Offizielle Institution erkannt${suffix}`,
+    FR: `✅ Institution officielle reconnue${suffix}`,
+    IT: `✅ Istituzione ufficiale riconosciuta${suffix}`,
+    ES: `✅ Institución oficial reconocida${suffix}`,
+    PT: `✅ Instituição oficial reconhecida${suffix}`,
+    UA: `✅ Офіційну установу розпізнано${suffix}`
+  };
+  return map[L] || map.PL;
+}
+
+function officialInstitutionSummary(lang, institutionName) {
+  const L = (lang || "PL").toUpperCase();
+  const name = institutionName || "the institution";
+  const map = {
+    PL: `Rozpoznano oficjalną instytucję ${name} i nie wykryto typowych sygnałów phishingu. Nadal warto sprawdzić szczegóły dokumentu przez oficjalną stronę tej instytucji.`,
+    EN: `Official institution ${name} was recognized and no typical phishing signals were detected. Still verify the document details through the official website of this institution.`,
+    NL: `Officiële instantie ${name} is herkend en er zijn geen typische phishing-signalen gevonden. Controleer de details nog steeds via de officiële website van deze instantie.`,
+    DE: `Die offizielle Institution ${name} wurde erkannt und es wurden keine typischen Phishing-Signale gefunden. Prüfen Sie die Details trotzdem über die offizielle Website dieser Institution.`,
+    FR: `L’institution officielle ${name} a été reconnue et aucun signal typique de phishing n’a été détecté. Vérifiez tout de même les détails via le site officiel de cette institution.`,
+    IT: `L’istituzione ufficiale ${name} è stata riconosciuta e non sono stati rilevati segnali tipici di phishing. Verifica comunque i dettagli tramite il sito ufficiale dell’istituzione.`,
+    ES: `La institución oficial ${name} fue reconocida y no se detectaron señales típicas de phishing. Aun así, verifica los detalles del documento a través del sitio oficial de la institución.`,
+    PT: `A instituição oficial ${name} foi reconhecida e não foram detetados sinais típicos de phishing. Ainda assim, verifique os detalhes pelo site oficial da instituição.`,
+    UA: `Офіційну установу ${name} розпізнано, типових ознак фішингу не виявлено. Все одно перевірте деталі документа через офіційний сайт цієї установи.`
+  };
+  return map[L] || map.PL;
+}
+
+function officialInstitutionConfidence(institution) {
+  const c = Number(institution && institution.confidence || 0);
+  if (!Number.isFinite(c) || c <= 0) return 85;
+  return Math.max(85, Math.min(95, Math.round(c)));
+}
+
+function officialInstitutionSafeSteps(lang, institution) {
+  const L = (lang || "PL").toUpperCase();
+  const name = institution && institution.name ? institution.name : "";
+  const website = institution && institution.officialWebsite ? institution.officialWebsite : "";
+  const label = name || "instytucji";
+  const map = {
+    PL: [
+      `Sprawdź dokument przez oficjalną stronę ${label}.`,
+      website ? `Otwórz ręcznie: ${website}` : "Otwórz oficjalną stronę ręcznie.",
+      "Nie używaj linków z wiadomości, jeśli domena wygląda inaczej niż oficjalna."
+    ],
+    EN: [
+      `Verify the document through the official website of ${label}.`,
+      website ? `Open manually: ${website}` : "Open the official website manually.",
+      "Do not use links from the message if the domain looks different from the official one."
+    ],
+    NL: [
+      `Controleer het document via de officiële website van ${label}.`,
+      website ? `Open handmatig: ${website}` : "Open de officiële website handmatig.",
+      "Gebruik geen links uit het bericht als het domein anders lijkt dan het officiële domein."
+    ],
+    DE: [
+      `Prüfen Sie das Dokument über die offizielle Website von ${label}.`,
+      website ? `Manuell öffnen: ${website}` : "Öffnen Sie die offizielle Website manuell.",
+      "Verwenden Sie keine Links aus der Nachricht, wenn die Domain anders aussieht als die offizielle."
+    ],
+    FR: [
+      `Vérifiez le document via le site officiel de ${label}.`,
+      website ? `Ouvrez manuellement : ${website}` : "Ouvrez le site officiel manuellement.",
+      "N’utilisez pas les liens du message si le domaine semble différent du domaine officiel."
+    ],
+    IT: [
+      `Verifica il documento tramite il sito ufficiale di ${label}.`,
+      website ? `Apri manualmente: ${website}` : "Apri manualmente il sito ufficiale.",
+      "Non usare i link del messaggio se il dominio sembra diverso da quello ufficiale."
+    ],
+    ES: [
+      `Verifica el documento a través del sitio oficial de ${label}.`,
+      website ? `Abre manualmente: ${website}` : "Abre manualmente el sitio oficial.",
+      "No uses enlaces del mensaje si el dominio parece diferente al oficial."
+    ],
+    PT: [
+      `Verifique o documento pelo site oficial de ${label}.`,
+      website ? `Abra manualmente: ${website}` : "Abra manualmente o site oficial.",
+      "Não use links da mensagem se o domínio parecer diferente do oficial."
+    ],
+    UA: [
+      `Перевірте документ через офіційний сайт ${label}.`,
+      website ? `Відкрийте вручну: ${website}` : "Відкрийте офіційний сайт вручну.",
+      "Не використовуйте посилання з повідомлення, якщо домен відрізняється від офіційного."
+    ]
+  };
+  return map[L] || map.PL;
 }
 
 
