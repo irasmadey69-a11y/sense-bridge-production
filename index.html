@@ -1108,7 +1108,7 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
   font-size:13px;
   border:1px solid rgba(255,255,255,0.14);
 }
-.fraud-low{background:rgba(44,255,154,0.16);color:#064e3b;font-weight:900;border-color:rgba(44,255,154,0.35);}
+.fraud-low{background:rgba(44,255,154,0.16);color:#7dffbf;border-color:rgba(44,255,154,0.35);}
 .fraud-medium{background:rgba(255,211,106,0.14);color:#ffd36a;border-color:rgba(255,211,106,0.35);}
 .fraud-high{background:rgba(255,77,109,0.14);color:#ff9aae;border-color:rgba(255,77,109,0.35);}
 .fraud-unknown{background:rgba(159,181,173,0.12);color:#c8e8dc;border-color:rgba(159,181,173,0.26);}
@@ -1382,7 +1382,7 @@ body.dark-mode #consequences.high-risk .box-info{
   <div class="card">
     <div class="section-title" id="lblSummary">Co pismo komunikuje</div>
     <p id="summary"></p>
-    <div id="sbSummarySeparator" class="sb-summary-separator" style="display:none;"><span>Ocena i kroki Sense Bridge</span></div>
+    <div id="sbSummarySeparator" class="sb-summary-separator" style="display:none;"><span>Sense Bridge assessment and steps</span></div>
     <div id="legalStatus"></div>
     <div id="urgencyBox" class="box-info"></div>
 
@@ -2271,6 +2271,10 @@ UI.dict[UI.lang].fraudInfoTitle;
 document.getElementById("fraudInfoText").textContent =
 UI.dict[UI.lang].fraudInfoText;
   document.getElementById("lblSummary").textContent = t.summary;
+  const sep = document.querySelector("#sbSummarySeparator span");
+  if (sep) sep.textContent = sbResultText("separatorText", sbGetResultLang());
+  const lblFraudRisk = document.getElementById("lblFraudRisk");
+  if (lblFraudRisk) lblFraudRisk.textContent = sbResultText("fraudRiskTitle", sbGetResultLang());
   document.getElementById("lblRisks").textContent = t.risks;
   document.getElementById("lblExamples").textContent = t.examplesUser || t.examples;
   document.getElementById("lblExamplesDoc").textContent = t.examplesDoc;
@@ -2523,6 +2527,267 @@ function safeArr(a){
   return Array.isArray(a) ? a : [];
 }
 
+
+/* =========================================================
+   RESULT LANGUAGE PATCH — keeps analysis UI labels in userLang
+   Safe text layer only: no OCR/paywall/API logic changes
+   ========================================================= */
+function sbGetResultLang(){
+  const sel = document.getElementById("userLang");
+  return String((sel && sel.value) || (UI && UI.lang) || "PL").toUpperCase();
+}
+
+function sbResultText(key, lang){
+  const L = String(lang || sbGetResultLang() || "PL").toUpperCase();
+  const dict = {
+    PL: {
+      fraudRiskTitle:"Analiza ryzyka oszustwa",
+      separatorText:"Ocena i kroki Sense Bridge",
+      fraudUnknown:"Nie da się ocenić autentyczności",
+      fraudLow:"Wygląda raczej wiarygodnie",
+      fraudMedium:"Warto zweryfikować nadawcę",
+      fraudHigh:"Wysokie ryzyko oszustwa",
+      fraudDisclaimer:"To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu.",
+      confidence:"Pewność",
+      signals:"Sygnały do sprawdzenia",
+      suspicious:"Podejrzane elementy",
+      safeSteps:"Bezpieczne kroki",
+      country:"Kraj",
+      officialWebsite:"Oficjalna strona",
+      verifyInstitution:"Zweryfikuj sytuację przez oficjalną stronę instytucji.",
+      recognitionConfidence:"Pewność rozpoznania",
+      legalNone:"Brak potrzeby pomocy prawnej",
+      legalRecommended:"Warto skonsultować sytuację",
+      legalUrgent:"Pilna pomoc prawna może być potrzebna",
+      urgencyHigh:"PILNE – wymagane szybkie działanie",
+      urgencyMedium:"ŚREDNIA PILNOŚĆ – warto zareagować",
+      urgencyLow:"NISKA PILNOŚĆ – możesz spokojnie sprawdzić",
+      replyNeutral:"NEUTRALNIE",
+      replyPolite:"UPRZEJMIE",
+      replyFirm:"STANOWCZO",
+      examplesDocFallback:"Nie udało się automatycznie przygotować odpowiedzi w języku dokumentu. Wybierz ręcznie język dokumentu zamiast AUTO i spróbuj ponownie."
+    },
+    EN: {
+      fraudRiskTitle:"Fraud risk analysis",
+      separatorText:"Sense Bridge assessment and steps",
+      fraudUnknown:"Authenticity cannot be assessed",
+      fraudLow:"Looks rather credible",
+      fraudMedium:"Verify the sender",
+      fraudHigh:"High fraud risk",
+      fraudDisclaimer:"This is a risk analysis, not a confirmation of the document's authenticity.",
+      confidence:"Confidence",
+      signals:"Signals to check",
+      suspicious:"Suspicious elements",
+      safeSteps:"Safe steps",
+      country:"Country",
+      officialWebsite:"Official website",
+      verifyInstitution:"Verify the situation through the institution's official website.",
+      recognitionConfidence:"Recognition confidence",
+      legalNone:"No legal help needed",
+      legalRecommended:"It may be worth consulting the situation",
+      legalUrgent:"Urgent legal help may be needed",
+      urgencyHigh:"URGENT – quick action required",
+      urgencyMedium:"MEDIUM URGENCY – it is worth responding",
+      urgencyLow:"LOW URGENCY – you can check calmly",
+      replyNeutral:"NEUTRAL",
+      replyPolite:"POLITE",
+      replyFirm:"FIRM",
+      examplesDocFallback:"The reply in the document language could not be prepared automatically. Select the document language manually instead of AUTO and try again."
+    },
+    NL: {
+      fraudRiskTitle:"Analyse van frauderisico",
+      separatorText:"Sense Bridge beoordeling en stappen",
+      fraudUnknown:"Echtheid kan niet worden beoordeeld",
+      fraudLow:"Lijkt redelijk betrouwbaar",
+      fraudMedium:"Controleer de afzender",
+      fraudHigh:"Hoog frauderisico",
+      fraudDisclaimer:"Dit is een risicoanalyse, geen bevestiging van de echtheid van het document.",
+      confidence:"Zekerheid",
+      signals:"Signalen om te controleren",
+      suspicious:"Verdachte elementen",
+      safeSteps:"Veilige stappen",
+      country:"Land",
+      officialWebsite:"Officiële website",
+      verifyInstitution:"Controleer de situatie via de officiële website van de instantie.",
+      recognitionConfidence:"Herkenningszekerheid",
+      legalNone:"Geen juridische hulp nodig",
+      legalRecommended:"Het kan verstandig zijn de situatie te bespreken",
+      legalUrgent:"Dringende juridische hulp kan nodig zijn",
+      urgencyHigh:"DRINGEND – snelle actie nodig",
+      urgencyMedium:"MIDDELHOGE URGENTIE – reageren is verstandig",
+      urgencyLow:"LAGE URGENTIE – u kunt rustig controleren",
+      replyNeutral:"NEUTRAAL",
+      replyPolite:"BELEEFD",
+      replyFirm:"STELLIG",
+      examplesDocFallback:"Het antwoord in de documenttaal kon niet automatisch worden voorbereid. Kies handmatig de documenttaal in plaats van AUTO en probeer opnieuw."
+    },
+    DE: {
+      fraudRiskTitle:"Analyse des Betrugsrisikos",
+      separatorText:"Sense Bridge Einschätzung und Schritte",
+      fraudUnknown:"Echtheit kann nicht beurteilt werden",
+      fraudLow:"Wirkt eher glaubwürdig",
+      fraudMedium:"Absender prüfen",
+      fraudHigh:"Hohes Betrugsrisiko",
+      fraudDisclaimer:"Dies ist eine Risikoanalyse, keine Bestätigung der Echtheit des Dokuments.",
+      confidence:"Sicherheit",
+      signals:"Zu prüfende Signale",
+      suspicious:"Verdächtige Elemente",
+      safeSteps:"Sichere Schritte",
+      country:"Land",
+      officialWebsite:"Offizielle Website",
+      verifyInstitution:"Prüfen Sie die Situation über die offizielle Website der Institution.",
+      recognitionConfidence:"Erkennungs-Sicherheit",
+      legalNone:"Keine rechtliche Hilfe nötig",
+      legalRecommended:"Es kann sinnvoll sein, die Situation zu besprechen",
+      legalUrgent:"Dringende rechtliche Hilfe kann nötig sein",
+      urgencyHigh:"DRINGEND – schnelles Handeln erforderlich",
+      urgencyMedium:"MITTLERE DRINGLICHKEIT – reagieren ist sinnvoll",
+      urgencyLow:"NIEDRIGE DRINGLICHKEIT – Sie können ruhig prüfen",
+      replyNeutral:"NEUTRAL",
+      replyPolite:"HÖFLICH",
+      replyFirm:"BESTIMMT",
+      examplesDocFallback:"Die Antwort in der Dokumentsprache konnte nicht automatisch vorbereitet werden. Wählen Sie die Dokumentsprache manuell statt AUTO und versuchen Sie es erneut."
+    },
+    UA: {
+      fraudRiskTitle:"Аналіз ризику шахрайства",
+      separatorText:"Оцінка та кроки Sense Bridge",
+      fraudUnknown:"Неможливо оцінити автентичність",
+      fraudLow:"Виглядає досить достовірно",
+      fraudMedium:"Варто перевірити відправника",
+      fraudHigh:"Високий ризик шахрайства",
+      fraudDisclaimer:"Це аналіз ризику, а не підтвердження автентичності документа.",
+      confidence:"Впевненість",
+      signals:"Сигнали для перевірки",
+      suspicious:"Підозрілі елементи",
+      safeSteps:"Безпечні кроки",
+      country:"Країна",
+      officialWebsite:"Офіційний сайт",
+      verifyInstitution:"Перевірте ситуацію через офіційний сайт установи.",
+      recognitionConfidence:"Впевненість розпізнавання",
+      legalNone:"Юридична допомога не потрібна",
+      legalRecommended:"Варто проконсультувати ситуацію",
+      legalUrgent:"Може знадобитися термінова юридична допомога",
+      urgencyHigh:"ТЕРМІНОВО – потрібна швидка дія",
+      urgencyMedium:"СЕРЕДНЯ ТЕРМІНОВІСТЬ – варто відреагувати",
+      urgencyLow:"НИЗЬКА ТЕРМІНОВІСТЬ – можна спокійно перевірити",
+      replyNeutral:"НЕЙТРАЛЬНО",
+      replyPolite:"ВВІЧЛИВО",
+      replyFirm:"РІШУЧЕ",
+      examplesDocFallback:"Не вдалося автоматично підготувати відповідь мовою документа. Виберіть мову документа вручну замість AUTO і спробуйте знову."
+    },
+    FR: {
+      fraudRiskTitle:"Analyse du risque de fraude",
+      separatorText:"Évaluation et étapes Sense Bridge",
+      fraudUnknown:"L’authenticité ne peut pas être évaluée",
+      fraudLow:"Semble plutôt crédible",
+      fraudMedium:"Vérifiez l’expéditeur",
+      fraudHigh:"Risque élevé de fraude",
+      fraudDisclaimer:"Il s’agit d’une analyse de risque, pas d’une confirmation de l’authenticité du document.",
+      confidence:"Confiance",
+      signals:"Signaux à vérifier",
+      suspicious:"Éléments suspects",
+      safeSteps:"Étapes sûres",
+      country:"Pays",
+      officialWebsite:"Site officiel",
+      verifyInstitution:"Vérifiez la situation via le site officiel de l’institution.",
+      recognitionConfidence:"Confiance de reconnaissance",
+      legalNone:"Aucune aide juridique nécessaire",
+      legalRecommended:"Il peut être utile de consulter la situation",
+      legalUrgent:"Une aide juridique urgente peut être nécessaire",
+      urgencyHigh:"URGENT – action rapide requise",
+      urgencyMedium:"URGENCE MOYENNE – il est utile de répondre",
+      urgencyLow:"FAIBLE URGENCE – vous pouvez vérifier calmement",
+      replyNeutral:"NEUTRE",
+      replyPolite:"POLI",
+      replyFirm:"FERME",
+      examplesDocFallback:"La réponse dans la langue du document n’a pas pu être préparée automatiquement. Sélectionnez manuellement la langue du document au lieu d’AUTO et réessayez."
+    },
+    IT: {
+      fraudRiskTitle:"Analisi del rischio di frode",
+      separatorText:"Valutazione e passaggi Sense Bridge",
+      fraudUnknown:"Non è possibile valutare l’autenticità",
+      fraudLow:"Sembra abbastanza credibile",
+      fraudMedium:"Verifica il mittente",
+      fraudHigh:"Alto rischio di frode",
+      fraudDisclaimer:"Questa è un’analisi del rischio, non una conferma dell’autenticità del documento.",
+      confidence:"Affidabilità",
+      signals:"Segnali da verificare",
+      suspicious:"Elementi sospetti",
+      safeSteps:"Passaggi sicuri",
+      country:"Paese",
+      officialWebsite:"Sito ufficiale",
+      verifyInstitution:"Verifica la situazione tramite il sito ufficiale dell’istituzione.",
+      recognitionConfidence:"Affidabilità del riconoscimento",
+      legalNone:"Nessun aiuto legale necessario",
+      legalRecommended:"Può essere utile consultare la situazione",
+      legalUrgent:"Potrebbe essere necessario un aiuto legale urgente",
+      urgencyHigh:"URGENTE – azione rapida richiesta",
+      urgencyMedium:"URGENZA MEDIA – è utile rispondere",
+      urgencyLow:"BASSA URGENZA – puoi verificare con calma",
+      replyNeutral:"NEUTRALE",
+      replyPolite:"GENTILE",
+      replyFirm:"FERMO",
+      examplesDocFallback:"Non è stato possibile preparare automaticamente la risposta nella lingua del documento. Seleziona manualmente la lingua del documento invece di AUTO e riprova."
+    },
+    ES: {
+      fraudRiskTitle:"Análisis de riesgo de fraude",
+      separatorText:"Evaluación y pasos de Sense Bridge",
+      fraudUnknown:"No se puede evaluar la autenticidad",
+      fraudLow:"Parece bastante creíble",
+      fraudMedium:"Verifica el remitente",
+      fraudHigh:"Alto riesgo de fraude",
+      fraudDisclaimer:"Este es un análisis de riesgo, no una confirmación de la autenticidad del documento.",
+      confidence:"Confianza",
+      signals:"Señales para verificar",
+      suspicious:"Elementos sospechosos",
+      safeSteps:"Pasos seguros",
+      country:"País",
+      officialWebsite:"Sitio web oficial",
+      verifyInstitution:"Verifica la situación a través del sitio oficial de la institución.",
+      recognitionConfidence:"Confianza del reconocimiento",
+      legalNone:"No se necesita ayuda legal",
+      legalRecommended:"Puede ser útil consultar la situación",
+      legalUrgent:"Puede ser necesaria ayuda legal urgente",
+      urgencyHigh:"URGENTE – se requiere acción rápida",
+      urgencyMedium:"URGENCIA MEDIA – conviene responder",
+      urgencyLow:"BAJA URGENCIA – puedes verificar con calma",
+      replyNeutral:"NEUTRAL",
+      replyPolite:"CORTÉS",
+      replyFirm:"FIRME",
+      examplesDocFallback:"No se pudo preparar automáticamente la respuesta en el idioma del documento. Selecciona manualmente el idioma del documento en lugar de AUTO e inténtalo de nuevo."
+    },
+    PT: {
+      fraudRiskTitle:"Análise de risco de fraude",
+      separatorText:"Avaliação e passos do Sense Bridge",
+      fraudUnknown:"Não é possível avaliar a autenticidade",
+      fraudLow:"Parece bastante credível",
+      fraudMedium:"Verifique o remetente",
+      fraudHigh:"Alto risco de fraude",
+      fraudDisclaimer:"Esta é uma análise de risco, não uma confirmação da autenticidade do documento.",
+      confidence:"Confiança",
+      signals:"Sinais a verificar",
+      suspicious:"Elementos suspeitos",
+      safeSteps:"Passos seguros",
+      country:"País",
+      officialWebsite:"Site oficial",
+      verifyInstitution:"Verifique a situação através do site oficial da instituição.",
+      recognitionConfidence:"Confiança do reconhecimento",
+      legalNone:"Não é necessária ajuda jurídica",
+      legalRecommended:"Pode ser útil consultar a situação",
+      legalUrgent:"Pode ser necessária ajuda jurídica urgente",
+      urgencyHigh:"URGENTE – é necessária ação rápida",
+      urgencyMedium:"URGÊNCIA MÉDIA – vale a pena responder",
+      urgencyLow:"BAIXA URGÊNCIA – pode verificar com calma",
+      replyNeutral:"NEUTRO",
+      replyPolite:"EDUCADO",
+      replyFirm:"FIRME",
+      examplesDocFallback:"Não foi possível preparar automaticamente a resposta no idioma do documento. Selecione manualmente o idioma do documento em vez de AUTO e tente novamente."
+    }
+  };
+  const table = dict[L] || dict.PL;
+  return table[key] || (dict.EN && dict.EN[key]) || key;
+}
+
 function renderFraudRisk(data){
   const card = document.getElementById("fraudCard");
   const box = document.getElementById("fraudRiskBox");
@@ -2535,40 +2800,41 @@ function renderFraudRisk(data){
     return;
   }
 
+  const lang = sbGetResultLang();
   const level = String(fr.level || "UNKNOWN").toUpperCase();
   const confidence = Number(fr.confidence || 0);
 
   let cls = "fraud-unknown";
   let icon = "⚪";
-  let defaultLabel = "Nie da się ocenić autentyczności";
+  let defaultLabel = sbResultText("fraudUnknown", lang);
 
   if(level === "LOW"){
     cls = "fraud-low";
     icon = "🟢";
-    defaultLabel = "Wygląda raczej wiarygodnie";
+    defaultLabel = sbResultText("fraudLow", lang);
   }
   if(level === "MEDIUM"){
     cls = "fraud-medium";
     icon = "🟡";
-    defaultLabel = "Warto zweryfikować nadawcę";
+    defaultLabel = sbResultText("fraudMedium", lang);
   }
   if(level === "HIGH"){
     cls = "fraud-high";
     icon = "🔴";
-    defaultLabel = "Wysokie ryzyko oszustwa";
+    defaultLabel = sbResultText("fraudHigh", lang);
   }
 
   const label = String(fr.label || defaultLabel);
-  const summary = String(fr.summary || "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu.");
+  const summary = String(fr.summary || sbResultText("fraudDisclaimer", lang));
   const signals = safeArr(fr.signals);
   const suspicious = safeArr(fr.suspiciousElements);
   const steps = safeArr(fr.safeSteps);
-  const disclaimer = String(fr.disclaimer || "To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu.");
+  const disclaimer = String(fr.disclaimer || sbResultText("fraudDisclaimer", lang));
 
   function list(title, arr){
     if(!arr || !arr.length) return "";
     return `
-      <p style="font-weight:900;margin-top:12px;">${title}</p>
+      <p style="font-weight:900;margin-top:12px;">${escapeHtml(title)}</p>
       <ul class="fraud-list">
         ${arr.map(x => `<li>${escapeHtml(String(x))}</li>`).join("")}
       </ul>
@@ -2579,17 +2845,18 @@ function renderFraudRisk(data){
     <div class="fraud-box">
       <div class="fraud-head">
         <div class="fraud-pill ${cls}">${icon} ${escapeHtml(label)}</div>
-        <div class="chip"><span>Pewność:</span> <strong>${Number.isFinite(confidence) ? confidence : 0}%</strong></div>
+        <div class="chip"><span>${escapeHtml(sbResultText("confidence", lang))}:</span> <strong>${Number.isFinite(confidence) ? confidence : 0}%</strong></div>
       </div>
       <p>${escapeHtml(summary)}</p>
-      ${list("Sygnały do sprawdzenia", signals)}
-      ${list("Podejrzane elementy", suspicious)}
-      ${list("Bezpieczne kroki", steps)}
+      ${list(sbResultText("signals", lang), signals)}
+      ${list(sbResultText("suspicious", lang), suspicious)}
+      ${list(sbResultText("safeSteps", lang), steps)}
       <p class="fraud-small">${escapeHtml(disclaimer)}</p>
     </div>
   `;
   card.style.display = "block";
 }
+
 function renderInstitution(data){
   const box = document.getElementById("institutionBox");
   if(!box) return;
@@ -2601,6 +2868,7 @@ function renderInstitution(data){
     return;
   }
 
+  const lang = sbGetResultLang();
   const website = inst.officialWebsite || "";
   const confidence = Number(inst.confidence || 0);
 
@@ -2608,10 +2876,10 @@ function renderInstitution(data){
     <div class="box-info" style="margin-top:12px;">
       <strong>🏛 ${escapeHtml(inst.name)}</strong><br>
 
-      ${inst.country ? `🌍 Kraj: ${escapeHtml(inst.country)}<br>` : ""}
+      ${inst.country ? `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(inst.country)}<br>` : ""}
 
       ${website
-        ? `🌐 Oficjalna strona:
+        ? `🌐 ${escapeHtml(sbResultText("officialWebsite", lang))}:
         <a href="${escapeHtml(website)}"
         target="_blank"
         rel="noopener noreferrer">
@@ -2620,10 +2888,10 @@ function renderInstitution(data){
         : ""
       }
 
-      ✅ Zweryfikuj sytuację przez oficjalną stronę instytucji.
+      ✅ ${escapeHtml(sbResultText("verifyInstitution", lang))}
 
       ${confidence
-        ? `<br><small>Pewność rozpoznania: ${confidence}%</small>`
+        ? `<br><small>${escapeHtml(sbResultText("recognitionConfidence", lang))}: ${confidence}%</small>`
         : ""
       }
     </div>
@@ -3017,18 +3285,19 @@ const legalStatusEl = document.getElementById("legalStatus");
 if (legalStatusEl) {
   const legal = String(data.legalHelpNeeded || "RECOMMENDED").toUpperCase();
 
-  let legalText = "🟡 Warto skonsultować sytuację";
+  const rLang = sbGetResultLang();
+  let legalText = "🟡 " + sbResultText("legalRecommended", rLang);
   let bg = "#fef3c7";
   let color = "#92400e";
 
   if (legal === "NONE") {
-    legalText = "🟢 Brak potrzeby pomocy prawnej";
+    legalText = "🟢 " + sbResultText("legalNone", rLang);
     bg = "#dcfce7";
     color = "#166534";
   }
 
   if (legal === "URGENT") {
-    legalText = "🔴 Pilna pomoc prawna może być potrzebna";
+    legalText = "🔴 " + sbResultText("legalUrgent", rLang);
     bg = "#fee2e2";
     color = "#991b1b";
   }
@@ -3059,19 +3328,20 @@ const urgencyEl = document.getElementById("urgencyBox");
 const legal = (data.legalHelpNeeded || "").toUpperCase();
 
 if (legal === "URGENT") {
-  urgencyEl.textContent = "🔴 PILNA SYTUACJA – skonsultuj z prawnikiem";
+  urgencyEl.textContent = "🔴 " + sbResultText("legalUrgent", sbGetResultLang());
 }
 else if (legal === "RECOMMENDED") {
-  urgencyEl.textContent = "🟡 Warto skonsultować sytuację";
+  urgencyEl.textContent = "🟡 " + sbResultText("legalRecommended", sbGetResultLang());
 }
 else {
-  urgencyEl.textContent = "🟢 Brak potrzeby pomocy";
+  urgencyEl.textContent = "🟢 " + sbResultText("legalNone", sbGetResultLang());
 }
 if(urgencyEl){
   const u = (data.urgency || "").toUpperCase();
-  if(u === "HIGH") urgencyEl.textContent = "⚠️ PILNE – wymagane szybkie działanie";
-  else if(u === "MEDIUM") urgencyEl.textContent = "⏳ ŚREDNIA PILNOŚĆ – warto zareagować";
-  else if(u === "LOW") urgencyEl.textContent = "🟢 NISKA PILNOŚĆ – możesz spokojnie sprawdzić";
+  const rLang = sbGetResultLang();
+  if(u === "HIGH") urgencyEl.textContent = "⚠️ " + sbResultText("urgencyHigh", rLang);
+  else if(u === "MEDIUM") urgencyEl.textContent = "⏳ " + sbResultText("urgencyMedium", rLang);
+  else if(u === "LOW") urgencyEl.textContent = "🟢 " + sbResultText("urgencyLow", rLang);
   else urgencyEl.textContent = "";
 }
 
@@ -3166,9 +3436,10 @@ if (helpLinksBox) {
 
     const ex = data.examples || data.responseExamples || data.replies || {};
     const parts = [];
-    if(ex.neutral) parts.push("NEUTRAL:\n" + ex.neutral);
-    if(ex.polite)  parts.push("UPRZEJMIE:\n" + ex.polite);
-    if(ex.firm)    parts.push("STANOWCZO:\n" + ex.firm);
+    const rLang = sbGetResultLang();
+    if(ex.neutral) parts.push(sbResultText("replyNeutral", rLang) + ":\n" + ex.neutral);
+    if(ex.polite)  parts.push(sbResultText("replyPolite", rLang) + ":\n" + ex.polite);
+    if(ex.firm)    parts.push(sbResultText("replyFirm", rLang) + ":\n" + ex.firm);
     document.getElementById("examples").textContent = parts.join("\n\n");
 
     const examplesDocEl = document.getElementById("examplesDoc");
@@ -3197,7 +3468,7 @@ if (docTargetLang && docTargetLang !== userLang && parts.length > 0) {
         trDocData.translatedText ||
         trDocData.translated ||
         ""
-      ).trim();
+      ).replace(/"""/g, "").replace(/'''/g, "").trim();
     }
   } catch (e) {
     console.log("examplesDoc translate error", e);
@@ -3205,7 +3476,7 @@ if (docTargetLang && docTargetLang !== userLang && parts.length > 0) {
 }
 
 if (examplesDocEl) {
-  examplesDocEl.textContent = docText || "Nie udało się automatycznie przygotować odpowiedzi w języku dokumentu. Wybierz ręcznie język dokumentu zamiast AUTO i spróbuj ponownie.";
+  examplesDocEl.textContent = docText || sbResultText("examplesDocFallback", sbGetResultLang());
 }
 
     let translation = (data.translation || data.translatedText || data.translated || "").trim();
