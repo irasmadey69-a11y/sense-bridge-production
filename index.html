@@ -2250,6 +2250,8 @@ function setUiLang(lang){
   localStorage.setItem(UI.key, L);
   applyUiLang();
   applyTheme(getTheme());
+  refreshUI();
+  updatePaidMessage();
 }
 function applyUiLang(){
   const t = UI.dict[UI.lang];
