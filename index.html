@@ -2298,7 +2298,9 @@ UI.dict[UI.lang].fraudInfoText;
   const sep = document.querySelector("#sbSummarySeparator span");
   if (sep) sep.textContent = sbResultText("separatorText", sbGetResultLang());
   const lblFraudRisk = document.getElementById("lblFraudRisk");
-  if (lblFraudRisk) lblFraudRisk.textContent = sbResultText("fraudRiskTitle", sbGetResultLang());
+  if (lblFraudRisk) lblFraudRisk
+  .textContent = sbResultText
+  ("fraudRiskTitle", UI.lang);
   document.getElementById("lblRisks").textContent = t.risks;
   document.getElementById("lblExamples").textContent = t.examplesUser || t.examples;
   document.getElementById("lblExamplesDoc").textContent = t.examplesDoc;
