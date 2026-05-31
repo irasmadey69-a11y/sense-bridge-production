@@ -1108,7 +1108,11 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
   font-size:13px;
   border:1px solid rgba(255,255,255,0.14);
 }
-.fraud-low{background:rgba(44,255,154,0.16);color:#7dffbf;border-color:rgba(44,255,154,0.35);}
+.fraud-low{
+  background:rgba(44,255,154,0.16);
+  color:#14532d;
+  border-color:rgba(44,255,154,0.35);
+}
 .fraud-medium{background:rgba(255,211,106,0.14);color:#ffd36a;border-color:rgba(255,211,106,0.35);}
 .fraud-high{background:rgba(255,77,109,0.14);color:#ff9aae;border-color:rgba(255,77,109,0.35);}
 .fraud-unknown{background:rgba(159,181,173,0.12);color:#c8e8dc;border-color:rgba(159,181,173,0.26);}
@@ -1705,7 +1709,23 @@ function updatePaidMessage(){
 
   if(access.mode === "PASS"){
     const until = new Date(access.until).toLocaleString();
-    text.innerHTML = `✅ <strong>Dostęp aktywny</strong> • ważny do: <strong>${until}</strong>`;
+    const lang = (UI && UI.lang) ? UI.lang : "PL";
+
+const paidLabels = {
+  PL: ["Dostęp aktywny", "ważny do"],
+  EN: ["Access active", "valid until"],
+  NL: ["Toegang actief", "geldig tot"],
+  DE: ["Zugang aktiv", "gültig bis"],
+  UA: ["Доступ активний", "дійсний до"],
+  FR: ["Accès actif", "valable jusqu’au"],
+  IT: ["Accesso attivo", "valido fino a"],
+  ES: ["Acceso activo", "válido hasta"],
+  PT: ["Acesso ativo", "válido até"]
+};
+
+const l = paidLabels[lang] || paidLabels.PL;
+
+text.innerHTML = `✅ <strong>${l[0]}</strong> • ${l[1]}: <strong>${until}</strong>`;
     box.style.display = "block";
   } else {
     box.style.display = "none";
@@ -2225,6 +2245,10 @@ function setUiLang(lang){
   localStorage.setItem(UI.key, L);
   applyUiLang();
   applyTheme(getTheme());
+
+  if(typeof updatePaidMessage === "function"){
+    updatePaidMessage();
+  }
 }
 function applyUiLang(){
   const t = UI.dict[UI.lang];
