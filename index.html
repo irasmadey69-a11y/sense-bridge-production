@@ -1812,6 +1812,9 @@ fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszus
       p24meta: "Dla jednego pilnego pisma",
       p7meta: "Na serię wiadomości / odpowiedzi",
       p30meta: "Spokój na cały miesiąc",
+      
+      p7name: "7 dni",
+p30name: "30 dni",
       best: "Najlepsza wartość",
       fine1: "Sense Bridge nie daje porad prawnych. Pomaga zrozumieć sens, ton i ryzyka pisma, abyś mógł podjąć własną decyzję.",
       fine2: "Sprzedajemy spokój i zrozumienie, nie „AI”.",
@@ -1862,6 +1865,9 @@ fraudInfoText:"Після аналізу Sense Bridge також перевір�
       payDesc: "У вас є 3 FREE-аналізи для перевірки. Потім можна вибрати часовий доступ.",
       p24meta: "Для одного термінового листа",
       p7meta: "Для серії повідомлень / відповідей",
+      
+      p7name: "7 днів",
+p30name: "30 днів",
       p30meta: "Спокій на цілий місяць",
       best: "Найкраща вартість",
       fine1: "Sense Bridge не надає юридичних консультацій. Він допомагає зрозуміти зміст, тон і ризики листа, щоб ви могли прийняти власне рішення.",
@@ -1914,6 +1920,9 @@ fraudInfoText:"Sense Bridge controleert na de analyse ook mogelijke fraude, imit
       p24meta: "Voor één urgente brief",
       p7meta: "Voor een reeks berichten",
       p30meta: "Rust voor een hele maand",
+      
+      p7name: "7 dagen",
+p30name: "30 dagen",
       best: "Beste waarde",
       fine1: "Sense Bridge geeft geen juridisch advies. Het helpt je de betekenis, toon en risico’s te begrijpen zodat je zelf beslist.",
       fine2: "We verkopen rust en begrip, niet ‘AI’.",
@@ -1965,6 +1974,9 @@ fraudInfoText:"After the analysis, Sense Bridge will also check for possible fra
       p24meta: "For one urgent letter",
       p7meta: "For a series of messages",
       p30meta: "Peace for a whole month",
+      
+      p7name: "7 days",
+p30name: "30 days",
       best: "Best value",
       fine1: "Sense Bridge does not provide legal advice. It helps you understand meaning, tone and risks so you can decide yourself.",
       fine2: "We sell peace and understanding, not ‘AI’.",
@@ -2016,6 +2028,9 @@ fraudInfoText:"Nach der Analyse prüft Sense Bridge auch ein mögliches Betrugsr
       p24meta: "Für ein dringendes Schreiben",
       p7meta: "Für mehrere Nachrichten",
       p30meta: "Ruhe für einen ganzen Monat",
+      
+      p7name: "7 Tage",
+p30name: "30 Tage",
       best: "Bester Wert",
       fine1: "Sense Bridge gibt keine Rechtsberatung. Es hilft dir, Sinn, Ton und Risiken zu verstehen, damit du selbst entscheiden kannst.",
       fine2: "Wir verkaufen Ruhe und Verständnis, nicht ‘KI’.",
@@ -2067,6 +2082,9 @@ fraudInfoText:"Après l’analyse, Sense Bridge vérifiera également les risque
       p24meta: "Pour un courrier urgent",
       p7meta: "Pour plusieurs messages",
       p30meta: "Tranquillité pendant un mois",
+      
+      p7name: "7 jours",
+p30name: "30 jours",
       best: "Meilleure valeur",
       fine1: "Sense Bridge ne donne pas de conseils juridiques. Il aide à comprendre le sens, le ton et les risques afin que vous puissiez décider vous-même.",
       fine2: "Nous vendons de la tranquillité et de la compréhension, pas de l’« IA ».",
@@ -2118,6 +2136,9 @@ fraudInfoText:"Dopo l’analisi, Sense Bridge controllerà anche il possibile ri
       p24meta: "Per una lettera urgente",
       p7meta: "Per una serie di messaggi",
       p30meta: "Tranquillità per tutto il mese",
+      
+      p7name: "7 giorni",
+p30name: "30 giorni",
       best: "Miglior valore",
       fine1: "Sense Bridge non fornisce consulenza legale. Aiuta a capire significato, tono e rischi, così puoi decidere tu.",
       fine2: "Vendiamo tranquillità e comprensione, non ‘AI’.",
@@ -2170,6 +2191,9 @@ fraudInfoText:"Después del análisis, Sense Bridge también comprobará posible
       p24meta: "Para una carta urgente",
       p7meta: "Para varios mensajes",
       p30meta: "Tranquilidad durante todo el mes",
+      
+      p7name: "7 días",
+p30name: "30 días",
       best: "Mejor valor",
       fine1: "Sense Bridge no ofrece asesoramiento legal. Ayuda a entender el significado, el tono y los riesgos para que puedas decidir por ti mismo.",
       fine2: "Vendemos tranquilidad y comprensión, no ‘IA’.",
@@ -2221,6 +2245,9 @@ fraudInfoText:"Após a análise, o Sense Bridge também verificará possíveis r
       p24meta: "Para uma carta urgente",
       p7meta: "Para uma série de mensagens",
       p30meta: "Tranquilidade por todo o mês",
+      
+      p7name: "7 dias",
+p30name: "30 dias",
       best: "Melhor valor",
       fine1: "Sense Bridge não fornece aconselhamento jurídico. Ajuda a entender o significado, o tom e os riscos para que possa decidir por si.",
       fine2: "Vendemos tranquilidade e compreensão, não ‘IA’.",
@@ -2319,6 +2346,8 @@ UI.dict[UI.lang].fraudInfoText;
   document.getElementById("p24meta").textContent = t.p24meta;
   document.getElementById("p7meta").textContent = t.p7meta;
   document.getElementById("p30meta").textContent = t.p30meta;
+  document.getElementById("p7name").textContent = t.p7name || "7 dni";
+document.getElementById("p30name").textContent = t.p30name || "30 dni";
   document.getElementById("pBest").textContent = t.best;
   document.getElementById("fine1").textContent = t.fine1;
   document.getElementById("fine2").textContent = t.fine2;
@@ -2574,6 +2603,10 @@ function sbGetResultLang(){
 
 function sbResultText(key, lang){
   const L = String(lang || sbGetResultLang() || "PL").toUpperCase();
+  
+  if (UI && UI.dict && UI.dict[L] && UI.dict[L][key]) return UI.dict[L][key];
+if (UI && UI.dict && UI.dict.PL && UI.dict.PL[key]) return UI.dict.PL[key];
+  
   const dict = {
     PL: {
       fraudRiskTitle:"Analiza ryzyka oszustwa",
