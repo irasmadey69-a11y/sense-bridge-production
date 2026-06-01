@@ -1828,6 +1828,7 @@ p30name: "30 dni",
       footerTermsText: "Warunki: użytkownik odpowiada za treści, które wkleja. Analiza ma charakter informacyjny i nie stanowi porady prawnej.",
       footerContactText: "Kontakt: w sprawach dostępu lub płatności użyj adresu kontaktowego podanego przez Sense Bridge.",
       analyzingLetter: "Analizuję pismo...",
+      helpLinksTitle: "Pomocne strony",
       srcAuto: "Język dokumentu: AUTO",
       clear: "Wyczyść",
       copyTr: "Kopiuj tłumaczenie",
@@ -1882,6 +1883,7 @@ p30name: "30 днів",
       footerTermsText: "Умови: користувач відповідає за текст, який вставляє. Аналіз має інформаційний характер і не є юридичною консультацією.",
       footerContactText: "Контакт: з питань доступу або оплати використовуйте контактну адресу, вказану Sense Bridge.",
       analyzingLetter: "Аналізую документ...",
+      helpLinksTitle: "Корисні посилання",
       srcAuto: "Мова документа: AUTO",
       clear: "Очистити",
       copyTr: "Копіювати переклад",
@@ -1936,6 +1938,7 @@ p30name: "30 dagen",
       footerTermsText: "Voorwaarden: de gebruiker is verantwoordelijk voor de inhoud die hij plakt. De analyse is informatief en geen juridisch advies.",
       footerContactText: "Contact: gebruik voor toegang of betaling het contactadres van Sense Bridge.",
       analyzingLetter: "Brief analyseren...",
+      helpLinksTitle: "Nuttige links",
       srcAuto: "Taal document: AUTO",
       clear: "Wissen",
       copyTr: "Kopieer vertaling",
@@ -1990,6 +1993,7 @@ p30name: "30 days",
       footerTermsText: "Terms: the user is responsible for the content they paste. The analysis is informational and is not legal advice.",
       footerContactText: "Contact: for access or payment issues, use the contact address provided by Sense Bridge.",
       analyzingLetter: "Analyzing letter...",
+      helpLinksTitle: "Helpful links",
       srcAuto: "Document language: AUTO",
       clear: "Clear",
       copyTr: "Copy translation",
@@ -2044,6 +2048,7 @@ p30name: "30 Tage",
       footerTermsText: "Bedingungen: Der Nutzer ist für eingefügte Inhalte verantwortlich. Die Analyse ist informativ und keine Rechtsberatung.",
       footerContactText: "Kontakt: Bei Zugangs- oder Zahlungsfragen nutze die von Sense Bridge angegebene Kontaktadresse.",
       analyzingLetter: "Brief wird analysiert...",
+      helpLinksTitle: "Hilfreiche Links",
       srcAuto: "Dokumentsprache: AUTO",
       clear: "Leeren",
       copyTr: "Übersetzung kopieren",
@@ -2098,6 +2103,7 @@ p30name: "30 jours",
       footerTermsText: "Conditions : l’utilisateur est responsable du contenu collé. L’analyse est informative et ne constitue pas un conseil juridique.",
       footerContactText: "Contact : pour l’accès ou le paiement, utilisez l’adresse de contact indiquée par Sense Bridge.",
       analyzingLetter: "Analyse du courrier...",
+      helpLinksTitle: "Liens utiles",
       srcAuto: "Langue du document: AUTO",
       clear: "Effacer",
       copyTr: "Copier la traduction",
@@ -2152,6 +2158,7 @@ p30name: "30 giorni",
       footerTermsText: "Termini: l’utente è responsabile dei contenuti che incolla. L’analisi è informativa e non è consulenza legale.",
       footerContactText: "Contatto: per accesso o pagamenti usa l’indirizzo di contatto indicato da Sense Bridge.",
       analyzingLetter: "Analisi del documento...",
+      helpLinksTitle: "Link utili",
       srcAuto: "Lingua del documento: AUTO",
       clear: "Cancella",
       copyTr: "Copia traduzione",
@@ -2207,6 +2214,7 @@ p30name: "30 días",
       footerTermsText: "Condiciones: el usuario es responsable del contenido que pega. El análisis es informativo y no constituye asesoramiento legal.",
       footerContactText: "Contacto: para acceso o pagos usa la dirección de contacto indicada por Sense Bridge.",
       analyzingLetter: "Analizando la carta...",
+      helpLinksTitle: "Enlaces útiles",
       srcAuto: "Idioma del documento: AUTO",
       clear: "Borrar",
       copyTr: "Copiar traducción",
@@ -2261,6 +2269,7 @@ p30name: "30 dias",
       footerTermsText: "Termos: o utilizador é responsável pelo conteúdo que cola. A análise é informativa e não constitui aconselhamento jurídico.",
       footerContactText: "Contacto: para acesso ou pagamentos use o endereço de contacto indicado pelo Sense Bridge.",
       analyzingLetter: "A analisar o documento...",
+      helpLinksTitle: "Links úteis",
       srcAuto: "Idioma do documento: AUTO",
       clear: "Limpar",
       copyTr: "Copiar tradução",
@@ -2944,7 +2953,7 @@ function renderInstitution(data){
     <div class="box-info" style="margin-top:12px;">
       <strong>🏛 ${escapeHtml(inst.name)}</strong><br>
 
-      ${inst.country ? `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(inst.country)}<br>` : ""}
+      ${inst.country ? `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(countryName(inst.country))}<br>` : ""}
 
       ${website
         ? `🌐 ${escapeHtml(sbResultText("officialWebsite", lang))}:
@@ -2964,6 +2973,50 @@ function renderInstitution(data){
       }
     </div>
   `;
+}
+
+function countryName(code){
+  const map = {
+    DE: "Germany",
+PL: "Poland",
+JP: "Japan",
+IT: "Italy",
+FR: "France",
+ES: "Spain",
+PT: "Portugal",
+NL: "Netherlands",
+BE: "Belgium",
+UA: "Ukraine",
+US: "United States",
+CA: "Canada",
+KR: "South Korea",
+CN: "China",
+GB: "United Kingdom",
+IE: "Ireland",
+AU: "Australia",
+NZ: "New Zealand",
+AT: "Austria",
+CH: "Switzerland",
+SE: "Sweden",
+NO: "Norway",
+DK: "Denmark",
+FI: "Finland",
+CZ: "Czech Republic",
+SK: "Slovakia",
+HU: "Hungary",
+RO: "Romania",
+BG: "Bulgaria",
+HR: "Croatia",
+GR: "Greece",
+TR: "Turkey",
+IN: "India",
+BR: "Brazil",
+MX: "Mexico",
+AR: "Argentina",
+ZA: "South Africa",
+SG: "Singapore"
+  };
+  return map[String(code || "").toUpperCase()] || code;
 }
 
 function escapeHtml(s){
@@ -3468,7 +3521,7 @@ if (helpLinksBox) {
     const title = document.createElement("div");
     title.className = "section-title";
     title.style.marginTop = "12px";
-    title.textContent = "Pomocne strony";
+    title.textContent = sbResultText("helpLinksTitle", UI.lang);
     helpLinksBox.appendChild(title);
 
     data.helpLinks.forEach(link => {
