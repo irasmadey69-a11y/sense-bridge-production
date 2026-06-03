@@ -146,24 +146,14 @@ Jeśli rozpoznajesz urząd, bank lub instytucję:
 - zwróć institution.confidence (0-100)
 
 Rozpoznawaj m.in.:
-- DigiD
-- UWV
-- Belastingdienst
-- Toeslagen
-- Gemeente
-- IND
-- SVB
-- DUO
-- CJIB
-- RDW
-- ING
-- Rabobank
-- ABN AMRO
-- ASN Bank
-- European housing departments
-- tax offices
-- immigration offices
-- official municipalities
+- DigiD, UWV, Belastingdienst, Toeslagen, Gemeente, IND, SVB, DUO, CJIB, RDW
+- ING, Rabobank, ABN AMRO, ASN Bank
+- tax offices / revenue agencies: IRS, CRA, HMRC, Impots.gouv.fr, SPF Finances, Agencia Tributaria, Finanzamt, Agenzia Entrate, Autoridade Tributaria, Skatteverket
+- immigration offices: USCIS, IRCC, UK Home Office, IND, OFII, SEF/AIMA, Extranjeria, BAMF
+- social security / benefits: Social Security Administration, Service Canada, Jobcenter, CAF, CPAM/Ameli, INPS, INSS, ZUS, UWV
+- municipalities and official city halls / communes / gemeente / mairie / ayuntamiento / comune / camara municipal
+- hospitals, universities and official public services when the official domain is clear
+- European and international public institutions when confidently recognizable
 
 Jeśli nie jesteś pewien:
 - NIE zgaduj
@@ -384,7 +374,7 @@ if (
 
   fraudRisk.signals = [
     ...(fraudRisk.signals || []),
-    "Wykryto podejrzaną domenę lub numer telefonu"
+    sbLocalTextV1(userLang, "suspiciousDomainOrPhone")
   ];
 }
 
@@ -535,6 +525,8 @@ detectedPhones,
       responseExamples: replies
     };
 
+    sbNormalizeLocalPostProcessLanguageV1(payload, userLang);
+
     return json(200, headers, payload);
   } catch (err) {
     return json(500, corsHeaders(), { ok: false, error: String(err?.message || err) });
@@ -621,6 +613,179 @@ function classifyDocumentContext(text) {
     legalThreat: /rechtbank|court|komornik|deurwaarder|egzekuc|eviction|uitzetting|deport|boete|fine|incasso|debt|schuld|beslag/.test(t),
     strongPressure: /vandaag|direct|immediately|urgent|laatste kans|last chance|binnen 24 uur|within 24 hours/.test(t)
   };
+}
+
+
+/* ============================================================
+   Sense Bridge GLOBAL INSTITUTION RECOGNITION v2
+   Local safety layer. It does not replace AI analysis; it only
+   fills or strengthens institution data when the text clearly
+   matches a known official institution/domain.
+   ============================================================ */
+
+function applyGlobalInstitutionRecognitionV2(institution, text, detectedLinks) {
+  if (!institution) return institution;
+
+  const t = String(text || "").toLowerCase();
+  const links = Array.isArray(detectedLinks) ? detectedLinks : [];
+  const allHosts = links.map(sbHostFromGlobalLinkV2).filter(Boolean);
+
+  const currentConfidence = Number(institution.confidence || 0);
+  const currentName = String(institution.name || "").trim();
+  const currentWebsite = String(institution.officialWebsite || "").trim();
+
+  let best = null;
+  for (const item of sbGlobalInstitutionRegistryV2()) {
+    let score = 0;
+    const hay = `${t} ${currentName.toLowerCase()} ${currentWebsite.toLowerCase()}`;
+
+    for (const pattern of item.patterns || []) {
+      if (pattern.test(hay)) score += 45;
+    }
+
+    const officialHost = sbHostFromGlobalLinkV2(item.officialWebsite);
+    if (officialHost && allHosts.some(h => h === officialHost || h.endsWith("." + officialHost))) {
+      score += 55;
+    }
+
+    if (currentWebsite && officialHost && sbHostFromGlobalLinkV2(currentWebsite).endsWith(officialHost)) {
+      score += 30;
+    }
+
+    if (score > 0) {
+      const confidence = Math.max(65, Math.min(96, score));
+      if (!best || confidence > best.confidence) best = { ...item, confidence };
+    }
+  }
+
+  if (!best) return institution;
+
+  // Do not overwrite a strong AI result with a different local guess.
+  if (currentName && currentConfidence >= 85 && !sbSameInstitutionNameV2(currentName, best.name)) {
+    return institution;
+  }
+
+  institution.name = currentName || best.name;
+  institution.country = institution.country || best.country;
+  institution.officialWebsite = currentWebsite || best.officialWebsite;
+  institution.confidence = Math.max(currentConfidence || 0, best.confidence);
+
+  // If the text or link exactly points to an official domain, make confidence strong but not absolute.
+  if (best.confidence >= 90 && institution.officialWebsite) {
+    institution.confidence = Math.max(Number(institution.confidence || 0), 90);
+  }
+
+  return institution;
+}
+
+function sbSameInstitutionNameV2(a, b) {
+  const x = String(a || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const y = String(b || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  return !!x && !!y && (x.includes(y) || y.includes(x));
+}
+
+function sbHostFromGlobalLinkV2(link) {
+  try {
+    let raw = String(link || "").trim();
+    if (!raw) return "";
+    if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+    return new URL(raw).hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function sbGlobalInstitutionRegistryV2() {
+  return [
+    // Netherlands
+    { name:"DigiD", country:"NL", officialWebsite:"https://www.digid.nl", patterns:[/\bdigid\b/i] },
+    { name:"UWV", country:"NL", officialWebsite:"https://www.uwv.nl", patterns:[/\buwv\b/i] },
+    { name:"Belastingdienst", country:"NL", officialWebsite:"https://www.belastingdienst.nl", patterns:[/belastingdienst/i] },
+    { name:"Dienst Toeslagen", country:"NL", officialWebsite:"https://www.toeslagen.nl", patterns:[/toeslagen/i] },
+    { name:"IND", country:"NL", officialWebsite:"https://ind.nl", patterns:[/\bind\b|immigratie.*naturalisatie/i] },
+    { name:"SVB", country:"NL", officialWebsite:"https://www.svb.nl", patterns:[/\bsvb\b|sociale verzekeringsbank/i] },
+    { name:"DUO", country:"NL", officialWebsite:"https://www.duo.nl", patterns:[/\bduo\b|dienst uitvoering onderwijs/i] },
+    { name:"CJIB", country:"NL", officialWebsite:"https://www.cjib.nl", patterns:[/\bcjib\b/i] },
+    { name:"RDW", country:"NL", officialWebsite:"https://www.rdw.nl", patterns:[/\brdw\b/i] },
+    { name:"PostNL", country:"NL", officialWebsite:"https://www.postnl.nl", patterns:[/postnl/i] },
+
+    // United States
+    { name:"Internal Revenue Service", country:"US", officialWebsite:"https://www.irs.gov", patterns:[/\birs\b|internal revenue service/i] },
+    { name:"Social Security Administration", country:"US", officialWebsite:"https://www.ssa.gov", patterns:[/social security administration|\bssa\b/i] },
+    { name:"USCIS", country:"US", officialWebsite:"https://www.uscis.gov", patterns:[/\buscis\b|u\.s\. citizenship and immigration services|citizenship and immigration services/i] },
+    { name:"U.S. Department of State", country:"US", officialWebsite:"https://travel.state.gov", patterns:[/department of state|travel\.state\.gov/i] },
+    { name:"Medicare", country:"US", officialWebsite:"https://www.medicare.gov", patterns:[/\bmedicare\b/i] },
+
+    // Canada
+    { name:"Canada Revenue Agency", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/canada revenue agency|\bcra\b|agence du revenu du canada/i] },
+    { name:"Service Canada", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/service canada/i] },
+    { name:"IRCC", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/\bircc\b|immigration, refugees and citizenship canada|immigration refugees and citizenship canada/i] },
+
+    // United Kingdom / Ireland
+    { name:"HM Revenue & Customs", country:"GB", officialWebsite:"https://www.gov.uk", patterns:[/hm revenue|hmrc|hm revenue & customs/i] },
+    { name:"UK Home Office", country:"GB", officialWebsite:"https://www.gov.uk", patterns:[/home office|uk visas and immigration|\bukvi\b/i] },
+    { name:"NHS", country:"GB", officialWebsite:"https://www.nhs.uk", patterns:[/\bnhs\b|national health service/i] },
+    { name:"Department of Social Protection", country:"IE", officialWebsite:"https://www.gov.ie", patterns:[/department of social protection|\bmywelfare\b/i] },
+    { name:"Revenue Ireland", country:"IE", officialWebsite:"https://www.revenue.ie", patterns:[/revenue commissioners|revenue ireland|\brevenue\b.*ireland/i] },
+
+    // France / Belgium / Luxembourg
+    { name:"Impots.gouv.fr", country:"FR", officialWebsite:"https://www.impots.gouv.fr", patterns:[/imp[oô]ts\.gouv|direction générale des finances publiques|dgfip/i] },
+    { name:"CAF", country:"FR", officialWebsite:"https://www.caf.fr", patterns:[/\bcaf\b|caisse d allocations familiales|allocations familiales/i] },
+    { name:"Ameli / Assurance Maladie", country:"FR", officialWebsite:"https://www.ameli.fr", patterns:[/\bameli\b|assurance maladie|cpam/i] },
+    { name:"France Travail", country:"FR", officialWebsite:"https://www.francetravail.fr", patterns:[/france travail|p[oô]le emploi/i] },
+    { name:"ANTS", country:"FR", officialWebsite:"https://ants.gouv.fr", patterns:[/\bants\b|agence nationale des titres sécurisés/i] },
+    { name:"SPF Finances", country:"BE", officialWebsite:"https://finances.belgium.be", patterns:[/spf finances|fod financi[eë]n|finances\.belgium/i] },
+    { name:"ONEM / RVA", country:"BE", officialWebsite:"https://www.onem.be", patterns:[/\bonem\b|\brva\b|office national de l'emploi|rijksdienst voor arbeidsvoorziening/i] },
+    { name:"SPF Justice", country:"BE", officialWebsite:"https://justice.belgium.be", patterns:[/spf justice|fod justitie|justice\.belgium/i] },
+    { name:"MyGuichet.lu", country:"LU", officialWebsite:"https://guichet.public.lu", patterns:[/myguichet|guichet\.public\.lu/i] },
+
+    // Germany / Austria / Switzerland
+    { name:"Finanzamt / ELSTER", country:"DE", officialWebsite:"https://www.elster.de", patterns:[/\bfinanzamt\b|\belster\b|bundeszentralamt für steuern|bzst/i] },
+    { name:"Bundesagentur für Arbeit", country:"DE", officialWebsite:"https://www.arbeitsagentur.de", patterns:[/arbeitsagentur|bundesagentur für arbeit/i] },
+    { name:"Jobcenter", country:"DE", officialWebsite:"https://www.jobcenter.digital", patterns:[/\bjobcenter\b/i] },
+    { name:"BAMF", country:"DE", officialWebsite:"https://www.bamf.de", patterns:[/\bbamf\b|bundesamt für migration und flüchtlinge/i] },
+    { name:"FinanzOnline", country:"AT", officialWebsite:"https://finanzonline.bmf.gv.at", patterns:[/finanzonline|bundesministerium für finanzen|bmf\.gv\.at/i] },
+    { name:"AMS", country:"AT", officialWebsite:"https://www.ams.at", patterns:[/\bams\b|arbeitsmarktservice/i] },
+    { name:"AHV/IV", country:"CH", officialWebsite:"https://www.ahv-iv.ch", patterns:[/ahv|\biv\b|avs|ai suisse/i] },
+    { name:"ch.ch", country:"CH", officialWebsite:"https://www.ch.ch", patterns:[/\bch\.ch\b|swiss authorities|schweizer behörden/i] },
+
+    // Spain / Portugal / Italy
+    { name:"Agencia Tributaria", country:"ES", officialWebsite:"https://sede.agenciatributaria.gob.es", patterns:[/agencia tributaria|aeat|sede\.agenciatributaria/i] },
+    { name:"Seguridad Social", country:"ES", officialWebsite:"https://www.seg-social.es", patterns:[/seguridad social|tesorería general de la seguridad social|tgss/i] },
+    { name:"SEPE", country:"ES", officialWebsite:"https://www.sepe.es", patterns:[/\bsepe\b|servicio público de empleo estatal/i] },
+    { name:"DGT", country:"ES", officialWebsite:"https://www.dgt.es", patterns:[/\bdgt\b|dirección general de tráfico/i] },
+    { name:"Autoridade Tributária e Aduaneira", country:"PT", officialWebsite:"https://www.portaldasfinancas.gov.pt", patterns:[/autoridade tribut[áa]ria|portal das finan[çc]as|portaldasfinancas/i] },
+    { name:"Segurança Social", country:"PT", officialWebsite:"https://www.seg-social.pt", patterns:[/seguran[çc]a social|seg-social\.pt/i] },
+    { name:"AIMA", country:"PT", officialWebsite:"https://aima.gov.pt", patterns:[/\baima\b|agência para a integração migrações e asilo|agencia para a integracao migracoes e asilo/i] },
+    { name:"Agenzia delle Entrate", country:"IT", officialWebsite:"https://www.agenziaentrate.gov.it", patterns:[/agenzia delle entrate|agenziaentrate/i] },
+    { name:"INPS", country:"IT", officialWebsite:"https://www.inps.it", patterns:[/\binps\b|istituto nazionale previdenza sociale/i] },
+    { name:"INAIL", country:"IT", officialWebsite:"https://www.inail.it", patterns:[/\binail\b/i] },
+    { name:"Ministero dell'Interno", country:"IT", officialWebsite:"https://www.interno.gov.it", patterns:[/ministero dell.?interno|permesso di soggiorno|questura/i] },
+
+    // Poland / Ukraine
+    { name:"ZUS", country:"PL", officialWebsite:"https://www.zus.pl", patterns:[/\bzus\b|zakład ubezpieczeń społecznych|zaklad ubezpieczen spolecznych/i] },
+    { name:"Urząd Skarbowy / podatki.gov.pl", country:"PL", officialWebsite:"https://www.podatki.gov.pl", patterns:[/urząd skarbowy|urzad skarbowy|podatki\.gov\.pl|ministerstwo finansów/i] },
+    { name:"mObywatel", country:"PL", officialWebsite:"https://www.gov.pl", patterns:[/mobywatel|gov\.pl/i] },
+    { name:"Diia", country:"UA", officialWebsite:"https://diia.gov.ua", patterns:[/\bdiia\b|дія|diia\.gov\.ua/i] },
+    { name:"State Tax Service of Ukraine", country:"UA", officialWebsite:"https://tax.gov.ua", patterns:[/tax\.gov\.ua|державна податкова служба/i] },
+
+    // Scandinavia / Baltics
+    { name:"Skatteverket", country:"SE", officialWebsite:"https://www.skatteverket.se", patterns:[/skatteverket/i] },
+    { name:"Försäkringskassan", country:"SE", officialWebsite:"https://www.forsakringskassan.se", patterns:[/försäkringskassan|forsakringskassan/i] },
+    { name:"NAV", country:"NO", officialWebsite:"https://www.nav.no", patterns:[/\bnav\b|arbeids- og velferdsetaten/i] },
+    { name:"Skatteetaten", country:"NO", officialWebsite:"https://www.skatteetaten.no", patterns:[/skatteetaten/i] },
+    { name:"Skattestyrelsen", country:"DK", officialWebsite:"https://skat.dk", patterns:[/skattestyrelsen|skat\.dk/i] },
+    { name:"Kela", country:"FI", officialWebsite:"https://www.kela.fi", patterns:[/\bkela\b|kansaneläkelaitos/i] },
+    { name:"Vero Skatt", country:"FI", officialWebsite:"https://www.vero.fi", patterns:[/\bvero\b|vero\.fi/i] },
+    { name:"Maksu- ja Tolliamet", country:"EE", officialWebsite:"https://www.emta.ee", patterns:[/emta\.ee|maksu- ja tolliamet/i] },
+
+    // International / EU
+    { name:"European Commission", country:"EU", officialWebsite:"https://commission.europa.eu", patterns:[/european commission|commission\.europa\.eu/i] },
+    { name:"European Parliament", country:"EU", officialWebsite:"https://www.europarl.europa.eu", patterns:[/european parliament|europarl\.europa/i] },
+    { name:"Court of Justice of the European Union", country:"EU", officialWebsite:"https://curia.europa.eu", patterns:[/court of justice of the european union|curia\.europa/i] },
+    { name:"Europol", country:"EU", officialWebsite:"https://www.europol.europa.eu", patterns:[/europol/i] },
+    { name:"WHO", country:"INT", officialWebsite:"https://www.who.int", patterns:[/world health organization|\bwho\b/i] }
+  ];
 }
 
 function applyKnownInstitutionFix(institution, text) {
@@ -1265,6 +1430,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Nie klikaj linku z wiadomości.",
       risk2: "Nie podawaj loginu, hasła, kodu SMS ani TAN.",
       risk3: "Sprawdź sprawę wyłącznie przez oficjalną stronę lub aplikację instytucji.",
+      timePressure: "Presja czasu lub pilna weryfikacja.",
+      accountThreat: "Groźba blokady lub utraty dostępu.",
       consequence1: "Jeżeli podasz dane, ktoś może uzyskać dostęp do konta.",
       consequence2: "Dane mogą zostać wykorzystane do oszustwa lub kradzieży pieniędzy."
     },
@@ -1274,6 +1441,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Do not click the link in the message.",
       risk2: "Do not share login, password, SMS code or TAN.",
       risk3: "Check the matter only through the official website or app of the institution.",
+      timePressure: "Time pressure or urgent verification.",
+      accountThreat: "Threat of account suspension or loss of access.",
       consequence1: "If you provide the data, someone may gain access to the account.",
       consequence2: "The data may be used for fraud or theft."
     },
@@ -1283,6 +1452,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Klik niet op de link in het bericht.",
       risk2: "Deel geen login, wachtwoord, sms-code of TAN.",
       risk3: "Controleer dit alleen via de officiële website of app van de instantie.",
+      timePressure: "Tijdsdruk of dringende verificatie.",
+      accountThreat: "Dreiging van blokkade of verlies van toegang.",
       consequence1: "Als u gegevens invoert, kan iemand toegang krijgen tot het account.",
       consequence2: "De gegevens kunnen worden gebruikt voor fraude of diefstal."
     },
@@ -1292,6 +1463,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Klicken Sie nicht auf den Link in der Nachricht.",
       risk2: "Geben Sie keinen Login, kein Passwort, keinen SMS-Code und keine TAN weiter.",
       risk3: "Prüfen Sie die Sache nur über die offizielle Website oder App der Institution.",
+      timePressure: "Zeitdruck oder dringende Verifizierung.",
+      accountThreat: "Drohung mit Sperrung oder Zugangsverlust.",
       consequence1: "Wenn Sie Daten eingeben, kann jemand Zugriff auf das Konto erhalten.",
       consequence2: "Die Daten können für Betrug oder Diebstahl verwendet werden."
     },
@@ -1301,6 +1474,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Ne cliquez pas sur le lien du message.",
       risk2: "Ne partagez pas votre identifiant, mot de passe, code SMS ou TAN.",
       risk3: "Vérifiez uniquement via le site ou l’application officielle de l’institution.",
+      timePressure: "Pression temporelle ou vérification urgente.",
+      accountThreat: "Menace de blocage ou de perte d’accès.",
       consequence1: "Si vous donnez ces données, quelqu’un peut accéder au compte.",
       consequence2: "Les données peuvent être utilisées pour une fraude ou un vol."
     },
@@ -1310,6 +1485,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Non cliccare sul link nel messaggio.",
       risk2: "Non condividere login, password, codice SMS o TAN.",
       risk3: "Verifica solo tramite il sito o l’app ufficiale dell’istituzione.",
+      timePressure: "Pressione temporale o verifica urgente.",
+      accountThreat: "Minaccia di blocco o perdita di accesso.",
       consequence1: "Se inserisci i dati, qualcuno potrebbe accedere al conto.",
       consequence2: "I dati possono essere usati per frode o furto."
     },
@@ -1319,6 +1496,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "No hagas clic en el enlace del mensaje.",
       risk2: "No compartas usuario, contraseña, código SMS ni TAN.",
       risk3: "Verifica solo mediante el sitio web o la app oficial de la institución.",
+      timePressure: "Presión de tiempo o verificación urgente.",
+      accountThreat: "Amenaza de bloqueo o pérdida de acceso.",
       consequence1: "Si proporcionas los datos, alguien podría acceder a la cuenta.",
       consequence2: "Los datos pueden usarse para fraude o robo."
     },
@@ -1328,6 +1507,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Não clique no link da mensagem.",
       risk2: "Não partilhe login, palavra-passe, código SMS ou TAN.",
       risk3: "Verifique apenas pelo site ou pela aplicação oficial da instituição.",
+      timePressure: "Pressão de tempo ou verificação urgente.",
+      accountThreat: "Ameaça de bloqueio ou perda de acesso.",
       consequence1: "Se fornecer os dados, alguém pode obter acesso à conta.",
       consequence2: "Os dados podem ser usados para fraude ou roubo."
     },
@@ -1337,6 +1518,8 @@ function sbFraudTextMapV8(lang) {
       risk1: "Не натискайте посилання в повідомленні.",
       risk2: "Не передавайте логін, пароль, SMS-код або TAN.",
       risk3: "Перевіряйте лише через офіційний сайт або додаток установи.",
+      timePressure: "Тиск часу або термінова перевірка.",
+      accountThreat: "Погроза блокування або втрати доступу.",
       consequence1: "Якщо ви введете дані, хтось може отримати доступ до акаунта.",
       consequence2: "Дані можуть бути використані для шахрайства або крадіжки."
     }
@@ -1618,9 +1801,9 @@ function sbApplyFraudLogicSyncV8(ctx) {
     const signals = Array.isArray(fraudRisk.signals) ? fraudRisk.signals : [];
     const extraSignals = [];
     if (sig.credential) extraSignals.push(labels.risk2);
-    if (sig.timePressure) extraSignals.push("Presja czasu / time pressure / urgência.");
+    if (sig.timePressure) extraSignals.push(labels.timePressure || sbLocalTextV1(userLang, "timePressureShort"));
     if (sig.suspiciousLink) extraSignals.push(labels.risk1);
-    if (sig.accountThreat) extraSignals.push("Groźba blokady lub utraty dostępu / account suspension threat.");
+    if (sig.accountThreat) extraSignals.push(labels.accountThreat || sbLocalTextV1(userLang, "accountThreatShort"));
 
     fraudRisk.signals = Array.from(new Set([...signals, ...extraSignals])).slice(0, 8);
 
@@ -1636,7 +1819,7 @@ function sbApplyFraudLogicSyncV8(ctx) {
     const suspiciousExtra = [];
     if (sig.credential) suspiciousExtra.push(labels.risk2);
     if (sig.suspiciousLink) suspiciousExtra.push(labels.risk1);
-    if (sig.timePressure) suspiciousExtra.push("Presja czasu / pilna weryfikacja.");
+    if (sig.timePressure) suspiciousExtra.push(labels.timePressure || sbLocalTextV1(userLang, "timePressureShort"));
     fraudRisk.suspiciousElements = Array.from(new Set([...suspicious, ...suspiciousExtra])).slice(0, 8);
 
     if (Array.isArray(ctx.risks)) {
@@ -1671,109 +1854,111 @@ function sbApplyFraudLogicSyncV8(ctx) {
 }
 
 /* ============================================================
-   Sense Bridge GLOBAL INSTITUTION RECOGNITION v2
-   Local patch only. Does not change existing fraud logic.
+   Sense Bridge LOCALIZED HARD-CODED TEXT FIX v1
+   Keeps existing logic, only localizes local post-processing text.
    ============================================================ */
 
-function applyGlobalInstitutionRecognitionV2(institution, text, detectedLinks) {
-  if (!institution) return;
-
-  const t = String(text || "").toLowerCase();
-  const links = Array.isArray(detectedLinks) ? detectedLinks : [];
-  const extracted = typeof sbExtractLinksFromTextPatchV1 === "function"
-    ? sbExtractLinksFromTextPatchV1(text)
-    : [];
-
-  const allLinks = Array.from(new Set([...links, ...extracted].filter(Boolean)));
-
-  function hostFromUrl(url) {
-    try {
-      let raw = String(url || "").trim();
-      if (!raw) return "";
-      if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
-      return new URL(raw).hostname.replace(/^www\./i, "").toLowerCase();
-    } catch {
-      return "";
+function sbLocalTextV1(lang, key, vars = {}) {
+  const L = (lang || "PL").toUpperCase();
+  const dict = {
+    suspiciousDomainOrPhone: {
+      PL: "Wykryto podejrzaną domenę lub numer telefonu.",
+      EN: "A suspicious domain or phone number was detected.",
+      NL: "Er is een verdacht domein of telefoonnummer gedetecteerd.",
+      DE: "Eine verdächtige Domain oder Telefonnummer wurde erkannt.",
+      FR: "Un domaine ou un numéro de téléphone suspect a été détecté.",
+      IT: "È stato rilevato un dominio o numero di telefono sospetto.",
+      ES: "Se detectó un dominio o número de teléfono sospechoso.",
+      PT: "Foi detetado um domínio ou número de telefone suspeito.",
+      UA: "Виявлено підозрілий домен або номер телефону."
+    },
+    officialInstitutionSoftRisk: {
+      PL: "Nie wykryto typowych sygnałów phishingu. Dla pewności sprawdź sprawę przez oficjalną stronę {name}.",
+      EN: "No typical phishing signals were detected. If unsure, verify through the official website of {name}.",
+      NL: "Er zijn geen typische phishing-signalen gevonden. Controleer bij twijfel via de officiële website van {name}.",
+      DE: "Es wurden keine typischen Phishing-Signale erkannt. Prüfen Sie bei Zweifel über die offizielle Website von {name}.",
+      FR: "Aucun signal typique de phishing n’a été détecté. En cas de doute, vérifiez via le site officiel de {name}.",
+      IT: "Non sono stati rilevati segnali tipici di phishing. In caso di dubbio, verifica tramite il sito ufficiale di {name}.",
+      ES: "No se detectaron señales típicas de phishing. En caso de duda, verifica a través del sitio oficial de {name}.",
+      PT: "Não foram detetados sinais típicos de phishing. Em caso de dúvida, verifique pelo site oficial de {name}.",
+      UA: "Типових ознак фішингу не виявлено. Якщо є сумніви, перевірте через офіційний сайт {name}."
+    },
+    timePressureShort: {
+      PL: "Presja czasu lub pilna weryfikacja.",
+      EN: "Time pressure or urgent verification.",
+      NL: "Tijdsdruk of dringende verificatie.",
+      DE: "Zeitdruck oder dringende Verifizierung.",
+      FR: "Pression temporelle ou vérification urgente.",
+      IT: "Pressione temporale o verifica urgente.",
+      ES: "Presión de tiempo o verificación urgente.",
+      PT: "Pressão de tempo ou verificação urgente.",
+      UA: "Тиск часу або термінова перевірка."
+    },
+    accountThreatShort: {
+      PL: "Groźba blokady lub utraty dostępu.",
+      EN: "Threat of account suspension or loss of access.",
+      NL: "Dreiging van blokkade of verlies van toegang.",
+      DE: "Drohung mit Sperrung oder Zugangsverlust.",
+      FR: "Menace de blocage ou de perte d’accès.",
+      IT: "Minaccia di blocco o perdita di accesso.",
+      ES: "Amenaza de bloqueo o pérdida de acceso.",
+      PT: "Ameaça de bloqueio ou perda de acesso.",
+      UA: "Погроза блокування або втрати доступу."
     }
-  }
+  };
+  const row = dict[key] || {};
+  let value = row[L] || row.EN || row.PL || "";
+  Object.keys(vars || {}).forEach(k => {
+    value = value.replace(new RegExp("\\{" + k + "\\}", "g"), String(vars[k] || ""));
+  });
+  return value;
+}
 
-  const hosts = allLinks.map(hostFromUrl).filter(Boolean);
+function sbNormalizeLocalPostProcessLanguageV1(payload, userLang) {
+  if (!payload || typeof payload !== "object") return payload;
+  const L = (userLang || payload.userLang || "PL").toUpperCase();
 
-  const db = [
-    { name:"IRS", country:"US", website:"https://www.irs.gov", aliases:["irs","internal revenue service"], domains:["irs.gov"] },
-    { name:"USCIS", country:"US", website:"https://www.uscis.gov", aliases:["uscis","u.s. citizenship and immigration services"], domains:["uscis.gov"] },
-    { name:"Social Security Administration", country:"US", website:"https://www.ssa.gov", aliases:["ssa","social security administration"], domains:["ssa.gov"] },
-    { name:"Canada Revenue Agency", country:"CA", website:"https://www.canada.ca/en/revenue-agency.html", aliases:["cra","canada revenue agency","agence du revenu du canada"], domains:["canada.ca"] },
-    { name:"Service Canada", country:"CA", website:"https://www.canada.ca/en/employment-social-development/corporate/portfolio/service-canada.html", aliases:["service canada"], domains:["canada.ca"] },
-
-    { name:"Belastingdienst", country:"NL", website:"https://www.belastingdienst.nl", aliases:["belastingdienst"], domains:["belastingdienst.nl"] },
-    { name:"DigiD", country:"NL", website:"https://www.digid.nl", aliases:["digid"], domains:["digid.nl"] },
-    { name:"UWV", country:"NL", website:"https://www.uwv.nl", aliases:["uwv"], domains:["uwv.nl"] },
-    { name:"IND", country:"NL", website:"https://www.ind.nl", aliases:["ind","immigratie- en naturalisatiedienst"], domains:["ind.nl"] },
-
-    { name:"Service Public", country:"FR", website:"https://www.service-public.fr", aliases:["service-public","service public"], domains:["service-public.fr"] },
-    { name:"Impots.gouv.fr", country:"FR", website:"https://www.impots.gouv.fr", aliases:["impots","impôts","direction générale des finances publiques"], domains:["impots.gouv.fr"] },
-    { name:"Ameli", country:"FR", website:"https://www.ameli.fr", aliases:["ameli","assurance maladie"], domains:["ameli.fr"] },
-
-    { name:"Finanzamt", country:"DE", website:"https://www.elster.de", aliases:["finanzamt","elster"], domains:["elster.de"] },
-    { name:"Bundesagentur für Arbeit", country:"DE", website:"https://www.arbeitsagentur.de", aliases:["bundesagentur für arbeit","arbeitsagentur"], domains:["arbeitsagentur.de"] },
-    { name:"Deutsche Rentenversicherung", country:"DE", website:"https://www.deutsche-rentenversicherung.de", aliases:["deutsche rentenversicherung"], domains:["deutsche-rentenversicherung.de"] },
-
-    { name:"FinanzOnline", country:"AT", website:"https://finanzonline.bmf.gv.at", aliases:["finanzonline","bmf österreich","finanzamt österreich"], domains:["finanzonline.bmf.gv.at","bmf.gv.at"] },
-    { name:"Oesterreich.gv.at", country:"AT", website:"https://www.oesterreich.gv.at", aliases:["oesterreich.gv.at","österreich.gv.at"], domains:["oesterreich.gv.at"] },
-
-    { name:"Belgium.be", country:"BE", website:"https://www.belgium.be", aliases:["belgium.be","belgique.be"], domains:["belgium.be"] },
-    { name:"FOD Financiën", country:"BE", website:"https://financien.belgium.be", aliases:["fod financiën","spf finances","myminfin"], domains:["financien.belgium.be","myminfin.be"] },
-
-    { name:"Agencia Tributaria", country:"ES", website:"https://sede.agenciatributaria.gob.es", aliases:["agencia tributaria","aeat"], domains:["agenciatributaria.gob.es"] },
-    { name:"Seguridad Social", country:"ES", website:"https://www.seg-social.es", aliases:["seguridad social"], domains:["seg-social.es"] },
-
-    { name:"Finanças", country:"PT", website:"https://www.portaldasfinancas.gov.pt", aliases:["finanças","portal das finanças","autoridade tributária"], domains:["portaldasfinancas.gov.pt"] },
-    { name:"Segurança Social", country:"PT", website:"https://www.seg-social.pt", aliases:["segurança social"], domains:["seg-social.pt"] },
-
-    { name:"Agenzia delle Entrate", country:"IT", website:"https://www.agenziaentrate.gov.it", aliases:["agenzia delle entrate"], domains:["agenziaentrate.gov.it"] },
-    { name:"INPS", country:"IT", website:"https://www.inps.it", aliases:["inps"], domains:["inps.it"] },
-
-    { name:"GOV.UK", country:"UK", website:"https://www.gov.uk", aliases:["gov.uk","hmrc","home office"], domains:["gov.uk"] },
-    { name:"Revenue Ireland", country:"IE", website:"https://www.revenue.ie", aliases:["revenue ireland"], domains:["revenue.ie"] },
-
-    { name:"Australian Government", country:"AU", website:"https://www.gov.au", aliases:["mygov","australian government"], domains:["my.gov.au","gov.au"] },
-    { name:"New Zealand Government", country:"NZ", website:"https://www.govt.nz", aliases:["govt.nz","new zealand government"], domains:["govt.nz"] },
-
-    { name:"Diia", country:"UA", website:"https://diia.gov.ua", aliases:["diia","дія"], domains:["diia.gov.ua"] },
-    { name:"Gov.pl", country:"PL", website:"https://www.gov.pl", aliases:["gov.pl","ministerstwo","urząd skarbowy","zus"], domains:["gov.pl","zus.pl","podatki.gov.pl"] }
+  const replacements = [
+    ["Presja czasu / time pressure / urgência.", sbLocalTextV1(L, "timePressureShort")],
+    ["Presja czasu / pilna weryfikacja.", sbLocalTextV1(L, "timePressureShort")],
+    ["Groźba blokady lub utraty dostępu / account suspension threat.", sbLocalTextV1(L, "accountThreatShort")],
+    [sbLocalTextV1(userLang, "suspiciousDomainOrPhone"), sbLocalTextV1(L, "suspiciousDomainOrPhone")],
+    ["Wykryto podejrzaną domenę lub numer telefonu.", sbLocalTextV1(L, "suspiciousDomainOrPhone")]
   ];
 
-  let best = null;
-
-  for (const item of db) {
-    const aliasMatch = item.aliases.some(a => t.includes(String(a).toLowerCase()));
-    const domainMatch = hosts.some(h =>
-      item.domains.some(d => h === d || h.endsWith("." + d))
-    );
-
-    if (!aliasMatch && !domainMatch) continue;
-
-    const confidence = domainMatch ? 94 : 86;
-
-    if (!best || confidence > best.confidence) {
-      best = {
-        name: item.name,
-        country: item.country,
-        officialWebsite: item.website,
-        confidence
-      };
+  function fixString(s) {
+    let out = String(s || "");
+    for (const [from, to] of replacements) {
+      if (out === from) return to;
+      out = out.replaceAll(from, to);
     }
+    return out;
   }
 
-  if (!best) return;
-
-  const currentConfidence = Number(institution.confidence || 0);
-
-  if (!institution.name || currentConfidence < best.confidence) {
-    institution.name = best.name;
-    institution.country = best.country;
-    institution.officialWebsite = best.officialWebsite;
-    institution.confidence = best.confidence;
+  function fixArray(arrValue) {
+    if (!Array.isArray(arrValue)) return arrValue;
+    return arrValue.map(x => typeof x === "string" ? fixString(x) : x);
   }
-    }
+
+  payload.risks = fixArray(payload.risks);
+  payload.riskList = fixArray(payload.riskList);
+  payload.riskChips = fixArray(payload.riskChips);
+  payload.consequences = fixArray(payload.consequences);
+  payload.help = fixArray(payload.help);
+  payload.actions = fixArray(payload.actions);
+  payload.nextSteps = fixArray(payload.nextSteps);
+
+  if (payload.fraudRisk && typeof payload.fraudRisk === "object") {
+    payload.fraudRisk.label = fixString(payload.fraudRisk.label);
+    payload.fraudRisk.summary = fixString(payload.fraudRisk.summary);
+    payload.fraudRisk.signals = fixArray(payload.fraudRisk.signals);
+    payload.fraudRisk.suspiciousElements = fixArray(payload.fraudRisk.suspiciousElements);
+    payload.fraudRisk.safeSteps = fixArray(payload.fraudRisk.safeSteps);
+    payload.fraudRisk.disclaimer = fixString(payload.fraudRisk.disclaimer);
+  }
+
+  if (payload.scamRisk && payload.scamRisk === payload.fraudRisk) payload.scamRisk = payload.fraudRisk;
+  if (payload.authenticityRisk && payload.authenticityRisk === payload.fraudRisk) payload.authenticityRisk = payload.fraudRisk;
+
+  return payload;
+}
