@@ -527,6 +527,8 @@ detectedPhones,
 
     sbNormalizeLocalPostProcessLanguageV1(payload, userLang);
 
+    forceUserLanguageNormalizationV2(payload, userLang);
+
     return json(200, headers, payload);
   } catch (err) {
     return json(500, corsHeaders(), { ok: false, error: String(err?.message || err) });
@@ -1959,6 +1961,160 @@ function sbNormalizeLocalPostProcessLanguageV1(payload, userLang) {
 
   if (payload.scamRisk && payload.scamRisk === payload.fraudRisk) payload.scamRisk = payload.fraudRisk;
   if (payload.authenticityRisk && payload.authenticityRisk === payload.fraudRisk) payload.authenticityRisk = payload.fraudRisk;
+
+  return payload;
+}
+
+/* ============================================================
+   Sense Bridge FORCE USER LANGUAGE NORMALIZATION v2
+   Output-only cleanup. Does not change fraud detection logic.
+   ============================================================ */
+
+function forceUserLanguageNormalizationV2(payload, userLang) {
+  if (!payload || typeof payload !== "object") return payload;
+
+  const L = String(userLang || payload.userLang || "PL").toUpperCase();
+
+  const phraseBank = [
+    {
+      keys: ["urgent data confirmation", "richiesta urgente", "confirmación urgente", "confirmação urgente", "dringende bestätigung", "confirmation urgente", "pilne potwierdzenie", "dringende bevestiging"],
+      values: {
+        PL: "Pilna prośba o potwierdzenie danych dostępowych.",
+        EN: "Urgent request to confirm access details.",
+        NL: "Dringend verzoek om toegangsgegevens te bevestigen.",
+        DE: "Dringende Aufforderung zur Bestätigung von Zugangsdaten.",
+        FR: "Demande urgente de confirmation des données d’accès.",
+        IT: "Richiesta urgente di conferma dei dati di accesso.",
+        ES: "Solicitud urgente de confirmación de datos de acceso.",
+        PT: "Pedido urgente de confirmação dos dados de acesso.",
+        UA: "Терміновий запит на підтвердження даних доступу."
+      }
+    },
+    {
+      keys: ["link does not belong", "link che non appartiene", "enlace no pertenece", "lien qui n’appartient", "link gehört nicht", "link behoort niet", "link nie należy"],
+      values: {
+        PL: "Link nie należy do oficjalnej domeny instytucji.",
+        EN: "The link does not belong to the official domain of the institution.",
+        NL: "De link behoort niet tot het officiële domein van de instantie.",
+        DE: "Der Link gehört nicht zur offiziellen Domain der Institution.",
+        FR: "Le lien n’appartient pas au domaine officiel de l’institution.",
+        IT: "Il link non appartiene al dominio ufficiale dell’istituzione.",
+        ES: "El enlace no pertenece al dominio oficial de la institución.",
+        PT: "O link não pertence ao domínio oficial da instituição.",
+        UA: "Посилання не належить до офіційного домену установи."
+      }
+    },
+    {
+      keys: ["time pressure", "presja czasu", "pressione temporale", "presión de tiempo", "pressão de tempo", "pression temporelle", "zeitdruck", "tijdsdruk"],
+      values: {
+        PL: "Presja czasu lub pilna weryfikacja.",
+        EN: "Time pressure or urgent verification.",
+        NL: "Tijdsdruk of dringende verificatie.",
+        DE: "Zeitdruck oder dringende Verifizierung.",
+        FR: "Pression temporelle ou vérification urgente.",
+        IT: "Pressione temporale o verifica urgente.",
+        ES: "Presión de tiempo o verificación urgente.",
+        PT: "Pressão de tempo ou verificação urgente.",
+        UA: "Тиск часу або термінова перевірка."
+      }
+    },
+    {
+      keys: ["account suspension", "utrata dostępu", "blocco", "bloqueo", "blocage", "sperrung", "blokkade", "suspension"],
+      values: {
+        PL: "Groźba blokady lub utraty dostępu.",
+        EN: "Threat of account suspension or loss of access.",
+        NL: "Dreiging van blokkade of verlies van toegang.",
+        DE: "Drohung mit Sperrung oder Zugangsverlust.",
+        FR: "Menace de blocage ou de perte d’accès.",
+        IT: "Minaccia di blocco o perdita di accesso.",
+        ES: "Amenaza de bloqueo o pérdida de acceso.",
+        PT: "Ameaça de bloqueio ou perda de acesso.",
+        UA: "Погроза блокування або втрати доступу."
+      }
+    },
+    {
+      keys: ["do not click", "nie klikaj", "non cliccare", "no hagas clic", "não clique", "ne cliquez pas", "klicken sie nicht", "klik niet"],
+      values: {
+        PL: "Nie klikaj linku z wiadomości.",
+        EN: "Do not click the link in the message.",
+        NL: "Klik niet op de link in het bericht.",
+        DE: "Klicken Sie nicht auf den Link in der Nachricht.",
+        FR: "Ne cliquez pas sur le lien du message.",
+        IT: "Non cliccare sul link nel messaggio.",
+        ES: "No hagas clic en el enlace del mensaje.",
+        PT: "Não clique no link da mensagem.",
+        UA: "Не натискайте посилання в повідомленні."
+      }
+    },
+    {
+      keys: ["do not share login", "nie podawaj loginu", "non condividere login", "no compartas usuario", "não partilhe login", "ne partagez pas", "geben sie keinen login", "deel geen login"],
+      values: {
+        PL: "Nie podawaj loginu, hasła, kodu SMS ani TAN.",
+        EN: "Do not share login, password, SMS code or TAN.",
+        NL: "Deel geen login, wachtwoord, sms-code of TAN.",
+        DE: "Geben Sie keinen Login, kein Passwort, keinen SMS-Code und keine TAN weiter.",
+        FR: "Ne partagez pas votre identifiant, mot de passe, code SMS ou TAN.",
+        IT: "Non condividere login, password, codice SMS o TAN.",
+        ES: "No compartas usuario, contraseña, código SMS ni TAN.",
+        PT: "Não partilhe login, palavra-passe, código SMS ou TAN.",
+        UA: "Не передавайте логін, пароль, SMS-код або TAN."
+      }
+    },
+    {
+      keys: ["institution was recognized", "rozpoznano instytucję", "instantie is herkend", "institution wurde erkannt", "institution a été reconnue", "istituzione è stata riconosciuta", "se reconoció la institución", "instituição foi reconhecida"],
+      values: {
+        PL: "Rozpoznano instytucję, ale link prowadzi poza oficjalną domenę.",
+        EN: "The institution was recognized, but the link leads outside the official domain.",
+        NL: "De instantie is herkend, maar de link leidt buiten het officiële domein.",
+        DE: "Die Institution wurde erkannt, aber der Link führt außerhalb der offiziellen Domain.",
+        FR: "L’institution a été reconnue, mais le lien mène en dehors du domaine officiel.",
+        IT: "L’istituzione è stata riconosciuta, ma il link porta fuori dal dominio ufficiale.",
+        ES: "Se reconoció la institución, pero el enlace lleva fuera del dominio oficial.",
+        PT: "A instituição foi reconhecida, mas o link leva para fora do domínio oficial.",
+        UA: "Установу розпізнано, але посилання веде поза офіційний домен."
+      }
+    }
+  ];
+
+  function normalizePhrase(s) {
+    if (typeof s !== "string") return s;
+    const original = s.trim();
+    const lower = original.toLowerCase();
+
+    for (const item of phraseBank) {
+      if (item.keys.some(k => lower.includes(k))) {
+        const translated = item.values[L] || item.values.EN || original;
+        if (/https?:\/\//i.test(original)) return original;
+        return translated;
+      }
+    }
+
+    return original;
+  }
+
+  function fixArray(value) {
+    if (!Array.isArray(value)) return value;
+    return value.map(x => typeof x === "string" ? normalizePhrase(x) : x);
+  }
+
+  payload.risks = fixArray(payload.risks);
+  payload.riskList = fixArray(payload.riskList);
+  payload.riskChips = fixArray(payload.riskChips);
+  payload.consequences = fixArray(payload.consequences);
+  payload.help = fixArray(payload.help);
+  payload.actions = fixArray(payload.actions);
+  payload.nextSteps = fixArray(payload.nextSteps);
+
+  if (payload.fraudRisk && typeof payload.fraudRisk === "object") {
+    payload.fraudRisk.signals = fixArray(payload.fraudRisk.signals);
+    payload.fraudRisk.suspiciousElements = fixArray(payload.fraudRisk.suspiciousElements);
+    payload.fraudRisk.safeSteps = fixArray(payload.fraudRisk.safeSteps);
+    payload.fraudRisk.label = normalizePhrase(payload.fraudRisk.label);
+    payload.fraudRisk.summary = normalizePhrase(payload.fraudRisk.summary);
+  }
+
+  payload.scamRisk = payload.fraudRisk || payload.scamRisk;
+  payload.authenticityRisk = payload.fraudRisk || payload.authenticityRisk;
 
   return payload;
 }
