@@ -439,6 +439,27 @@ if (sbImpersonationPatchV1) {
   legalHelpFinal = sbImpersonationPatchV1.legalHelpFinal || legalHelpFinal;
 }
 
+
+const sbGlobalHighGuardV1 = sbApplyGlobalImpersonationHighGuardV1({
+  text,
+  userLang,
+  fraudRisk,
+  institution,
+  detectedLinks,
+  risks,
+  consequences,
+  help,
+  urgency,
+  legalHelpFinal
+});
+if (sbGlobalHighGuardV1) {
+  risks = sbGlobalHighGuardV1.risks || risks;
+  consequences = sbGlobalHighGuardV1.consequences || consequences;
+  help = sbGlobalHighGuardV1.help || help;
+  urgency = sbGlobalHighGuardV1.urgency || urgency;
+  legalHelpFinal = sbGlobalHighGuardV1.legalHelpFinal || legalHelpFinal;
+}
+
 calmOfficialFraudRiskAfterSync({
   fraudRisk,
   institution,
@@ -2117,4 +2138,110 @@ function forceUserLanguageNormalizationV2(payload, userLang) {
   payload.authenticityRisk = payload.fraudRisk || payload.authenticityRisk;
 
   return payload;
+}
+
+/* ============================================================
+   Sense Bridge GLOBAL IMPERSONATION HIGH GUARD v1
+   Safety overlay only. It raises obvious global impersonation
+   cases to HIGH; it does not weaken existing fraud logic.
+   ============================================================ */
+
+function sbApplyGlobalImpersonationHighGuardV1(ctx) {
+  if (!ctx || !ctx.fraudRisk || !ctx.institution) return ctx;
+
+  const institution = ctx.institution || {};
+  const officialWebsite = String(institution.officialWebsite || "").trim();
+  const confidence = Number(institution.confidence || 0);
+  if (!officialWebsite || confidence < 70) return ctx;
+
+  const text = String(ctx.text || "").toLowerCase();
+  const linksFromModel = Array.isArray(ctx.detectedLinks) ? ctx.detectedLinks : [];
+  const linksFromText = typeof sbExtractLinksFromTextPatchV1 === "function"
+    ? sbExtractLinksFromTextPatchV1(ctx.text)
+    : [];
+  const allLinks = Array.from(new Set([...linksFromModel, ...linksFromText].filter(Boolean)));
+
+  function hostFromUrl(url) {
+    try {
+      let raw = String(url || "").trim();
+      if (!raw) return "";
+      if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+      return new URL(raw).hostname.replace(/^www\./i, "").toLowerCase();
+    } catch {
+      return "";
+    }
+  }
+
+  const officialHost = hostFromUrl(officialWebsite);
+  if (!officialHost) return ctx;
+
+  const externalLinks = allLinks.filter(link => {
+    const host = hostFromUrl(link);
+    if (!host) return false;
+    return !(host === officialHost || host.endsWith("." + officialHost));
+  });
+
+  if (!externalLinks.length) return ctx;
+
+  const credentialSignal =
+    /(tan|sms[\s-]*(code|kod|codigo|c[oó]digo|codice)|password|passwort|wachtwoord|hasło|contraseña|senha|palavra[-\s]?passe|login|usuario|utente|gebruiker|username|access code|c[oó]digo de acesso|dane dostępowe|zugangsdaten|credenciais|credenziali)/i.test(text);
+
+  const urgentSignal =
+    /((2|3|6|8|12|24)\s*(h|hours|hour|uur|stunden|ore|heures|horas|godzin)|within\s*(2|3|6|8|12|24)\s*hours|binnen\s*(2|3|6|8|12|24)\s*uur|dentro de\s*(2|3|6|8|12|24)\s*horas|entro\s*(2|3|6|8|12|24)\s*ore|dans un délai de\s*(2|3|6|8|12|24)\s*heures|urgent|urgente|dringend|sofort|natychmiast|onmiddellijk|immediately|imediatamente)/i.test(text);
+
+  const accountThreatSignal =
+    /(account|konto|rekening|cuenta|conta|compte|utente|expediente).{0,120}(suspend|suspended|suspenso|sospeso|gesperrt|blocked|bloquead|blok|zablok|deaktiv|deactiv|suspensión|suspensão|sospensione|blocco|blocage|bloqueo)/i.test(text) ||
+    /(suspens|suspensión|suspensão|sospensione|bloqueo|blocco|blokada|sperrung|blocage).{0,120}(account|konto|rekening|cuenta|conta|compte|utente|expediente)/i.test(text);
+
+  const highCondition = externalLinks.length > 0 && (credentialSignal || (urgentSignal && accountThreatSignal));
+
+  if (!highCondition) return ctx;
+
+  const labels = typeof sbImpersonationTextsPatchV1 === "function"
+    ? sbImpersonationTextsPatchV1(ctx.userLang, institution.name || "institution")
+    : null;
+
+  ctx.fraudRisk.level = "HIGH";
+  ctx.fraudRisk.confidence = Math.max(Number(ctx.fraudRisk.confidence || 0), 90);
+
+  if (labels) {
+    ctx.fraudRisk.label = labels.label;
+    ctx.fraudRisk.summary = labels.summary;
+  }
+
+  const signal = labels ? labels.signal : "The institution was recognized, but the link leads outside the official domain.";
+  const step1 = labels ? labels.step1 : "Do not click the link in the message.";
+  const step2 = labels ? labels.step2 : "Open the official website of the institution manually.";
+  const step3 = labels ? labels.step3 : "Do not share login, password, SMS code or banking details.";
+
+  ctx.fraudRisk.signals = Array.from(new Set([
+    ...(Array.isArray(ctx.fraudRisk.signals) ? ctx.fraudRisk.signals : []),
+    signal
+  ])).slice(0, 8);
+
+  ctx.fraudRisk.suspiciousElements = Array.from(new Set([
+    ...(Array.isArray(ctx.fraudRisk.suspiciousElements) ? ctx.fraudRisk.suspiciousElements : []),
+    ...externalLinks,
+    signal
+  ])).slice(0, 8);
+
+  ctx.fraudRisk.safeSteps = Array.from(new Set([
+    step1,
+    step2,
+    step3,
+    ...(Array.isArray(ctx.fraudRisk.safeSteps) ? ctx.fraudRisk.safeSteps : [])
+  ])).slice(0, 8);
+
+  if (Array.isArray(ctx.risks)) {
+    ctx.risks = Array.from(new Set([step1, step2, step3, ...ctx.risks])).slice(0, 8);
+  }
+
+  if (Array.isArray(ctx.help)) {
+    ctx.help = Array.from(new Set([step2, ...ctx.help])).slice(0, 8);
+  }
+
+  ctx.urgency = "HIGH";
+  if (ctx.legalHelpFinal === "URGENT") ctx.legalHelpFinal = "RECOMMENDED";
+
+  return ctx;
 }
