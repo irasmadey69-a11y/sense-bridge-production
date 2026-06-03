@@ -375,7 +375,8 @@ if (
   fraudRisk.level = "HIGH";
 
   if (!fraudRisk.label) {
-    fraudRisk.label = knownPhishingLabel(userLang);
+    fraudRisk.label =
+      "Wykryto znane sygnały phishingu";
   }
 
   fraudRisk.confidence =
@@ -383,10 +384,11 @@ if (
 
   fraudRisk.signals = [
     ...(fraudRisk.signals || []),
-    suspiciousDomainOrPhoneSignal(userLang)
+    "Wykryto podejrzaną domenę lub numer telefonu"
   ];
 }
 
+applyGlobalInstitutionRecognitionV2(institution, text, detectedLinks);
 applyKnownInstitutionFix(institution, text);
 postProcessNormalDocument({
   fraudRisk,
@@ -425,6 +427,26 @@ if (sbFraudSyncV8) {
   help = sbFraudSyncV8.help || help;
   urgency = sbFraudSyncV8.urgency || urgency;
   legalHelpFinal = sbFraudSyncV8.legalHelpFinal || legalHelpFinal;
+}
+
+const sbImpersonationPatchV1 = sbApplyInstitutionImpersonationPatchV1({
+  text,
+  userLang,
+  fraudRisk,
+  institution,
+  detectedLinks,
+  risks,
+  consequences,
+  help,
+  urgency,
+  legalHelpFinal
+});
+if (sbImpersonationPatchV1) {
+  risks = sbImpersonationPatchV1.risks || risks;
+  consequences = sbImpersonationPatchV1.consequences || consequences;
+  help = sbImpersonationPatchV1.help || help;
+  urgency = sbImpersonationPatchV1.urgency || urgency;
+  legalHelpFinal = sbImpersonationPatchV1.legalHelpFinal || legalHelpFinal;
 }
 
 calmOfficialFraudRiskAfterSync({
@@ -545,82 +567,6 @@ function str(v) {
 
 function arr(v) {
   return Array.isArray(v) ? v.filter(Boolean).map(x => String(x).trim()).filter(Boolean) : [];
-}
-
-
-function langText(lang, map) {
-  const L = (lang || "PL").toUpperCase();
-  return map[L] || map.EN || map.PL || "";
-}
-
-function knownPhishingLabel(lang) {
-  return langText(lang, {
-    PL: "Wykryto znane sygnały phishingu",
-    EN: "Known phishing signals detected",
-    NL: "Bekende phishing-signalen gedetecteerd",
-    DE: "Bekannte Phishing-Signale erkannt",
-    UA: "Виявлено відомі ознаки фішингу",
-    FR: "Signaux de phishing connus détectés",
-    IT: "Rilevati segnali noti di phishing",
-    ES: "Se detectaron señales conocidas de phishing",
-    PT: "Foram detetados sinais conhecidos de phishing"
-  });
-}
-
-function suspiciousDomainOrPhoneSignal(lang) {
-  return langText(lang, {
-    PL: "Wykryto podejrzaną domenę lub numer telefonu",
-    EN: "A suspicious domain or phone number was detected",
-    NL: "Er is een verdacht domein of telefoonnummer gevonden",
-    DE: "Eine verdächtige Domain oder Telefonnummer wurde erkannt",
-    UA: "Виявлено підозрілий домен або номер телефону",
-    FR: "Un domaine ou numéro de téléphone suspect a été détecté",
-    IT: "È stato rilevato un dominio o numero di telefono sospetto",
-    ES: "Se detectó un dominio o número de teléfono sospechoso",
-    PT: "Foi detetado um domínio ou número de telefone suspeito"
-  });
-}
-
-function timePressureSignalText(lang) {
-  return langText(lang, {
-    PL: "Presja czasu lub pilna weryfikacja",
-    EN: "Time pressure or urgent verification",
-    NL: "Tijdsdruk of dringende verificatie",
-    DE: "Zeitdruck oder dringende Verifizierung",
-    UA: "Тиск часу або термінова перевірка",
-    FR: "Pression temporelle ou vérification urgente",
-    IT: "Pressione temporale o verifica urgente",
-    ES: "Presión de tiempo o verificación urgente",
-    PT: "Pressão de tempo ou verificação urgente"
-  });
-}
-
-function accountThreatSignalText(lang) {
-  return langText(lang, {
-    PL: "Groźba blokady lub utraty dostępu",
-    EN: "Threat of blocking or loss of access",
-    NL: "Dreiging van blokkade of verlies van toegang",
-    DE: "Drohung mit Sperrung oder Zugriffsverlust",
-    UA: "Загроза блокування або втрати доступу",
-    FR: "Menace de blocage ou de perte d’accès",
-    IT: "Minaccia di blocco o perdita di accesso",
-    ES: "Amenaza de bloqueo o pérdida de acceso",
-    PT: "Ameaça de bloqueio ou perda de acesso"
-  });
-}
-
-function timePressureSuspiciousText(lang) {
-  return langText(lang, {
-    PL: "Presja czasu lub pilna weryfikacja",
-    EN: "Time pressure or urgent verification",
-    NL: "Tijdsdruk of dringende verificatie",
-    DE: "Zeitdruck oder dringende Verifizierung",
-    UA: "Тиск часу або термінова перевірка",
-    FR: "Pression temporelle ou vérification urgente",
-    IT: "Pressione temporale o verifica urgente",
-    ES: "Presión de tiempo o verificación urgente",
-    PT: "Pressão de tempo ou verificação urgente"
-  });
 }
 
 
@@ -753,13 +699,9 @@ function calmFraudLabel(lang, level) {
     EN: { LOW: "Looks calm, just verify the source", MEDIUM: "Verify the sender" },
     NL: { LOW: "Lijkt rustig, controleer alleen de bron", MEDIUM: "Controleer de afzender" },
     DE: { LOW: "Wirkt unauffällig, Quelle kurz prüfen", MEDIUM: "Absender prüfen" },
-    UA: { LOW: "Виглядає спокійно, лише перевірте джерело", MEDIUM: "Варто перевірити відправника" },
-    FR: { LOW: "Semble calme, vérifiez simplement la source", MEDIUM: "Vérifiez l’expéditeur" },
-    IT: { LOW: "Sembra tranquillo, verifica solo la fonte", MEDIUM: "Verifica il mittente" },
-    ES: { LOW: "Parece tranquilo, solo verifica la fuente", MEDIUM: "Verifica el remitente" },
-    PT: { LOW: "Parece tranquilo, verifique apenas a fonte", MEDIUM: "Verifique o remetente" }
+    UA: { LOW: "Виглядає спокійно, лише перевірте джерело", MEDIUM: "Варто перевірити відправника" }
   };
-  return (map[L] || map.EN)[level] || (map[L] || map.EN).MEDIUM;
+  return (map[L] || map.PL)[level] || (map[L] || map.PL).MEDIUM;
 }
 
 function calmFraudSummary(lang, institutionName) {
@@ -769,10 +711,6 @@ function calmFraudSummary(lang, institutionName) {
   if (L === "EN") return `The letter looks normal for ${name}. If unsure, verify it through the official website.`;
   if (L === "DE") return `Das Schreiben wirkt für ${name} normal. Bei Zweifel über die offizielle Website prüfen.`;
   if (L === "UA") return `Лист виглядає типовим для ${name}. Якщо є сумніви, перевірте через офіційний сайт.`;
-  if (L === "FR") return `Le document semble normal pour ${name}. En cas de doute, vérifiez via le site officiel.`;
-  if (L === "IT") return `Il documento sembra normale per ${name}. In caso di dubbio, verifica tramite il sito ufficiale.`;
-  if (L === "ES") return `El documento parece normal para ${name}. En caso de duda, verifica a través del sitio oficial.`;
-  if (L === "PT") return `O documento parece normal para ${name}. Em caso de dúvida, verifique pelo site oficial.`;
   return `Pismo wygląda normalnie dla instytucji ${name}. Jeśli masz wątpliwości, zweryfikuj je przez oficjalną stronę.`;
 }
 
@@ -782,10 +720,6 @@ function calmSafeSteps(lang, website) {
   if (L === "EN") return ["Open the official website manually.", "Log in only through the official portal.", "If unsure, call the number from the official website."];
   if (L === "DE") return ["Öffnen Sie die offizielle Website manuell.", "Melden Sie sich nur über das offizielle Portal an.", "Bei Zweifel die Nummer von der offiziellen Website anrufen."];
   if (L === "UA") return ["Відкрийте офіційний сайт вручну.", "Заходьте лише через офіційний портал.", "Якщо сумніваєтесь, телефонуйте за номером з офіційного сайту."];
-  if (L === "FR") return ["Ouvrez le site officiel manuellement.", "Connectez-vous uniquement via le portail officiel.", "En cas de doute, appelez le numéro indiqué sur le site officiel."];
-  if (L === "IT") return ["Apri manualmente il sito ufficiale.", "Accedi solo tramite il portale ufficiale.", "In caso di dubbio, chiama il numero indicato sul sito ufficiale."];
-  if (L === "ES") return ["Abre manualmente el sitio oficial.", "Inicia sesión solo a través del portal oficial.", "En caso de duda, llama al número del sitio oficial."];
-  if (L === "PT") return ["Abra manualmente o site oficial.", "Inicie sessão apenas pelo portal oficial.", "Em caso de dúvida, ligue para o número do site oficial."];
   return ["Otwórz oficjalną stronę ręcznie.", "Loguj się tylko przez oficjalny portal.", "W razie wątpliwości zadzwoń na numer z oficjalnej strony."];
 }
 
@@ -797,10 +731,6 @@ function softenRisksForNormalDocument(risks, lang) {
   if (L === "EN") return ["Check the appointment details through the official portal.", "If you are not prepared, the appointment may be delayed or rescheduled."];
   if (L === "DE") return ["Prüfen Sie die Termindaten über das offizielle Portal.", "Bei fehlender Vorbereitung kann der Termin verschoben werden."];
   if (L === "UA") return ["Перевірте деталі візиту через офіційний портал.", "Якщо ви не підготовані, візит можуть перенести."];
-  if (L === "FR") return ["Vérifiez les détails du rendez-vous via le portail officiel.", "Si vous n’êtes pas préparé, le rendez-vous peut être retardé ou reporté."];
-  if (L === "IT") return ["Controlla i dettagli dell’appuntamento tramite il portale ufficiale.", "Se non sei preparato, l’appuntamento potrebbe essere ritardato o spostato."];
-  if (L === "ES") return ["Comprueba los detalles de la cita a través del portal oficial.", "Si no estás preparado, la cita puede retrasarse o reprogramarse."];
-  if (L === "PT") return ["Verifique os detalhes da marcação pelo portal oficial.", "Se não estiver preparado, a marcação pode ser atrasada ou remarcada."];
   return ["Sprawdź szczegóły wizyty przez oficjalny portal.", "Brak przygotowania może opóźnić lub przesunąć wizytę."];
 }
 
@@ -808,6 +738,10 @@ function softenRisksForNormalDocument(risks, lang) {
 function hasHardFraudSignalsForOfficial(text, detectedLinks, institution, matchedSuspiciousLinks, suspiciousPhoneMatches) {
   const hasKnownBad = (matchedSuspiciousLinks || []).length > 0 || (suspiciousPhoneMatches || []).length > 0;
   if (hasKnownBad) return true;
+  try {
+    const impersonation = sbDetectInstitutionImpersonationPatchV1(text, detectedLinks, institution);
+    if (impersonation && impersonation.minimumMedium) return true;
+  } catch {}
   try {
     const sig = sbDetectStrongPhishingV8(text, detectedLinks, institution);
     return !!(sig.hardHigh || (sig.credential && sig.suspiciousLink && (sig.timePressure || sig.accountThreat || sig.financialBrand)));
@@ -964,10 +898,6 @@ function softenConsequencesForAppointment(consequences, lang) {
   if (L === "EN") return ["The appointment may not go ahead if you are not prepared.", "You may need to make a new appointment."];
   if (L === "DE") return ["Der Termin kann ausfallen, wenn Sie nicht vorbereitet sind.", "Möglicherweise müssen Sie einen neuen Termin vereinbaren."];
   if (L === "UA") return ["Візит може не відбутися, якщо ви не підготовані.", "Можливо, доведеться записатися знову."];
-  if (L === "FR") return ["Le rendez-vous peut ne pas avoir lieu si vous n’êtes pas préparé.", "Vous devrez peut-être prendre un nouveau rendez-vous."];
-  if (L === "IT") return ["L’appuntamento potrebbe non svolgersi se non sei preparato.", "Potrebbe essere necessario fissare un nuovo appuntamento."];
-  if (L === "ES") return ["La cita puede no realizarse si no estás preparado.", "Puede ser necesario pedir una nueva cita."];
-  if (L === "PT") return ["A marcação pode não acontecer se não estiver preparado.", "Pode ser necessário marcar uma nova data."];
   return ["Wizyta może się nie odbyć, jeśli nie będziesz przygotowany.", "Może być potrzebne umówienie nowego terminu."];
 }
 
@@ -1432,7 +1362,7 @@ function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
     /(bank|banco|sparkasse|millennium|bcp|ing|rabobank|abn|paypal|creditcard|visa|mastercard|rekening|bankkonto|conta banc[aá]ria)/i.test(t);
 
   const rawSuspiciousLink =
-    /(security|secure|verify|verifica|verification|verifizierung|login|check|account|konto|conta|bank).{0,80}\.(com|net|info|top|xyz|click|site|online|live|app)/i.test(t) ||
+    /(security|secure|verify|verifica|verification|verifizierung|login|check|account|konto|conta|bank|belastingdienst|digid|uwv|toeslagen|direct|betalen|controle).{0,80}\.(com|net|info|top|xyz|click|site|online|live|app)/i.test(t) ||
     /http:\/\/[^\s]+/i.test(t);
 
   let nonOfficialLink = false;
@@ -1464,6 +1394,207 @@ function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
   };
 }
 
+
+/* ============================================================
+   Sense Bridge INSTITUTION IMPERSONATION PATCH v1
+   Small local overlay: known institution + non-official domain
+   should not be calmed down to LOW.
+   ============================================================ */
+
+function sbExtractLinksFromTextPatchV1(text) {
+  const t = String(text || "");
+  const matches = t.match(/(?:https?:\/\/|www\.)[^\s<>()"']+|\b[a-z0-9][a-z0-9-]{1,}\.[a-z]{2,}(?:\/[^\s<>()"']*)?/gi) || [];
+  return matches
+    .map(x => String(x || "").replace(/[.,;:!?\])}]+$/g, "").trim())
+    .filter(Boolean);
+}
+
+function sbHostFromLinkPatchV1(link) {
+  try {
+    let raw = String(link || "").trim();
+    if (!raw) return "";
+    if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+    return new URL(raw).hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function sbOfficialHostPatchV1(institution) {
+  try {
+    const official = String(institution && institution.officialWebsite || "").trim();
+    if (!official) return "";
+    return new URL(official).hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function sbDetectInstitutionImpersonationPatchV1(text, detectedLinks, institution) {
+  const t = String(text || "").toLowerCase();
+  const instName = String(institution && institution.name || "").toLowerCase();
+  const officialHost = sbOfficialHostPatchV1(institution);
+  const confidence = Number(institution && institution.confidence || 0);
+
+  const knownInstitutionText = /(belastingdienst|digid|uwv|toeslagen|ing|rabobank|abn\s*amro|asn\s*bank|postnl|gemeente|ind|svb|duo|cjib|rdw)/i.test(t + " " + instName);
+  const knownInstitution = knownInstitutionText || (!!officialHost && confidence >= 75);
+  if (!knownInstitution) return { minimumMedium:false, high:false, externalLinks:[], suspiciousScore:0 };
+
+  const links = Array.from(new Set([
+    ...(Array.isArray(detectedLinks) ? detectedLinks : []),
+    ...sbExtractLinksFromTextPatchV1(text)
+  ].map(x => String(x || "").trim()).filter(Boolean)));
+
+  const externalLinks = [];
+  for (const link of links) {
+    const host = sbHostFromLinkPatchV1(link);
+    if (!host) continue;
+    if (officialHost && !host.endsWith(officialHost)) externalLinks.push(link);
+    if (!officialHost && /(secure|verify|verificatie|login|direct|betalen|payment|account|update|controle|check)/i.test(host)) externalLinks.push(link);
+  }
+
+  const hasExternal = externalLinks.length > 0;
+  const credential = /(tan|sms[\s-]*(code|kod)|password|passwort|wachtwoord|hasło|login|digid-login|gegevens|dane dostępowe|inloggen|log in)/i.test(t);
+  const timePressure = /(binnen\s*(2|3|6|8|12|24)\s*uur|within\s*(2|3|6|8|12|24)\s*hours|24\s*(h|uur|hours)|direct|onmiddellijk|urgent|dringend|laatste kans|natychmiast)/i.test(t);
+  const accountThreat = /(account|digid|konto|rekening).{0,90}(blok|blocked|geblokkeerd|geschorst|suspend|deactiv|deaktiv|zamknięt|zablok)/i.test(t);
+  const payment = /(betaal|betaling|betalen|pay|payment|iban|rekeningnummer|overmaken|schuld|boete|487|€|eur)/i.test(t);
+  const fakeDomainWords = /(belastingdienst|digid|uwv|toeslagen|ing|rabobank|postnl|direct|secure|verify|verificatie|login|betalen|controle)/i.test(externalLinks.join(" "));
+
+  const suspiciousScore = [hasExternal, credential, timePressure, accountThreat, payment, fakeDomainWords].filter(Boolean).length;
+  const high = hasExternal && (credential || accountThreat || timePressure) && suspiciousScore >= 3;
+  const minimumMedium = hasExternal || high;
+
+  return { minimumMedium, high, externalLinks, suspiciousScore, credential, timePressure, accountThreat, payment, fakeDomainWords };
+}
+
+function sbImpersonationTextsPatchV1(lang, institutionName) {
+  const name = institutionName || "instytucję";
+  const map = {
+    PL: {
+      label: "Wysokie ryzyko podszywania się pod instytucję",
+      summary: `Rozpoznano ${name}, ale wiadomość zawiera link, który nie wygląda jak oficjalna domena tej instytucji. To silny sygnał ostrzegawczy.`,
+      signal: "Rozpoznano instytucję, ale link prowadzi poza oficjalną domenę",
+      step1: "Nie klikaj linku z wiadomości.",
+      step2: "Wejdź ręcznie na oficjalną stronę instytucji.",
+      step3: "Nie podawaj loginu, hasła, kodu SMS ani danych bankowych."
+    },
+    EN: {
+      label: "High institution impersonation risk",
+      summary: `${name} was recognized, but the message contains a link that does not look like the official domain of this institution. This is a strong warning sign.`,
+      signal: "The institution was recognized, but the link leads outside the official domain",
+      step1: "Do not click the link in the message.",
+      step2: "Open the official website of the institution manually.",
+      step3: "Do not share login, password, SMS code or banking details."
+    },
+    NL: {
+      label: "Hoog risico op imitatie van een officiële instantie",
+      summary: `${name} is herkend, maar het bericht bevat een link die niet lijkt op het officiële domein van deze instantie. Dit is een sterk waarschuwingssignaal.`,
+      signal: "De instantie is herkend, maar de link leidt buiten het officiële domein",
+      step1: "Klik niet op de link in het bericht.",
+      step2: "Open de officiële website van de instantie handmatig.",
+      step3: "Deel geen login, wachtwoord, sms-code of bankgegevens."
+    },
+    DE: {
+      label: "Hohes Risiko der Nachahmung einer Institution",
+      summary: `${name} wurde erkannt, aber die Nachricht enthält einen Link, der nicht wie die offizielle Domain dieser Institution aussieht. Das ist ein starkes Warnsignal.`,
+      signal: "Die Institution wurde erkannt, aber der Link führt außerhalb der offiziellen Domain",
+      step1: "Klicken Sie nicht auf den Link in der Nachricht.",
+      step2: "Öffnen Sie die offizielle Website der Institution manuell.",
+      step3: "Geben Sie keine Login-, Passwort-, SMS-Code- oder Bankdaten weiter."
+    },
+    FR: {
+      label: "Risque élevé d’usurpation d’institution",
+      summary: `${name} a été reconnue, mais le message contient un lien qui ne semble pas appartenir au domaine officiel de cette institution. C’est un signal d’alerte fort.`,
+      signal: "L’institution a été reconnue, mais le lien mène en dehors du domaine officiel",
+      step1: "Ne cliquez pas sur le lien du message.",
+      step2: "Ouvrez manuellement le site officiel de l’institution.",
+      step3: "Ne partagez pas vos identifiants, mots de passe, codes SMS ou données bancaires."
+    },
+    IT: {
+      label: "Alto rischio di impersonificazione dell’istituzione",
+      summary: `${name} è stata riconosciuta, ma il messaggio contiene un link che non sembra appartenere al dominio ufficiale dell’istituzione. È un forte segnale di allarme.`,
+      signal: "L’istituzione è stata riconosciuta, ma il link porta fuori dal dominio ufficiale",
+      step1: "Non cliccare sul link nel messaggio.",
+      step2: "Apri manualmente il sito ufficiale dell’istituzione.",
+      step3: "Non condividere login, password, codice SMS o dati bancari."
+    },
+    ES: {
+      label: "Alto riesgo de suplantación de institución",
+      summary: `Se reconoció ${name}, pero el mensaje contiene un enlace que no parece pertenecer al dominio oficial de esta institución. Es una señal de alerta fuerte.`,
+      signal: "Se reconoció la institución, pero el enlace lleva fuera del dominio oficial",
+      step1: "No hagas clic en el enlace del mensaje.",
+      step2: "Abre manualmente el sitio oficial de la institución.",
+      step3: "No compartas usuario, contraseña, código SMS ni datos bancarios."
+    },
+    PT: {
+      label: "Alto risco de falsificação de instituição",
+      summary: `${name} foi reconhecida, mas a mensagem contém um link que não parece pertencer ao domínio oficial desta instituição. Isto é um forte sinal de alerta.`,
+      signal: "A instituição foi reconhecida, mas o link leva para fora do domínio oficial",
+      step1: "Não clique no link da mensagem.",
+      step2: "Abra manualmente o site oficial da instituição.",
+      step3: "Não partilhe login, palavra-passe, código SMS ou dados bancários."
+    },
+    UA: {
+      label: "Високий ризик підробки установи",
+      summary: `${name} розпізнано, але повідомлення містить посилання, яке не схоже на офіційний домен цієї установи. Це сильний сигнал небезпеки.`,
+      signal: "Установу розпізнано, але посилання веде поза офіційним доменом",
+      step1: "Не натискайте посилання в повідомленні.",
+      step2: "Відкрийте офіційний сайт установи вручну.",
+      step3: "Не передавайте логін, пароль, SMS-код або банківські дані."
+    }
+  };
+  const L = (lang || "PL").toUpperCase();
+  return map[L] || map.PL;
+}
+
+function sbApplyInstitutionImpersonationPatchV1(ctx) {
+  if (!ctx || !ctx.fraudRisk) return ctx;
+  const imp = sbDetectInstitutionImpersonationPatchV1(ctx.text, ctx.detectedLinks, ctx.institution);
+  if (!imp.minimumMedium) return ctx;
+
+  const institutionName = ctx.institution && ctx.institution.name ? ctx.institution.name : "institution";
+  const labels = sbImpersonationTextsPatchV1(ctx.userLang, institutionName);
+
+  if (imp.high) {
+    ctx.fraudRisk.level = "HIGH";
+    ctx.fraudRisk.confidence = Math.max(Number(ctx.fraudRisk.confidence || 0), 88);
+    ctx.fraudRisk.label = labels.label;
+    ctx.fraudRisk.summary = labels.summary;
+    if (ctx.urgency !== "HIGH") ctx.urgency = "HIGH";
+  } else if (ctx.fraudRisk.level !== "HIGH") {
+    ctx.fraudRisk.level = "MEDIUM";
+    ctx.fraudRisk.confidence = Math.max(Number(ctx.fraudRisk.confidence || 0), 76);
+    ctx.fraudRisk.label = ctx.fraudRisk.label || labels.label;
+    ctx.fraudRisk.summary = ctx.fraudRisk.summary || labels.summary;
+  }
+
+  ctx.fraudRisk.signals = Array.from(new Set([
+    ...(Array.isArray(ctx.fraudRisk.signals) ? ctx.fraudRisk.signals : []),
+    labels.signal
+  ])).slice(0, 8);
+
+  ctx.fraudRisk.suspiciousElements = Array.from(new Set([
+    ...(Array.isArray(ctx.fraudRisk.suspiciousElements) ? ctx.fraudRisk.suspiciousElements : []),
+    ...imp.externalLinks,
+    labels.signal
+  ])).slice(0, 8);
+
+  ctx.fraudRisk.safeSteps = Array.from(new Set([
+    labels.step1,
+    labels.step2,
+    labels.step3,
+    ...(Array.isArray(ctx.fraudRisk.safeSteps) ? ctx.fraudRisk.safeSteps : [])
+  ])).slice(0, 8);
+
+  if (Array.isArray(ctx.risks)) {
+    ctx.risks = Array.from(new Set([labels.step1, labels.step2, labels.step3, ...ctx.risks])).slice(0, 8);
+  }
+  if (Array.isArray(ctx.help)) {
+    ctx.help = Array.from(new Set([labels.step2, ...ctx.help])).slice(0, 8);
+  }
+  return ctx;
+}
+
 function sbApplyFraudLogicSyncV8(ctx) {
   const {
     text,
@@ -1487,9 +1618,9 @@ function sbApplyFraudLogicSyncV8(ctx) {
     const signals = Array.isArray(fraudRisk.signals) ? fraudRisk.signals : [];
     const extraSignals = [];
     if (sig.credential) extraSignals.push(labels.risk2);
-    if (sig.timePressure) extraSignals.push(timePressureSignalText(userLang));
+    if (sig.timePressure) extraSignals.push("Presja czasu / time pressure / urgência.");
     if (sig.suspiciousLink) extraSignals.push(labels.risk1);
-    if (sig.accountThreat) extraSignals.push(accountThreatSignalText(userLang));
+    if (sig.accountThreat) extraSignals.push("Groźba blokady lub utraty dostępu / account suspension threat.");
 
     fraudRisk.signals = Array.from(new Set([...signals, ...extraSignals])).slice(0, 8);
 
@@ -1505,7 +1636,7 @@ function sbApplyFraudLogicSyncV8(ctx) {
     const suspiciousExtra = [];
     if (sig.credential) suspiciousExtra.push(labels.risk2);
     if (sig.suspiciousLink) suspiciousExtra.push(labels.risk1);
-    if (sig.timePressure) suspiciousExtra.push(timePressureSuspiciousText(userLang));
+    if (sig.timePressure) suspiciousExtra.push("Presja czasu / pilna weryfikacja.");
     fraudRisk.suspiciousElements = Array.from(new Set([...suspicious, ...suspiciousExtra])).slice(0, 8);
 
     if (Array.isArray(ctx.risks)) {
@@ -1539,3 +1670,110 @@ function sbApplyFraudLogicSyncV8(ctx) {
   return ctx;
 }
 
+/* ============================================================
+   Sense Bridge GLOBAL INSTITUTION RECOGNITION v2
+   Local patch only. Does not change existing fraud logic.
+   ============================================================ */
+
+function applyGlobalInstitutionRecognitionV2(institution, text, detectedLinks) {
+  if (!institution) return;
+
+  const t = String(text || "").toLowerCase();
+  const links = Array.isArray(detectedLinks) ? detectedLinks : [];
+  const extracted = typeof sbExtractLinksFromTextPatchV1 === "function"
+    ? sbExtractLinksFromTextPatchV1(text)
+    : [];
+
+  const allLinks = Array.from(new Set([...links, ...extracted].filter(Boolean)));
+
+  function hostFromUrl(url) {
+    try {
+      let raw = String(url || "").trim();
+      if (!raw) return "";
+      if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+      return new URL(raw).hostname.replace(/^www\./i, "").toLowerCase();
+    } catch {
+      return "";
+    }
+  }
+
+  const hosts = allLinks.map(hostFromUrl).filter(Boolean);
+
+  const db = [
+    { name:"IRS", country:"US", website:"https://www.irs.gov", aliases:["irs","internal revenue service"], domains:["irs.gov"] },
+    { name:"USCIS", country:"US", website:"https://www.uscis.gov", aliases:["uscis","u.s. citizenship and immigration services"], domains:["uscis.gov"] },
+    { name:"Social Security Administration", country:"US", website:"https://www.ssa.gov", aliases:["ssa","social security administration"], domains:["ssa.gov"] },
+    { name:"Canada Revenue Agency", country:"CA", website:"https://www.canada.ca/en/revenue-agency.html", aliases:["cra","canada revenue agency","agence du revenu du canada"], domains:["canada.ca"] },
+    { name:"Service Canada", country:"CA", website:"https://www.canada.ca/en/employment-social-development/corporate/portfolio/service-canada.html", aliases:["service canada"], domains:["canada.ca"] },
+
+    { name:"Belastingdienst", country:"NL", website:"https://www.belastingdienst.nl", aliases:["belastingdienst"], domains:["belastingdienst.nl"] },
+    { name:"DigiD", country:"NL", website:"https://www.digid.nl", aliases:["digid"], domains:["digid.nl"] },
+    { name:"UWV", country:"NL", website:"https://www.uwv.nl", aliases:["uwv"], domains:["uwv.nl"] },
+    { name:"IND", country:"NL", website:"https://www.ind.nl", aliases:["ind","immigratie- en naturalisatiedienst"], domains:["ind.nl"] },
+
+    { name:"Service Public", country:"FR", website:"https://www.service-public.fr", aliases:["service-public","service public"], domains:["service-public.fr"] },
+    { name:"Impots.gouv.fr", country:"FR", website:"https://www.impots.gouv.fr", aliases:["impots","impôts","direction générale des finances publiques"], domains:["impots.gouv.fr"] },
+    { name:"Ameli", country:"FR", website:"https://www.ameli.fr", aliases:["ameli","assurance maladie"], domains:["ameli.fr"] },
+
+    { name:"Finanzamt", country:"DE", website:"https://www.elster.de", aliases:["finanzamt","elster"], domains:["elster.de"] },
+    { name:"Bundesagentur für Arbeit", country:"DE", website:"https://www.arbeitsagentur.de", aliases:["bundesagentur für arbeit","arbeitsagentur"], domains:["arbeitsagentur.de"] },
+    { name:"Deutsche Rentenversicherung", country:"DE", website:"https://www.deutsche-rentenversicherung.de", aliases:["deutsche rentenversicherung"], domains:["deutsche-rentenversicherung.de"] },
+
+    { name:"FinanzOnline", country:"AT", website:"https://finanzonline.bmf.gv.at", aliases:["finanzonline","bmf österreich","finanzamt österreich"], domains:["finanzonline.bmf.gv.at","bmf.gv.at"] },
+    { name:"Oesterreich.gv.at", country:"AT", website:"https://www.oesterreich.gv.at", aliases:["oesterreich.gv.at","österreich.gv.at"], domains:["oesterreich.gv.at"] },
+
+    { name:"Belgium.be", country:"BE", website:"https://www.belgium.be", aliases:["belgium.be","belgique.be"], domains:["belgium.be"] },
+    { name:"FOD Financiën", country:"BE", website:"https://financien.belgium.be", aliases:["fod financiën","spf finances","myminfin"], domains:["financien.belgium.be","myminfin.be"] },
+
+    { name:"Agencia Tributaria", country:"ES", website:"https://sede.agenciatributaria.gob.es", aliases:["agencia tributaria","aeat"], domains:["agenciatributaria.gob.es"] },
+    { name:"Seguridad Social", country:"ES", website:"https://www.seg-social.es", aliases:["seguridad social"], domains:["seg-social.es"] },
+
+    { name:"Finanças", country:"PT", website:"https://www.portaldasfinancas.gov.pt", aliases:["finanças","portal das finanças","autoridade tributária"], domains:["portaldasfinancas.gov.pt"] },
+    { name:"Segurança Social", country:"PT", website:"https://www.seg-social.pt", aliases:["segurança social"], domains:["seg-social.pt"] },
+
+    { name:"Agenzia delle Entrate", country:"IT", website:"https://www.agenziaentrate.gov.it", aliases:["agenzia delle entrate"], domains:["agenziaentrate.gov.it"] },
+    { name:"INPS", country:"IT", website:"https://www.inps.it", aliases:["inps"], domains:["inps.it"] },
+
+    { name:"GOV.UK", country:"UK", website:"https://www.gov.uk", aliases:["gov.uk","hmrc","home office"], domains:["gov.uk"] },
+    { name:"Revenue Ireland", country:"IE", website:"https://www.revenue.ie", aliases:["revenue ireland"], domains:["revenue.ie"] },
+
+    { name:"Australian Government", country:"AU", website:"https://www.gov.au", aliases:["mygov","australian government"], domains:["my.gov.au","gov.au"] },
+    { name:"New Zealand Government", country:"NZ", website:"https://www.govt.nz", aliases:["govt.nz","new zealand government"], domains:["govt.nz"] },
+
+    { name:"Diia", country:"UA", website:"https://diia.gov.ua", aliases:["diia","дія"], domains:["diia.gov.ua"] },
+    { name:"Gov.pl", country:"PL", website:"https://www.gov.pl", aliases:["gov.pl","ministerstwo","urząd skarbowy","zus"], domains:["gov.pl","zus.pl","podatki.gov.pl"] }
+  ];
+
+  let best = null;
+
+  for (const item of db) {
+    const aliasMatch = item.aliases.some(a => t.includes(String(a).toLowerCase()));
+    const domainMatch = hosts.some(h =>
+      item.domains.some(d => h === d || h.endsWith("." + d))
+    );
+
+    if (!aliasMatch && !domainMatch) continue;
+
+    const confidence = domainMatch ? 94 : 86;
+
+    if (!best || confidence > best.confidence) {
+      best = {
+        name: item.name,
+        country: item.country,
+        officialWebsite: item.website,
+        confidence
+      };
+    }
+  }
+
+  if (!best) return;
+
+  const currentConfidence = Number(institution.confidence || 0);
+
+  if (!institution.name || currentConfidence < best.confidence) {
+    institution.name = best.name;
+    institution.country = best.country;
+    institution.officialWebsite = best.officialWebsite;
+    institution.confidence = best.confidence;
+  }
+    }
