@@ -571,6 +571,8 @@ detectedPhones,
 
     forceUserLanguageNormalizationV2(payload, userLang);
 
+    sbDedupePayloadArraysV1(payload);
+
     return json(200, headers, payload);
   } catch (err) {
     return json(500, corsHeaders(), { ok: false, error: String(err?.message || err) });
@@ -2750,6 +2752,91 @@ function sbGlobalScamTextsV1(lang, categoryLabel) {
   out.signals = signalMaps[L] || signalMaps.PL;
   out.rawHits = rawHitTranslations[L] || rawHitTranslations.PL;
   return out;
+}
+
+
+/* ============================================================
+   Sense Bridge OUTPUT DEDUPE v1
+   Output cleanup only. It removes repeated links/text from arrays
+   after all detection and language-normalization layers are done.
+   ============================================================ */
+
+function sbDedupePayloadArraysV1(payload) {
+  if (!payload || typeof payload !== "object") return payload;
+
+  function normalizeItem(value) {
+    let s = String(value || "").trim();
+    if (!s) return "";
+
+    // Normalize URLs so the same link is not shown twice only because
+    // of protocol, www, trailing slash, or sentence punctuation.
+    const urlMatch = s.match(/https?:\/\/[^\s<>()"']+|www\.[^\s<>()"']+|\b[a-z0-9][a-z0-9-]{1,}\.[a-z]{2,}(?:\/[^\s<>()"']*)?/i);
+    if (urlMatch) {
+      let raw = urlMatch[0].replace(/[.,;:!?\])}]+$/g, "").trim();
+      try {
+        if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+        const u = new URL(raw);
+        let host = u.hostname.replace(/^www\./i, "").toLowerCase();
+        let path = u.pathname.replace(/\/+$/g, "");
+        return "url:" + host + path + (u.search || "");
+      } catch {
+        return "url:" + raw.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/g, "");
+      }
+    }
+
+    return "text:" + s
+      .toLowerCase()
+      .normalize("NFKC")
+      .replace(/\s+/g, " ")
+      .replace(/[.,;:!?]+$/g, "")
+      .trim();
+  }
+
+  function dedupeArray(value) {
+    if (!Array.isArray(value)) return value;
+    const seen = new Set();
+    const out = [];
+    for (const item of value) {
+      if (item === null || item === undefined) continue;
+      const key = normalizeItem(item);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      out.push(item);
+    }
+    return out;
+  }
+
+  const topArrays = [
+    "detectedLinks",
+    "suspiciousLinks",
+    "suspiciousPhoneMatches",
+    "detectedPhones",
+    "risks",
+    "riskList",
+    "riskChips",
+    "consequences",
+    "help",
+    "actions",
+    "nextSteps"
+  ];
+
+  for (const key of topArrays) {
+    payload[key] = dedupeArray(payload[key]);
+  }
+
+  if (payload.fraudRisk && typeof payload.fraudRisk === "object") {
+    payload.fraudRisk.signals = dedupeArray(payload.fraudRisk.signals);
+    payload.fraudRisk.suspiciousElements = dedupeArray(payload.fraudRisk.suspiciousElements);
+    payload.fraudRisk.safeSteps = dedupeArray(payload.fraudRisk.safeSteps);
+  }
+
+  // Keep mirrored fields consistent for the UI.
+  payload.riskList = Array.isArray(payload.risks) ? [...payload.risks] : payload.riskList;
+  payload.riskChips = Array.isArray(payload.risks) ? [...payload.risks] : payload.riskChips;
+  payload.scamRisk = payload.fraudRisk || payload.scamRisk;
+  payload.authenticityRisk = payload.fraudRisk || payload.authenticityRisk;
+
+  return payload;
 }
 
 /* ============================================================
