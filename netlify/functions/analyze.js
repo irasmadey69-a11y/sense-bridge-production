@@ -460,6 +460,27 @@ if (sbGlobalHighGuardV1) {
   legalHelpFinal = sbGlobalHighGuardV1.legalHelpFinal || legalHelpFinal;
 }
 
+const sbGlobalScamLayerV1 = sbApplyGlobalScamLayerV1({
+  text,
+  userLang,
+  fraudRisk,
+  institution,
+  detectedLinks,
+  suspiciousLinks,
+  risks,
+  consequences,
+  help,
+  urgency,
+  legalHelpFinal
+});
+if (sbGlobalScamLayerV1) {
+  risks = sbGlobalScamLayerV1.risks || risks;
+  consequences = sbGlobalScamLayerV1.consequences || consequences;
+  help = sbGlobalScamLayerV1.help || help;
+  urgency = sbGlobalScamLayerV1.urgency || urgency;
+  legalHelpFinal = sbGlobalScamLayerV1.legalHelpFinal || legalHelpFinal;
+}
+
 calmOfficialFraudRiskAfterSync({
   fraudRisk,
   institution,
@@ -2138,6 +2159,597 @@ function forceUserLanguageNormalizationV2(payload, userLang) {
   payload.authenticityRisk = payload.fraudRisk || payload.authenticityRisk;
 
   return payload;
+}
+
+
+/* ============================================================
+   Sense Bridge GLOBAL SCAM LAYER v1
+   Extra scam overlay for couriers, marketplaces, PayPal/Revolut/Wise,
+   crypto and QR scams. It only raises clear scam cases; it does not
+   weaken official institution logic.
+   ============================================================ */
+
+function sbApplyGlobalScamLayerV1(ctx) {
+  if (!ctx || !ctx.fraudRisk) return ctx;
+
+  const detection = sbDetectGlobalScamLayerV1(ctx.text, ctx.detectedLinks, ctx.suspiciousLinks);
+  if (!detection || detection.score < 2) return ctx;
+
+  const labels = sbGlobalScamTextsV1(ctx.userLang, detection.categoryLabel);
+  const currentLevel = String(ctx.fraudRisk.level || "UNKNOWN").toUpperCase();
+
+  const shouldHigh = detection.high || detection.score >= 5;
+  const shouldMedium = detection.medium || detection.score >= 3;
+
+  if (shouldHigh) {
+    ctx.fraudRisk.level = "HIGH";
+    ctx.fraudRisk.confidence = Math.max(Number(ctx.fraudRisk.confidence || 0), detection.confidenceHigh);
+    ctx.fraudRisk.label = labels.highLabel;
+    ctx.fraudRisk.summary = labels.highSummary;
+    ctx.urgency = "HIGH";
+  } else if (shouldMedium && currentLevel !== "HIGH") {
+    ctx.fraudRisk.level = "MEDIUM";
+    ctx.fraudRisk.confidence = Math.max(Number(ctx.fraudRisk.confidence || 0), detection.confidenceMedium);
+    ctx.fraudRisk.label = ctx.fraudRisk.label || labels.mediumLabel;
+    ctx.fraudRisk.summary = ctx.fraudRisk.summary || labels.mediumSummary;
+    if (!ctx.urgency || ctx.urgency === "UNKNOWN" || ctx.urgency === "LOW") ctx.urgency = "MEDIUM";
+  } else {
+    return ctx;
+  }
+
+  ctx.fraudRisk.signals = Array.from(new Set([
+    ...(Array.isArray(ctx.fraudRisk.signals) ? ctx.fraudRisk.signals : []),
+    ...detection.signals.map(k => labels.signals[k] || k)
+  ])).slice(0, 10);
+
+  const suspiciousElements = [
+    ...detection.links,
+    ...detection.suspiciousDomains,
+    ...detection.rawHits.map(x => labels.rawHitPrefix + ((labels.rawHits && labels.rawHits[x]) ? labels.rawHits[x] : x))
+  ].filter(Boolean);
+
+  ctx.fraudRisk.suspiciousElements = Array.from(new Set([
+    ...(Array.isArray(ctx.fraudRisk.suspiciousElements) ? ctx.fraudRisk.suspiciousElements : []),
+    ...suspiciousElements
+  ])).slice(0, 10);
+
+  ctx.fraudRisk.safeSteps = Array.from(new Set([
+    labels.step1,
+    labels.step2,
+    labels.step3,
+    labels.step4,
+    ...(Array.isArray(ctx.fraudRisk.safeSteps) ? ctx.fraudRisk.safeSteps : [])
+  ])).slice(0, 10);
+
+  if (Array.isArray(ctx.risks)) {
+    ctx.risks = Array.from(new Set([
+      labels.risk1,
+      labels.risk2,
+      labels.risk3,
+      ...ctx.risks
+    ])).slice(0, 10);
+  }
+
+  if (Array.isArray(ctx.consequences)) {
+    ctx.consequences = Array.from(new Set([
+      labels.consequence1,
+      labels.consequence2,
+      ...ctx.consequences
+    ])).slice(0, 8);
+  }
+
+  if (Array.isArray(ctx.help)) {
+    ctx.help = Array.from(new Set([
+      labels.help1,
+      labels.help2,
+      ...ctx.help
+    ])).slice(0, 8);
+  }
+
+  // Scam/phishing is usually not a legal-help emergency by itself.
+  if (ctx.legalHelpFinal === "URGENT" && !/court|rechtbank|sąd|komornik|deurwaarder|debt|incasso|egzekuc|deport/i.test(String(ctx.text || ""))) {
+    ctx.legalHelpFinal = "RECOMMENDED";
+  }
+
+  return ctx;
+}
+
+function sbDetectGlobalScamLayerV1(text, detectedLinks, suspiciousLinks) {
+  const t = String(text || "").toLowerCase();
+  const links = Array.from(new Set([
+    ...(Array.isArray(detectedLinks) ? detectedLinks : []),
+    ...(Array.isArray(suspiciousLinks) ? suspiciousLinks : []),
+    ...(typeof sbExtractLinksFromTextPatchV1 === "function" ? sbExtractLinksFromTextPatchV1(text) : [])
+  ].map(x => String(x || "").trim()).filter(Boolean)));
+
+  const hosts = links.map(sbHostFromGlobalScamV1).filter(Boolean);
+  const joinedHosts = hosts.join(" ");
+
+  const courierBrands = /(\bdhl\b|\bups\b|\bdpd\b|\bgls\b|\bfedex\b|\binpost\b|postnl|hermes|mondial\s*relay|colissimo|bpost|royal\s*mail|evri|correos|ctt|poste\s*italiane|packeta|paczkomat)/i;
+  const marketplaceBrands = /(facebook\s*marketplace|marktplaats|\bolx\b|vinted|\bebay\b|gumtree|leboncoin|subito|kleinanzeigen|2dehands|wallapop|etsy|airbnb|booking\.com)/i;
+  const paymentBrands = /(paypal|revolut|wise|payoneer|klarna|tikkie|ideal|bancontact|mb\s*way|skrill|western\s*union|moneygram)/i;
+  const cryptoBrands = /(bitcoin|\bbtc\b|ethereum|\beth\b|crypto|krypto|wallet|seed\s*phrase|recovery\s*phrase|metamask|binance|coinbase|trust\s*wallet|usdt|tether|blockchain)/i;
+  const qrWords = /(qr\s*code|qr-code|qr code|kod\s*qr|qr-kod|scan\s*(deze|this|ten)?\s*qr|scan.*qr|zeskanuj.*qr|escanea.*qr|scansiona.*qr|scannez.*qr)/i;
+
+  const courierContext = courierBrands.test(t);
+  const marketplaceContext = marketplaceBrands.test(t);
+  const paymentContext = paymentBrands.test(t);
+  const cryptoContext = cryptoBrands.test(t);
+  const qrContext = qrWords.test(t);
+
+  if (!courierContext && !marketplaceContext && !paymentContext && !cryptoContext && !qrContext) {
+    return { score:0, high:false, medium:false, links:[], suspiciousDomains:[], signals:[], rawHits:[], categoryLabel:"" };
+  }
+
+  const loginSignal = /(login|log\s*in|inloggen|wachtwoord|password|passwort|hasło|contraseñ|senha|palavra[-\s]?passe|sms\s*code|tan|2fa|verification\s*code|verificatiecode|kod\s*sms|c[oó]digo)/i.test(t);
+  const paymentSignal = /(pay|payment|betaling|betaal|betalen|płatno|zapłać|overmaken|iban|bankrekening|rekeningnummer|fee|kosten|douane|customs|import\s*fee|verzendkosten|delivery\s*fee|shipping\s*fee|verzeker|insurance)/i.test(t);
+  const urgencySignal = /(urgent|dringend|pilne|natychmiast|immediately|direct|onmiddellijk|laatste\s*kans|last\s*chance|binnen\s*24\s*uur|within\s*24\s*hours|24\s*h|vandaag|today|heute|oggi|hoy)/i.test(t);
+  const offPlatformSignal = /(whatsapp|telegram|signal|outside\s*(the\s*)?platform|buiten\s*(het\s*)?platform|poza\s*platform|hors\s*plateforme|fuera\s*de\s*la\s*plataforma|prywatny\s*kurier|private\s*courier)/i.test(t);
+  const overpaySignal = /(overpayment|overpaid|teveel\s*betaald|za\s*dużo\s*zapłac|refund|terugbetaling|zwrot|remboursement|rimborso|reembolso|buyer\s*protection|kopersbescherming|seller\s*protection)/i.test(t);
+  const cryptoSeedSignal = /(seed\s*phrase|recovery\s*phrase|private\s*key|secret\s*key|mnemonic|phrase\s*de\s*récupération|frase\s*secreta|klucz\s*prywatny)/i.test(t);
+  const fakePrizeSignal = /(lottery|prize|winning|won\s+€|wygrałeś|prijs|gewonnen|premio|cadeaukaart|gift\s*card)/i.test(t);
+
+  const suspiciousDomainWords = /(track|tracking|parcel|delivery|secure|verify|verification|login|account|payment|pay|wallet|support|claim|confirm|update|release|buyer|seller|escrow|protect|qr)/i;
+  const officialBrandHosts = sbGlobalScamOfficialHostsV1();
+
+  const suspiciousDomains = hosts.filter(host => {
+    const officialMatch = officialBrandHosts.some(official => host === official || host.endsWith("." + official));
+    if (officialMatch) return false;
+    const hasBrandInHost = /(dhl|ups|dpd|gls|fedex|inpost|postnl|paypal|revolut|wise|marktplaats|olx|vinted|ebay|facebook|binance|coinbase|metamask)/i.test(host);
+    const hasSuspiciousWords = suspiciousDomainWords.test(host);
+    const shortener = /(^|\.)(bit\.ly|tinyurl\.com|t\.co|cutt\.ly|rebrand\.ly|is\.gd|ow\.ly|shorturl\.at|lnkd\.in)$/i.test(host);
+    return hasBrandInHost || hasSuspiciousWords || shortener;
+  });
+
+  const rawHits = [];
+  if (courierContext) rawHits.push("courier");
+  if (marketplaceContext) rawHits.push("marketplace");
+  if (paymentContext) rawHits.push("payment");
+  if (cryptoContext) rawHits.push("crypto");
+  if (qrContext) rawHits.push("qr");
+
+  const signals = [];
+  let score = 0;
+
+  function add(cond, points, key) {
+    if (!cond) return;
+    score += points;
+    if (key) signals.push(key);
+  }
+
+  add(courierContext || marketplaceContext || paymentContext || cryptoContext || qrContext, 1, "knownScamContext");
+  add(suspiciousDomains.length > 0, 2, "suspiciousDomain");
+  add(loginSignal, 2, "loginOrCodeRequest");
+  add(paymentSignal, 2, "paymentRequest");
+  add(urgencySignal, 1, "timePressure");
+  add(offPlatformSignal, 2, "offPlatformContact");
+  add(overpaySignal, 2, "refundOrOverpayment");
+  add(cryptoSeedSignal, 4, "seedPhraseRequest");
+  add(fakePrizeSignal, 2, "prizeOrGiftCard");
+  add(qrContext && (paymentSignal || loginSignal), 2, "qrPaymentOrLogin");
+
+  const high =
+    cryptoSeedSignal ||
+    (score >= 6) ||
+    ((courierContext || marketplaceContext || paymentContext) && suspiciousDomains.length > 0 && (loginSignal || paymentSignal || urgencySignal)) ||
+    (qrContext && (paymentSignal || loginSignal) && (suspiciousDomains.length > 0 || urgencySignal));
+
+  const medium = score >= 3 || suspiciousDomains.length > 0 || (qrContext && (paymentSignal || loginSignal));
+
+  let categoryLabel = "online scam";
+  if (courierContext) categoryLabel = "courier scam";
+  if (marketplaceContext) categoryLabel = "marketplace scam";
+  if (paymentContext) categoryLabel = "payment scam";
+  if (cryptoContext) categoryLabel = "crypto scam";
+  if (qrContext) categoryLabel = "QR scam";
+
+  return {
+    score,
+    high,
+    medium,
+    confidenceHigh: Math.min(94, 82 + Math.min(12, score * 2)),
+    confidenceMedium: Math.min(84, 68 + Math.min(14, score * 2)),
+    links,
+    suspiciousDomains,
+    signals: Array.from(new Set(signals)),
+    rawHits: Array.from(new Set(rawHits)),
+    categoryLabel
+  };
+}
+
+function sbHostFromGlobalScamV1(link) {
+  try {
+    let raw = String(link || "").trim();
+    if (!raw) return "";
+    if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+    return new URL(raw).hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function sbGlobalScamOfficialHostsV1() {
+  return [
+    "dhl.com", "dhl.de", "dpd.com", "dpd.nl", "gls-group.eu", "gls-netherlands.com",
+    "ups.com", "fedex.com", "inpost.pl", "inpost.nl", "postnl.nl", "hermesworld.com",
+    "paypal.com", "revolut.com", "wise.com", "klarna.com", "tikkie.me", "ideal.nl",
+    "facebook.com", "marktplaats.nl", "olx.pl", "olx.ua", "vinted.nl", "vinted.pl", "vinted.com",
+    "ebay.com", "ebay.nl", "ebay.de", "coinbase.com", "binance.com", "metamask.io"
+  ];
+}
+
+function sbGlobalScamTextsV1(lang, categoryLabel) {
+  const L = String(lang || "PL").toUpperCase();
+
+  const categoryMap = {
+    PL: {
+      "courier scam": "oszustwa kurierskiego",
+      "marketplace scam": "oszustwa na platformie sprzedażowej",
+      "payment scam": "oszustwa płatniczego",
+      "crypto scam": "oszustwa kryptowalutowego",
+      "QR scam": "oszustwa przez kod QR",
+      "online scam": "oszustwa internetowego"
+    },
+    EN: {
+      "courier scam": "courier scam",
+      "marketplace scam": "marketplace scam",
+      "payment scam": "payment scam",
+      "crypto scam": "crypto scam",
+      "QR scam": "QR scam",
+      "online scam": "online scam"
+    },
+    NL: {
+      "courier scam": "pakketbezorgingsfraude",
+      "marketplace scam": "marktplaatsfraude",
+      "payment scam": "betaalfraude",
+      "crypto scam": "cryptofraude",
+      "QR scam": "QR-codefraude",
+      "online scam": "online fraude"
+    },
+    DE: {
+      "courier scam": "Paketdienst-Betrug",
+      "marketplace scam": "Marktplatz-Betrug",
+      "payment scam": "Zahlungsbetrug",
+      "crypto scam": "Krypto-Betrug",
+      "QR scam": "QR-Code-Betrug",
+      "online scam": "Online-Betrug"
+    },
+    FR: {
+      "courier scam": "arnaque au colis",
+      "marketplace scam": "arnaque sur plateforme de vente",
+      "payment scam": "arnaque au paiement",
+      "crypto scam": "arnaque aux cryptomonnaies",
+      "QR scam": "arnaque au QR code",
+      "online scam": "arnaque en ligne"
+    },
+    IT: {
+      "courier scam": "truffa di consegna pacchi",
+      "marketplace scam": "truffa su piattaforma di vendita",
+      "payment scam": "truffa di pagamento",
+      "crypto scam": "truffa crypto",
+      "QR scam": "truffa tramite codice QR",
+      "online scam": "truffa online"
+    },
+    ES: {
+      "courier scam": "estafa de paquetería",
+      "marketplace scam": "estafa en plataforma de compraventa",
+      "payment scam": "estafa de pago",
+      "crypto scam": "estafa con criptomonedas",
+      "QR scam": "estafa mediante código QR",
+      "online scam": "estafa online"
+    },
+    PT: {
+      "courier scam": "burla de encomendas",
+      "marketplace scam": "burla em plataforma de compra e venda",
+      "payment scam": "burla de pagamento",
+      "crypto scam": "burla com criptomoedas",
+      "QR scam": "burla por código QR",
+      "online scam": "burla online"
+    },
+    UA: {
+      "courier scam": "шахрайство з доставкою",
+      "marketplace scam": "шахрайство на торговельній платформі",
+      "payment scam": "платіжне шахрайство",
+      "crypto scam": "криптошахрайство",
+      "QR scam": "шахрайство через QR-код",
+      "online scam": "онлайн-шахрайство"
+    }
+  };
+
+  const cat = (categoryMap[L] || categoryMap.PL)[categoryLabel] || (categoryMap[L] || categoryMap.PL)["online scam"];
+
+  const signalMaps = {
+    PL: {
+      knownScamContext: "Rozpoznano kontekst częsty w oszustwach online.",
+      suspiciousDomain: "Link lub domena wygląda nietypowo.",
+      loginOrCodeRequest: "Wiadomość prosi o login, hasło albo kod weryfikacyjny.",
+      paymentRequest: "Wiadomość prosi o płatność lub dane płatnicze.",
+      timePressure: "Wiadomość używa presji czasu.",
+      offPlatformContact: "Wiadomość sugeruje kontakt lub płatność poza platformą.",
+      refundOrOverpayment: "Pojawia się motyw zwrotu, nadpłaty albo ochrony kupującego.",
+      seedPhraseRequest: "Prośba o seed phrase / private key to bardzo silny sygnał oszustwa.",
+      prizeOrGiftCard: "Pojawia się motyw nagrody, wygranej albo karty podarunkowej.",
+      qrPaymentOrLogin: "Kod QR jest połączony z płatnością lub logowaniem."
+    },
+    EN: {
+      knownScamContext: "A context often used in online scams was detected.",
+      suspiciousDomain: "The link or domain looks unusual.",
+      loginOrCodeRequest: "The message asks for a login, password or verification code.",
+      paymentRequest: "The message asks for payment or payment details.",
+      timePressure: "The message uses time pressure.",
+      offPlatformContact: "The message suggests contact or payment outside the platform.",
+      refundOrOverpayment: "It mentions a refund, overpayment or buyer protection.",
+      seedPhraseRequest: "A request for a seed phrase / private key is a very strong scam signal.",
+      prizeOrGiftCard: "It mentions a prize, winnings or a gift card.",
+      qrPaymentOrLogin: "The QR code is connected with payment or login."
+    },
+    NL: {
+      knownScamContext: "Er is een context herkend die vaak bij online fraude voorkomt.",
+      suspiciousDomain: "De link of domeinnaam ziet er ongebruikelijk uit.",
+      loginOrCodeRequest: "Het bericht vraagt om login, wachtwoord of verificatiecode.",
+      paymentRequest: "Het bericht vraagt om betaling of betaalgegevens.",
+      timePressure: "Het bericht gebruikt tijdsdruk.",
+      offPlatformContact: "Het bericht stelt contact of betaling buiten het platform voor.",
+      refundOrOverpayment: "Er is sprake van terugbetaling, te veel betaald bedrag of kopersbescherming.",
+      seedPhraseRequest: "Een verzoek om seed phrase / private key is een zeer sterk fraudesignaal.",
+      prizeOrGiftCard: "Er is sprake van een prijs, gewonnen bedrag of cadeaubon.",
+      qrPaymentOrLogin: "De QR-code is gekoppeld aan betaling of inloggen."
+    },
+    DE: {
+      knownScamContext: "Ein Kontext, der häufig bei Online-Betrug vorkommt, wurde erkannt.",
+      suspiciousDomain: "Der Link oder die Domain wirkt ungewöhnlich.",
+      loginOrCodeRequest: "Die Nachricht fragt nach Login, Passwort oder Bestätigungscode.",
+      paymentRequest: "Die Nachricht fordert eine Zahlung oder Zahlungsdaten an.",
+      timePressure: "Die Nachricht nutzt Zeitdruck.",
+      offPlatformContact: "Die Nachricht schlägt Kontakt oder Zahlung außerhalb der Plattform vor.",
+      refundOrOverpayment: "Es geht um Rückerstattung, Überzahlung oder Käuferschutz.",
+      seedPhraseRequest: "Eine Anfrage nach Seed Phrase / Private Key ist ein sehr starkes Betrugssignal.",
+      prizeOrGiftCard: "Es wird ein Gewinn, Preis oder eine Geschenkkarte erwähnt.",
+      qrPaymentOrLogin: "Der QR-Code ist mit Zahlung oder Login verbunden."
+    },
+    FR: {
+      knownScamContext: "Un contexte souvent utilisé dans les arnaques en ligne a été détecté.",
+      suspiciousDomain: "Le lien ou le domaine semble inhabituel.",
+      loginOrCodeRequest: "Le message demande un identifiant, un mot de passe ou un code de vérification.",
+      paymentRequest: "Le message demande un paiement ou des données de paiement.",
+      timePressure: "Le message utilise une pression temporelle.",
+      offPlatformContact: "Le message suggère un contact ou un paiement hors plateforme.",
+      refundOrOverpayment: "Il mentionne un remboursement, un trop-payé ou une protection acheteur.",
+      seedPhraseRequest: "Une demande de seed phrase / clé privée est un signal d’arnaque très fort.",
+      prizeOrGiftCard: "Il mentionne un prix, un gain ou une carte cadeau.",
+      qrPaymentOrLogin: "Le code QR est lié à un paiement ou à une connexion."
+    },
+    IT: {
+      knownScamContext: "È stato rilevato un contesto spesso usato nelle truffe online.",
+      suspiciousDomain: "Il link o il dominio sembra insolito.",
+      loginOrCodeRequest: "Il messaggio chiede login, password o codice di verifica.",
+      paymentRequest: "Il messaggio chiede un pagamento o dati di pagamento.",
+      timePressure: "Il messaggio usa pressione temporale.",
+      offPlatformContact: "Il messaggio suggerisce contatto o pagamento fuori dalla piattaforma.",
+      refundOrOverpayment: "Compare un rimborso, un pagamento eccessivo o protezione acquirente.",
+      seedPhraseRequest: "Una richiesta di seed phrase / private key è un segnale di truffa molto forte.",
+      prizeOrGiftCard: "Compare un premio, una vincita o una carta regalo.",
+      qrPaymentOrLogin: "Il codice QR è collegato a pagamento o login."
+    },
+    ES: {
+      knownScamContext: "Se detectó un contexto usado a menudo en estafas online.",
+      suspiciousDomain: "El enlace o dominio parece inusual.",
+      loginOrCodeRequest: "El mensaje pide usuario, contraseña o código de verificación.",
+      paymentRequest: "El mensaje pide un pago o datos de pago.",
+      timePressure: "El mensaje usa presión de tiempo.",
+      offPlatformContact: "El mensaje sugiere contacto o pago fuera de la plataforma.",
+      refundOrOverpayment: "Aparece un motivo de reembolso, sobrepago o protección del comprador.",
+      seedPhraseRequest: "Una solicitud de seed phrase / clave privada es una señal muy fuerte de estafa.",
+      prizeOrGiftCard: "Aparece un premio, ganancia o tarjeta regalo.",
+      qrPaymentOrLogin: "El código QR está conectado con pago o inicio de sesión."
+    },
+    PT: {
+      knownScamContext: "Foi detetado um contexto frequentemente usado em burlas online.",
+      suspiciousDomain: "O link ou domínio parece invulgar.",
+      loginOrCodeRequest: "A mensagem pede login, palavra-passe ou código de verificação.",
+      paymentRequest: "A mensagem pede pagamento ou dados de pagamento.",
+      timePressure: "A mensagem usa pressão de tempo.",
+      offPlatformContact: "A mensagem sugere contacto ou pagamento fora da plataforma.",
+      refundOrOverpayment: "Aparece um motivo de reembolso, pagamento em excesso ou proteção do comprador.",
+      seedPhraseRequest: "Um pedido de seed phrase / chave privada é um sinal muito forte de burla.",
+      prizeOrGiftCard: "Aparece um prémio, ganho ou cartão oferta.",
+      qrPaymentOrLogin: "O código QR está ligado a pagamento ou login."
+    },
+    UA: {
+      knownScamContext: "Виявлено контекст, який часто використовується в онлайн-шахрайстві.",
+      suspiciousDomain: "Посилання або домен виглядає незвично.",
+      loginOrCodeRequest: "Повідомлення просить логін, пароль або код підтвердження.",
+      paymentRequest: "Повідомлення просить оплату або платіжні дані.",
+      timePressure: "Повідомлення використовує тиск часу.",
+      offPlatformContact: "Повідомлення пропонує контакт або оплату поза платформою.",
+      refundOrOverpayment: "Згадується повернення коштів, переплата або захист покупця.",
+      seedPhraseRequest: "Запит seed phrase / private key є дуже сильним сигналом шахрайства.",
+      prizeOrGiftCard: "Згадується приз, виграш або подарункова картка.",
+      qrPaymentOrLogin: "QR-код пов’язаний з оплатою або входом."
+    }
+  };
+
+  const map = {
+    PL: {
+      highLabel: "Wysokie ryzyko oszustwa internetowego",
+      mediumLabel: "Warto zweryfikować wiadomość",
+      highSummary: `Wiadomość zawiera sygnały typowe dla ${cat}: link, płatność, logowanie, kod, presję czasu lub kontakt poza oficjalnym kanałem. Nie da się potwierdzić autentyczności tylko z tekstu.`,
+      mediumSummary: `Wiadomość przypomina schemat ${cat}. Warto sprawdzić ją przez oficjalną stronę lub aplikację, bez klikania linków z wiadomości.`,
+      risk1: "Wiadomość może prowadzić do fałszywej płatności lub przejęcia danych.",
+      risk2: "Link, kod QR albo kontakt poza platformą wymaga dodatkowej weryfikacji.",
+      risk3: "Presja czasu może być elementem manipulacji.",
+      consequence1: "Kliknięcie linku może prowadzić do utraty danych logowania lub pieniędzy.",
+      consequence2: "Podanie kodu SMS, hasła lub danych karty może umożliwić przejęcie konta.",
+      help1: "Sprawdź sprawę ręcznie w oficjalnej aplikacji lub na oficjalnej stronie.",
+      help2: "W razie płatności sprawdź transakcję w banku lub u operatora platformy.",
+      step1: "Nie klikaj linku ani kodu QR z wiadomości.",
+      step2: "Nie podawaj loginu, hasła, kodu SMS/TAN, danych karty ani seed phrase.",
+      step3: "Otwórz ręcznie oficjalną aplikację lub stronę usługi.",
+      step4: "Przy sprzedaży/kupnie nie przenoś rozmowy i płatności poza platformę.",
+      rawHitPrefix: "Kontekst: "
+    },
+    EN: {
+      highLabel: "High online scam risk",
+      mediumLabel: "Verify this message",
+      highSummary: `The message contains signals typical of a ${cat}: link, payment, login, code, time pressure or contact outside the official channel. Authenticity cannot be confirmed from text alone.`,
+      mediumSummary: `The message resembles a ${cat} pattern. Verify it through the official website or app without using links from the message.`,
+      risk1: "The message may lead to a fake payment or data theft.",
+      risk2: "A link, QR code or off-platform contact needs extra verification.",
+      risk3: "Time pressure may be used to manipulate you.",
+      consequence1: "Clicking the link may lead to loss of login data or money.",
+      consequence2: "Sharing an SMS code, password or card details may allow account takeover.",
+      help1: "Check manually in the official app or on the official website.",
+      help2: "For payments, check the transaction with your bank or platform provider.",
+      step1: "Do not click the link or QR code from the message.",
+      step2: "Do not share login, password, SMS/TAN code, card details or seed phrase.",
+      step3: "Open the official app or service website manually.",
+      step4: "When buying or selling, do not move chat and payment outside the platform.",
+      rawHitPrefix: "Context: "
+    },
+    NL: {
+      highLabel: "Hoog risico op online fraude",
+      mediumLabel: "Controleer dit bericht",
+      highSummary: `Het bericht bevat signalen die passen bij ${cat}: link, betaling, login, code, tijdsdruk of contact buiten het officiële kanaal. Echtheid kan niet alleen uit de tekst worden bevestigd.`,
+      mediumSummary: `Het bericht lijkt op een patroon van ${cat}. Controleer dit via de officiële website of app, zonder links uit het bericht te gebruiken.`,
+      risk1: "Het bericht kan leiden tot een valse betaling of diefstal van gegevens.",
+      risk2: "Een link, QR-code of contact buiten het platform vereist extra controle.",
+      risk3: "Tijdsdruk kan worden gebruikt als manipulatie.",
+      consequence1: "Klikken op de link kan leiden tot verlies van inloggegevens of geld.",
+      consequence2: "Het delen van een sms-code, wachtwoord of kaartgegevens kan accountovername mogelijk maken.",
+      help1: "Controleer handmatig in de officiële app of op de officiële website.",
+      help2: "Controleer bij betalingen de transactie bij uw bank of platform.",
+      step1: "Klik niet op de link of QR-code uit het bericht.",
+      step2: "Deel geen login, wachtwoord, sms/TAN-code, kaartgegevens of seed phrase.",
+      step3: "Open de officiële app of website handmatig.",
+      step4: "Verplaats bij kopen of verkopen chat en betaling niet buiten het platform.",
+      rawHitPrefix: "Context: "
+    },
+    DE: {
+      highLabel: "Hohes Risiko für Online-Betrug",
+      mediumLabel: "Diese Nachricht prüfen",
+      highSummary: `Die Nachricht enthält Signale, die zu ${cat} passen: Link, Zahlung, Login, Code, Zeitdruck oder Kontakt außerhalb des offiziellen Kanals. Die Echtheit kann nicht nur anhand des Textes bestätigt werden.`,
+      mediumSummary: `Die Nachricht ähnelt einem Muster von ${cat}. Prüfen Sie sie über die offizielle Website oder App, ohne Links aus der Nachricht zu verwenden.`,
+      risk1: "Die Nachricht kann zu einer falschen Zahlung oder Datendiebstahl führen.",
+      risk2: "Ein Link, QR-Code oder Kontakt außerhalb der Plattform muss zusätzlich geprüft werden.",
+      risk3: "Zeitdruck kann zur Manipulation genutzt werden.",
+      consequence1: "Das Anklicken des Links kann zum Verlust von Zugangsdaten oder Geld führen.",
+      consequence2: "Die Weitergabe von SMS-Code, Passwort oder Kartendaten kann eine Kontoübernahme ermöglichen.",
+      help1: "Prüfen Sie manuell in der offiziellen App oder auf der offiziellen Website.",
+      help2: "Bei Zahlungen prüfen Sie die Transaktion bei Ihrer Bank oder Plattform.",
+      step1: "Klicken Sie nicht auf den Link oder QR-Code aus der Nachricht.",
+      step2: "Geben Sie keinen Login, kein Passwort, keinen SMS/TAN-Code, keine Kartendaten und keine Seed Phrase weiter.",
+      step3: "Öffnen Sie die offizielle App oder Website manuell.",
+      step4: "Verlagern Sie beim Kaufen oder Verkaufen Chat und Zahlung nicht außerhalb der Plattform.",
+      rawHitPrefix: "Kontext: "
+    },
+    FR: {
+      highLabel: "Risque élevé d’arnaque en ligne",
+      mediumLabel: "Vérifiez ce message",
+      highSummary: `Le message contient des signaux typiques de ${cat} : lien, paiement, connexion, code, pression temporelle ou contact hors canal officiel. L’authenticité ne peut pas être confirmée uniquement à partir du texte.`,
+      mediumSummary: `Le message ressemble à un schéma de ${cat}. Vérifiez via le site ou l’application officiels sans utiliser les liens du message.`,
+      risk1: "Le message peut mener à un faux paiement ou au vol de données.",
+      risk2: "Un lien, un code QR ou un contact hors plateforme nécessite une vérification supplémentaire.",
+      risk3: "La pression temporelle peut être utilisée pour vous manipuler.",
+      consequence1: "Cliquer sur le lien peut entraîner la perte d’identifiants ou d’argent.",
+      consequence2: "Partager un code SMS, un mot de passe ou des données de carte peut permettre la prise de contrôle du compte.",
+      help1: "Vérifiez manuellement dans l’application officielle ou sur le site officiel.",
+      help2: "Pour les paiements, vérifiez la transaction auprès de votre banque ou de la plateforme.",
+      step1: "Ne cliquez pas sur le lien ou le code QR du message.",
+      step2: "Ne partagez pas vos identifiants, mot de passe, code SMS/TAN, données de carte ou seed phrase.",
+      step3: "Ouvrez manuellement l’application ou le site officiel du service.",
+      step4: "Lors d’un achat ou d’une vente, ne déplacez pas la conversation et le paiement hors plateforme.",
+      rawHitPrefix: "Contexte : "
+    },
+    IT: {
+      highLabel: "Alto rischio di truffa online",
+      mediumLabel: "Verifica questo messaggio",
+      highSummary: `Il messaggio contiene segnali tipici di ${cat}: link, pagamento, login, codice, pressione del tempo o contatto fuori dal canale ufficiale. L’autenticità non può essere confermata solo dal testo.`,
+      mediumSummary: `Il messaggio somiglia a uno schema di ${cat}. Verificalo tramite il sito o l’app ufficiale senza usare i link del messaggio.`,
+      risk1: "Il messaggio può portare a un pagamento falso o al furto di dati.",
+      risk2: "Un link, codice QR o contatto fuori piattaforma richiede una verifica aggiuntiva.",
+      risk3: "La pressione del tempo può essere usata per manipolarti.",
+      consequence1: "Cliccare sul link può causare perdita di credenziali o denaro.",
+      consequence2: "Condividere codice SMS, password o dati della carta può consentire il furto dell’account.",
+      help1: "Controlla manualmente nell’app ufficiale o sul sito ufficiale.",
+      help2: "Per i pagamenti, verifica la transazione con la banca o la piattaforma.",
+      step1: "Non cliccare sul link o sul codice QR del messaggio.",
+      step2: "Non condividere login, password, codice SMS/TAN, dati della carta o seed phrase.",
+      step3: "Apri manualmente l’app o il sito ufficiale del servizio.",
+      step4: "Quando compri o vendi, non spostare chat e pagamento fuori dalla piattaforma.",
+      rawHitPrefix: "Contesto: "
+    },
+    ES: {
+      highLabel: "Alto riesgo de estafa online",
+      mediumLabel: "Verifica este mensaje",
+      highSummary: `El mensaje contiene señales típicas de ${cat}: enlace, pago, inicio de sesión, código, presión de tiempo o contacto fuera del canal oficial. La autenticidad no se puede confirmar solo con el texto.`,
+      mediumSummary: `El mensaje se parece a un patrón de ${cat}. Verifícalo a través del sitio o la app oficial sin usar enlaces del mensaje.`,
+      risk1: "El mensaje puede llevar a un pago falso o robo de datos.",
+      risk2: "Un enlace, código QR o contacto fuera de la plataforma requiere verificación adicional.",
+      risk3: "La presión de tiempo puede usarse para manipularte.",
+      consequence1: "Hacer clic en el enlace puede causar pérdida de datos de acceso o dinero.",
+      consequence2: "Compartir código SMS, contraseña o datos de tarjeta puede permitir el robo de la cuenta.",
+      help1: "Comprueba manualmente en la app oficial o en el sitio oficial.",
+      help2: "Para pagos, verifica la transacción con tu banco o plataforma.",
+      step1: "No hagas clic en el enlace ni en el código QR del mensaje.",
+      step2: "No compartas usuario, contraseña, código SMS/TAN, datos de tarjeta ni seed phrase.",
+      step3: "Abre manualmente la app o el sitio oficial del servicio.",
+      step4: "Al comprar o vender, no muevas el chat ni el pago fuera de la plataforma.",
+      rawHitPrefix: "Contexto: "
+    },
+    PT: {
+      highLabel: "Alto risco de burla online",
+      mediumLabel: "Verifique esta mensagem",
+      highSummary: `A mensagem contém sinais típicos de ${cat}: link, pagamento, login, código, pressão de tempo ou contacto fora do canal oficial. A autenticidade não pode ser confirmada apenas pelo texto.`,
+      mediumSummary: `A mensagem parece seguir um padrão de ${cat}. Verifique pelo site ou app oficial sem usar links da mensagem.`,
+      risk1: "A mensagem pode levar a um pagamento falso ou roubo de dados.",
+      risk2: "Um link, código QR ou contacto fora da plataforma exige verificação adicional.",
+      risk3: "A pressão de tempo pode ser usada para manipulação.",
+      consequence1: "Clicar no link pode levar à perda de dados de acesso ou dinheiro.",
+      consequence2: "Partilhar código SMS, palavra-passe ou dados do cartão pode permitir roubo da conta.",
+      help1: "Verifique manualmente na app oficial ou no site oficial.",
+      help2: "Em pagamentos, confirme a transação com o banco ou a plataforma.",
+      step1: "Não clique no link ou código QR da mensagem.",
+      step2: "Não partilhe login, palavra-passe, código SMS/TAN, dados do cartão ou seed phrase.",
+      step3: "Abra manualmente a app ou site oficial do serviço.",
+      step4: "Ao comprar ou vender, não leve a conversa e o pagamento para fora da plataforma.",
+      rawHitPrefix: "Contexto: "
+    },
+    UA: {
+      highLabel: "Високий ризик онлайн-шахрайства",
+      mediumLabel: "Перевірте це повідомлення",
+      highSummary: `Повідомлення містить ознаки, типові для ${cat}: посилання, платіж, логін, код, тиск часу або контакт поза офіційним каналом. Автентичність неможливо підтвердити лише з тексту.`,
+      mediumSummary: `Повідомлення схоже на схему ${cat}. Перевірте його через офіційний сайт або додаток, не використовуючи посилання з повідомлення.`,
+      risk1: "Повідомлення може вести до фальшивого платежу або крадіжки даних.",
+      risk2: "Посилання, QR-код або контакт поза платформою потребує додаткової перевірки.",
+      risk3: "Тиск часу може бути елементом маніпуляції.",
+      consequence1: "Перехід за посиланням може призвести до втрати логіну або грошей.",
+      consequence2: "Передача SMS-коду, пароля або даних картки може дозволити захоплення акаунта.",
+      help1: "Перевірте вручну в офіційному додатку або на офіційному сайті.",
+      help2: "Для платежів перевірте транзакцію в банку або на платформі.",
+      step1: "Не натискайте посилання або QR-код із повідомлення.",
+      step2: "Не передавайте логін, пароль, SMS/TAN-код, дані картки або seed phrase.",
+      step3: "Відкрийте офіційний додаток або сайт вручну.",
+      step4: "Під час купівлі чи продажу не переносіть чат і оплату поза платформою.",
+      rawHitPrefix: "Контекст: "
+    }
+  };
+
+  const rawHitTranslations = {
+    PL: { courier: "kurier", marketplace: "platforma sprzedażowa", payment: "płatność", crypto: "krypto", qr: "kod QR" },
+    EN: { courier: "courier", marketplace: "marketplace", payment: "payment", crypto: "crypto", qr: "QR code" },
+    NL: { courier: "pakketbezorging", marketplace: "marktplaats/platform", payment: "betaling", crypto: "crypto", qr: "QR-code" },
+    DE: { courier: "Paketdienst", marketplace: "Marktplatz", payment: "Zahlung", crypto: "Krypto", qr: "QR-Code" },
+    FR: { courier: "livraison de colis", marketplace: "plateforme de vente", payment: "paiement", crypto: "crypto", qr: "code QR" },
+    IT: { courier: "consegna pacchi", marketplace: "piattaforma di vendita", payment: "pagamento", crypto: "crypto", qr: "codice QR" },
+    ES: { courier: "paquetería", marketplace: "plataforma de compraventa", payment: "pago", crypto: "cripto", qr: "código QR" },
+    PT: { courier: "encomenda", marketplace: "plataforma de compra e venda", payment: "pagamento", crypto: "cripto", qr: "código QR" },
+    UA: { courier: "доставка", marketplace: "торговельна платформа", payment: "платіж", crypto: "крипто", qr: "QR-код" }
+  };
+
+  const out = map[L] || map.PL;
+  out.signals = signalMaps[L] || signalMaps.PL;
+  out.rawHits = rawHitTranslations[L] || rawHitTranslations.PL;
+  return out;
 }
 
 /* ============================================================
