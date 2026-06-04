@@ -2764,15 +2764,31 @@ function sbGlobalScamTextsV1(lang, categoryLabel) {
 function sbDedupePayloadArraysV1(payload) {
   if (!payload || typeof payload !== "object") return payload;
 
+  function cleanDisplayItem(value) {
+    if (typeof value !== "string") return value;
+    return String(value || "")
+      // Remove replacement character and invisible Unicode artifacts often added by OCR/copy-paste.
+      .replace(/[\uFFFD\u00AD\u034F\u061C\u115F\u1160\u17B4\u17B5\u180E\u200B\u200C\u200D\u200E\u200F\u202A-\u202E\u2060-\u206F\u3164\uFEFF]+/g, "")
+      // Remove ASCII control characters.
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, "")
+      .replace(/\s+/g, " ")
+      .replace(/([\w\-\/])\s+([.,;:!?])/g, "$1$2")
+      .replace(/[.,;:!?\])}]+$/g, "")
+      .trim();
+  }
+
   function normalizeItem(value) {
-    let s = String(value || "").trim();
+    let s = cleanDisplayItem(value);
+    s = String(s || "").trim();
     if (!s) return "";
 
     // Normalize URLs so the same link is not shown twice only because
-    // of protocol, www, trailing slash, or sentence punctuation.
+    // of OCR/AI artifacts, protocol, www, trailing slash, or punctuation.
     const urlMatch = s.match(/https?:\/\/[^\s<>()"']+|www\.[^\s<>()"']+|\b[a-z0-9][a-z0-9-]{1,}\.[a-z]{2,}(?:\/[^\s<>()"']*)?/i);
     if (urlMatch) {
-      let raw = urlMatch[0].replace(/[.,;:!?\])}]+$/g, "").trim();
+      let raw = cleanDisplayItem(urlMatch[0])
+        .replace(/[.,;:!?\])}]+$/g, "")
+        .trim();
       try {
         if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
         const u = new URL(raw);
@@ -2798,10 +2814,11 @@ function sbDedupePayloadArraysV1(payload) {
     const out = [];
     for (const item of value) {
       if (item === null || item === undefined) continue;
-      const key = normalizeItem(item);
+      const cleaned = cleanDisplayItem(item);
+      const key = normalizeItem(cleaned);
       if (!key || seen.has(key)) continue;
       seen.add(key);
-      out.push(item);
+      out.push(cleaned);
     }
     return out;
   }
