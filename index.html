@@ -1242,16 +1242,122 @@ body.dark-mode #consequences.high-risk .box-info{
   background:linear-gradient(180deg, rgba(240,253,244,.90), rgba(255,255,255,.98)) !important;
 }
 
+/* =========================================================
+   Sense Bridge V2 UX experiment — camera + clear path cards
+   Additive layer only: keeps existing OCR/analyze logic
+   ========================================================= */
+.sb-photo-actions-v2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:10px 0 10px;
+}
+.sb-photo-action{
+  min-height:58px;
+  border-radius:18px;
+  border:1px solid rgba(63,138,114,0.24);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  font-weight:850;
+  font-size:15px;
+  box-shadow:0 8px 18px rgba(15,23,42,0.08);
+}
+.sb-photo-action .ico{
+  font-size:20px;
+  line-height:1;
+}
+#sbTakePhotoBtn{
+  background:linear-gradient(135deg,#0e2a47,#17476f);
+  color:#ffffff;
+  border:none;
+}
+#sbTakePhotoBtn:hover{
+  background:linear-gradient(135deg,#0b2239,#123f63);
+  transform:translateY(-1px);
+}
+#sbChoosePhotoBtn.sb-photo-action{
+  background:linear-gradient(135deg,var(--primary),#58a58d);
+  color:#ffffff;
+  border:none;
+}
+#sbChoosePhotoBtn.sb-photo-action:hover{
+  background:linear-gradient(135deg,var(--primary-hover),var(--primary));
+  transform:translateY(-1px);
+}
+#sbReadPhotoBtn{
+  min-height:48px;
+  border-radius:16px;
+  font-weight:850;
+}
+.sb-flow-cards{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin:14px 0 0;
+}
+.sb-flow-card{
+  border:1px solid rgba(63,138,114,0.18);
+  background:linear-gradient(180deg,#ffffff,#f8fbfa);
+  border-radius:16px;
+  padding:12px;
+  box-shadow:0 7px 16px rgba(15,23,42,0.05);
+}
+.sb-flow-card strong{
+  display:block;
+  font-size:13px;
+  color:#172033;
+  margin-bottom:4px;
+}
+.sb-flow-card span{
+  display:block;
+  font-size:12px;
+  color:#687385;
+  line-height:1.35;
+}
+body.dark-mode .sb-flow-card{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,0.20) !important;
+  box-shadow:0 9px 22px rgba(0,0,0,0.30) !important;
+}
+body.dark-mode .sb-flow-card strong{
+  color:#eafdf4 !important;
+}
+body.dark-mode .sb-flow-card span{
+  color:#9fb5ad !important;
+}
+body.dark-mode #sbTakePhotoBtn{
+  background:linear-gradient(135deg,#0ddf80,#2cff9a) !important;
+  color:#04110b !important;
+}
+body.dark-mode #sbChoosePhotoBtn.sb-photo-action{
+  background:linear-gradient(135deg,#12d87d,#2cff9a) !important;
+  color:#04110b !important;
+}
+@media (max-width:640px){
+  .sb-photo-actions-v2{
+    grid-template-columns:1fr;
+  }
+  .sb-photo-action{
+    width:100%;
+    min-height:56px;
+  }
+  .sb-flow-cards{
+    grid-template-columns:1fr;
+  }
+}
+
 
 /* =========================================================
-   Sense Bridge — stronger tool buttons + open red trash icon
-   Safe visual layer only: no logic changes
+   Sense Bridge — clear data button with open red trash icon
+   Additive UX layer only: no logic changes
    ========================================================= */
 .tools{
   gap:10px;
   align-items:flex-start;
 }
-
 .tool-btn{
   display:inline-flex;
   align-items:center;
@@ -1267,37 +1373,26 @@ body.dark-mode #consequences.high-risk .box-info{
   font-weight:750;
   letter-spacing:-0.01em;
   cursor:pointer;
-  box-shadow:
-    0 8px 18px rgba(15,23,42,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.9);
+  box-shadow:0 8px 18px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
 }
-
 .tool-btn:hover{
   border-color:rgba(14,42,71,0.26);
-  box-shadow:
-    0 10px 22px rgba(15,23,42,0.11),
-    inset 0 1px 0 rgba(255,255,255,0.95);
+  box-shadow:0 10px 22px rgba(15,23,42,0.11), inset 0 1px 0 rgba(255,255,255,0.95);
   transform:translateY(-1px);
 }
-
 .tool-btn:active{
   transform:translateY(0);
-  box-shadow:
-    0 5px 12px rgba(15,23,42,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.9);
+  box-shadow:0 5px 12px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
 }
-
 .clear-data-btn{
   border-color:rgba(220,38,38,0.24);
   background:linear-gradient(180deg,#ffffff,#fffafa);
   color:#263244;
 }
-
 .clear-data-btn:hover{
   border-color:rgba(220,38,38,0.38);
   background:linear-gradient(180deg,#ffffff,#fff5f5);
 }
-
 .trash-red{
   display:inline-flex;
   align-items:center;
@@ -1305,53 +1400,34 @@ body.dark-mode #consequences.high-risk .box-info{
   color:#dc2626;
   flex:0 0 auto;
 }
-
 .trash-red svg{
   width:18px;
   height:18px;
   display:block;
 }
-
 .clear-label{
   line-height:1.2;
 }
-
 body.dark-mode .tool-btn{
   background:linear-gradient(180deg,#0b1a28,#081522) !important;
   color:#e8fff5 !important;
   border-color:rgba(44,255,154,0.24) !important;
-  box-shadow:
-    0 9px 22px rgba(0,0,0,0.34),
-    inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  box-shadow:0 9px 22px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.05) !important;
 }
-
 body.dark-mode .clear-data-btn{
   border-color:rgba(255,77,109,0.36) !important;
   background:linear-gradient(180deg,#150d14,#081522) !important;
 }
-
 body.dark-mode .clear-data-btn:hover{
   border-color:rgba(255,77,109,0.56) !important;
 }
-
 body.dark-mode .clear-data-btn .trash-red{
   color:#ff4d6d !important;
 }
-
 @media (max-width:640px){
-  .tools{
-    gap:10px;
-  }
-  .tool-btn{
-    min-height:48px;
-    padding:12px 16px;
-    font-size:15px;
-    border-radius:16px;
-  }
-  .clear-data-btn{
-    width:auto;
-    max-width:100%;
-  }
+  .tools{gap:10px;}
+  .tool-btn{min-height:48px; padding:12px 16px; font-size:15px; border-radius:16px;}
+  .clear-data-btn{width:auto; max-width:100%;}
 }
 
 </style>
@@ -1397,15 +1473,39 @@ body.dark-mode .clear-data-btn .trash-red{
       <label id="lblPhotoTitle" for="sbPhotoInput"><strong>Zdjęcie pisma</strong></label>
 
       <input id="sbPhotoInput" type="file" accept="image/*" style="display:none;" />
+      <input id="sbCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
 
-      <div class="photo-actions">
-        <button id="sbChoosePhotoBtn" type="button">Wybierz zdjęcie</button>
-        <span id="sbPhotoFileName">Nie wybrano zdjęcia</span>
+      <div class="sb-photo-actions-v2">
+        <button id="sbTakePhotoBtn" class="sb-photo-action" type="button">
+          <span class="ico" aria-hidden="true">📸</span>
+          <span id="sbTakePhotoLabel">Zrób zdjęcie</span>
+        </button>
+        <button id="sbChoosePhotoBtn" class="sb-photo-action" type="button">
+          <span class="ico" aria-hidden="true">🖼️</span>
+          <span id="sbChoosePhotoLabel">Wybierz z galerii</span>
+        </button>
       </div>
+
+      <span id="sbPhotoFileName">Nie wybrano zdjęcia</span>
 
       <button id="sbReadPhotoBtn" type="button">Wczytaj tekst ze zdjęcia</button>
 
       <div id="sbPhotoStatus" style="font-size:13px; opacity:.8; margin-top:6px;"></div>
+
+      <div id="sbFlowCards" class="sb-flow-cards" aria-label="Przebieg analizy">
+        <div class="sb-flow-card">
+          <strong id="sbFlow1Title">1. Co to znaczy?</strong>
+          <span id="sbFlow1Text">Krótko wyjaśnia sens pisma.</span>
+        </div>
+        <div class="sb-flow-card">
+          <strong id="sbFlow2Title">2. Co zrobić teraz?</strong>
+          <span id="sbFlow2Text">Pokazuje najbliższy krok.</span>
+        </div>
+        <div class="sb-flow-card">
+          <strong id="sbFlow3Title">3. Czy to bezpieczne?</strong>
+          <span id="sbFlow3Text">Sprawdza ryzyko oszustwa.</span>
+        </div>
+      </div>
     </div>
 
     <textarea id="inputText" placeholder="Wklej treść pisma lub e-maila z urzędu…"></textarea>
@@ -1451,7 +1551,7 @@ body.dark-mode .clear-data-btn .trash-red{
       <button id="btnClearData" class="tool-btn clear-data-btn" type="button" onclick="clearInput()">
         <span class="trash-red" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false" role="img">
-            <path fill="currentColor" d="M8.8 3.1 19.6 6l-.5 1.9L8.3 5l.5-1.9Zm2.9-1.8 5.8 1.6-.5 1.9-5.8-1.6.5-1.9ZM6 8h13l-1.2 12.1A2.1 2.1 0 0 1 15.7 22H9.3a2.1 2.1 0 0 1-2.1-1.9L6 8Zm3.2 2 .8 9h1.8l-.6-9h-2Zm4.6 0-.6 9H15l.8-9h-2Z"/>
+            <path fill="currentColor" d="M8.8 3.1 19.6 6l-.5 1.9L8.3 5l.5-1.9Zm2.9-1.8 5.8 1.6-.5 1.9-5.8-1.6.5-1.9ZM6 8h13l-1.2 12.1A2.1 2.1 0 0 1 15.7 22H9.3a2.1 2.1 0 0 1-2.1-1.9L6 8Zm3.2 2 .8 9h1.8l-.6-9h-2Zm4.6 0-.6 9H15l.8-9h-2Z"></path>
           </svg>
         </span>
         <span class="clear-label">Wyczyść dane po analizie</span>
@@ -2224,7 +2324,7 @@ p30name: "30 jours",
       analyzingLetter: "Analyse du courrier...",
       helpLinksTitle: "Liens utiles",
       srcAuto: "Langue du document: AUTO",
-      clear: "Effacer les données après l’analyse",
+      clear: "Effacer les données après analyse",
       copyTr: "Copier la traduction",
       copyEx: 'Copier les réponses (ma langue)'
     },
@@ -2279,7 +2379,7 @@ p30name: "30 giorni",
       analyzingLetter: "Analisi del documento...",
       helpLinksTitle: "Link utili",
       srcAuto: "Lingua del documento: AUTO",
-      clear: "Cancella i dati dopo l’analisi",
+      clear: "Cancella dati dopo analisi",
       copyTr: "Copia traduzione",
       copyEx: 'Copia risposte (mia lingua)'
     },
@@ -2390,23 +2490,12 @@ p30name: "30 dias",
       analyzingLetter: "A analisar o documento...",
       helpLinksTitle: "Links úteis",
       srcAuto: "Idioma do documento: AUTO",
-      clear: "Limpar dados após a análise",
+      clear: "Limpar dados após análise",
       copyTr: "Copiar tradução",
       copyEx: 'Copiar respostas (meu idioma)'
     }
   }
 };
-
-
-function sbClearButtonHtml(label){
-  return `
-        <span class="trash-red" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false" role="img">
-            <path fill="currentColor" d="M8.8 3.1 19.6 6l-.5 1.9L8.3 5l.5-1.9Zm2.9-1.8 5.8 1.6-.5 1.9-5.8-1.6.5-1.9ZM6 8h13l-1.2 12.1A2.1 2.1 0 0 1 15.7 22H9.3a2.1 2.1 0 0 1-2.1-1.9L6 8Zm3.2 2 .8 9h1.8l-.6-9h-2Zm4.6 0-.6 9H15l.8-9h-2Z"></path>
-          </svg>
-        </span>
-        <span class="clear-label">${escapeHtml(label)}</span>`;
-}
 
 function getUiLang(){
   const saved = (localStorage.getItem(UI.key) || "").trim().toUpperCase();
@@ -2425,6 +2514,126 @@ function setUiLang(lang){
     updatePaidMessage();
   }
 }
+
+function sbV2Text(key){
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+  const map = {
+    PL:{
+      takePhoto:"Zrób zdjęcie",
+      chooseGallery:"Wybierz z galerii",
+      flow1Title:"1. Co to znaczy?",
+      flow1Text:"Krótko wyjaśnia sens pisma.",
+      flow2Title:"2. Co zrobić teraz?",
+      flow2Text:"Pokazuje najbliższy krok.",
+      flow3Title:"3. Czy to bezpieczne?",
+      flow3Text:"Sprawdza ryzyko oszustwa."
+    },
+    EN:{
+      takePhoto:"Take a photo",
+      chooseGallery:"Choose from gallery",
+      flow1Title:"1. What does it mean?",
+      flow1Text:"Explains the document simply.",
+      flow2Title:"2. What now?",
+      flow2Text:"Shows the next step.",
+      flow3Title:"3. Is it safe?",
+      flow3Text:"Checks scam risk."
+    },
+    NL:{
+      takePhoto:"Maak een foto",
+      chooseGallery:"Kies uit galerij",
+      flow1Title:"1. Wat betekent dit?",
+      flow1Text:"Legt de brief eenvoudig uit.",
+      flow2Title:"2. Wat nu?",
+      flow2Text:"Toont de volgende stap.",
+      flow3Title:"3. Is het veilig?",
+      flow3Text:"Controleert op oplichting."
+    },
+    DE:{
+      takePhoto:"Foto machen",
+      chooseGallery:"Aus Galerie wählen",
+      flow1Title:"1. Was bedeutet das?",
+      flow1Text:"Erklärt das Schreiben einfach.",
+      flow2Title:"2. Was jetzt tun?",
+      flow2Text:"Zeigt den nächsten Schritt.",
+      flow3Title:"3. Ist es sicher?",
+      flow3Text:"Prüft Betrugsrisiken."
+    },
+    UA:{
+      takePhoto:"Зробити фото",
+      chooseGallery:"Вибрати з галереї",
+      flow1Title:"1. Що це означає?",
+      flow1Text:"Просто пояснює зміст листа.",
+      flow2Title:"2. Що робити зараз?",
+      flow2Text:"Показує наступний крок.",
+      flow3Title:"3. Чи це безпечно?",
+      flow3Text:"Перевіряє ризик шахрайства."
+    },
+    FR:{
+      takePhoto:"Prendre une photo",
+      chooseGallery:"Choisir dans la galerie",
+      flow1Title:"1. Qu’est-ce que cela signifie ?",
+      flow1Text:"Explique le document simplement.",
+      flow2Title:"2. Que faire maintenant ?",
+      flow2Text:"Montre la prochaine étape.",
+      flow3Title:"3. Est-ce sûr ?",
+      flow3Text:"Vérifie le risque de fraude."
+    },
+    IT:{
+      takePhoto:"Scatta una foto",
+      chooseGallery:"Scegli dalla galleria",
+      flow1Title:"1. Cosa significa?",
+      flow1Text:"Spiega il documento in modo semplice.",
+      flow2Title:"2. Cosa fare ora?",
+      flow2Text:"Mostra il prossimo passo.",
+      flow3Title:"3. È sicuro?",
+      flow3Text:"Controlla il rischio di truffa."
+    },
+    ES:{
+      takePhoto:"Hacer una foto",
+      chooseGallery:"Elegir de la galería",
+      flow1Title:"1. ¿Qué significa?",
+      flow1Text:"Explica el documento de forma simple.",
+      flow2Title:"2. ¿Qué hacer ahora?",
+      flow2Text:"Muestra el siguiente paso.",
+      flow3Title:"3. ¿Es seguro?",
+      flow3Text:"Comprueba riesgo de fraude."
+    },
+    PT:{
+      takePhoto:"Tirar foto",
+      chooseGallery:"Escolher da galeria",
+      flow1Title:"1. O que significa?",
+      flow1Text:"Explica o documento de forma simples.",
+      flow2Title:"2. O que fazer agora?",
+      flow2Text:"Mostra o próximo passo.",
+      flow3Title:"3. É seguro?",
+      flow3Text:"Verifica risco de fraude."
+    }
+  };
+  return (map[lang] && map[lang][key]) || (map.PL && map.PL[key]) || "";
+}
+
+function sbSetText(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value;
+}
+
+function sbActivePhotoInput(){
+  const camera = document.getElementById("sbCameraInput");
+  const gallery = document.getElementById("sbPhotoInput");
+  if(camera && camera.files && camera.files[0]) return camera;
+  return gallery;
+}
+
+
+function sbClearButtonHtml(label){
+  return '<span class="trash-red" aria-hidden="true">' +
+    '<svg viewBox="0 0 24 24" focusable="false" role="img">' +
+      '<path fill="currentColor" d="M8.8 3.1 19.6 6l-.5 1.9L8.3 5l.5-1.9Zm2.9-1.8 5.8 1.6-.5 1.9-5.8-1.6.5-1.9ZM6 8h13l-1.2 12.1A2.1 2.1 0 0 1 15.7 22H9.3a2.1 2.1 0 0 1-2.1-1.9L6 8Zm3.2 2 .8 9h1.8l-.6-9h-2Zm4.6 0-.6 9H15l.8-9h-2Z"></path>' +
+    '</svg>' +
+  '</span>' +
+  '<span class="clear-label">' + label + '</span>';
+}
+
 function applyUiLang(){
   const t = UI.dict[UI.lang];
 
@@ -2439,8 +2648,21 @@ function applyUiLang(){
   document.getElementById("btnAnalyze").textContent = t.btnAnalyze;
 
   document.getElementById("lblPhotoTitle").innerHTML = "<strong>" + t.photoTitle + "</strong>";
-  document.getElementById("sbChoosePhotoBtn").textContent = t.choosePhoto;
+  const choosePhotoBtn = document.getElementById("sbChoosePhotoBtn");
+  if(choosePhotoBtn){
+    choosePhotoBtn.innerHTML = '<span class="ico" aria-hidden="true">🖼️</span><span id="sbChoosePhotoLabel">' + sbV2Text("chooseGallery") + '</span>';
+  }
+  const takePhotoBtn = document.getElementById("sbTakePhotoBtn");
+  if(takePhotoBtn){
+    takePhotoBtn.innerHTML = '<span class="ico" aria-hidden="true">📸</span><span id="sbTakePhotoLabel">' + sbV2Text("takePhoto") + '</span>';
+  }
   document.getElementById("sbReadPhotoBtn").textContent = t.readPhoto;
+  sbSetText("sbFlow1Title", sbV2Text("flow1Title"));
+  sbSetText("sbFlow1Text", sbV2Text("flow1Text"));
+  sbSetText("sbFlow2Title", sbV2Text("flow2Title"));
+  sbSetText("sbFlow2Text", sbV2Text("flow2Text"));
+  sbSetText("sbFlow3Title", sbV2Text("flow3Title"));
+  sbSetText("sbFlow3Text", sbV2Text("flow3Text"));
 
   const fileNameEl = document.getElementById("sbPhotoFileName");
   if (fileNameEl && !fileNameEl.dataset.hasFile) {
@@ -2515,8 +2737,11 @@ document.getElementById("p30name").textContent = t.p30name || "30 dni";
 
   const toolButtons = document.querySelectorAll(".tools .tool-btn");
   if(toolButtons.length >= 3){
-    toolButtons[0].innerHTML = sbClearButtonHtml(t.clear);
-    toolButtons[0].setAttribute("aria-label", t.clear);
+    const clearBtn = document.getElementById("btnClearData") || toolButtons[0];
+    if(clearBtn){
+      clearBtn.classList.add("clear-data-btn");
+      clearBtn.innerHTML = sbClearButtonHtml(t.clear);
+    }
     toolButtons[1].textContent = t.copyTr;
     toolButtons[2].textContent = t.copyEx;
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
@@ -3508,7 +3733,9 @@ async function analyze(){
 const sourceLang = document.getElementById("sourceLang").value;
 const userLang = document.getElementById("userLang").value;
 
-const photoInput = document.getElementById("sbPhotoInput");
+const photoInput = (typeof sbActivePhotoInput === "function")
+  ? sbActivePhotoInput()
+  : document.getElementById("sbPhotoInput");
 
 if (!text && photoInput && photoInput.files && photoInput.files[0] && window.sbReadPhotoText) {
   text = await window.sbReadPhotoText(true);
@@ -3867,7 +4094,9 @@ fetch("/.netlify/functions/analyze_count", {
   }
 
   async function readPhotoText(silent = false) {
-    const input = document.getElementById("sbPhotoInput");
+    const input = (typeof sbActivePhotoInput === "function")
+      ? sbActivePhotoInput()
+      : document.getElementById("sbPhotoInput");
     const btn = document.getElementById("sbReadPhotoBtn");
     const textarea = findTextArea();
 
@@ -3933,7 +4162,9 @@ fetch("/.netlify/functions/analyze_count", {
   document.addEventListener("DOMContentLoaded", function () {
     const readBtn = document.getElementById("sbReadPhotoBtn");
     const chooseBtn = document.getElementById("sbChoosePhotoBtn");
+    const cameraBtn = document.getElementById("sbTakePhotoBtn");
     const input = document.getElementById("sbPhotoInput");
+    const cameraInput = document.getElementById("sbCameraInput");
     const fileName = document.getElementById("sbPhotoFileName");
 
     if (readBtn) {
@@ -3944,20 +4175,41 @@ fetch("/.netlify/functions/analyze_count", {
 
     if (chooseBtn && input) {
       chooseBtn.addEventListener("click", function () {
+        if(cameraInput) cameraInput.value = "";
         input.click();
       });
     }
 
+    if (cameraBtn && cameraInput) {
+      cameraBtn.addEventListener("click", function () {
+        if(input) input.value = "";
+        cameraInput.click();
+      });
+    }
+
+    function updateSelectedFileName(activeInput, fallbackText){
+      if (!fileName) return;
+      if (activeInput && activeInput.files && activeInput.files[0]) {
+        fileName.textContent = activeInput.files[0].name || fallbackText || "Zdjęcie dokumentu";
+        fileName.dataset.hasFile = "1";
+        setStatus("");
+      } else {
+        fileName.dataset.hasFile = "";
+        fileName.textContent = msg("noPhoto") || "Nie wybrano zdjęcia";
+      }
+    }
+
     if (input && fileName) {
       input.addEventListener("change", function () {
-        if (input.files && input.files[0]) {
-          fileName.textContent = input.files[0].name;
-          fileName.dataset.hasFile = "1";
-          setStatus("");
-        } else {
-          fileName.dataset.hasFile = "";
-          fileName.textContent = msg("noPhoto") || "Nie wybrano zdjęcia";
-        }
+        if(cameraInput) cameraInput.value = "";
+        updateSelectedFileName(input, "Zdjęcie z galerii");
+      });
+    }
+
+    if (cameraInput && fileName) {
+      cameraInput.addEventListener("change", function () {
+        if(input) input.value = "";
+        updateSelectedFileName(cameraInput, "Zdjęcie z aparatu");
       });
     }
   });
