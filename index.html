@@ -1242,6 +1242,118 @@ body.dark-mode #consequences.high-risk .box-info{
   background:linear-gradient(180deg, rgba(240,253,244,.90), rgba(255,255,255,.98)) !important;
 }
 
+
+/* =========================================================
+   Sense Bridge — stronger tool buttons + open red trash icon
+   Safe visual layer only: no logic changes
+   ========================================================= */
+.tools{
+  gap:10px;
+  align-items:flex-start;
+}
+
+.tool-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:46px;
+  padding:12px 18px;
+  border-radius:16px;
+  border:1px solid rgba(14,42,71,0.16);
+  background:linear-gradient(180deg,#ffffff,#fbfdfc);
+  color:#233044;
+  font-size:15px;
+  font-weight:750;
+  letter-spacing:-0.01em;
+  cursor:pointer;
+  box-shadow:
+    0 8px 18px rgba(15,23,42,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.tool-btn:hover{
+  border-color:rgba(14,42,71,0.26);
+  box-shadow:
+    0 10px 22px rgba(15,23,42,0.11),
+    inset 0 1px 0 rgba(255,255,255,0.95);
+  transform:translateY(-1px);
+}
+
+.tool-btn:active{
+  transform:translateY(0);
+  box-shadow:
+    0 5px 12px rgba(15,23,42,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.clear-data-btn{
+  border-color:rgba(220,38,38,0.24);
+  background:linear-gradient(180deg,#ffffff,#fffafa);
+  color:#263244;
+}
+
+.clear-data-btn:hover{
+  border-color:rgba(220,38,38,0.38);
+  background:linear-gradient(180deg,#ffffff,#fff5f5);
+}
+
+.trash-red{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#dc2626;
+  flex:0 0 auto;
+}
+
+.trash-red svg{
+  width:18px;
+  height:18px;
+  display:block;
+}
+
+.clear-label{
+  line-height:1.2;
+}
+
+body.dark-mode .tool-btn{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  color:#e8fff5 !important;
+  border-color:rgba(44,255,154,0.24) !important;
+  box-shadow:
+    0 9px 22px rgba(0,0,0,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+
+body.dark-mode .clear-data-btn{
+  border-color:rgba(255,77,109,0.36) !important;
+  background:linear-gradient(180deg,#150d14,#081522) !important;
+}
+
+body.dark-mode .clear-data-btn:hover{
+  border-color:rgba(255,77,109,0.56) !important;
+}
+
+body.dark-mode .clear-data-btn .trash-red{
+  color:#ff4d6d !important;
+}
+
+@media (max-width:640px){
+  .tools{
+    gap:10px;
+  }
+  .tool-btn{
+    min-height:48px;
+    padding:12px 16px;
+    font-size:15px;
+    border-radius:16px;
+  }
+  .clear-data-btn{
+    width:auto;
+    max-width:100%;
+  }
+}
+
 </style>
 </head>
 
@@ -1336,7 +1448,14 @@ body.dark-mode #consequences.high-risk .box-info{
     </div>
 
     <div class="tools">
-      <button class="tool-btn" type="button" onclick="clearInput()">Wyczyść</button>
+      <button id="btnClearData" class="tool-btn clear-data-btn" type="button" onclick="clearInput()">
+        <span class="trash-red" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false" role="img">
+            <path fill="currentColor" d="M8.8 3.1 19.6 6l-.5 1.9L8.3 5l.5-1.9Zm2.9-1.8 5.8 1.6-.5 1.9-5.8-1.6.5-1.9ZM6 8h13l-1.2 12.1A2.1 2.1 0 0 1 15.7 22H9.3a2.1 2.1 0 0 1-2.1-1.9L6 8Zm3.2 2 .8 9h1.8l-.6-9h-2Zm4.6 0-.6 9H15l.8-9h-2Z"/>
+          </svg>
+        </span>
+        <span class="clear-label">Wyczyść dane po analizie</span>
+      </button>
       <button class="tool-btn" type="button" onclick="copyText('translation')">Kopiuj tłumaczenie</button>
       <button class="tool-btn" type="button" onclick="copyText('examples')">Kopiuj odpowiedzi</button>
       <button class="tool-btn" type="button" onclick="copyText('examplesDoc')" id="btnCopyExamplesDoc">Kopiuj odpowiedzi do wysłania</button>
@@ -1830,7 +1949,7 @@ p30name: "30 dni",
       analyzingLetter: "Analizuję pismo...",
       helpLinksTitle: "Pomocne strony",
       srcAuto: "Język dokumentu: AUTO",
-      clear: "Wyczyść",
+      clear: "Wyczyść dane po analizie",
       copyTr: "Kopiuj tłumaczenie",
       copyEx: 'Kopiuj odpowiedzi (mój język)'
     },
@@ -1885,7 +2004,7 @@ p30name: "30 днів",
       analyzingLetter: "Аналізую документ...",
       helpLinksTitle: "Корисні посилання",
       srcAuto: "Мова документа: AUTO",
-      clear: "Очистити",
+      clear: "Очистити дані після аналізу",
       copyTr: "Копіювати переклад",
       copyEx: 'Копіювати відповіді (моя мова)'
     },
@@ -1940,7 +2059,7 @@ p30name: "30 dagen",
       analyzingLetter: "Brief analyseren...",
       helpLinksTitle: "Nuttige links",
       srcAuto: "Taal document: AUTO",
-      clear: "Wissen",
+      clear: "Gegevens wissen na analyse",
       copyTr: "Kopieer vertaling",
       copyEx: 'Kopieer antwoorden (mijn taal)'
     },
@@ -1995,7 +2114,7 @@ p30name: "30 days",
       analyzingLetter: "Analyzing letter...",
       helpLinksTitle: "Helpful links",
       srcAuto: "Document language: AUTO",
-      clear: "Clear",
+      clear: "Clear data after analysis",
       copyTr: "Copy translation",
       copyEx: 'Copy replies (my language)'
     },
@@ -2050,7 +2169,7 @@ p30name: "30 Tage",
       analyzingLetter: "Brief wird analysiert...",
       helpLinksTitle: "Hilfreiche Links",
       srcAuto: "Dokumentsprache: AUTO",
-      clear: "Leeren",
+      clear: "Daten nach der Analyse löschen",
       copyTr: "Übersetzung kopieren",
       copyEx: 'Antworten kopieren (meine Sprache)'
     },
@@ -2105,7 +2224,7 @@ p30name: "30 jours",
       analyzingLetter: "Analyse du courrier...",
       helpLinksTitle: "Liens utiles",
       srcAuto: "Langue du document: AUTO",
-      clear: "Effacer",
+      clear: "Effacer les données après l’analyse",
       copyTr: "Copier la traduction",
       copyEx: 'Copier les réponses (ma langue)'
     },
@@ -2160,7 +2279,7 @@ p30name: "30 giorni",
       analyzingLetter: "Analisi del documento...",
       helpLinksTitle: "Link utili",
       srcAuto: "Lingua del documento: AUTO",
-      clear: "Cancella",
+      clear: "Cancella i dati dopo l’analisi",
       copyTr: "Copia traduzione",
       copyEx: 'Copia risposte (mia lingua)'
     },
@@ -2216,7 +2335,7 @@ p30name: "30 días",
       analyzingLetter: "Analizando la carta...",
       helpLinksTitle: "Enlaces útiles",
       srcAuto: "Idioma del documento: AUTO",
-      clear: "Borrar",
+      clear: "Borrar datos después del análisis",
       copyTr: "Copiar traducción",
       copyEx: 'Copiar respuestas (mi idioma)'
     },
@@ -2271,12 +2390,23 @@ p30name: "30 dias",
       analyzingLetter: "A analisar o documento...",
       helpLinksTitle: "Links úteis",
       srcAuto: "Idioma do documento: AUTO",
-      clear: "Limpar",
+      clear: "Limpar dados após a análise",
       copyTr: "Copiar tradução",
       copyEx: 'Copiar respostas (meu idioma)'
     }
   }
 };
+
+
+function sbClearButtonHtml(label){
+  return `
+        <span class="trash-red" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false" role="img">
+            <path fill="currentColor" d="M8.8 3.1 19.6 6l-.5 1.9L8.3 5l.5-1.9Zm2.9-1.8 5.8 1.6-.5 1.9-5.8-1.6.5-1.9ZM6 8h13l-1.2 12.1A2.1 2.1 0 0 1 15.7 22H9.3a2.1 2.1 0 0 1-2.1-1.9L6 8Zm3.2 2 .8 9h1.8l-.6-9h-2Zm4.6 0-.6 9H15l.8-9h-2Z"></path>
+          </svg>
+        </span>
+        <span class="clear-label">${escapeHtml(label)}</span>`;
+}
 
 function getUiLang(){
   const saved = (localStorage.getItem(UI.key) || "").trim().toUpperCase();
@@ -2385,7 +2515,8 @@ document.getElementById("p30name").textContent = t.p30name || "30 dni";
 
   const toolButtons = document.querySelectorAll(".tools .tool-btn");
   if(toolButtons.length >= 3){
-    toolButtons[0].textContent = t.clear;
+    toolButtons[0].innerHTML = sbClearButtonHtml(t.clear);
+    toolButtons[0].setAttribute("aria-label", t.clear);
     toolButtons[1].textContent = t.copyTr;
     toolButtons[2].textContent = t.copyEx;
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
