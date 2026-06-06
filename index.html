@@ -1146,6 +1146,65 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
   margin-bottom:8px;
 }
 
+/* ============================================================
+   Sense Bridge TOP INSIGHT SAFE v2
+   Additive UI layer only: no backend, OCR, paywall or fraud logic changes
+   ============================================================ */
+.sb-top-insight{
+  display:none;
+  margin:10px 0 12px;
+  padding:13px 14px;
+  border-radius:14px;
+  font-weight:850;
+  line-height:1.45;
+  box-shadow:0 8px 20px rgba(15,23,42,0.06);
+}
+.sb-top-insight-low{
+  display:block !important;
+  background:#eef7f3 !important;
+  color:#245c4d !important;
+  border:1px solid rgba(63,138,114,.20) !important;
+}
+.sb-top-insight-medium{
+  display:block !important;
+  background:#fef3c7 !important;
+  color:#92400e !important;
+  border:1px solid rgba(250,204,21,.38) !important;
+}
+.sb-top-insight-high{
+  display:block !important;
+  background:#fee2e2 !important;
+  color:#7f1d1d !important;
+  border:1px solid #fca5a5 !important;
+  box-shadow:0 10px 24px rgba(239,68,68,.12) !important;
+}
+.sb-top-insight-unknown{
+  display:block !important;
+  background:#f1f5f9 !important;
+  color:#334155 !important;
+  border:1px solid rgba(100,116,139,.22) !important;
+}
+body.dark-mode .sb-top-insight-low{
+  background:rgba(44,255,154,.10) !important;
+  color:#d8ffe9 !important;
+  border-color:rgba(44,255,154,.26) !important;
+}
+body.dark-mode .sb-top-insight-medium{
+  background:rgba(255,211,106,.14) !important;
+  color:#ffe7a3 !important;
+  border-color:rgba(255,211,106,.34) !important;
+}
+body.dark-mode .sb-top-insight-high{
+  background:rgba(255,77,109,.18) !important;
+  color:#ffd1da !important;
+  border-color:rgba(255,77,109,.48) !important;
+}
+body.dark-mode .sb-top-insight-unknown{
+  background:rgba(159,181,173,.12) !important;
+  color:#c8e8dc !important;
+  border-color:rgba(159,181,173,.26) !important;
+}
+
 .sb-summary-separator{
   margin:16px 0 14px;
   border-top:1px dashed rgba(104,115,133,.42);
@@ -1605,6 +1664,7 @@ body.dark-mode .clear-data-btn .trash-red{
   <div class="card">
     <div class="section-title" id="lblSummary">Co pismo komunikuje</div>
     <p id="summary"></p>
+    <div id="topInsightBox" class="sb-top-insight" style="display:none;"></div>
     <div id="sbSummarySeparator" class="sb-summary-separator" style="display:none;"><span>Sense Bridge assessment and steps</span></div>
     <div id="legalStatus"></div>
     <div id="urgencyBox" class="box-info"></div>
@@ -2930,6 +2990,13 @@ function clearInput(){
     const el = document.getElementById(id);
     if(el) el.textContent = "";
   });
+
+  const topInsight = document.getElementById("topInsightBox");
+  if (topInsight) {
+    topInsight.textContent = "";
+    topInsight.style.display = "none";
+    topInsight.className = "sb-top-insight";
+  }
   const risks = document.getElementById("risks");
   if(risks) risks.innerHTML = "";
 }
@@ -3717,6 +3784,104 @@ function checkPaywall(){
   return true;
 }
 
+
+/* =========================================================
+   Sense Bridge TOP INSIGHT SAFE v2
+   Shows the most important conclusion above the detailed result.
+   Additive UI only: does not change backend, OCR, paywall or fraud logic.
+   ========================================================= */
+function sbTopInsightSafeTextV2(lang, level, institutionName) {
+  const L = String(lang || "PL").toUpperCase();
+  const name = institutionName ? String(institutionName).trim() : "";
+
+  const dict = {
+    PL: {
+      HIGH: name ? `🚨 Podejrzenie podszywania się pod ${name}. Nie klikaj linków i sprawdź sprawę przez oficjalną stronę.` : "🚨 Wysokie ryzyko oszustwa. Nie klikaj linków i zweryfikuj sprawę przez oficjalny kanał.",
+      MEDIUM: "⚠️ Dokument wymaga ostrożnej weryfikacji. Sprawdź nadawcę, linki i termin przez oficjalną stronę.",
+      LOW: name ? `✅ Rozpoznano ${name}. Nie wykryto silnych sygnałów oszustwa, ale szczegóły warto sprawdzić przez oficjalną stronę.` : "✅ Nie wykryto silnych sygnałów oszustwa. Sprawdź tylko szczegóły dokumentu.",
+      UNKNOWN: "ℹ️ Nie da się jednoznacznie ocenić bezpieczeństwa dokumentu. Sprawdź nadawcę oficjalnym kanałem."
+    },
+    UA: {
+      HIGH: name ? `🚨 Є підозра на імітацію ${name}. Не натискайте посилання і перевірте справу через офіційний сайт.` : "🚨 Високий ризик шахрайства. Не натискайте посилання і перевірте справу через офіційний канал.",
+      MEDIUM: "⚠️ Документ потребує обережної перевірки. Перевірте відправника, посилання і строк через офіційний сайт.",
+      LOW: name ? `✅ Розпізнано ${name}. Сильних ознак шахрайства не виявлено, але деталі варто перевірити через офіційний сайт.` : "✅ Сильних ознак шахрайства не виявлено. Перевірте лише деталі документа.",
+      UNKNOWN: "ℹ️ Неможливо однозначно оцінити безпечність документа. Перевірте відправника офіційним каналом."
+    },
+    NL: {
+      HIGH: name ? `🚨 Mogelijke imitatie van ${name}. Klik niet op links en controleer dit via de officiële website.` : "🚨 Hoog risico op fraude. Klik niet op links en controleer dit via een officieel kanaal.",
+      MEDIUM: "⚠️ Dit document vraagt om extra controle. Controleer afzender, links en termijn via de officiële website.",
+      LOW: name ? `✅ ${name} is herkend. Er zijn geen sterke fraudesignalen gevonden, maar controleer details via de officiële website.` : "✅ Er zijn geen sterke fraudesignalen gevonden. Controleer alleen de details van het document.",
+      UNKNOWN: "ℹ️ De veiligheid van dit document kan niet duidelijk worden beoordeeld. Controleer de afzender via een officieel kanaal."
+    },
+    EN: {
+      HIGH: name ? `🚨 Possible impersonation of ${name}. Do not click links and verify through the official website.` : "🚨 High fraud risk. Do not click links and verify through an official channel.",
+      MEDIUM: "⚠️ This document needs careful verification. Check the sender, links and deadline through the official website.",
+      LOW: name ? `✅ ${name} was recognized. No strong fraud signals were detected, but verify details through the official website.` : "✅ No strong fraud signals were detected. Just check the document details.",
+      UNKNOWN: "ℹ️ The safety of this document cannot be clearly assessed. Verify the sender through an official channel."
+    },
+    DE: {
+      HIGH: name ? `🚨 Mögliche Nachahmung von ${name}. Klicke nicht auf Links und prüfe die Sache über die offizielle Website.` : "🚨 Hohes Betrugsrisiko. Klicke nicht auf Links und prüfe die Sache über einen offiziellen Kanal.",
+      MEDIUM: "⚠️ Dieses Dokument sollte sorgfältig geprüft werden. Prüfe Absender, Links und Frist über die offizielle Website.",
+      LOW: name ? `✅ ${name} wurde erkannt. Es wurden keine starken Betrugssignale gefunden, prüfe Details aber über die offizielle Website.` : "✅ Es wurden keine starken Betrugssignale gefunden. Prüfe nur die Details des Dokuments.",
+      UNKNOWN: "ℹ️ Die Sicherheit dieses Dokuments kann nicht eindeutig bewertet werden. Prüfe den Absender über einen offiziellen Kanal."
+    },
+    FR: {
+      HIGH: name ? `🚨 Possible usurpation de ${name}. Ne cliquez pas sur les liens et vérifiez via le site officiel.` : "🚨 Risque élevé de fraude. Ne cliquez pas sur les liens et vérifiez via un canal officiel.",
+      MEDIUM: "⚠️ Ce document nécessite une vérification prudente. Vérifiez l’expéditeur, les liens et le délai via le site officiel.",
+      LOW: name ? `✅ ${name} a été reconnu. Aucun signal fort de fraude n’a été détecté, mais vérifiez les détails via le site officiel.` : "✅ Aucun signal fort de fraude n’a été détecté. Vérifiez seulement les détails du document.",
+      UNKNOWN: "ℹ️ La sécurité de ce document ne peut pas être évaluée clairement. Vérifiez l’expéditeur via un canal officiel."
+    },
+    IT: {
+      HIGH: name ? `🚨 Possibile imitazione di ${name}. Non cliccare sui link e verifica tramite il sito ufficiale.` : "🚨 Alto rischio di frode. Non cliccare sui link e verifica tramite un canale ufficiale.",
+      MEDIUM: "⚠️ Questo documento richiede una verifica attenta. Controlla mittente, link e scadenza tramite il sito ufficiale.",
+      LOW: name ? `✅ ${name} è stato riconosciuto. Non sono stati rilevati forti segnali di frode, ma verifica i dettagli tramite il sito ufficiale.` : "✅ Non sono stati rilevati forti segnali di frode. Controlla solo i dettagli del documento.",
+      UNKNOWN: "ℹ️ La sicurezza di questo documento non può essere valutata chiaramente. Verifica il mittente tramite un canale ufficiale."
+    },
+    ES: {
+      HIGH: name ? `🚨 Posible suplantación de ${name}. No hagas clic en enlaces y verifica a través del sitio oficial.` : "🚨 Alto riesgo de fraude. No hagas clic en enlaces y verifica por un canal oficial.",
+      MEDIUM: "⚠️ Este documento requiere verificación cuidadosa. Revisa remitente, enlaces y plazo a través del sitio oficial.",
+      LOW: name ? `✅ Se reconoció ${name}. No se detectaron señales fuertes de fraude, pero verifica los detalles en el sitio oficial.` : "✅ No se detectaron señales fuertes de fraude. Revisa solo los detalles del documento.",
+      UNKNOWN: "ℹ️ No se puede evaluar claramente la seguridad de este documento. Verifica el remitente por un canal oficial."
+    },
+    PT: {
+      HIGH: name ? `🚨 Possível imitação de ${name}. Não clique em links e verifique pelo site oficial.` : "🚨 Alto risco de fraude. Não clique em links e verifique por um canal oficial.",
+      MEDIUM: "⚠️ Este documento requer verificação cuidadosa. Verifique remetente, links e prazo pelo site oficial.",
+      LOW: name ? `✅ ${name} foi reconhecida. Não foram detetados sinais fortes de fraude, mas verifique os detalhes pelo site oficial.` : "✅ Não foram detetados sinais fortes de fraude. Verifique apenas os detalhes do documento.",
+      UNKNOWN: "ℹ️ A segurança deste documento não pode ser avaliada claramente. Verifique o remetente por um canal oficial."
+    }
+  };
+
+  const pack = dict[L] || dict.PL;
+  return pack[level] || pack.UNKNOWN;
+}
+
+function renderTopInsightSafeV2(data) {
+  const el = document.getElementById("topInsightBox");
+  if (!el) return;
+
+  const lang = sbGetResultLang();
+  const fraudLevel = String(
+    data?.fraudRisk?.level ||
+    data?.scamRisk?.level ||
+    data?.authenticityRisk?.level ||
+    "UNKNOWN"
+  ).toUpperCase();
+
+  const urgencyLevel = String(data?.urgency || "UNKNOWN").toUpperCase();
+  const institutionName = data?.institution?.name || "";
+
+  let level = "UNKNOWN";
+  if (fraudLevel === "HIGH") level = "HIGH";
+  else if (fraudLevel === "MEDIUM") level = "MEDIUM";
+  else if (fraudLevel === "LOW") level = "LOW";
+  else if (urgencyLevel === "HIGH" || urgencyLevel === "MEDIUM") level = "MEDIUM";
+  else if (urgencyLevel === "LOW") level = "LOW";
+
+  el.className = "sb-top-insight sb-top-insight-" + level.toLowerCase();
+  el.textContent = sbTopInsightSafeTextV2(lang, level, institutionName);
+  el.style.display = "block";
+}
+
 async function analyze(){
   if (!checkPaywall()) return;
 
@@ -3759,6 +3924,8 @@ if(!text){
 
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
+
+      renderTopInsightSafeV2(data);
       renderFraudRisk(data);
       renderInstitution(data);
       // CZY POTRZEBNA POMOC PRAWNA
