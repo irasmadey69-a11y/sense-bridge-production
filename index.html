@@ -1762,6 +1762,178 @@ body.dark-mode .sb-result-accordion > summary:hover{
   }
 }
 
+
+
+/* =========================================================
+   Sense Bridge UX V10 — progress + 3 result cards + print/PDF
+   Additive frontend layer only: no backend/OCR/paywall/analyze.js changes
+   ========================================================= */
+.sb-progress-wrap{
+  display:none;
+  margin-top:12px;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid rgba(63,138,114,0.22);
+  background:linear-gradient(180deg,#ffffff,#f7fbf9);
+  box-shadow:0 8px 18px rgba(15,23,42,0.055);
+}
+.sb-progress-wrap.show{display:block;}
+.sb-progress-title{
+  font-size:13px;
+  font-weight:900;
+  color:#245c4d;
+  margin-bottom:9px;
+}
+.sb-progress-list{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+}
+.sb-progress-step{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-height:38px;
+  padding:8px 9px;
+  border-radius:13px;
+  border:1px solid rgba(63,138,114,0.14);
+  background:rgba(63,138,114,0.045);
+  color:#687385;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.25;
+}
+.sb-progress-dot{
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#e2e8f0;
+  color:#64748b;
+  font-size:11px;
+  font-weight:900;
+}
+.sb-progress-step.active{
+  background:rgba(14,42,71,0.08);
+  border-color:rgba(14,42,71,0.22);
+  color:#0e2a47;
+}
+.sb-progress-step.active .sb-progress-dot{
+  background:#0e2a47;
+  color:#ffffff;
+}
+.sb-progress-step.done{
+  background:rgba(63,138,114,0.10);
+  border-color:rgba(63,138,114,0.24);
+  color:#245c4d;
+}
+.sb-progress-step.done .sb-progress-dot{
+  background:#3f8a72;
+  color:#ffffff;
+}
+.sb-quick-result{
+  display:none;
+  margin-bottom:18px;
+}
+.sb-quick-result.show{display:block;}
+.sb-quick-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+  font-weight:950;
+  color:#132033;
+}
+.sb-quick-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.sb-quick-card{
+  border-radius:18px;
+  border:1px solid rgba(63,138,114,0.22);
+  background:linear-gradient(180deg,#ffffff,#f8fbfa);
+  padding:14px;
+  box-shadow:0 8px 18px rgba(15,23,42,0.055);
+  min-height:132px;
+}
+.sb-quick-card strong{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#172033;
+  font-size:14px;
+  margin-bottom:8px;
+}
+.sb-quick-card p{
+  margin:0;
+  color:#536173;
+  font-size:13px;
+  line-height:1.42;
+}
+.sb-quick-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:10px;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+}
+.sb-quick-pill.low{background:#dcfce7;color:#166534;border:1px solid #86efac;}
+.sb-quick-pill.medium{background:#fef3c7;color:#92400e;border:1px solid rgba(250,204,21,.42);}
+.sb-quick-pill.high{background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5;}
+.sb-quick-pill.unknown{background:#f1f5f9;color:#334155;border:1px solid rgba(100,116,139,.24);}
+body.dark-mode .sb-progress-wrap,
+body.dark-mode .sb-quick-card{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,0.22) !important;
+  box-shadow:0 9px 22px rgba(0,0,0,0.30) !important;
+}
+body.dark-mode .sb-progress-title,
+body.dark-mode .sb-quick-title,
+body.dark-mode .sb-quick-card strong{color:#eafdf4 !important;}
+body.dark-mode .sb-quick-card p{color:#9fb5ad !important;}
+body.dark-mode .sb-progress-step{
+  background:rgba(44,255,154,0.055) !important;
+  border-color:rgba(44,255,154,0.14) !important;
+  color:#9fb5ad !important;
+}
+body.dark-mode .sb-progress-step.active{
+  background:rgba(44,255,154,0.13) !important;
+  border-color:rgba(44,255,154,0.28) !important;
+  color:#d8ffe9 !important;
+}
+body.dark-mode .sb-progress-step.active .sb-progress-dot,
+body.dark-mode .sb-progress-step.done .sb-progress-dot{
+  background:#2cff9a !important;
+  color:#04110b !important;
+}
+body.dark-mode .sb-progress-step.done{color:#d8ffe9 !important;}
+body.dark-mode .sb-quick-pill.low{background:rgba(44,255,154,.16);color:#d8ffe9;border-color:rgba(44,255,154,.35);}
+body.dark-mode .sb-quick-pill.medium{background:rgba(255,211,106,.14);color:#ffe7a3;border-color:rgba(255,211,106,.35);}
+body.dark-mode .sb-quick-pill.high{background:rgba(255,77,109,.18);color:#ffd1da;border-color:rgba(255,77,109,.48);}
+body.dark-mode .sb-quick-pill.unknown{background:rgba(159,181,173,.12);color:#c8e8dc;border-color:rgba(159,181,173,.26);}
+@media (max-width:720px){
+  .sb-progress-list,
+  .sb-quick-grid{grid-template-columns:1fr;}
+  .sb-progress-step{min-height:36px;}
+  .sb-quick-card{min-height:auto;}
+}
+@media print{
+  .topbar,.tools,.access,.footer-links,.legal-mini,.install-btn,.ui-switch,.theme-switch,#btnAnalyze,.photo-box,.statusbar,.privacy-note,.sb-progress-wrap{display:none !important;}
+  body{background:#ffffff !important;color:#000000 !important;}
+  main{max-width:100%;padding:0 !important;}
+  .card,.sb-quick-card{box-shadow:none !important;border-color:#dddddd !important;break-inside:avoid;}
+  details{display:block !important;}
+  details > summary{display:none !important;}
+  .sb-accordion-body{padding:12px !important;}
+}
+
 </style>
 </head>
 
@@ -1884,6 +2056,17 @@ body.dark-mode .sb-result-accordion > summary:hover{
 
       <button id="btnAnalyze" class="primary grow" onclick="analyze()">Analizuj pismo</button>
       <div id="analyzeStatus" class="analyze-status"></div>
+
+      <div id="sbProgressWrap" class="sb-progress-wrap" aria-live="polite">
+        <div id="sbProgressTitle" class="sb-progress-title">Analiza dokumentu</div>
+        <div class="sb-progress-list">
+          <div class="sb-progress-step" data-step="1"><span class="sb-progress-dot">1</span><span id="sbProgressStep1">Przygotowanie</span></div>
+          <div class="sb-progress-step" data-step="2"><span class="sb-progress-dot">2</span><span id="sbProgressStep2">Odczyt tekstu</span></div>
+          <div class="sb-progress-step" data-step="3"><span class="sb-progress-dot">3</span><span id="sbProgressStep3">Analiza treści</span></div>
+          <div class="sb-progress-step" data-step="4"><span class="sb-progress-dot">4</span><span id="sbProgressStep4">Ocena bezpieczeństwa</span></div>
+          <div class="sb-progress-step" data-step="5"><span class="sb-progress-dot">5</span><span id="sbProgressStep5">Gotowe</span></div>
+        </div>
+      </div>
     </div>
 
     <div class="tools">
@@ -1898,6 +2081,7 @@ body.dark-mode .sb-result-accordion > summary:hover{
       <button class="tool-btn" type="button" onclick="copyText('translation')">Kopiuj tłumaczenie</button>
       <button class="tool-btn" type="button" onclick="copyText('examples')">Kopiuj odpowiedzi</button>
       <button class="tool-btn" type="button" onclick="copyText('examplesDoc')" id="btnCopyExamplesDoc">Kopiuj odpowiedzi do wysłania</button>
+      <button class="tool-btn" id="btnPrintPdf" type="button" onclick="sbPrintPdf()">📄 Pobierz PDF</button>
     </div>
 
     <div class="statusbar">
@@ -1935,6 +2119,27 @@ body.dark-mode .sb-result-accordion > summary:hover{
   </div>
 
 </div>
+
+
+  <div class="card sb-quick-result" id="sbQuickResult" aria-live="polite">
+    <div class="sb-quick-title" id="sbQuickTitle">✨ Szybkie podsumowanie</div>
+    <div class="sb-quick-grid">
+      <div class="sb-quick-card">
+        <strong id="sbQuickMeaningTitle">📝 Co to oznacza?</strong>
+        <p id="sbQuickMeaningText"></p>
+      </div>
+      <div class="sb-quick-card">
+        <strong id="sbQuickActionTitle">⚠️ Czy muszę działać?</strong>
+        <p id="sbQuickActionText"></p>
+        <span id="sbQuickUrgencyPill" class="sb-quick-pill unknown" style="display:none;"></span>
+      </div>
+      <div class="sb-quick-card">
+        <strong id="sbQuickSafetyTitle">🛡️ Czy to bezpieczne?</strong>
+        <p id="sbQuickSafetyText"></p>
+        <span id="sbQuickSafetyPill" class="sb-quick-pill unknown" style="display:none;"></span>
+      </div>
+    </div>
+  </div>
 
   <div class="card">
     <div class="section-title" id="lblTranslation">Tłumaczenie</div>
@@ -3345,6 +3550,8 @@ async function checkAccessServer(email){
 }
 
 function clearInput(){
+  if(typeof sbClearQuickResultCards === "function") sbClearQuickResultCards();
+  if(typeof sbProgressHide === "function") sbProgressHide(0);
   document.getElementById("inputText").value = "";
   ["translation","summary","examples","examplesDoc"].forEach(id => {
     const el = document.getElementById(id);
@@ -4242,16 +4449,158 @@ function renderTopInsightSafeV2(data) {
   el.style.display = "block";
 }
 
+/* =========================================================
+   Sense Bridge UX V10 — progress + 3 result cards + print/PDF
+   Additive frontend layer only: no backend/OCR/paywall/analyze.js changes
+   ========================================================= */
+const SB_UX_V10_TEXT = {
+  PL:{progressTitle:"Analiza dokumentu",progress1:"Przygotowanie",progress2:"Odczyt tekstu",progress3:"Analiza treści",progress4:"Ocena bezpieczeństwa",progress5:"Gotowe",statusPreparing:"Przygotowuję analizę...",statusReading:"Odczytuję dokument...",statusAnalyzing:"Analizuję treść...",statusSafety:"Sprawdzam bezpieczeństwo...",statusDone:"Gotowe – sprawdź poniżej",statusError:"Błąd analizy",quickTitle:"✨ Szybkie podsumowanie",quickMeaning:"📝 Co to oznacza?",quickAction:"⚠️ Czy muszę działać?",quickSafety:"🛡️ Czy to bezpieczne?",noShortSummary:"Brak krótkiego podsumowania. Zobacz szczegóły niżej.",noAction:"Brak jasnego działania. Sprawdź szczegóły analizy.",lowUrgency:"Niska pilność",mediumUrgency:"Średnia pilność",highUrgency:"Pilne",unknownUrgency:"Nie określono",safeLow:"Wygląda raczej bezpiecznie",safeMedium:"Warto zweryfikować",safeHigh:"Wysokie ryzyko",safeUnknown:"Nie da się ocenić",printPdf:"📄 Pobierz / zapisz PDF",printHint:"Użyj opcji drukowania telefonu, aby zapisać wynik jako PDF."},
+  EN:{progressTitle:"Document analysis",progress1:"Preparing",progress2:"Reading text",progress3:"Content analysis",progress4:"Safety check",progress5:"Done",statusPreparing:"Preparing analysis...",statusReading:"Reading the document...",statusAnalyzing:"Analyzing the content...",statusSafety:"Checking safety...",statusDone:"Done – check below",statusError:"Analysis error",quickTitle:"✨ Quick summary",quickMeaning:"📝 What does it mean?",quickAction:"⚠️ Do I need to act?",quickSafety:"🛡️ Is it safe?",noShortSummary:"No short summary available. See the details below.",noAction:"No clear action detected. Check the analysis details.",lowUrgency:"Low urgency",mediumUrgency:"Medium urgency",highUrgency:"Urgent",unknownUrgency:"Not specified",safeLow:"Looks rather safe",safeMedium:"Worth verifying",safeHigh:"High risk",safeUnknown:"Cannot be assessed",printPdf:"📄 Download / save PDF",printHint:"Use your phone's print option to save the result as PDF."},
+  NL:{progressTitle:"Documentanalyse",progress1:"Voorbereiden",progress2:"Tekst lezen",progress3:"Inhoud analyseren",progress4:"Veiligheid controleren",progress5:"Klaar",statusPreparing:"Analyse voorbereiden...",statusReading:"Document lezen...",statusAnalyzing:"Inhoud analyseren...",statusSafety:"Veiligheid controleren...",statusDone:"Klaar – kijk hieronder",statusError:"Analysefout",quickTitle:"✨ Korte samenvatting",quickMeaning:"📝 Wat betekent dit?",quickAction:"⚠️ Moet ik iets doen?",quickSafety:"🛡️ Is het veilig?",noShortSummary:"Geen korte samenvatting beschikbaar. Bekijk de details hieronder.",noAction:"Geen duidelijke actie gevonden. Bekijk de analysedetails.",lowUrgency:"Lage urgentie",mediumUrgency:"Middelmatige urgentie",highUrgency:"Dringend",unknownUrgency:"Niet bepaald",safeLow:"Lijkt redelijk veilig",safeMedium:"Controleer dit",safeHigh:"Hoog risico",safeUnknown:"Kan niet worden beoordeeld",printPdf:"📄 Download / sla PDF op",printHint:"Gebruik de printfunctie van je telefoon om het resultaat als PDF op te slaan."},
+  DE:{progressTitle:"Dokumentanalyse",progress1:"Vorbereitung",progress2:"Text lesen",progress3:"Inhalt analysieren",progress4:"Sicherheit prüfen",progress5:"Fertig",statusPreparing:"Analyse wird vorbereitet...",statusReading:"Dokument wird gelesen...",statusAnalyzing:"Inhalt wird analysiert...",statusSafety:"Sicherheit wird geprüft...",statusDone:"Fertig – siehe unten",statusError:"Analysefehler",quickTitle:"✨ Kurze Zusammenfassung",quickMeaning:"📝 Was bedeutet das?",quickAction:"⚠️ Muss ich handeln?",quickSafety:"🛡️ Ist es sicher?",noShortSummary:"Keine kurze Zusammenfassung verfügbar. Siehe Details unten.",noAction:"Keine klare Handlung erkannt. Prüfen Sie die Details der Analyse.",lowUrgency:"Geringe Dringlichkeit",mediumUrgency:"Mittlere Dringlichkeit",highUrgency:"Dringend",unknownUrgency:"Nicht bestimmt",safeLow:"Wirkt eher sicher",safeMedium:"Überprüfung empfohlen",safeHigh:"Hohes Risiko",safeUnknown:"Kann nicht bewertet werden",printPdf:"📄 PDF herunterladen / speichern",printHint:"Nutzen Sie die Druckfunktion Ihres Telefons, um das Ergebnis als PDF zu speichern."},
+  FR:{progressTitle:"Analyse du document",progress1:"Préparation",progress2:"Lecture du texte",progress3:"Analyse du contenu",progress4:"Vérification de sécurité",progress5:"Terminé",statusPreparing:"Préparation de l’analyse...",statusReading:"Lecture du document...",statusAnalyzing:"Analyse du contenu...",statusSafety:"Vérification de la sécurité...",statusDone:"Terminé – regardez ci-dessous",statusError:"Erreur d’analyse",quickTitle:"✨ Résumé rapide",quickMeaning:"📝 Qu’est-ce que cela signifie ?",quickAction:"⚠️ Dois-je agir ?",quickSafety:"🛡️ Est-ce sûr ?",noShortSummary:"Aucun résumé court disponible. Voir les détails ci-dessous.",noAction:"Aucune action claire détectée. Consultez les détails de l’analyse.",lowUrgency:"Faible urgence",mediumUrgency:"Urgence moyenne",highUrgency:"Urgent",unknownUrgency:"Non précisé",safeLow:"Semble plutôt sûr",safeMedium:"À vérifier",safeHigh:"Risque élevé",safeUnknown:"Impossible à évaluer",printPdf:"📄 Télécharger / enregistrer PDF",printHint:"Utilisez l’option d’impression du téléphone pour enregistrer le résultat en PDF."},
+  IT:{progressTitle:"Analisi del documento",progress1:"Preparazione",progress2:"Lettura del testo",progress3:"Analisi del contenuto",progress4:"Controllo sicurezza",progress5:"Fatto",statusPreparing:"Preparazione dell’analisi...",statusReading:"Lettura del documento...",statusAnalyzing:"Analisi del contenuto...",statusSafety:"Controllo della sicurezza...",statusDone:"Fatto – controlla qui sotto",statusError:"Errore di analisi",quickTitle:"✨ Riepilogo rapido",quickMeaning:"📝 Cosa significa?",quickAction:"⚠️ Devo agire?",quickSafety:"🛡️ È sicuro?",noShortSummary:"Nessun riepilogo breve disponibile. Vedi i dettagli sotto.",noAction:"Nessuna azione chiara rilevata. Controlla i dettagli dell’analisi.",lowUrgency:"Bassa urgenza",mediumUrgency:"Urgenza media",highUrgency:"Urgente",unknownUrgency:"Non specificato",safeLow:"Sembra abbastanza sicuro",safeMedium:"Da verificare",safeHigh:"Rischio elevato",safeUnknown:"Non valutabile",printPdf:"📄 Scarica / salva PDF",printHint:"Usa l’opzione di stampa del telefono per salvare il risultato in PDF."},
+  ES:{progressTitle:"Análisis del documento",progress1:"Preparación",progress2:"Lectura del texto",progress3:"Análisis del contenido",progress4:"Comprobación de seguridad",progress5:"Listo",statusPreparing:"Preparando el análisis...",statusReading:"Leyendo el documento...",statusAnalyzing:"Analizando el contenido...",statusSafety:"Comprobando la seguridad...",statusDone:"Listo – revisa abajo",statusError:"Error de análisis",quickTitle:"✨ Resumen rápido",quickMeaning:"📝 ¿Qué significa?",quickAction:"⚠️ ¿Tengo que actuar?",quickSafety:"🛡️ ¿Es seguro?",noShortSummary:"No hay resumen corto disponible. Revisa los detalles abajo.",noAction:"No se detectó una acción clara. Revisa los detalles del análisis.",lowUrgency:"Baja urgencia",mediumUrgency:"Urgencia media",highUrgency:"Urgente",unknownUrgency:"No especificado",safeLow:"Parece bastante seguro",safeMedium:"Conviene verificar",safeHigh:"Riesgo alto",safeUnknown:"No se puede evaluar",printPdf:"📄 Descargar / guardar PDF",printHint:"Usa la opción de imprimir del teléfono para guardar el resultado como PDF."},
+  PT:{progressTitle:"Análise do documento",progress1:"Preparação",progress2:"Leitura do texto",progress3:"Análise do conteúdo",progress4:"Verificação de segurança",progress5:"Concluído",statusPreparing:"A preparar a análise...",statusReading:"A ler o documento...",statusAnalyzing:"A analisar o conteúdo...",statusSafety:"A verificar a segurança...",statusDone:"Concluído – veja abaixo",statusError:"Erro de análise",quickTitle:"✨ Resumo rápido",quickMeaning:"📝 O que significa?",quickAction:"⚠️ Preciso agir?",quickSafety:"🛡️ É seguro?",noShortSummary:"Não há resumo curto disponível. Veja os detalhes abaixo.",noAction:"Nenhuma ação clara detetada. Verifique os detalhes da análise.",lowUrgency:"Baixa urgência",mediumUrgency:"Urgência média",highUrgency:"Urgente",unknownUrgency:"Não especificado",safeLow:"Parece relativamente seguro",safeMedium:"Vale a pena verificar",safeHigh:"Alto risco",safeUnknown:"Não é possível avaliar",printPdf:"📄 Descarregar / guardar PDF",printHint:"Use a opção de impressão do telemóvel para guardar o resultado em PDF."},
+  UA:{progressTitle:"Аналіз документа",progress1:"Підготовка",progress2:"Читання тексту",progress3:"Аналіз змісту",progress4:"Перевірка безпеки",progress5:"Готово",statusPreparing:"Підготовка аналізу...",statusReading:"Читання документа...",statusAnalyzing:"Аналіз змісту...",statusSafety:"Перевірка безпеки...",statusDone:"Готово – дивіться нижче",statusError:"Помилка аналізу",quickTitle:"✨ Короткий підсумок",quickMeaning:"📝 Що це означає?",quickAction:"⚠️ Чи потрібно діяти?",quickSafety:"🛡️ Чи це безпечно?",noShortSummary:"Короткий підсумок недоступний. Дивіться деталі нижче.",noAction:"Чіткої дії не виявлено. Перевірте деталі аналізу.",lowUrgency:"Низька терміновість",mediumUrgency:"Середня терміновість",highUrgency:"Терміново",unknownUrgency:"Не визначено",safeLow:"Виглядає досить безпечно",safeMedium:"Варто перевірити",safeHigh:"Високий ризик",safeUnknown:"Неможливо оцінити",printPdf:"📄 Завантажити / зберегти PDF",printHint:"Скористайтеся друком на телефоні, щоб зберегти результат як PDF."}
+};
+function sbUx10Text(key, lang){
+  const L = String(lang || sbGetResultLang() || (UI && UI.lang) || "PL").toUpperCase();
+  return (SB_UX_V10_TEXT[L] && SB_UX_V10_TEXT[L][key]) || (SB_UX_V10_TEXT.EN && SB_UX_V10_TEXT.EN[key]) || (SB_UX_V10_TEXT.PL && SB_UX_V10_TEXT.PL[key]) || key;
+}
+function sbApplyUxV10Texts(){
+  const lang = sbGetResultLang();
+  const map = {
+    sbProgressTitle:"progressTitle", sbProgressStep1:"progress1", sbProgressStep2:"progress2", sbProgressStep3:"progress3", sbProgressStep4:"progress4", sbProgressStep5:"progress5",
+    sbQuickTitle:"quickTitle", sbQuickMeaningTitle:"quickMeaning", sbQuickActionTitle:"quickAction", sbQuickSafetyTitle:"quickSafety"
+  };
+  Object.keys(map).forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.textContent = sbUx10Text(map[id], lang);
+  });
+  const pdf = document.getElementById("btnPrintPdf");
+  if(pdf) pdf.textContent = sbUx10Text("printPdf", UI.lang || lang);
+}
+(function(){
+  const prevApply = typeof applyUiLang === "function" ? applyUiLang : null;
+  if(prevApply && !prevApply.__sbUxV10Wrapped){
+    const wrapped = function(){
+      prevApply();
+      sbApplyUxV10Texts();
+    };
+    wrapped.__sbUxV10Wrapped = true;
+    applyUiLang = wrapped;
+  }
+})();
+function sbProgressSet(step, key){
+  const wrap = document.getElementById("sbProgressWrap");
+  const statusEl = document.getElementById("analyzeStatus");
+  const lang = sbGetResultLang();
+  if(wrap) wrap.classList.add("show");
+  sbApplyUxV10Texts();
+  document.querySelectorAll(".sb-progress-step").forEach(function(el){
+    const n = Number(el.getAttribute("data-step") || 0);
+    el.classList.toggle("done", n < step);
+    el.classList.toggle("active", n === step);
+    const dot = el.querySelector(".sb-progress-dot");
+    if(dot) dot.textContent = n < step ? "✓" : String(n);
+  });
+  if(statusEl && key) statusEl.textContent = (step >= 5 ? "✅ " : "⏳ ") + sbUx10Text(key, lang);
+}
+function sbProgressFinish(){
+  sbProgressSet(5, "statusDone");
+  document.querySelectorAll(".sb-progress-step").forEach(function(el){
+    el.classList.add("done");
+    el.classList.remove("active");
+    const dot = el.querySelector(".sb-progress-dot");
+    if(dot) dot.textContent = "✓";
+  });
+}
+function sbProgressHide(delay){
+  setTimeout(function(){
+    const wrap = document.getElementById("sbProgressWrap");
+    if(wrap) wrap.classList.remove("show");
+  }, delay || 0);
+}
+function sbFirstUsefulText(list){
+  return safeArr(list).map(function(x){return String(x || "").trim();}).filter(Boolean)[0] || "";
+}
+function sbShortenText(txt, max){
+  const s = String(txt || "").replace(/\s+/g," ").trim();
+  if(!s) return "";
+  const limit = max || 190;
+  return s.length > limit ? s.slice(0, limit - 1).trim() + "…" : s;
+}
+function sbFraudLevelFromData(data){
+  return String(data?.fraudRisk?.level || data?.scamRisk?.level || data?.authenticityRisk?.level || data?.fraudLevel || "UNKNOWN").toUpperCase();
+}
+function sbPillClass(level){
+  const L = String(level || "UNKNOWN").toUpperCase();
+  if(L === "LOW") return "low";
+  if(L === "MEDIUM") return "medium";
+  if(L === "HIGH") return "high";
+  return "unknown";
+}
+function sbRenderQuickResultCards(data){
+  const box = document.getElementById("sbQuickResult");
+  if(!box || !data) return;
+  const lang = sbGetResultLang();
+  sbApplyUxV10Texts();
+  const summary = sbShortenText(data.quickSummary || data.summary || data.whatOfficeSays || data.communication || "", 210) || sbUx10Text("noShortSummary", lang);
+  const firstAction = sbShortenText(sbFirstUsefulText(data.actions), 180) || sbUx10Text("noAction", lang);
+  const urgency = String(data.urgency || "UNKNOWN").toUpperCase();
+  const fraudLevel = sbFraudLevelFromData(data);
+  const fr = data.fraudRisk || data.scamRisk || data.authenticityRisk || {};
+  const safetyText = sbShortenText(fr.summary || fr.label || "", 170) || sbUx10Text(fraudLevel === "LOW" ? "safeLow" : fraudLevel === "MEDIUM" ? "safeMedium" : fraudLevel === "HIGH" ? "safeHigh" : "safeUnknown", lang);
+  const urgencyKey = urgency === "HIGH" ? "highUrgency" : urgency === "MEDIUM" ? "mediumUrgency" : urgency === "LOW" ? "lowUrgency" : "unknownUrgency";
+  const safetyKey = fraudLevel === "HIGH" ? "safeHigh" : fraudLevel === "MEDIUM" ? "safeMedium" : fraudLevel === "LOW" ? "safeLow" : "safeUnknown";
+  const meaningEl = document.getElementById("sbQuickMeaningText");
+  const actionEl = document.getElementById("sbQuickActionText");
+  const safetyEl = document.getElementById("sbQuickSafetyText");
+  if(meaningEl) meaningEl.textContent = summary;
+  if(actionEl) actionEl.textContent = firstAction;
+  if(safetyEl) safetyEl.textContent = safetyText;
+  const urgencyPill = document.getElementById("sbQuickUrgencyPill");
+  if(urgencyPill){
+    urgencyPill.style.display = "inline-flex";
+    urgencyPill.className = "sb-quick-pill " + (urgency === "HIGH" ? "high" : urgency === "MEDIUM" ? "medium" : urgency === "LOW" ? "low" : "unknown");
+    urgencyPill.textContent = sbUx10Text(urgencyKey, lang);
+  }
+  const safetyPill = document.getElementById("sbQuickSafetyPill");
+  if(safetyPill){
+    safetyPill.style.display = "inline-flex";
+    safetyPill.className = "sb-quick-pill " + sbPillClass(fraudLevel);
+    safetyPill.textContent = sbUx10Text(safetyKey, lang);
+  }
+  box.classList.add("show");
+}
+function sbClearQuickResultCards(){
+  const box = document.getElementById("sbQuickResult");
+  if(box) box.classList.remove("show");
+  ["sbQuickMeaningText","sbQuickActionText","sbQuickSafetyText"].forEach(function(id){
+    const el = document.getElementById(id); if(el) el.textContent = "";
+  });
+}
+function sbPrintPdf(){
+  const hasAny = ["translation","summary","examples","examplesDoc"].some(function(id){
+    const el = document.getElementById(id);
+    return el && String(el.textContent || "").trim();
+  });
+  if(!hasAny){
+    alert(UI.dict[UI.lang]?.emptyCopy || "Brak treści do zapisania.");
+    return;
+  }
+  window.print();
+}
+
 async function analyze(){
   if (!checkPaywall()) return;
 
   const btn = document.getElementById("btnAnalyze");
   const statusEl = document.getElementById("analyzeStatus");
   btn.disabled = true;
-  if(statusEl){
-  statusEl.textContent =
-    "⏳ " + sbResultText("analyzingLetter", UI.lang);
-}
+  if(typeof sbClearQuickResultCards === "function") sbClearQuickResultCards();
+  if(typeof sbProgressSet === "function") sbProgressSet(1, "statusPreparing");
 
   try{
     let text = (document.getElementById("inputText").value || "").trim();
@@ -4263,6 +4612,7 @@ const photoInput = (typeof sbActivePhotoInput === "function")
   : document.getElementById("sbPhotoInput");
 
 if (!text && photoInput && photoInput.files && photoInput.files[0] && window.sbReadPhotoText) {
+  if(typeof sbProgressSet === "function") sbProgressSet(2, "statusReading");
   text = await window.sbReadPhotoText(true);
 }
 
@@ -4271,6 +4621,7 @@ if(!text){
   return;
 }
 
+    if(typeof sbProgressSet === "function") sbProgressSet(3, "statusAnalyzing");
     const res = await fetch(ENDPOINTS.analyze,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -4285,6 +4636,8 @@ if(!text){
     document.getElementById("summary").textContent =
       (data.summary || data.whatOfficeSays || data.communication || "").trim();
 
+      if(typeof sbProgressSet === "function") sbProgressSet(4, "statusSafety");
+      if(typeof sbRenderQuickResultCards === "function") sbRenderQuickResultCards(data);
       renderTopInsightSafeV2(data);
       renderFraudRisk(data);
       renderInstitution(data);
@@ -4513,16 +4866,19 @@ fetch("/.netlify/functions/analyze_count", {
     refreshUI();
     updatePaidMessage();
 
-    if(statusEl){ statusEl.textContent = "✅ Gotowe – sprawdź poniżej"; }
-    document.getElementById("translation").scrollIntoView({behavior:"smooth"});
+    if(typeof sbProgressFinish === "function") sbProgressFinish();
+    else if(statusEl){ statusEl.textContent = "✅ " + sbUx10Text("statusDone", sbGetResultLang()); }
+    const quickBox = document.getElementById("sbQuickResult");
+    (quickBox || document.getElementById("translation")).scrollIntoView({behavior:"smooth"});
   } catch (e){
-    if(statusEl){ statusEl.textContent = "❌ Błąd analizy"; }
+    if(statusEl){ statusEl.textContent = "❌ " + (typeof sbUx10Text === "function" ? sbUx10Text("statusError", sbGetResultLang()) : "Błąd analizy"); }
     alert("Błąd: " + (e?.message || e));
   } finally {
     btn.disabled = false;
     setTimeout(() => {
       if(statusEl) statusEl.textContent = "";
-    }, 3000);
+      if(typeof sbProgressHide === "function") sbProgressHide(0);
+    }, 4500);
   }
 }
 
@@ -4533,6 +4889,7 @@ fetch("/.netlify/functions/analyze_count", {
   UI.lang = getUiLang();
   applyTheme(getTheme());
   applyUiLang();
+  if(typeof sbApplyUxV10Texts === "function") sbApplyUxV10Texts();
   applyTheme(getTheme());
   
   trackEvent("app_open");
