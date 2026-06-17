@@ -3924,6 +3924,87 @@ function renderFraudRisk(data){
   card.style.display = "block";
 }
 
+
+/* =========================================================
+   Sense Bridge TRUST PATCH V11
+   Safer institution display: do not present a national website/country
+   as certain when the document only gives weak country signals.
+   Frontend display only: no OCR/paywall/backend/analyze.js changes.
+   ========================================================= */
+
+function sbTrustText(key, lang){
+  const L = String(lang || sbGetResultLang() || "PL").toUpperCase();
+  const dict = {
+    PL:{recognizedInstitution:"Rozpoznana instytucja",countryFromDocument:"Kraj z dokumentu",probableCountry:"Prawdopodobny kontekst kraju",countryNotCertain:"Kraj instytucji nie został jednoznacznie potwierdzony w treści dokumentu.",basedOnContent:"na podstawie treści/linków w dokumencie",basedOnLanguage:"na podstawie języka dokumentu — to tylko wskazówka",websiteHidden:"Nie pokazuję jednej krajowej strony jako pewnej, bo kraj nie jest wystarczająco potwierdzony.",safeInstitutionStep:"Nie klikaj linku z wiadomości. Otwórz oficjalną aplikację albo wyszukaj instytucję ręcznie.",officialWebsiteShown:"Pokazuję stronę tylko wtedy, gdy nie kłóci się z kontekstem dokumentu."},
+    EN:{recognizedInstitution:"Recognized institution",countryFromDocument:"Country from the document",probableCountry:"Probable country context",countryNotCertain:"The institution country was not clearly confirmed in the document text.",basedOnContent:"based on document text/links",basedOnLanguage:"based on the document language — this is only a hint",websiteHidden:"I am not showing one national website as certain because the country is not confirmed enough.",safeInstitutionStep:"Do not click links from the message. Open the official app or search for the institution manually.",officialWebsiteShown:"The website is shown only when it does not conflict with the document context."},
+    NL:{recognizedInstitution:"Herkende instantie",countryFromDocument:"Land uit het document",probableCountry:"Waarschijnlijke landcontext",countryNotCertain:"Het land van de instantie is niet duidelijk bevestigd in de tekst van het document.",basedOnContent:"op basis van tekst/links in het document",basedOnLanguage:"op basis van de documenttaal — dit is alleen een aanwijzing",websiteHidden:"Ik toon niet één nationale website als zeker, omdat het land niet voldoende bevestigd is.",safeInstitutionStep:"Klik niet op links uit het bericht. Open de officiële app of zoek de instantie handmatig.",officialWebsiteShown:"De website wordt alleen getoond wanneer die niet botst met de documentcontext."},
+    DE:{recognizedInstitution:"Erkannte Institution",countryFromDocument:"Land aus dem Dokument",probableCountry:"Wahrscheinlicher Länderkontext",countryNotCertain:"Das Land der Institution wurde im Dokument nicht eindeutig bestätigt.",basedOnContent:"basierend auf Text/Links im Dokument",basedOnLanguage:"basierend auf der Dokumentsprache — nur ein Hinweis",websiteHidden:"Ich zeige keine einzelne nationale Website als sicher an, weil das Land nicht ausreichend bestätigt ist.",safeInstitutionStep:"Klicken Sie nicht auf Links aus der Nachricht. Öffnen Sie die offizielle App oder suchen Sie die Institution manuell.",officialWebsiteShown:"Die Website wird nur angezeigt, wenn sie nicht dem Dokumentkontext widerspricht."},
+    FR:{recognizedInstitution:"Institution reconnue",countryFromDocument:"Pays indiqué par le document",probableCountry:"Contexte pays probable",countryNotCertain:"Le pays de l’institution n’est pas clairement confirmé dans le document.",basedOnContent:"d’après le texte/les liens du document",basedOnLanguage:"d’après la langue du document — seulement un indice",websiteHidden:"Je n’affiche pas un site national comme certain, car le pays n’est pas suffisamment confirmé.",safeInstitutionStep:"Ne cliquez pas sur les liens du message. Ouvrez l’application officielle ou recherchez l’institution manuellement.",officialWebsiteShown:"Le site est affiché uniquement s’il ne contredit pas le contexte du document."},
+    IT:{recognizedInstitution:"Istituzione riconosciuta",countryFromDocument:"Paese dal documento",probableCountry:"Contesto paese probabile",countryNotCertain:"Il paese dell’istituzione non è confermato chiaramente nel testo del documento.",basedOnContent:"in base al testo/ai link del documento",basedOnLanguage:"in base alla lingua del documento — solo un indizio",websiteHidden:"Non mostro un singolo sito nazionale come certo perché il paese non è abbastanza confermato.",safeInstitutionStep:"Non cliccare i link del messaggio. Apri l’app ufficiale oppure cerca manualmente l’istituzione.",officialWebsiteShown:"Il sito viene mostrato solo se non è in conflitto con il contesto del documento."},
+    ES:{recognizedInstitution:"Institución reconocida",countryFromDocument:"País del documento",probableCountry:"Contexto probable del país",countryNotCertain:"El país de la institución no está confirmado claramente en el texto del documento.",basedOnContent:"según el texto/enlaces del documento",basedOnLanguage:"según el idioma del documento — solo es una pista",websiteHidden:"No muestro un sitio nacional como seguro porque el país no está suficientemente confirmado.",safeInstitutionStep:"No hagas clic en enlaces del mensaje. Abre la app oficial o busca la institución manualmente.",officialWebsiteShown:"El sitio se muestra solo cuando no contradice el contexto del documento."},
+    PT:{recognizedInstitution:"Instituição reconhecida",countryFromDocument:"País do documento",probableCountry:"Contexto provável do país",countryNotCertain:"O país da instituição não foi confirmado claramente no texto do documento.",basedOnContent:"com base no texto/links do documento",basedOnLanguage:"com base no idioma do documento — apenas uma pista",websiteHidden:"Não mostro um site nacional como certo porque o país não está suficientemente confirmado.",safeInstitutionStep:"Não clique nos links da mensagem. Abra a app oficial ou procure a instituição manualmente.",officialWebsiteShown:"O site só é mostrado quando não entra em conflito com o contexto do documento."},
+    UA:{recognizedInstitution:"Розпізнана установа",countryFromDocument:"Країна з документа",probableCountry:"Ймовірний контекст країни",countryNotCertain:"Країну установи не підтверджено однозначно в тексті документа.",basedOnContent:"на основі тексту/посилань у документі",basedOnLanguage:"на основі мови документа — це лише підказка",websiteHidden:"Я не показую один національний сайт як певний, бо країну недостатньо підтверджено.",safeInstitutionStep:"Не натискайте посилання з повідомлення. Відкрийте офіційний застосунок або знайдіть установу вручну.",officialWebsiteShown:"Сайт показується лише тоді, коли він не суперечить контексту документа."}
+  };
+  return (dict[L] && dict[L][key]) || (dict.EN && dict.EN[key]) || key;
+}
+
+function sbTextIncludesAny(text, words){
+  const t = String(text || "").toLowerCase();
+  return words.some(w => t.includes(String(w).toLowerCase()));
+}
+
+function sbWebsiteCountry(url){
+  const u = String(url || "").toLowerCase();
+  if(!u) return "";
+  const host = (u.match(/^https?:\/\/([^\/]+)/i) || [,""])[1].replace(/^www\./,"");
+  if(!host) return "";
+  const map = {".gov.uk":"GB",".gc.ca":"CA",".nl":"NL",".es":"ES",".be":"BE",".de":"DE",".fr":"FR",".it":"IT",".pt":"PT",".pl":"PL",".ua":"UA",".us":"US",".ca":"CA",".uk":"GB",".ie":"IE",".at":"AT",".ch":"CH",".au":"AU",".nz":"NZ",".sg":"SG"};
+  for(const suffix of Object.keys(map)){
+    if(host.endsWith(suffix)) return map[suffix];
+  }
+  return "";
+}
+
+function sbInferDocumentCountry(){
+  const input = document.getElementById("inputText");
+  const source = document.getElementById("sourceLang");
+  const txt = String((input && input.value) || "");
+  const selectedLang = String((source && source.value) || "AUTO").toUpperCase();
+
+  const contentSignals = [
+    {code:"ES", words:[" españa","españa"," madrid"," barcelona"," valencia"," agencia tributaria"," seguridad social"," banco de españa",".gob.es"," ing.es"]},
+    {code:"NL", words:[" nederland","netherlands"," amsterdam"," rotterdam"," tilburg"," uwv"," belastingdienst"," digid"," gemeente"," rijksoverheid",".nl"," ing.nl"]},
+    {code:"BE", words:[" belgië","belgique"," belgium"," brussel","bruxelles"," vlaanderen",".be"]},
+    {code:"DE", words:[" deutschland"," germany"," berlin"," münchen"," finanzamt"," jobcenter",".de"]},
+    {code:"FR", words:[" france"," paris"," impots.gouv"," caf"," cpam"," ameli",".fr"]},
+    {code:"IT", words:[" italia"," italy"," roma"," agenzia delle entrate"," inps",".it"]},
+    {code:"PT", words:[" portugal"," lisboa"," autoridade tributária"," autoridade tributaria",".pt"]},
+    {code:"PL", words:[" polska"," poland"," warszawa"," zus"," urząd skarbowy"," gov.pl",".pl"]},
+    {code:"US", words:[" united states"," usa"," irs"," social security administration"," uscis",".gov"]},
+    {code:"CA", words:[" canada"," service canada"," cra"," ircc",".gc.ca"]},
+    {code:"GB", words:[" united kingdom"," uk"," hmrc"," gov.uk",".gov.uk"]},
+    {code:"UA", words:[" україна"," ukraine"," київ"," kyiv",".ua"]}
+  ];
+
+  for(const s of contentSignals){
+    if(sbTextIncludesAny(" " + txt + " ", s.words)){
+      return {code:s.code, level:"strong", reason:"content"};
+    }
+  }
+
+  const langMap = {NL:"NL", DE:"DE", FR:"FR", IT:"IT", ES:"ES", PT:"PT", PL:"PL", UA:"UA"};
+  if(langMap[selectedLang]){
+    return {code:langMap[selectedLang], level:"language", reason:"language"};
+  }
+
+  return {code:"", level:"unknown", reason:"unknown"};
+}
+
+function sbIsInternationalInstitution(name){
+  const n = String(name || "").toLowerCase();
+  return ["ing","santander","bbva","revolut","wise","paypal","western union","visa","mastercard","hsbc","bnp","deutsche bank","credit agricole","unicredit","intesa","apple","google","microsoft","amazon","dhl","ups"].some(x => n.includes(x));
+}
+
 function renderInstitution(data){
   const box = document.getElementById("institutionBox");
   if(!box) return;
@@ -3938,25 +4019,61 @@ function renderInstitution(data){
   const lang = sbGetResultLang();
   const website = inst.officialWebsite || "";
   const confidence = Number(inst.confidence || 0);
+  const inferred = sbInferDocumentCountry();
+  const websiteCountry = sbWebsiteCountry(website);
+  const international = sbIsInternationalInstitution(inst.name);
+  const backendCountry = String(inst.country || "").toUpperCase();
 
-  box.innerHTML = `
-    <div class="box-info" style="margin-top:12px;">
-      <strong>🏛 ${escapeHtml(inst.name)}</strong><br>
+  const hasStrongCountry = inferred.level === "strong" && inferred.code;
+  const hasLanguageCountry = inferred.level === "language" && inferred.code;
 
-      ${inst.country ? `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(countryName(inst.country))}<br>` : ""}
+  const websiteMatchesStrongCountry = hasStrongCountry && websiteCountry && websiteCountry === inferred.code;
+  const websiteHasNoCountry = website && !websiteCountry;
+  const backendMatchesStrongCountry = hasStrongCountry && backendCountry && backendCountry === inferred.code;
 
-      ${website
-        ? `🌐 ${escapeHtml(sbResultText("officialWebsite", lang))}:
+  let showWebsite = false;
+
+  if(website){
+    if(websiteMatchesStrongCountry || websiteHasNoCountry){
+      showWebsite = true;
+    }else if(!international && !hasLanguageCountry && !hasStrongCountry){
+      showWebsite = true;
+    }else if(!international && backendMatchesStrongCountry){
+      showWebsite = true;
+    }
+  }
+
+  let countryLine = "";
+
+  if(hasStrongCountry){
+    countryLine = `🌍 ${escapeHtml(sbTrustText("countryFromDocument", lang))}: ${escapeHtml(countryName(inferred.code))}
+      <br><small>${escapeHtml(sbTrustText("basedOnContent", lang))}</small><br>`;
+  }else if(hasLanguageCountry){
+    countryLine = `🌍 ${escapeHtml(sbTrustText("probableCountry", lang))}: ${escapeHtml(countryName(inferred.code))}
+      <br><small>${escapeHtml(sbTrustText("basedOnLanguage", lang))}</small><br>`;
+  }else if(backendCountry && !international){
+    countryLine = `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(countryName(backendCountry))}<br>`;
+  }else{
+    countryLine = `🌍 ${escapeHtml(sbTrustText("countryNotCertain", lang))}<br>`;
+  }
+
+  const websiteLine = showWebsite
+    ? `🌐 ${escapeHtml(sbResultText("officialWebsite", lang))}:
         <a href="${escapeHtml(website)}"
         target="_blank"
         rel="noopener noreferrer">
         ${escapeHtml(website)}
-        </a><br>`
-        : ""
-      }
+        </a><br>
+        <small>${escapeHtml(sbTrustText("officialWebsiteShown", lang))}</small><br>`
+    : `<span>⚠️ ${escapeHtml(sbTrustText("websiteHidden", lang))}</span><br>
+       <small>${escapeHtml(sbTrustText("safeInstitutionStep", lang))}</small><br>`;
 
+  box.innerHTML = `
+    <div class="box-info" style="margin-top:12px;">
+      <strong>🏛 ${escapeHtml(sbTrustText("recognizedInstitution", lang))}: ${escapeHtml(inst.name)}</strong><br>
+      ${countryLine}
+      ${websiteLine}
       ✅ ${escapeHtml(sbResultText("verifyInstitution", lang))}
-
       ${confidence
         ? `<br><small>${escapeHtml(sbResultText("recognitionConfidence", lang))}: ${confidence}%</small>`
         : ""
