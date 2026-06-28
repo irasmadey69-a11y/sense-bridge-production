@@ -1934,6 +1934,306 @@ body.dark-mode .sb-quick-pill.unknown{background:rgba(159,181,173,.12);color:#c8
   .sb-accordion-body{padding:12px !important;}
 }
 
+
+/* =========================================================
+   Sense Bridge — AI Tools Trial Panel
+   Additive module only: no OCR/analyze/paywall changes
+   ========================================================= */
+.sb-ai-tools-card{
+  border-top:6px solid var(--primary);
+}
+.sb-ai-tools-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.sb-ai-tools-title-wrap{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.sb-ai-tools-icon{
+  width:56px;
+  height:56px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  background:rgba(63,138,114,.08);
+  border:1px solid rgba(63,138,114,.20);
+  font-size:27px;
+  flex:0 0 auto;
+}
+.sb-ai-tools-title{
+  margin:0;
+  color:#132033;
+  font-size:clamp(28px,5.8vw,40px);
+  line-height:1.05;
+  letter-spacing:-.045em;
+}
+.sb-ai-tools-toggle{
+  width:52px;
+  height:52px;
+  border-radius:999px;
+  background:#fff;
+  color:#245c4d;
+  font-weight:950;
+  border:1px solid rgba(63,138,114,.24);
+  cursor:pointer;
+  flex:0 0 auto;
+}
+.sb-ai-tools-desc{
+  margin:14px 0 0;
+  font-size:18px;
+  color:var(--muted);
+}
+.sb-ai-tools-body{
+  display:none;
+  margin-top:16px;
+}
+.sb-ai-tools-card.open .sb-ai-tools-body{
+  display:block;
+}
+.sb-ai-trial-box{
+  border:1px solid rgba(63,138,114,.22);
+  border-radius:18px;
+  padding:14px;
+  background:linear-gradient(180deg,#ffffff,#f8fbfa);
+  margin-bottom:14px;
+}
+.sb-ai-trials-main{
+  font-size:20px;
+  font-weight:950;
+  color:#132033;
+}
+.sb-ai-trials-main strong{
+  color:#245c4d;
+}
+.sb-ai-premium-pill{
+  margin-top:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(63,138,114,.18);
+  background:#fff;
+  color:#245c4d;
+  font-weight:900;
+  font-size:14px;
+}
+.sb-ai-tool-grid{
+  display:grid;
+  gap:10px;
+}
+.sb-ai-tool{
+  width:100%;
+  border:1px solid rgba(63,138,114,.22);
+  background:linear-gradient(180deg,#ffffff,#fbfdfc);
+  border-radius:18px;
+  padding:14px;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(15,23,42,.055);
+}
+.sb-ai-tool:hover{
+  border-color:rgba(63,138,114,.36);
+  transform:translateY(-1px);
+}
+.sb-ai-tool-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.sb-ai-tool-name{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  color:#132033;
+  font-size:17px;
+  font-weight:950;
+}
+.sb-ai-tool-name span:first-child{
+  font-size:21px;
+}
+.sb-ai-badge{
+  padding:6px 9px;
+  border-radius:999px;
+  background:rgba(63,138,114,.08);
+  border:1px solid rgba(63,138,114,.18);
+  color:#245c4d;
+  font-size:12px;
+  font-weight:950;
+  white-space:nowrap;
+}
+.sb-ai-tool-desc{
+  margin:9px 0 0 31px;
+  color:var(--muted);
+  font-size:14px;
+}
+.sb-ai-note{
+  margin-top:12px;
+  font-size:13px;
+  color:var(--muted);
+}
+body.dark-mode .sb-ai-tools-title,
+body.dark-mode .sb-ai-trials-main,
+body.dark-mode .sb-ai-tool-name{
+  color:var(--text) !important;
+}
+body.dark-mode .sb-ai-tools-icon,
+body.dark-mode .sb-ai-tools-toggle,
+body.dark-mode .sb-ai-trial-box,
+body.dark-mode .sb-ai-tool{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,.22) !important;
+  color:#eafdf4 !important;
+}
+body.dark-mode .sb-ai-badge,
+body.dark-mode .sb-ai-premium-pill{
+  background:rgba(44,255,154,.10) !important;
+  border-color:rgba(44,255,154,.24) !important;
+  color:#d8ffe9 !important;
+}
+body.dark-mode .sb-ai-trials-main strong{
+  color:var(--primary) !important;
+}
+@media(max-width:640px){
+  .sb-ai-tools-title-wrap{gap:11px;}
+  .sb-ai-tools-icon{width:48px;height:48px;border-radius:16px;}
+  .sb-ai-tools-toggle{width:48px;height:48px;}
+  .sb-ai-tool-name{font-size:16px;}
+  .sb-ai-tool-desc{margin-left:0;}
+}
+
+
+/* =========================================================
+   Sense Bridge — AI Tools preview box
+   Additive only: opens selected AI tool preview without backend
+   ========================================================= */
+.sb-ai-preview{
+  display:none;
+  margin-top:14px;
+  padding:16px;
+  border-radius:18px;
+  border:1px solid rgba(63,138,114,.22);
+  background:linear-gradient(180deg,#ffffff,#f8fbfa);
+}
+.sb-ai-preview.show{display:block;}
+.sb-ai-preview h3{
+  margin:0 0 8px;
+  color:#132033;
+  font-size:22px;
+  line-height:1.15;
+}
+.sb-ai-preview p{
+  margin:0 0 12px;
+  color:var(--muted);
+  font-size:15px;
+}
+.sb-ai-preview textarea{
+  min-height:118px;
+  margin-bottom:10px;
+}
+.sb-ai-preview-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.sb-ai-preview-actions .primary{
+  min-height:48px;
+  font-weight:900;
+}
+body.dark-mode .sb-ai-preview{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,.22) !important;
+}
+body.dark-mode .sb-ai-preview h3{
+  color:var(--text) !important;
+}
+
+
+/* =========================================================
+   Sense Bridge — AI Tools production-ready preview result
+   Additive only: ready for separate Netlify function files
+   ========================================================= */
+.sb-ai-preview-result{
+  display:none;
+  margin-top:12px;
+  padding:13px;
+  border-radius:16px;
+  border:1px solid rgba(63,138,114,.20);
+  background:rgba(63,138,114,.055);
+  color:#263244;
+  font-size:14px;
+  line-height:1.45;
+  white-space:pre-wrap;
+}
+.sb-ai-preview-result.show{display:block;}
+.sb-ai-preview-result.loading{
+  background:rgba(14,42,71,.06);
+  border-color:rgba(14,42,71,.14);
+}
+.sb-ai-preview-result.locked{
+  background:#fff1f2;
+  border-color:#fecaca;
+  color:#991b1b;
+}
+body.dark-mode .sb-ai-preview-result{
+  background:rgba(44,255,154,.08) !important;
+  border-color:rgba(44,255,154,.20) !important;
+  color:#d8ffe9 !important;
+}
+body.dark-mode .sb-ai-preview-result.locked{
+  background:rgba(255,77,109,.15) !important;
+  border-color:rgba(255,77,109,.35) !important;
+  color:#ffd1da !important;
+}
+
+
+/* =========================================================
+   Sense Bridge — AI Tools finished frontend result cards
+   Additive only: keeps main letter analysis untouched
+   ========================================================= */
+.sb-ai-result-cards{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.sb-ai-result-card{
+  border:1px solid rgba(63,138,114,.20);
+  background:linear-gradient(180deg,#ffffff,#f8fbfa);
+  border-radius:16px;
+  padding:12px;
+}
+.sb-ai-result-card strong{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#132033;
+  font-size:14px;
+  margin-bottom:6px;
+}
+.sb-ai-result-card p{
+  margin:0;
+  color:#536173;
+  font-size:14px;
+  line-height:1.42;
+}
+.sb-ai-risk-low{border-color:rgba(34,197,94,.24);background:#f0fdf4;}
+.sb-ai-risk-medium{border-color:rgba(250,204,21,.36);background:#fefce8;}
+.sb-ai-risk-high{border-color:rgba(239,68,68,.34);background:#fef2f2;}
+body.dark-mode .sb-ai-result-card{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,.20) !important;
+}
+body.dark-mode .sb-ai-result-card strong{color:#eafdf4 !important;}
+body.dark-mode .sb-ai-result-card p{color:#9fb5ad !important;}
+body.dark-mode .sb-ai-risk-low{background:rgba(44,255,154,.08) !important;border-color:rgba(44,255,154,.24) !important;}
+body.dark-mode .sb-ai-risk-medium{background:rgba(255,211,106,.12) !important;border-color:rgba(255,211,106,.30) !important;}
+body.dark-mode .sb-ai-risk-high{background:rgba(255,77,109,.15) !important;border-color:rgba(255,77,109,.36) !important;}
+
 </style>
 </head>
 
@@ -1976,6 +2276,82 @@ body.dark-mode .sb-quick-pill.unknown{background:rgba(159,181,173,.12);color:#c8
       <p id="paidText" style="margin:0;color:#1f2937;font-weight:600;"></p>
     </div>
   </div>
+
+  <div class="card sb-ai-tools-card" id="sbAiToolsCard">
+    <div class="sb-ai-tools-head">
+      <div class="sb-ai-tools-title-wrap">
+        <div class="sb-ai-tools-icon" aria-hidden="true">✨</div>
+        <h2 class="sb-ai-tools-title" id="sbAiToolsTitle">Nowe narzędzia AI</h2>
+      </div>
+      <button class="sb-ai-tools-toggle" id="sbAiToolsToggle" type="button" aria-expanded="false">⌄</button>
+    </div>
+
+    <p class="sb-ai-tools-desc" id="sbAiToolsDesc">Wypróbuj 2 razy dowolne nowe narzędzie. Potem odblokuj pakiet Premium.</p>
+
+    <div class="sb-ai-tools-body" id="sbAiToolsBody">
+      <div class="sb-ai-trial-box">
+        <div class="sb-ai-trials-main">🧪 <span id="sbAiTrialsLabel">Testowe użycia:</span> <strong id="sbAiTrialsLeft">2</strong></div>
+        <div class="sb-ai-premium-pill">⭐ <span id="sbAiPremiumLabel">Premium po testach</span></div>
+      </div>
+
+      <div class="sb-ai-tool-grid">
+        <button class="sb-ai-tool" type="button" data-ai-tool="screenshot">
+          <div class="sb-ai-tool-top">
+            <div class="sb-ai-tool-name"><span>📸</span><span id="sbAiScreenshotTitle">Sprawdź zrzut ekranu</span></div>
+            <span class="sb-ai-badge" data-ai-badge>AI Tool</span>
+          </div>
+          <p class="sb-ai-tool-desc" id="sbAiScreenshotDesc">Komunikat, reklama, ostrzeżenie lub podejrzany ekran.</p>
+        </button>
+
+        <button class="sb-ai-tool" type="button" data-ai-tool="link">
+          <div class="sb-ai-tool-top">
+            <div class="sb-ai-tool-name"><span>🔗</span><span id="sbAiLinkTitle">Sprawdź link lub stronę</span></div>
+            <span class="sb-ai-badge" data-ai-badge>AI Tool</span>
+          </div>
+          <p class="sb-ai-tool-desc" id="sbAiLinkDesc">Ocena domeny, podszywania się i sygnałów ryzyka.</p>
+        </button>
+
+        <button class="sb-ai-tool" type="button" data-ai-tool="message">
+          <div class="sb-ai-tool-top">
+            <div class="sb-ai-tool-name"><span>💬</span><span id="sbAiMessageTitle">Sprawdź e-mail lub SMS</span></div>
+            <span class="sb-ai-badge" data-ai-badge>AI Tool</span>
+          </div>
+          <p class="sb-ai-tool-desc" id="sbAiMessageDesc">Wiadomość od firmy, urzędu, banku albo nieznanego nadawcy.</p>
+        </button>
+
+        <button class="sb-ai-tool" type="button" data-ai-tool="reply">
+          <div class="sb-ai-tool-top">
+            <div class="sb-ai-tool-name"><span>✍️</span><span id="sbAiReplyTitle">Pomoc w odpowiedzi</span></div>
+            <span class="sb-ai-badge" data-ai-badge>AI Tool</span>
+          </div>
+          <p class="sb-ai-tool-desc" id="sbAiReplyDesc">Uprzejma, stanowcza albo neutralna odpowiedź do dalszej edycji.</p>
+        </button>
+
+        <button class="sb-ai-tool" type="button" data-ai-tool="conversation">
+          <div class="sb-ai-tool-top">
+            <div class="sb-ai-tool-name"><span>🗣️</span><span id="sbAiConversationTitle">Przygotuj rozmowę</span></div>
+            <span class="sb-ai-badge" data-ai-badge>AI Tool</span>
+          </div>
+          <p class="sb-ai-tool-desc" id="sbAiConversationDesc">Pytania i zdania do urzędu, firmy lub instytucji.</p>
+        </button>
+      </div>
+
+
+      <div class="sb-ai-preview" id="sbAiPreviewBox">
+        <h3 id="sbAiPreviewTitle">Sprawdź zrzut ekranu</h3>
+        <p id="sbAiPreviewDesc">To bezpieczny podgląd modułu. Pełną analizę podłączymy w kolejnym kroku przez osobne funkcje backendowe.</p>
+        <textarea id="sbAiPreviewInput" placeholder="Wklej tekst, link albo opisz zrzut ekranu..."></textarea>
+        <div class="sb-ai-preview-actions">
+          <button class="primary" type="button" id="sbAiUseTrialBtn">Użyj testu</button>
+          <button type="button" id="sbAiClosePreviewBtn">Zamknij</button>
+        </div>
+        <div class="sb-ai-preview-result" id="sbAiPreviewResult"></div>
+      </div>
+
+      <div class="sb-ai-note" id="sbAiToolsNote">Wybierz narzędzie, wpisz treść i użyj jednego z 2 testów.</div>
+    </div>
+  </div>
+
 
   <div class="card">
     <div class="section-title" id="lblPaste">Wklej pismo</div>
@@ -2106,6 +2482,9 @@ body.dark-mode .sb-quick-pill.unknown{background:rgba(159,181,173,.12);color:#c8
       <strong>Prywatność:</strong> Dokumenty nie są publicznie zapisywane ani udostępniane. Wklejaj tylko treści, które chcesz przeanalizować. Sense Bridge pomaga zrozumieć pismo, ale nie zastępuje porady prawnej.
     </div>
   </div>
+
+
+
 
 <div class="card" id="fraudInfoCard">
 
@@ -3255,6 +3634,351 @@ function sbHeroBenefitsHtml(){
   }).join("");
 }
 
+
+function sbAiToolsText(key){
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+  const map = {
+    PL:{title:"Nowe narzędzia AI",desc:"Wypróbuj 2 razy dowolne nowe narzędzie. Potem odblokuj pakiet Premium.",trials:"Testowe użycia:",premium:"Premium po testach",badge:"AI Tool",screenshotTitle:"Sprawdź zrzut ekranu",screenshotDesc:"Komunikat, reklama, ostrzeżenie lub podejrzany ekran.",linkTitle:"Sprawdź link lub stronę",linkDesc:"Ocena domeny, podszywania się i sygnałów ryzyka.",messageTitle:"Sprawdź e-mail lub SMS",messageDesc:"Wiadomość od firmy, urzędu, banku albo nieznanego nadawcy.",replyTitle:"Pomoc w odpowiedzi",replyDesc:"Uprzejma, stanowcza albo neutralna odpowiedź do dalszej edycji.",conversationTitle:"Przygotuj rozmowę",conversationDesc:"Pytania i zdania do urzędu, firmy lub instytucji.",note:"Wybierz narzędzie, wpisz treść i użyj jednego z 2 testów.",used:"Użycie testowe zostało zaznaczone. Pełne działanie podłączymy w następnym kroku.",locked:"Testowe użycia zostały wykorzystane. Odblokuj pakiet Premium."},
+    EN:{title:"New AI tools",desc:"Try any new tool 2 times. Then unlock the Premium package.",trials:"Trial uses:",premium:"Premium after trials",badge:"AI Tool",screenshotTitle:"Check a screenshot",screenshotDesc:"A message, ad, warning or suspicious screen.",linkTitle:"Check a link or website",linkDesc:"Domain, impersonation and risk-signal check.",messageTitle:"Check an email or SMS",messageDesc:"A message from a company, office, bank or unknown sender.",replyTitle:"Reply assistant",replyDesc:"Polite, firm or neutral reply for further editing.",conversationTitle:"Prepare for a conversation",conversationDesc:"Questions and phrases for an office, company or institution.",note:"Choose a tool, enter content and use one of your 2 trials.",used:"Trial use marked. Full functionality will be connected in the next step.",locked:"Trial uses are used. Unlock the Premium package."},
+    NL:{title:"Nieuwe AI-tools",desc:"Probeer 2 keer een nieuw hulpmiddel naar keuze. Ontgrendel daarna Premium.",trials:"Testgebruik:",premium:"Premium na tests",badge:"AI-tool",screenshotTitle:"Controleer een screenshot",screenshotDesc:"Een melding, advertentie, waarschuwing of verdacht scherm.",linkTitle:"Controleer een link of website",linkDesc:"Controle van domein, imitatie en risicosignalen.",messageTitle:"Controleer e-mail of SMS",messageDesc:"Een bericht van een bedrijf, instantie, bank of onbekende afzender.",replyTitle:"Hulp bij antwoorden",replyDesc:"Een beleefd, duidelijk of neutraal antwoord om verder te bewerken.",conversationTitle:"Bereid een gesprek voor",conversationDesc:"Vragen en zinnen voor een instantie, bedrijf of kantoor.",note:"Kies een hulpmiddel, voer tekst in en gebruik een van je 2 tests.",used:"Testgebruik gemarkeerd. Volledige werking koppelen we in de volgende stap.",locked:"Testgebruik is op. Ontgrendel Premium."},
+    DE:{title:"Neue KI-Tools",desc:"Teste 2-mal ein beliebiges neues Tool. Danach schaltest du Premium frei.",trials:"Testnutzungen:",premium:"Premium nach Tests",badge:"KI-Tool",screenshotTitle:"Screenshot prüfen",screenshotDesc:"Eine Meldung, Werbung, Warnung oder ein verdächtiger Bildschirm.",linkTitle:"Link oder Website prüfen",linkDesc:"Prüfung von Domain, Nachahmung und Risikosignalen.",messageTitle:"E-Mail oder SMS prüfen",messageDesc:"Eine Nachricht von Firma, Behörde, Bank oder unbekanntem Absender.",replyTitle:"Antwort-Hilfe",replyDesc:"Eine höfliche, klare oder neutrale Antwort zur weiteren Bearbeitung.",conversationTitle:"Gespräch vorbereiten",conversationDesc:"Fragen und Sätze für Behörde, Firma oder Institution.",note:"Wähle ein Tool, gib Inhalt ein und nutze einen deiner 2 Tests.",used:"Testnutzung markiert. Die vollständige Funktion verbinden wir im nächsten Schritt.",locked:"Testnutzungen sind aufgebraucht. Premium freischalten."},
+    UA:{title:"Нові AI-інструменти",desc:"Спробуйте будь-який новий інструмент 2 рази. Потім відкрийте Premium.",trials:"Тестові використання:",premium:"Premium після тестів",badge:"AI інструмент",screenshotTitle:"Перевірити скриншот",screenshotDesc:"Повідомлення, реклама, попередження або підозрілий екран.",linkTitle:"Перевірити посилання або сайт",linkDesc:"Перевірка домену, імітації та сигналів ризику.",messageTitle:"Перевірити e-mail або SMS",messageDesc:"Повідомлення від компанії, установи, банку або невідомого відправника.",replyTitle:"Допомога з відповіддю",replyDesc:"Ввічлива, тверда або нейтральна відповідь для редагування.",conversationTitle:"Підготувати розмову",conversationDesc:"Питання і фрази для установи, компанії або офісу.",note:"Виберіть інструмент, введіть текст і використайте один із 2 тестів.",used:"Тестове використання зараховано. Повну функцію під’єднаємо наступним кроком.",locked:"Тестові використання закінчилися. Відкрийте Premium."},
+    FR:{title:"Nouveaux outils IA",desc:"Essayez 2 fois l’outil de votre choix. Ensuite, débloquez Premium.",trials:"Essais disponibles :",premium:"Premium après les essais",badge:"Outil IA",screenshotTitle:"Vérifier une capture d’écran",screenshotDesc:"Un message, une publicité, une alerte ou un écran suspect.",linkTitle:"Vérifier un lien ou un site",linkDesc:"Contrôle du domaine, de l’imitation et des signaux de risque.",messageTitle:"Vérifier un e-mail ou SMS",messageDesc:"Un message d’une entreprise, administration, banque ou expéditeur inconnu.",replyTitle:"Aide à la réponse",replyDesc:"Une réponse polie, ferme ou neutre à modifier ensuite.",conversationTitle:"Préparer une conversation",conversationDesc:"Questions et phrases pour une administration, entreprise ou institution.",note:"Choisissez un outil, saisissez le contenu et utilisez l’un de vos 2 essais.",used:"Essai utilisé. La fonction complète sera connectée à l’étape suivante.",locked:"Les essais sont utilisés. Débloquez Premium."},
+    IT:{title:"Nuovi strumenti AI",desc:"Prova 2 volte qualsiasi nuovo strumento. Poi sblocca Premium.",trials:"Usi di prova:",premium:"Premium dopo i test",badge:"Strumento AI",screenshotTitle:"Controlla uno screenshot",screenshotDesc:"Un messaggio, pubblicità, avviso o schermata sospetta.",linkTitle:"Controlla un link o sito",linkDesc:"Controllo di dominio, imitazione e segnali di rischio.",messageTitle:"Controlla e-mail o SMS",messageDesc:"Un messaggio da azienda, ufficio, banca o mittente sconosciuto.",replyTitle:"Aiuto nella risposta",replyDesc:"Una risposta gentile, ferma o neutrale da modificare.",conversationTitle:"Prepara una conversazione",conversationDesc:"Domande e frasi per ufficio, azienda o istituzione.",note:"Scegli uno strumento, inserisci il contenuto e usa uno dei 2 test.",used:"Uso di prova segnato. La funzione completa sarà collegata nel prossimo passaggio.",locked:"Gli usi di prova sono terminati. Sblocca Premium."},
+    ES:{title:"Nuevas herramientas de IA",desc:"Prueba 2 veces cualquier herramienta nueva. Después desbloquea Premium.",trials:"Usos de prueba:",premium:"Premium después de probar",badge:"Herramienta IA",screenshotTitle:"Revisar una captura",screenshotDesc:"Un mensaje, anuncio, advertencia o pantalla sospechosa.",linkTitle:"Revisar enlace o sitio",linkDesc:"Comprobación de dominio, suplantación y señales de riesgo.",messageTitle:"Revisar e-mail o SMS",messageDesc:"Un mensaje de empresa, oficina, banco o remitente desconocido.",replyTitle:"Ayuda para responder",replyDesc:"Una respuesta educada, firme o neutral para editar.",conversationTitle:"Preparar una conversación",conversationDesc:"Preguntas y frases para una oficina, empresa o institución.",note:"Elige una herramienta, introduce el contenido y usa una de tus 2 pruebas.",used:"Uso de prueba marcado. La función completa se conectará en el siguiente paso.",locked:"Los usos de prueba se han agotado. Desbloquea Premium."},
+    PT:{title:"Novas ferramentas de IA",desc:"Teste 2 vezes qualquer nova ferramenta. Depois desbloqueie o Premium.",trials:"Usos de teste:",premium:"Premium após os testes",badge:"Ferramenta IA",screenshotTitle:"Verificar screenshot",screenshotDesc:"Uma mensagem, anúncio, aviso ou ecrã suspeito.",linkTitle:"Verificar link ou site",linkDesc:"Verificação de domínio, imitação e sinais de risco.",messageTitle:"Verificar e-mail ou SMS",messageDesc:"Mensagem de empresa, entidade, banco ou remetente desconhecido.",replyTitle:"Ajuda na resposta",replyDesc:"Resposta educada, firme ou neutra para editar.",conversationTitle:"Preparar conversa",conversationDesc:"Perguntas e frases para entidade, empresa ou instituição.",note:"Escolha uma ferramenta, insira o conteúdo e use um dos seus 2 testes.",used:"Uso de teste marcado. A função completa será ligada no próximo passo.",locked:"Os usos de teste terminaram. Desbloqueie Premium."}
+  };
+  const pack = map[lang] || map.PL;
+  return pack[key] || map.PL[key] || "";
+}
+
+function applyAiToolsLang(){
+  sbSetText("sbAiToolsTitle", sbAiToolsText("title"));
+  sbSetText("sbAiToolsDesc", sbAiToolsText("desc"));
+  sbSetText("sbAiTrialsLabel", sbAiToolsText("trials"));
+  sbSetText("sbAiPremiumLabel", sbAiToolsText("premium"));
+  sbSetText("sbAiScreenshotTitle", sbAiToolsText("screenshotTitle"));
+  sbSetText("sbAiScreenshotDesc", sbAiToolsText("screenshotDesc"));
+  sbSetText("sbAiLinkTitle", sbAiToolsText("linkTitle"));
+  sbSetText("sbAiLinkDesc", sbAiToolsText("linkDesc"));
+  sbSetText("sbAiMessageTitle", sbAiToolsText("messageTitle"));
+  sbSetText("sbAiMessageDesc", sbAiToolsText("messageDesc"));
+  sbSetText("sbAiReplyTitle", sbAiToolsText("replyTitle"));
+  sbSetText("sbAiReplyDesc", sbAiToolsText("replyDesc"));
+  sbSetText("sbAiConversationTitle", sbAiToolsText("conversationTitle"));
+  sbSetText("sbAiConversationDesc", sbAiToolsText("conversationDesc"));
+  sbSetText("sbAiToolsNote", sbAiToolsText("note"));
+  document.querySelectorAll("[data-ai-badge]").forEach(function(el){
+    el.textContent = sbAiToolsText("badge");
+  });
+  const left = document.getElementById("sbAiTrialsLeft");
+  if(left) left.textContent = String(getAiToolsTrialLeft());
+  applyAiToolsPreviewLang();
+}
+
+function getAiToolsTrialLeft(){
+  const raw = localStorage.getItem("sb_ai_tools_trial_left_v1");
+  if(raw === null) return 2;
+  const n = Number(raw);
+  return Number.isFinite(n) ? Math.max(0, Math.min(2, n)) : 2;
+}
+
+function setAiToolsTrialLeft(n){
+  localStorage.setItem("sb_ai_tools_trial_left_v1", String(Math.max(0, Math.min(2, n))));
+  const left = document.getElementById("sbAiTrialsLeft");
+  if(left) left.textContent = String(getAiToolsTrialLeft());
+}
+
+
+
+function sbAiPreviewText(tool, key){
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+  const pack = {
+    PL:{
+      previewDesc:{
+        screenshot:"Opisz podejrzany ekran, komunikat, reklamę albo ostrzeżenie.",
+        link:"Wklej link lub adres strony, którą chcesz sprawdzić.",
+        message:"Wklej treść e-maila, SMS-a lub wiadomości.",
+        reply:"Wklej wiadomość albo pismo, na które chcesz odpowiedzieć.",
+        conversation:"Opisz, z kim będziesz rozmawiać i czego dotyczy sprawa."
+      },
+      placeholder:{
+        screenshot:"Np. wyskoczyło ostrzeżenie o wirusie, prośba o płatność, reklama...",
+        link:"Wklej tutaj link, np. https://...",
+        message:"Wklej treść wiadomości...",
+        reply:"Wklej treść pisma lub wiadomości...",
+        conversation:"Np. rozmowa z urzędem, bankiem, pracodawcą, szkołą..."
+      },
+      useTrial:"Użyj testu", close:"Zamknij", empty:"Wpisz treść, aby wykonać test."
+    },
+    EN:{
+      previewDesc:{screenshot:"Describe the suspicious screen, message, ad or warning.",link:"Paste the link or website address you want to check.",message:"Paste the email, SMS or message content.",reply:"Paste the message or letter you want to reply to.",conversation:"Describe who you will talk to and what the matter is about."},
+      placeholder:{screenshot:"Example: virus warning, payment request, pop-up ad...",link:"Paste the link here, e.g. https://...",message:"Paste the message content...",reply:"Paste the letter or message content...",conversation:"Example: office, bank, employer, school conversation..."},
+      useTrial:"Use trial", close:"Close", empty:"Enter content to run a test."
+    },
+    NL:{
+      previewDesc:{screenshot:"Beschrijf het verdachte scherm, bericht, advertentie of waarschuwing.",link:"Plak de link of website die je wilt controleren.",message:"Plak de inhoud van de e-mail, SMS of boodschap.",reply:"Plak het bericht of de brief waarop je wilt antwoorden.",conversation:"Beschrijf met wie je gaat praten en waarover het gaat."},
+      placeholder:{screenshot:"Bijv. viruswaarschuwing, betaalverzoek, pop-up advertentie...",link:"Plak hier de link, bijv. https://...",message:"Plak de inhoud van het bericht...",reply:"Plak de brief of het bericht...",conversation:"Bijv. gesprek met instantie, bank, werkgever, school..."},
+      useTrial:"Test gebruiken", close:"Sluiten", empty:"Voer tekst in om een test te gebruiken."
+    },
+    DE:{
+      previewDesc:{screenshot:"Beschreibe den verdächtigen Bildschirm, die Meldung, Werbung oder Warnung.",link:"Füge den Link oder die Website-Adresse ein, die du prüfen möchtest.",message:"Füge den Inhalt der E-Mail, SMS oder Nachricht ein.",reply:"Füge die Nachricht oder den Brief ein, auf den du antworten möchtest.",conversation:"Beschreibe, mit wem du sprechen wirst und worum es geht."},
+      placeholder:{screenshot:"Z.B. Viruswarnung, Zahlungsaufforderung, Pop-up-Werbung...",link:"Link hier einfügen, z.B. https://...",message:"Nachrichtentext einfügen...",reply:"Brief oder Nachricht einfügen...",conversation:"Z.B. Gespräch mit Behörde, Bank, Arbeitgeber, Schule..."},
+      useTrial:"Test nutzen", close:"Schließen", empty:"Gib Inhalt ein, um einen Test zu nutzen."
+    },
+    UA:{
+      previewDesc:{screenshot:"Опишіть підозрілий екран, повідомлення, рекламу або попередження.",link:"Вставте посилання або адресу сайту, який хочете перевірити.",message:"Вставте текст e-mail, SMS або повідомлення.",reply:"Вставте повідомлення або лист, на який хочете відповісти.",conversation:"Опишіть, з ким буде розмова і про що справа."},
+      placeholder:{screenshot:"Напр. попередження про вірус, вимога оплати, реклама...",link:"Вставте посилання, напр. https://...",message:"Вставте текст повідомлення...",reply:"Вставте лист або повідомлення...",conversation:"Напр. розмова з установою, банком, роботодавцем, школою..."},
+      useTrial:"Використати тест", close:"Закрити", empty:"Введіть текст, щоб виконати тест."
+    },
+    FR:{
+      previewDesc:{screenshot:"Décrivez l’écran suspect, le message, la publicité ou l’alerte.",link:"Collez le lien ou l’adresse du site à vérifier.",message:"Collez le contenu de l’e-mail, SMS ou message.",reply:"Collez le message ou document auquel vous voulez répondre.",conversation:"Décrivez avec qui vous allez parler et le sujet."},
+      placeholder:{screenshot:"Ex. alerte virus, demande de paiement, publicité pop-up...",link:"Collez le lien ici, ex. https://...",message:"Collez le contenu du message...",reply:"Collez le document ou message...",conversation:"Ex. administration, banque, employeur, école..."},
+      useTrial:"Utiliser un essai", close:"Fermer", empty:"Saisissez un contenu pour lancer un essai."
+    },
+    IT:{
+      previewDesc:{screenshot:"Descrivi la schermata sospetta, messaggio, pubblicità o avviso.",link:"Incolla il link o sito da controllare.",message:"Incolla il contenuto di e-mail, SMS o messaggio.",reply:"Incolla il messaggio o documento a cui vuoi rispondere.",conversation:"Descrivi con chi parlerai e di cosa si tratta."},
+      placeholder:{screenshot:"Es. avviso virus, richiesta pagamento, pop-up...",link:"Incolla il link, es. https://...",message:"Incolla il contenuto del messaggio...",reply:"Incolla lettera o messaggio...",conversation:"Es. ufficio, banca, datore di lavoro, scuola..."},
+      useTrial:"Usa test", close:"Chiudi", empty:"Inserisci contenuto per usare un test."
+    },
+    ES:{
+      previewDesc:{screenshot:"Describe la pantalla sospechosa, mensaje, anuncio o advertencia.",link:"Pega el enlace o sitio web que quieres revisar.",message:"Pega el contenido del e-mail, SMS o mensaje.",reply:"Pega el mensaje o documento al que quieres responder.",conversation:"Describe con quién hablarás y de qué trata el asunto."},
+      placeholder:{screenshot:"Ej. aviso de virus, solicitud de pago, anuncio emergente...",link:"Pega aquí el enlace, ej. https://...",message:"Pega el contenido del mensaje...",reply:"Pega el documento o mensaje...",conversation:"Ej. oficina, banco, empleador, escuela..."},
+      useTrial:"Usar prueba", close:"Cerrar", empty:"Introduce contenido para usar una prueba."
+    },
+    PT:{
+      previewDesc:{screenshot:"Descreva o ecrã suspeito, mensagem, anúncio ou aviso.",link:"Cole o link ou site que quer verificar.",message:"Cole o conteúdo do e-mail, SMS ou mensagem.",reply:"Cole a mensagem ou documento a que quer responder.",conversation:"Descreva com quem vai falar e qual é o assunto."},
+      placeholder:{screenshot:"Ex. aviso de vírus, pedido de pagamento, pop-up...",link:"Cole o link aqui, ex. https://...",message:"Cole o conteúdo da mensagem...",reply:"Cole o documento ou mensagem...",conversation:"Ex. entidade, banco, empregador, escola..."},
+      useTrial:"Usar teste", close:"Fechar", empty:"Insira conteúdo para usar um teste."
+    }
+  };
+  const p = pack[lang] || pack.PL;
+  if(key === "title"){
+    const titles = {screenshot:"screenshotTitle",link:"linkTitle",message:"messageTitle",reply:"replyTitle",conversation:"conversationTitle"};
+    return sbAiToolsText(titles[tool] || "screenshotTitle");
+  }
+  const value = p[key];
+  if(value && typeof value === "object") return value[tool] || value.screenshot;
+  return value || pack.PL[key] || "";
+}
+
+
+function openAiToolsPreview(tool){
+  const box = document.getElementById("sbAiPreviewBox");
+  if(!box) return;
+  box.dataset.tool = tool || "screenshot";
+  sbSetText("sbAiPreviewTitle", sbAiPreviewText(tool, "title"));
+  sbSetText("sbAiPreviewDesc", sbAiPreviewText(tool, "previewDesc"));
+  const input = document.getElementById("sbAiPreviewInput");
+  if(input) input.placeholder = sbAiPreviewText(tool, "placeholder");
+  sbSetText("sbAiUseTrialBtn", sbAiPreviewText(tool, "useTrial"));
+  sbSetText("sbAiClosePreviewBtn", sbAiPreviewText(tool, "close"));
+  box.classList.add("show");
+  box.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+function closeAiToolsPreview(){
+  const box = document.getElementById("sbAiPreviewBox");
+  if(box) box.classList.remove("show");
+}
+
+function applyAiToolsPreviewLang(){
+  const box = document.getElementById("sbAiPreviewBox");
+  if(!box) return;
+  const tool = box.dataset.tool || "screenshot";
+  sbSetText("sbAiPreviewTitle", sbAiPreviewText(tool, "title"));
+  sbSetText("sbAiPreviewDesc", sbAiPreviewText(tool, "previewDesc"));
+  const input = document.getElementById("sbAiPreviewInput");
+  if(input) input.placeholder = sbAiPreviewText(tool, "placeholder");
+  sbSetText("sbAiUseTrialBtn", sbAiPreviewText(tool, "useTrial"));
+  sbSetText("sbAiClosePreviewBtn", sbAiPreviewText(tool, "close"));
+}
+
+
+function sbAiEndpoint(tool){
+  const map = {
+    screenshot: "/.netlify/functions/ai-screenshot",
+    link: "/.netlify/functions/ai-link-check",
+    message: "/.netlify/functions/ai-message-check",
+    reply: "/.netlify/functions/ai-reply-helper",
+    conversation: "/.netlify/functions/ai-conversation-prep"
+  };
+  return map[tool] || map.screenshot;
+}
+
+
+function sbAiRunText(key){
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+  const map = {
+    PL:{empty:"Wpisz treść, aby wykonać test.",loading:"Analizuję...",what:"Co to jest",risk:"Ryzyko",next:"Co zrobić dalej",reply:"Propozycja",low:"Niskie",medium:"Średnie",high:"Wysokie"},
+    EN:{empty:"Enter content to run a test.",loading:"Analyzing...",what:"What it is",risk:"Risk",next:"What to do next",reply:"Suggestion",low:"Low",medium:"Medium",high:"High"},
+    NL:{empty:"Voer tekst in om een test te gebruiken.",loading:"Analyseren...",what:"Wat het is",risk:"Risico",next:"Wat nu te doen",reply:"Voorstel",low:"Laag",medium:"Middel",high:"Hoog"},
+    DE:{empty:"Gib Inhalt ein, um einen Test zu nutzen.",loading:"Analyse läuft...",what:"Was es ist",risk:"Risiko",next:"Was als Nächstes tun",reply:"Vorschlag",low:"Niedrig",medium:"Mittel",high:"Hoch"},
+    UA:{empty:"Введіть текст, щоб виконати тест.",loading:"Аналізую...",what:"Що це",risk:"Ризик",next:"Що робити далі",reply:"Пропозиція",low:"Низький",medium:"Середній",high:"Високий"},
+    FR:{empty:"Saisissez un contenu pour lancer un essai.",loading:"Analyse...",what:"Ce que c’est",risk:"Risque",next:"Que faire ensuite",reply:"Suggestion",low:"Faible",medium:"Moyen",high:"Élevé"},
+    IT:{empty:"Inserisci contenuto per usare un test.",loading:"Analisi...",what:"Che cos’è",risk:"Rischio",next:"Cosa fare dopo",reply:"Suggerimento",low:"Basso",medium:"Medio",high:"Alto"},
+    ES:{empty:"Introduce contenido para usar una prueba.",loading:"Analizando...",what:"Qué es",risk:"Riesgo",next:"Qué hacer después",reply:"Sugerencia",low:"Bajo",medium:"Medio",high:"Alto"},
+    PT:{empty:"Insira conteúdo para usar um teste.",loading:"A analisar...",what:"O que é",risk:"Risco",next:"O que fazer a seguir",reply:"Sugestão",low:"Baixo",medium:"Médio",high:"Alto"}
+  };
+  return (map[lang] || map.PL)[key] || map.PL[key] || "";
+}
+
+function sbAiLocalAnalysis(tool, input){
+  const s = (input || "").toLowerCase();
+  let risk = "low";
+  const bad = ["password","hasło","wachtwoord","passwort","login","bank","pay","payment","płat","betalen","zahlung","urgent","pilne","spoed","click","klik","verify","verify your account","gift","prize","winner","virus","fine","boete","mandat","crypto","bitcoin","wallet","update your account","suspended","blocked","zablok"];
+  let hits = 0;
+  bad.forEach(function(w){ if(s.indexOf(w) !== -1) hits++; });
+  if(hits >= 3) risk = "high";
+  else if(hits >= 1) risk = "medium";
+
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+  const copy = {
+    PL:{
+      screenshot:{what:"To wygląda jak ekran lub komunikat wymagający sprawdzenia.",next:"Nie klikaj przycisków ani linków, dopóki nie sprawdzisz źródła. Zrób zrzut ekranu i porównaj z oficjalną stroną.",reply:"Jeśli to wiadomość od instytucji, wejdź samodzielnie na jej oficjalną stronę."},
+      link:{what:"To jest adres lub link do sprawdzenia.",next:"Sprawdź domenę ręcznie. Nie loguj się przez link z wiadomości. Wejdź na stronę instytucji samodzielnie.",reply:"Bezpieczniej otworzyć oficjalną stronę z wyszukiwarki lub zapisanej zakładki."},
+      message:{what:"To wygląda jak wiadomość, którą warto ocenić pod kątem phishingu lub presji.",next:"Sprawdź nadawcę, domenę i czy wiadomość wymusza szybkie działanie. Nie podawaj danych logowania.",reply:"Dziękuję za wiadomość. Sprawdzę sprawę przez oficjalny kanał kontaktu."},
+      reply:{what:"To jest sytuacja, do której można przygotować spokojną odpowiedź.",next:"Odpowiedz krótko, jasno i bez podawania zbędnych danych osobowych.",reply:"Dziękuję za wiadomość. Proszę o dodatkowe wyjaśnienie sprawy oraz wskazanie, jakie działanie jest ode mnie wymagane."},
+      conversation:{what:"To jest temat rozmowy, do której warto przygotować pytania.",next:"Zapisz cel rozmowy, dokumenty, które masz przygotować, i 2–3 pytania.",reply:"Chciałbym wyjaśnić tę sprawę spokojnie. Proszę powiedzieć, jakie są następne kroki i jakie dokumenty są potrzebne."}
+    },
+    EN:{
+      screenshot:{what:"This looks like a screen or warning that should be checked.",next:"Do not click buttons or links until you verify the source. Compare it with the official website.",reply:"If it claims to be from an institution, open the official site yourself."},
+      link:{what:"This is a link or website address to check.",next:"Check the domain manually. Do not log in through a message link. Open the official website yourself.",reply:"It is safer to open the official site from search or a saved bookmark."},
+      message:{what:"This looks like a message worth checking for phishing or pressure.",next:"Check the sender, domain and whether the message pushes urgent action. Do not share login details.",reply:"Thank you for the message. I will verify this through the official contact channel."},
+      reply:{what:"This is a situation where a calm reply can be prepared.",next:"Reply briefly and clearly, without unnecessary personal data.",reply:"Thank you for your message. Please explain the matter and indicate what action is required from me."},
+      conversation:{what:"This is a topic for a conversation that is worth preparing.",next:"Write down the goal, documents to bring, and 2–3 questions.",reply:"I would like to clarify this calmly. Please tell me the next steps and which documents are needed."}
+    }
+  };
+  const base = (copy[lang] || copy.EN)[tool] || (copy[lang] || copy.EN).screenshot;
+  return {
+    risk: risk,
+    what: base.what,
+    next: base.next,
+    reply: base.reply
+  };
+}
+
+function sbAiEscapeHtml(value){
+  return String(value || "").replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+  });
+}
+
+function sbAiRenderResult(result){
+  const riskLabel = sbAiRunText(result.risk || "low");
+  return '<div class="sb-ai-result-cards">' +
+    '<div class="sb-ai-result-card"><strong>✅ ' + sbAiEscapeHtml(sbAiRunText("what")) + '</strong><p>' + sbAiEscapeHtml(result.what) + '</p></div>' +
+    '<div class="sb-ai-result-card sb-ai-risk-' + sbAiEscapeHtml(result.risk) + '"><strong>⚠️ ' + sbAiEscapeHtml(sbAiRunText("risk")) + ': ' + sbAiEscapeHtml(riskLabel) + '</strong><p>' + sbAiEscapeHtml(result.risk === "high" ? "Potentially risky. Verify through an official channel." : result.risk === "medium" ? "Worth checking carefully before action." : "No strong danger signals found in this short test.") + '</p></div>' +
+    '<div class="sb-ai-result-card"><strong>🧭 ' + sbAiEscapeHtml(sbAiRunText("next")) + '</strong><p>' + sbAiEscapeHtml(result.next) + '</p></div>' +
+    '<div class="sb-ai-result-card"><strong>✍️ ' + sbAiEscapeHtml(sbAiRunText("reply")) + '</strong><p>' + sbAiEscapeHtml(result.reply) + '</p></div>' +
+  '</div>';
+}
+
+function sbAiSetResult(content, type){
+  const box = document.getElementById("sbAiPreviewResult");
+  if(!box) return;
+  box.className = "sb-ai-preview-result show" + (type ? " " + type : "");
+  if(String(content || "").indexOf("sb-ai-result-cards") !== -1){
+    box.innerHTML = content;
+  }else{
+    box.textContent = content;
+  }
+}
+
+async function runAiToolsPreview(){
+  const box = document.getElementById("sbAiPreviewBox");
+  const input = document.getElementById("sbAiPreviewInput");
+  const tool = (box && box.dataset.tool) ? box.dataset.tool : "screenshot";
+  const value = input ? input.value.trim() : "";
+
+  if(!value){
+    sbAiSetResult(sbAiRunText("empty"), "locked");
+    return;
+  }
+
+  const hasPremium =
+    typeof hasActiveAccess === "function"
+      ? hasActiveAccess()
+      : (
+          (typeof getAccessStatus === "function" && String(getAccessStatus()).toUpperCase() === "ACTIVE") ||
+          String(localStorage.getItem("sb_access_status") || "").toUpperCase() === "ACTIVE" ||
+          String(localStorage.getItem("sb_access") || "").toUpperCase() === "ACTIVE" ||
+          String(localStorage.getItem("sense_bridge_access") || "").toUpperCase() === "ACTIVE"
+        );
+
+  const left = getAiToolsTrialLeft();
+
+  if(!hasPremium && left <= 0){
+    sbAiSetResult(sbAiToolsText("locked"), "locked");
+    return;
+  }
+
+  sbAiSetResult(sbAiRunText("loading"), "loading");
+
+  try{
+    const res = await fetch(sbAiEndpoint(tool), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        input: value,
+        uiLang: (UI && UI.lang) ? UI.lang : "PL",
+        tool: tool,
+        premium: !!hasPremium
+      })
+    });
+
+    const data = await res.json().catch(function(){ return {}; });
+
+    if(!res.ok || data.ok === false){
+      throw new Error(data.error || ("HTTP " + res.status));
+    }
+
+    const output = data.result || data.text || data.answer || "";
+
+    if(!hasPremium){
+      setAiToolsTrialLeft(left - 1);
+    }
+
+    sbAiSetResult(output || sbAiRunText("empty"), "");
+  }catch(e){
+    sbAiSetResult(
+      "Nie udało się połączyć z modułem AI. Sprawdź deploy Netlify i pliki funkcji: " +
+      (e && e.message ? e.message : e),
+      "locked"
+    );
+  }
+}
+
+function initAiToolsPanel(){
+  const card = document.getElementById("sbAiToolsCard");
+  const toggle = document.getElementById("sbAiToolsToggle");
+  if(toggle && card){
+    toggle.addEventListener("click", function(){
+      const open = !card.classList.contains("open");
+      card.classList.toggle("open", open);
+      toggle.textContent = open ? "⌃" : "⌄";
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+  document.querySelectorAll(".sb-ai-tool").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      openAiToolsPreview(btn.getAttribute("data-ai-tool") || "screenshot");
+    });
+  });
+
+  const useBtn = document.getElementById("sbAiUseTrialBtn");
+  if(useBtn){
+    useBtn.addEventListener("click", runAiToolsPreview);
+  }
+
+  const closeBtn = document.getElementById("sbAiClosePreviewBtn");
+  if(closeBtn){
+    closeBtn.addEventListener("click", closeAiToolsPreview);
+  }
+
+  applyAiToolsLang();
+}
+
 function applyUiLang(){
   const t = UI.dict[UI.lang];
 
@@ -3372,6 +4096,7 @@ document.getElementById("p30name").textContent = t.p30name || "30 dni";
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
   }
 
+  applyAiToolsLang();
   applyPaymentLang();
 }
 
@@ -3566,6 +4291,31 @@ function clearInput(){
   }
   const risks = document.getElementById("risks");
   if(risks) risks.innerHTML = "";
+
+  /* AI Tools cleanup — additive only, does not reset trial counter */
+  const aiInput = document.getElementById("sbAiPreviewInput");
+  if(aiInput) aiInput.value = "";
+
+  const aiResult = document.getElementById("sbAiPreviewResult");
+  if(aiResult){
+    aiResult.textContent = "";
+    aiResult.innerHTML = "";
+    aiResult.className = "sb-ai-preview-result";
+  }
+
+  const aiPreview = document.getElementById("sbAiPreviewBox");
+  if(aiPreview){
+    aiPreview.classList.remove("show");
+    aiPreview.removeAttribute("data-tool");
+  }
+
+  const aiCard = document.getElementById("sbAiToolsCard");
+  const aiToggle = document.getElementById("sbAiToolsToggle");
+  if(aiCard && aiToggle){
+    aiCard.classList.remove("open");
+    aiToggle.textContent = "⌄";
+    aiToggle.setAttribute("aria-expanded", "false");
+  }
 }
   
 async function copyText(id){
@@ -5529,6 +6279,13 @@ function sbApplyResultUxPatchV9(data){
   }
 }
 
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(typeof initAiToolsPanel === "function") initAiToolsPanel();
+});
 </script>
 
 </body>
