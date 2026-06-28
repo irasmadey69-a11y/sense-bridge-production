@@ -3723,11 +3723,10 @@ function initAiScreenshotPicker(){
     reader.onload = function(){
       const dataUrl = String(reader.result || "");
       input.value =
-        "Użytkownik dodał zrzut ekranu / obraz do sprawdzenia.\n" +
+        "Dodano zrzut ekranu / obraz do sprawdzenia.\n" +
         "Nazwa pliku: " + (f.name || "obraz") + "\n" +
         "Typ pliku: " + (f.type || "image") + "\n\n" +
-        "Jeśli obraz nie może być odczytany bezpośrednio przez ten moduł, poproś użytkownika o przepisanie widocznego komunikatu. " +
-        "Oceń sytuację ostrożnie jako ekran/komunikat/reklamę/ostrzeżenie.";
+        "Opisz dodatkowo, jeśli chcesz, co wzbudziło Twoje podejrzenia.";
 
       input.dataset.imageDataUrl = dataUrl;
     };
@@ -4020,7 +4019,10 @@ async function runAiToolsPreview(){
         input: value,
         uiLang: (UI && UI.lang) ? UI.lang : "PL",
         tool: tool,
-        premium: !!hasPremium
+        premium: !!hasPremium,
+        imageData: (tool === "screenshot" && input && input.dataset && input.dataset.imageDataUrl)
+          ? input.dataset.imageDataUrl
+          : ""
       })
     });
 
@@ -4391,7 +4393,10 @@ function clearInput(){
 
   /* AI Tools cleanup — additive only, does not reset trial counter */
   const aiInput = document.getElementById("sbAiPreviewInput");
-  if(aiInput) aiInput.value = "";
+  if(aiInput){
+    aiInput.value = "";
+    delete aiInput.dataset.imageDataUrl;
+  }
 
   const aiResult = document.getElementById("sbAiPreviewResult");
   if(aiResult){
