@@ -2234,6 +2234,41 @@ body.dark-mode .sb-ai-risk-low{background:rgba(44,255,154,.08) !important;border
 body.dark-mode .sb-ai-risk-medium{background:rgba(255,211,106,.12) !important;border-color:rgba(255,211,106,.30) !important;}
 body.dark-mode .sb-ai-risk-high{background:rgba(255,77,109,.15) !important;border-color:rgba(255,77,109,.36) !important;}
 
+
+/* AI screenshot image picker — additive only */
+.sb-ai-shot-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:10px 0 12px;
+}
+.sb-ai-shot-btn{
+  min-height:48px;
+  border-radius:16px;
+  border:1px solid rgba(63,138,114,.24);
+  background:linear-gradient(180deg,#ffffff,#f8fbfa);
+  color:#245c4d;
+  font-weight:900;
+  cursor:pointer;
+}
+.sb-ai-shot-btn:hover{
+  border-color:rgba(63,138,114,.38);
+  transform:translateY(-1px);
+}
+.sb-ai-shot-name{
+  grid-column:1/-1;
+  color:var(--muted);
+  font-size:13px;
+}
+body.dark-mode .sb-ai-shot-btn{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  color:#d8ffe9 !important;
+  border-color:rgba(44,255,154,.24) !important;
+}
+@media(max-width:640px){
+  .sb-ai-shot-actions{grid-template-columns:1fr;}
+}
+
 </style>
 </head>
 
@@ -2340,6 +2375,12 @@ body.dark-mode .sb-ai-risk-high{background:rgba(255,77,109,.15) !important;borde
       <div class="sb-ai-preview" id="sbAiPreviewBox">
         <h3 id="sbAiPreviewTitle">Sprawdź zrzut ekranu</h3>
         <p id="sbAiPreviewDesc">To bezpieczny podgląd modułu. Pełną analizę podłączymy w kolejnym kroku przez osobne funkcje backendowe.</p>
+        <div class="sb-ai-shot-actions" id="sbAiShotActions" style="display:none;">
+          <input id="sbAiScreenshotFile" type="file" accept="image/*" capture="environment" hidden>
+          <button class="sb-ai-shot-btn" type="button" id="sbAiTakeScreenshotBtn">📷 Zrób zdjęcie ekranu</button>
+          <button class="sb-ai-shot-btn" type="button" id="sbAiChooseScreenshotBtn">🖼️ Wybierz z galerii</button>
+          <span id="sbAiScreenshotName" class="sb-ai-shot-name">Nie wybrano obrazu</span>
+        </div>
         <textarea id="sbAiPreviewInput" placeholder="Wklej tekst, link albo opisz zrzut ekranu..."></textarea>
         <div class="sb-ai-preview-actions">
           <button class="primary" type="button" id="sbAiUseTrialBtn">Użyj testu</button>
@@ -3652,6 +3693,49 @@ function sbAiToolsText(key){
   return pack[key] || map.PL[key] || "";
 }
 
+
+function initAiScreenshotPicker(){
+  const file = document.getElementById("sbAiScreenshotFile");
+  const take = document.getElementById("sbAiTakeScreenshotBtn");
+  const choose = document.getElementById("sbAiChooseScreenshotBtn");
+  const name = document.getElementById("sbAiScreenshotName");
+  const input = document.getElementById("sbAiPreviewInput");
+
+  if(!file || !take || !choose || !input) return;
+
+  take.onclick = function(){
+    file.setAttribute("capture", "environment");
+    file.click();
+  };
+
+  choose.onclick = function(){
+    file.removeAttribute("capture");
+    file.click();
+  };
+
+  file.onchange = function(){
+    const f = file.files && file.files[0];
+    if(!f) return;
+
+    if(name) name.textContent = f.name || "Wybrano obraz";
+
+    const reader = new FileReader();
+    reader.onload = function(){
+      const dataUrl = String(reader.result || "");
+      input.value =
+        "Użytkownik dodał zrzut ekranu / obraz do sprawdzenia.\n" +
+        "Nazwa pliku: " + (f.name || "obraz") + "\n" +
+        "Typ pliku: " + (f.type || "image") + "\n\n" +
+        "Jeśli obraz nie może być odczytany bezpośrednio przez ten moduł, poproś użytkownika o przepisanie widocznego komunikatu. " +
+        "Oceń sytuację ostrożnie jako ekran/komunikat/reklamę/ostrzeżenie.";
+
+      input.dataset.imageDataUrl = dataUrl;
+    };
+    reader.readAsDataURL(f);
+  };
+}
+
+
 function applyAiToolsLang(){
   sbSetText("sbAiToolsTitle", sbAiToolsText("title"));
   sbSetText("sbAiToolsDesc", sbAiToolsText("desc"));
@@ -3766,13 +3850,18 @@ function sbAiPreviewText(tool, key){
 function openAiToolsPreview(tool){
   const box = document.getElementById("sbAiPreviewBox");
   if(!box) return;
-  box.dataset.tool = tool || "screenshot";
-  sbSetText("sbAiPreviewTitle", sbAiPreviewText(tool, "title"));
-  sbSetText("sbAiPreviewDesc", sbAiPreviewText(tool, "previewDesc"));
+  const activeTool = tool || "screenshot";
+  box.dataset.tool = activeTool;
+  sbSetText("sbAiPreviewTitle", sbAiPreviewText(activeTool, "title"));
+  sbSetText("sbAiPreviewDesc", sbAiPreviewText(activeTool, "previewDesc"));
   const input = document.getElementById("sbAiPreviewInput");
-  if(input) input.placeholder = sbAiPreviewText(tool, "placeholder");
-  sbSetText("sbAiUseTrialBtn", sbAiPreviewText(tool, "useTrial"));
-  sbSetText("sbAiClosePreviewBtn", sbAiPreviewText(tool, "close"));
+  if(input) input.placeholder = sbAiPreviewText(activeTool, "placeholder");
+  sbSetText("sbAiUseTrialBtn", sbAiPreviewText(activeTool, "useTrial"));
+  sbSetText("sbAiClosePreviewBtn", sbAiPreviewText(activeTool, "close"));
+
+  const shotActions = document.getElementById("sbAiShotActions");
+  if(shotActions) shotActions.style.display = activeTool === "screenshot" ? "grid" : "none";
+
   box.classList.add("show");
   box.scrollIntoView({behavior:"smooth", block:"nearest"});
 }
@@ -3896,15 +3985,23 @@ async function runAiToolsPreview(){
     return;
   }
 
+  const currentAccess =
+    typeof hasAccess === "function"
+      ? hasAccess()
+      : null;
+
+  const accessMode = currentAccess ? String(currentAccess.mode || "").toUpperCase() : "";
+  const accessLabel = currentAccess ? String(currentAccess.label || "").toUpperCase() : "";
+
   const hasPremium =
-    typeof hasActiveAccess === "function"
-      ? hasActiveAccess()
-      : (
-          (typeof getAccessStatus === "function" && String(getAccessStatus()).toUpperCase() === "ACTIVE") ||
-          String(localStorage.getItem("sb_access_status") || "").toUpperCase() === "ACTIVE" ||
-          String(localStorage.getItem("sb_access") || "").toUpperCase() === "ACTIVE" ||
-          String(localStorage.getItem("sense_bridge_access") || "").toUpperCase() === "ACTIVE"
-        );
+    accessMode === "PASS" ||
+    accessMode === "ACTIVE" ||
+    (accessLabel && accessLabel !== "FREE" && accessLabel !== "LOCKED") ||
+    (typeof hasActiveAccess === "function" && hasActiveAccess()) ||
+    (typeof getAccessStatus === "function" && String(getAccessStatus()).toUpperCase() === "ACTIVE") ||
+    String(localStorage.getItem("sb_access_status") || "").toUpperCase() === "ACTIVE" ||
+    String(localStorage.getItem("sb_access") || "").toUpperCase() === "ACTIVE" ||
+    String(localStorage.getItem("sense_bridge_access") || "").toUpperCase() === "ACTIVE";
 
   const left = getAiToolsTrialLeft();
 
@@ -4316,6 +4413,10 @@ function clearInput(){
     aiToggle.textContent = "⌄";
     aiToggle.setAttribute("aria-expanded", "false");
   }
+  const aiShotFile = document.getElementById("sbAiScreenshotFile");
+  if(aiShotFile) aiShotFile.value = "";
+  const aiShotName = document.getElementById("sbAiScreenshotName");
+  if(aiShotName) aiShotName.textContent = "Nie wybrano obrazu";
 }
   
 async function copyText(id){
@@ -6278,6 +6379,11 @@ function sbApplyResultUxPatchV9(data){
     console.warn("SB UX patch v9 skipped:", e);
   }
 }
+
+
+document.addEventListener("DOMContentLoaded", function(){
+  if(typeof initAiScreenshotPicker === "function") initAiScreenshotPicker();
+});
 
 </script>
 
