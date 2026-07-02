@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Sense Bridge",
   "short_name": "SenseBridge",
-  "start_url": "/?twa=1"
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0E2A47",
