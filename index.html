@@ -6399,5 +6399,20 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
+  <script>
+document.addEventListener("DOMContentLoaded", function(){
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("twa") !== "1") return;
+
+  setTimeout(function(){
+    const input = document.getElementById("inputText");
+    if (input) {
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(function(){ input.focus(); }, 500);
+    }
+  }, 800);
+});
+  </script>
+
 </body>
       </html>
