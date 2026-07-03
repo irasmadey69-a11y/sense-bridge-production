@@ -2394,7 +2394,7 @@ body.dark-mode .sb-ai-shot-btn{
   </div>
 
 
-  <div class="card" id="analyzePanel">
+  <div class="card">
     <div class="section-title" id="lblPaste">Wklej pismo</div>
 
     <div class="photo-box">
@@ -6396,40 +6396,6 @@ document.addEventListener("DOMContentLoaded", function(){
 <script>
 document.addEventListener("DOMContentLoaded", function(){
   if(typeof initAiToolsPanel === "function") initAiToolsPanel();
-});
-</script>
-
-<script>
-/* =========================================================
-   Sense Bridge Google Play / TWA start helper
-   Safe behavior only: no UI, OCR, paywall, counters or analysis logic changes.
-   - Normal browser and existing shortcuts keep the current top start screen.
-   - Google Play TWA (android-app:// referrer) opens near the analysis field.
-   - Manual test URLs also work: ?twa=1, ?app=1, #analyzePanel or #app.
-   ========================================================= */
-document.addEventListener("DOMContentLoaded", function(){
-  const params = new URLSearchParams(window.location.search);
-  const hash = String(window.location.hash || "").toLowerCase();
-  const ref = String(document.referrer || "").toLowerCase();
-
-  const shouldOpenAnalysis =
-    params.get("twa") === "1" ||
-    params.get("app") === "1" ||
-    hash === "#analyzepanel" ||
-    hash === "#app" ||
-    ref.indexOf("android-app://") === 0;
-
-  if (!shouldOpenAnalysis) return;
-
-  setTimeout(function(){
-    const target = document.getElementById("inputText") || document.getElementById("analyzePanel");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
-      if (target.id === "inputText") {
-        setTimeout(function(){ target.focus(); }, 500);
-      }
-    }
-  }, 800);
 });
 </script>
 
