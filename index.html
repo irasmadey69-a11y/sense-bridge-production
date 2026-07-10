@@ -2,7 +2,6 @@
 <html lang="pl">
 <head>
   <meta charset="utf-8" />
-  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#0E2A47">
 
@@ -2837,7 +2836,8 @@ const ENDPOINTS = {
   analyze: "/.netlify/functions/analyze",
   translate: "/.netlify/functions/translate",
   accessSet: "/.netlify/functions/pending_set",
-  accessCheck: "/.netlify/functions/access_check"
+  accessCheck: "/.netlify/functions/access_check",
+  reviewAccess: "/.netlify/functions/review_access"
 };
 
 /* =========================================================
@@ -4992,6 +4992,51 @@ function escapeHtml(s){
     .replace(/'/g,"&#039;");
 }
 
+
+/* =========================================================
+   GOOGLE PLAY REVIEW ACCESS
+   Isolated activation path. It does not change normal payment,
+   OCR, analysis or admin logic.
+   ========================================================= */
+async function activateGoogleReviewAccessFromQuery(){
+  const params = new URLSearchParams(window.location.search);
+  const token = String(params.get("review_token") || "").trim();
+
+  if(!token) return false;
+
+  try{
+    const res = await fetch(ENDPOINTS.reviewAccess, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ token })
+    });
+
+    const data = await res.json().catch(function(){ return {}; });
+
+    if(!res.ok || !data.ok || data.status !== "ACTIVE" || !data.email){
+      console.warn("Google review access was not activated.");
+      return false;
+    }
+
+    localStorage.setItem("sb_user_email", String(data.email).trim().toLowerCase());
+    setPass(data.plan || "review", data.expires);
+
+    params.delete("review_token");
+    const cleanQuery = params.toString();
+    const cleanUrl =
+      window.location.pathname +
+      (cleanQuery ? "?" + cleanQuery : "") +
+      window.location.hash;
+
+    window.history.replaceState({}, document.title, cleanUrl);
+    return true;
+
+  }catch(e){
+    console.warn("Google review access error", e);
+    return false;
+  }
+}
+
 async function syncAccess(){
   const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
   if(!email) return;
@@ -5875,6 +5920,7 @@ fetch("/.netlify/functions/analyze_count", {
   }
   
   applyPaidFromQuery();
+  await activateGoogleReviewAccessFromQuery();
   fetch("/.netlify/functions/visit", {
   method: "POST",
   headers: { "X-SB-Event": "visit" }
