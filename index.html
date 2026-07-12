@@ -2269,6 +2269,155 @@ body.dark-mode .sb-ai-shot-btn{
   .sb-ai-shot-actions{grid-template-columns:1fr;}
 }
 
+
+
+/* =========================================================
+   Sense Bridge — ACCESS PANEL
+   Additive account/access switcher. Does not change OCR,
+   analysis, payment or server-side access rules.
+   ========================================================= */
+.sb-access-card{
+  border:1px solid rgba(63,138,114,0.28);
+  border-radius:20px;
+  background:linear-gradient(180deg,#ffffff,#f7fbf9);
+  box-shadow:0 10px 24px rgba(15,23,42,0.055);
+  overflow:hidden;
+}
+.sb-access-card > summary{
+  list-style:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:15px 16px;
+  min-height:68px;
+  user-select:none;
+}
+.sb-access-card > summary::-webkit-details-marker{display:none;}
+.sb-access-summary-main{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+.sb-access-icon{
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:rgba(63,138,114,0.10);
+  border:1px solid rgba(63,138,114,0.20);
+  font-size:20px;
+}
+.sb-access-summary-main strong{
+  display:block;
+  color:#172033;
+  font-size:17px;
+  line-height:1.2;
+}
+.sb-access-summary-main small{
+  display:block;
+  color:#687385;
+  font-size:13px;
+  line-height:1.35;
+  margin-top:3px;
+  word-break:break-word;
+}
+.sb-access-chevron{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:rgba(63,138,114,0.08);
+  border:1px solid rgba(63,138,114,0.18);
+  color:#245c4d;
+  font-weight:900;
+  transition:transform .18s ease;
+}
+.sb-access-card[open] .sb-access-chevron{transform:rotate(180deg);}
+.sb-access-body{
+  padding:0 16px 16px;
+  border-top:1px solid rgba(63,138,114,0.14);
+}
+.sb-access-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  padding:12px 0;
+  border-bottom:1px dashed rgba(63,138,114,0.16);
+  color:#687385;
+  font-size:13px;
+}
+.sb-access-row strong{
+  color:#172033;
+  text-align:right;
+  word-break:break-word;
+}
+.sb-access-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+  margin-top:14px;
+}
+.sb-access-action{
+  width:100%;
+  min-height:46px;
+  border-radius:14px;
+  background:#ffffff;
+  color:#245c4d;
+  border:1px solid rgba(63,138,114,0.24);
+  font-weight:850;
+  cursor:pointer;
+}
+.sb-access-action.primary-action{
+  background:linear-gradient(135deg,#3f8a72,#58a58d);
+  color:#ffffff;
+  border:none;
+}
+.sb-access-note{
+  margin:11px 0 0;
+  color:#687385;
+  font-size:12px;
+  line-height:1.4;
+}
+body.dark-mode .sb-access-card{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,0.24) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,0.32) !important;
+}
+body.dark-mode .sb-access-icon,
+body.dark-mode .sb-access-chevron{
+  background:rgba(44,255,154,0.10) !important;
+  border-color:rgba(44,255,154,0.22) !important;
+  color:#d8ffe9 !important;
+}
+body.dark-mode .sb-access-summary-main strong,
+body.dark-mode .sb-access-row strong{color:#eafdf4 !important;}
+body.dark-mode .sb-access-summary-main small,
+body.dark-mode .sb-access-row,
+body.dark-mode .sb-access-note{color:#9fb5ad !important;}
+body.dark-mode .sb-access-body{border-top-color:rgba(44,255,154,0.14) !important;}
+body.dark-mode .sb-access-row{border-bottom-color:rgba(44,255,154,0.14) !important;}
+body.dark-mode .sb-access-action{
+  background:#081522 !important;
+  color:#d8ffe9 !important;
+  border-color:rgba(44,255,154,0.22) !important;
+}
+body.dark-mode .sb-access-action.primary-action{
+  background:linear-gradient(135deg,#12d87d,#2cff9a) !important;
+  color:#04110b !important;
+}
+@media(max-width:640px){
+  .sb-access-card > summary{padding:14px;}
+  .sb-access-body{padding:0 14px 14px;}
+}
+
 </style>
 </head>
 
@@ -2307,9 +2456,37 @@ body.dark-mode .sb-ai-shot-btn{
       </div>
     </div>
 
-    <div id="paidMsg" class="card" style="display:none;margin:12px 0 0;">
-      <p id="paidText" style="margin:0;color:#1f2937;font-weight:600;"></p>
-    </div>
+    <details id="paidMsg" class="sb-access-card" style="margin:12px 0 0;">
+      <summary class="sb-access-summary">
+        <span class="sb-access-summary-main">
+          <span class="sb-access-icon" aria-hidden="true">🔑</span>
+          <span>
+            <strong id="sbAccessTitle">Dostęp</strong>
+            <small id="paidText">FREE • pozostały 3 analizy</small>
+          </span>
+        </span>
+        <span class="sb-access-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="sb-access-body">
+        <div class="sb-access-row">
+          <span id="sbAccessFreeLabel">Pozostałe analizy FREE</span>
+          <strong id="sbAccessFreeValue">3</strong>
+        </div>
+        <div class="sb-access-row">
+          <span id="sbAccessEmailLabel">Adres dostępu</span>
+          <strong id="sbAccessEmailValue">Niepołączony</strong>
+        </div>
+        <div id="sbAccessUntilRow" class="sb-access-row" style="display:none;">
+          <span id="sbAccessUntilLabel">Ważny do</span>
+          <strong id="sbAccessUntilValue">—</strong>
+        </div>
+        <div class="sb-access-actions">
+          <button id="sbAccessSwitchBtn" class="sb-access-action primary-action" type="button" onclick="sbSwitchAccessEmail()">Użyj innego adresu</button>
+          <button id="sbAccessDisconnectBtn" class="sb-access-action" type="button" onclick="sbDisconnectAccess()">Odłącz adres na tym urządzeniu</button>
+        </div>
+        <p id="sbAccessNote" class="sb-access-note">Zmiana lub odłączenie adresu nie usuwa konta ani dostępu z serwera.</p>
+      </div>
+    </details>
   </div>
 
   <div class="card sb-ai-tools-card" id="sbAiToolsCard">
@@ -2726,7 +2903,7 @@ body.dark-mode .sb-ai-shot-btn{
    ========================================================= */
 let sbModalResolve = null;
 
-function sbShowModal({ title = "Sense Bridge", text = "", input = false, placeholder = "" }) {
+function sbShowModal({ title = "Sense Bridge", text = "", input = false, placeholder = "", value = "", inputType = "text" }) {
   return new Promise((resolve) => {
     sbModalResolve = resolve;
 
@@ -2740,10 +2917,13 @@ function sbShowModal({ title = "Sense Bridge", text = "", input = false, placeho
 
     if (input) {
       inputEl.style.display = "block";
-      inputEl.value = "";
+      inputEl.value = value || "";
       inputEl.placeholder = placeholder;
-      inputEl.type = "email";
-      setTimeout(() => inputEl.focus(), 150);
+      inputEl.type = inputType || "text";
+      setTimeout(() => {
+        inputEl.focus();
+        inputEl.select();
+      }, 150);
     } else {
       inputEl.style.display = "none";
       inputEl.value = "";
@@ -2910,35 +3090,120 @@ function refreshUI(){
   }
 }
 
+function sbAccessText(){
+  const lang = (UI && UI.lang) ? UI.lang : "PL";
+  const map = {
+    PL:{title:"Dostęp",free:"Pozostałe analizy FREE",email:"Adres dostępu",until:"Ważny do",none:"Niepołączony",active:"Dostęp aktywny",freeMode:"Tryb FREE",locked:"Limit FREE wykorzystany",switchBtn:"Sprawdź lub użyj innego adresu",disconnect:"Odłącz adres na tym urządzeniu",note:"Zmiana lub odłączenie adresu nie usuwa konta ani dostępu z serwera.",emailTitle:"Podaj adres dostępu",emailText:"Wpisz adres, którego chcesz użyć lub sprawdzić.",notActive:"Dla tego adresu nie znaleziono aktywnego dostępu.",disconnected:"Adres został odłączony tylko na tym urządzeniu.",disconnectTitle:"Odłączyć adres?",disconnectText:"Ten adres zostanie usunięty tylko z tego urządzenia. Konto i aktywny dostęp pozostaną na serwerze."},
+    EN:{title:"Access",free:"FREE analyses left",email:"Access email",until:"Valid until",none:"Not connected",active:"Access active",freeMode:"FREE mode",locked:"FREE limit used",switchBtn:"Check or use another email",disconnect:"Disconnect email on this device",note:"Changing or disconnecting the email does not delete the account or server access.",emailTitle:"Enter access email",emailText:"Enter the email you want to use or check.",notActive:"No active access was found for this email.",disconnected:"The email was disconnected only on this device.",disconnectTitle:"Disconnect email?",disconnectText:"This email will be removed only from this device. The account and active access will remain on the server."},
+    NL:{title:"Toegang",free:"Resterende FREE-analyses",email:"Toegangsadres",until:"Geldig tot",none:"Niet gekoppeld",active:"Toegang actief",freeMode:"FREE-modus",locked:"FREE-limiet gebruikt",switchBtn:"Controleer of gebruik een ander adres",disconnect:"Adres op dit apparaat loskoppelen",note:"Een adres wijzigen of loskoppelen verwijdert het account of de servertoegang niet.",emailTitle:"Voer het toegangsadres in",emailText:"Voer het adres in dat je wilt gebruiken of controleren.",notActive:"Voor dit adres is geen actieve toegang gevonden.",disconnected:"Het adres is alleen op dit apparaat losgekoppeld.",disconnectTitle:"Adres loskoppelen?",disconnectText:"Dit adres wordt alleen van dit apparaat verwijderd. Het account en de actieve toegang blijven op de server."},
+    DE:{title:"Zugang",free:"Verbleibende FREE-Analysen",email:"Zugangsadresse",until:"Gültig bis",none:"Nicht verbunden",active:"Zugang aktiv",freeMode:"FREE-Modus",locked:"FREE-Limit verbraucht",switchBtn:"Andere Adresse prüfen oder verwenden",disconnect:"Adresse auf diesem Gerät trennen",note:"Das Ändern oder Trennen der Adresse löscht weder Konto noch Serverzugang.",emailTitle:"Zugangsadresse eingeben",emailText:"Gib die Adresse ein, die du verwenden oder prüfen möchtest.",notActive:"Für diese Adresse wurde kein aktiver Zugang gefunden.",disconnected:"Die Adresse wurde nur auf diesem Gerät getrennt.",disconnectTitle:"Adresse trennen?",disconnectText:"Diese Adresse wird nur von diesem Gerät entfernt. Konto und aktiver Zugang bleiben auf dem Server."},
+    UA:{title:"Доступ",free:"Залишилось FREE-аналізів",email:"Адреса доступу",until:"Дійсний до",none:"Не підключено",active:"Доступ активний",freeMode:"Режим FREE",locked:"Ліміт FREE використано",switchBtn:"Перевірити або використати іншу адресу",disconnect:"Від’єднати адресу на цьому пристрої",note:"Зміна або від’єднання адреси не видаляє обліковий запис чи доступ із сервера.",emailTitle:"Введіть адресу доступу",emailText:"Введіть адресу, яку хочете використати або перевірити.",notActive:"Для цієї адреси активного доступу не знайдено.",disconnected:"Адресу від’єднано лише на цьому пристрої.",disconnectTitle:"Від’єднати адресу?",disconnectText:"Цю адресу буде видалено лише з цього пристрою. Обліковий запис і активний доступ залишаться на сервері."},
+    FR:{title:"Accès",free:"Analyses FREE restantes",email:"Adresse d’accès",until:"Valable jusqu’au",none:"Non connecté",active:"Accès actif",freeMode:"Mode FREE",locked:"Limite FREE utilisée",switchBtn:"Vérifier ou utiliser une autre adresse",disconnect:"Déconnecter l’adresse sur cet appareil",note:"Changer ou déconnecter l’adresse ne supprime ni le compte ni l’accès serveur.",emailTitle:"Saisissez l’adresse d’accès",emailText:"Saisissez l’adresse à utiliser ou à vérifier.",notActive:"Aucun accès actif trouvé pour cette adresse.",disconnected:"L’adresse a été déconnectée uniquement sur cet appareil.",disconnectTitle:"Déconnecter l’adresse ?",disconnectText:"Cette adresse sera supprimée uniquement de cet appareil. Le compte et l’accès actif resteront sur le serveur."},
+    IT:{title:"Accesso",free:"Analisi FREE rimaste",email:"Indirizzo di accesso",until:"Valido fino a",none:"Non collegato",active:"Accesso attivo",freeMode:"Modalità FREE",locked:"Limite FREE utilizzato",switchBtn:"Controlla o usa un altro indirizzo",disconnect:"Scollega l’indirizzo su questo dispositivo",note:"Cambiare o scollegare l’indirizzo non elimina l’account né l’accesso dal server.",emailTitle:"Inserisci l’indirizzo di accesso",emailText:"Inserisci l’indirizzo da usare o controllare.",notActive:"Nessun accesso attivo trovato per questo indirizzo.",disconnected:"L’indirizzo è stato scollegato solo su questo dispositivo.",disconnectTitle:"Scollegare l’indirizzo?",disconnectText:"Questo indirizzo verrà rimosso solo da questo dispositivo. L’account e l’accesso attivo resteranno sul server."},
+    ES:{title:"Acceso",free:"Análisis FREE restantes",email:"Dirección de acceso",until:"Válido hasta",none:"No conectado",active:"Acceso activo",freeMode:"Modo FREE",locked:"Límite FREE utilizado",switchBtn:"Comprobar o usar otra dirección",disconnect:"Desconectar la dirección en este dispositivo",note:"Cambiar o desconectar la dirección no elimina la cuenta ni el acceso del servidor.",emailTitle:"Introduce la dirección de acceso",emailText:"Introduce la dirección que deseas usar o comprobar.",notActive:"No se encontró acceso activo para esta dirección.",disconnected:"La dirección se desconectó solo en este dispositivo.",disconnectTitle:"¿Desconectar la dirección?",disconnectText:"Esta dirección se eliminará solo de este dispositivo. La cuenta y el acceso activo permanecerán en el servidor."},
+    PT:{title:"Acesso",free:"Análises FREE restantes",email:"Endereço de acesso",until:"Válido até",none:"Não ligado",active:"Acesso ativo",freeMode:"Modo FREE",locked:"Limite FREE utilizado",switchBtn:"Verificar ou usar outro endereço",disconnect:"Desligar o endereço neste dispositivo",note:"Alterar ou desligar o endereço não elimina a conta nem o acesso do servidor.",emailTitle:"Introduza o endereço de acesso",emailText:"Introduza o endereço que pretende usar ou verificar.",notActive:"Não foi encontrado acesso ativo para este endereço.",disconnected:"O endereço foi desligado apenas neste dispositivo.",disconnectTitle:"Desligar o endereço?",disconnectText:"Este endereço será removido apenas deste dispositivo. A conta e o acesso ativo permanecerão no servidor."}
+  };
+  return map[lang] || map.PL;
+}
+
 function updatePaidMessage(){
   const access = hasAccess();
+  const t = sbAccessText();
+  const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
+  const left = freeLeft();
   const box = document.getElementById("paidMsg");
   const text = document.getElementById("paidText");
   if(!box || !text) return;
 
+  const title = document.getElementById("sbAccessTitle");
+  const freeLabel = document.getElementById("sbAccessFreeLabel");
+  const freeValue = document.getElementById("sbAccessFreeValue");
+  const emailLabel = document.getElementById("sbAccessEmailLabel");
+  const emailValue = document.getElementById("sbAccessEmailValue");
+  const untilRow = document.getElementById("sbAccessUntilRow");
+  const untilLabel = document.getElementById("sbAccessUntilLabel");
+  const untilValue = document.getElementById("sbAccessUntilValue");
+  const switchBtn = document.getElementById("sbAccessSwitchBtn");
+  const disconnectBtn = document.getElementById("sbAccessDisconnectBtn");
+  const note = document.getElementById("sbAccessNote");
+
+  if(title) title.textContent = t.title;
+  if(freeLabel) freeLabel.textContent = t.free;
+  if(freeValue) freeValue.textContent = String(left);
+  if(emailLabel) emailLabel.textContent = t.email;
+  if(emailValue) emailValue.textContent = email || t.none;
+  if(untilLabel) untilLabel.textContent = t.until;
+  if(switchBtn) switchBtn.textContent = t.switchBtn;
+  if(disconnectBtn){
+    disconnectBtn.textContent = t.disconnect;
+    disconnectBtn.style.display = email ? "block" : "none";
+  }
+  if(note) note.textContent = t.note;
+
   if(access.mode === "PASS"){
     const until = new Date(access.until).toLocaleString();
-    const lang = (UI && UI.lang) ? UI.lang : "PL";
-
-const paidLabels = {
-  PL: ["Dostęp aktywny", "ważny do"],
-  EN: ["Access active", "valid until"],
-  NL: ["Toegang actief", "geldig tot"],
-  DE: ["Zugang aktiv", "gültig bis"],
-  UA: ["Доступ активний", "дійсний до"],
-  FR: ["Accès actif", "valable jusqu’au"],
-  IT: ["Accesso attivo", "valido fino a"],
-  ES: ["Acceso activo", "válido hasta"],
-  PT: ["Acesso ativo", "válido até"]
-};
-
-const l = paidLabels[lang] || paidLabels.PL;
-
-text.innerHTML = `✅ <strong>${l[0]}</strong> • ${l[1]}: <strong>${until}</strong>`;
-    box.style.display = "block";
+    text.textContent = "✅ " + t.active + " • " + t.until + ": " + until;
+    if(untilRow) untilRow.style.display = "flex";
+    if(untilValue) untilValue.textContent = until;
+  } else if(access.mode === "FREE"){
+    text.textContent = t.freeMode + " • " + left + " " + t.free.toLowerCase();
+    if(untilRow) untilRow.style.display = "none";
   } else {
-    box.style.display = "none";
+    text.textContent = t.locked;
+    if(untilRow) untilRow.style.display = "none";
   }
+  box.style.display = "block";
+}
+
+async function sbSwitchAccessEmail(){
+  const t = sbAccessText();
+  const current = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
+  const email = await sbShowModal({
+    title:t.emailTitle,
+    text:t.emailText,
+    input:true,
+    inputType:"email",
+    value:current,
+    placeholder:"email@example.com"
+  });
+  if(!email) return;
+  const normalized = String(email).trim().toLowerCase();
+  if(!normalized || !normalized.includes("@")) return;
+
+  const result = await checkAccessServer(normalized);
+  localStorage.setItem("sb_user_email", normalized);
+  if(result && result.status === "ACTIVE"){
+    setPass(result.plan || "active", result.expires);
+  } else {
+    clearPass();
+    alert(t.notActive);
+  }
+  refreshUI();
+  updatePaidMessage();
+}
+
+async function sbDisconnectAccess(){
+  const t = sbAccessText();
+  const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
+  if(!email) return;
+
+  const confirmed = await sbShowModal({
+    title:t.disconnectTitle,
+    text:t.disconnectText,
+    input:false
+  });
+  if(!confirmed) return;
+
+  localStorage.removeItem("sb_user_email");
+  clearPass();
+  refreshUI();
+  updatePaidMessage();
+
+  await sbShowModal({
+    title:t.title,
+    text:t.disconnected,
+    input:false
+  });
 }
 
 function consumeFreeIfNeeded(){
