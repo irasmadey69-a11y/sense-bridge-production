@@ -65,7 +65,8 @@ exports.handler = async (event) => {
 
         if (
           status !== "BLOCKED" &&
-          status !== "PENDING"
+          status !== "PENDING" &&
+          status !== "BETA"
         ) {
 
           if (
@@ -111,11 +112,12 @@ exports.handler = async (event) => {
 
       const order = {
         PENDING: 1,
-        ACTIVE: 2,
-        EXPIRED: 3,
-        BLOCKED: 4,
-        NONE: 5,
-        ERROR: 6
+        BETA: 2,
+        ACTIVE: 3,
+        EXPIRED: 4,
+        BLOCKED: 5,
+        NONE: 6,
+        ERROR: 7
       };
 
       const sa = order[a.status] || 99;
