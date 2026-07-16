@@ -33,15 +33,16 @@ exports.handler = async (event) => {
       return json(200, { ok: true, status: "BLOCKED" });
     }
 
-    // Google Play closed tester: full access, no expiry.
-    // We return ACTIVE so the existing index.html needs no changes.
+    // Google Play closed tester: full access.
+    // A far-future technical expiry is returned because the existing
+    // frontend requires a valid expires value to unlock access.
     if (String(data.status || "").toUpperCase() === "BETA") {
       return json(200, {
         ok: true,
         status: "ACTIVE",
         plan: "BETA",
         accessType: "BETA",
-        expires: null
+        expires: Date.now() + (10 * 365 * 24 * 60 * 60 * 1000)
       });
     }
 
