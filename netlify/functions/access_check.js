@@ -9,6 +9,12 @@ exports.handler = async (event) => {
     }
 
     const body = JSON.parse(event.body || "{}");
+    const adminPin = String(body.adminPin || "");
+
+    if (adminPin !== process.env.ADMIN_PIN) {
+      return json(403, { ok: false, error: "Brak dostępu (PIN)" });
+    }
+
     const email = String(body.email || "").trim().toLowerCase();
 
     if (!email) {
@@ -20,28 +26,20 @@ exports.handler = async (event) => {
   siteID: process.env.NETLIFY_SITE_ID,
   token: process.env.NETLIFY_AUTH_TOKEN
 });
+
     const raw = await store.get(email);
+    const existing = raw ? JSON.parse(raw) : { email };
 
-    if (!raw) {
-      return json(200, { ok: true, status: "NONE" });
-    }
+    existing.email = email;
+    existing.status = "BLOCKED";
+    existing.blockedAt = Date.now();
 
-    const data = JSON.parse(raw);
-    const now = Date.now();
-
-    if (data.status === "BLOCKED") {
-      return json(200, { ok: true, status: "BLOCKED" });
-    }
-
-    if (!data.expires || now > data.expires) {
-      return json(200, { ok: true, status: "EXPIRED" });
-    }
+    await store.set(email, JSON.stringify(existing));
 
     return json(200, {
       ok: true,
-      status: "ACTIVE",
-      plan: data.plan,
-      expires: data.expires
+      email,
+      status: "BLOCKED"
     });
 
   } catch (e) {
