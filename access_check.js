@@ -1,7 +1,9 @@
-const { getStore } = require("@netlify/blobs");
+const { getStore, connectLambda } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
   try {
+    connectLambda(event);
+
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
     }
@@ -29,6 +31,18 @@ exports.handler = async (event) => {
 
     if (data.status === "BLOCKED") {
       return json(200, { ok: true, status: "BLOCKED" });
+    }
+
+    // Google Play closed tester: full access, no expiry.
+    // We return ACTIVE so the existing index.html needs no changes.
+    if (String(data.status || "").toUpperCase() === "BETA") {
+      return json(200, {
+        ok: true,
+        status: "ACTIVE",
+        plan: "BETA",
+        accessType: "BETA",
+        expires: null
+      });
     }
 
     if (!data.expires || now > data.expires) {
