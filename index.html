@@ -2525,6 +2525,8 @@ body.sb-simple-view #examplesDocAccordion,
 body.sb-simple-view #fraudCard,
 body.sb-simple-view #access,
 body.sb-simple-view #paymentBox{display:none !important}
+/* When the FREE limit is used, always show the access plans also in Simple view. */
+body.sb-simple-view.sb-access-locked #access{display:block !important}
 body.sb-simple-view.sb-full-results-open #translationCardV11,
 body.sb-simple-view.sb-full-results-open #risksAccordion,
 body.sb-simple-view.sb-full-results-open #examplesAccordion,
@@ -4038,6 +4040,9 @@ function refreshUI(){
 
   const access = hasAccess();
   document.getElementById("accessState").textContent = access.label;
+
+  // Keep the purchase plans visible in Simple view after the FREE limit is used.
+  document.body.classList.toggle("sb-access-locked", access.mode === "LOCKED");
 
   const btn = document.getElementById("btnAnalyze");
   const lockBox = document.getElementById("lockBox");
