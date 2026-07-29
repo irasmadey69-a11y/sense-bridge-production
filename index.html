@@ -2527,6 +2527,8 @@ body.sb-simple-view #access,
 body.sb-simple-view #paymentBox{display:none !important}
 /* When the FREE limit is used, always show the access plans also in Simple view. */
 body.sb-simple-view.sb-access-locked #access{display:block !important}
+/* Show the selected payment instructions in Simple view after choosing a plan. */
+body.sb-simple-view.sb-payment-open #paymentBox{display:block !important}
 body.sb-simple-view.sb-full-results-open #translationCardV11,
 body.sb-simple-view.sb-full-results-open #risksAccordion,
 body.sb-simple-view.sb-full-results-open #examplesAccordion,
@@ -6734,6 +6736,7 @@ async function goPay(which){
   document.getElementById("transferTitle").textContent = title;
   localStorage.setItem("sb_user_email", email);
 
+  document.body.classList.add("sb-payment-open");
   document.getElementById("paymentBox").style.display = "block";
   document.getElementById("paymentBox").scrollIntoView({ behavior: "smooth" });
 }
