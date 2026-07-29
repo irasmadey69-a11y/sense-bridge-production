@@ -1,14 +1,23 @@
 const { getStore, connectLambda } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
+  const method = String(event?.httpMethod || "").toUpperCase();
+
+  if (method === "OPTIONS") {
+    return json(200, { ok: true });
+  }
+
+  if (method !== "POST") {
+    return json(405, { ok: false, error: "Method not allowed" });
+  }
+
   try {
     connectLambda(event);
 
-    if (event.httpMethod !== "POST") {
-      return json(405, { ok: false, error: "Method not allowed" });
+    const body = safeJson(event.body);
+    if (!body) {
+      return json(400, { ok: false, error: "Invalid JSON body" });
     }
-
-    const body = JSON.parse(event.body || "{}");
 
     const email = String(body.email || "").trim().toLowerCase();
     const plan = String(body.plan || "").trim();
@@ -18,10 +27,14 @@ exports.handler = async (event) => {
       return json(400, { ok: false, error: "Missing email or plan" });
     }
 
-    let ms = 0;
-    if (plan === "24h") ms = 24 * 60 * 60 * 1000;
-    if (plan === "7d") ms = 7 * 24 * 60 * 60 * 1000;
-    if (plan === "30d") ms = 30 * 24 * 60 * 60 * 1000;
+    const planDurations = {
+      "24h": 24 * 60 * 60 * 1000,
+      "7d": 7 * 24 * 60 * 60 * 1000,
+      "30d": 30 * 24 * 60 * 60 * 1000,
+      "30d-pro": 30 * 24 * 60 * 60 * 1000
+    };
+
+    const ms = planDurations[plan] || 0;
 
     if (!ms) {
       return json(400, { ok: false, error: "Invalid plan" });
@@ -31,22 +44,37 @@ exports.handler = async (event) => {
     const expires = now + ms;
 
     const store = getStore({
-  name: "sb-users",
-  siteID: process.env.NETLIFY_SITE_ID,
-  token: process.env.NETLIFY_AUTH_TOKEN
-});
+      name: "sb-users",
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_AUTH_TOKEN
+    });
 
-    // 🔐 sprawdzamy PIN tylko jeśli ktoś go poda
+    // Zachowujemy dotychczasową logikę:
+    // PIN jest sprawdzany tylko wtedy, gdy został przesłany.
     const adminPin = String(body.adminPin || "");
-    const isAdmin = adminPin && adminPin === process.env.ADMIN_PIN;
+    const isAdmin = Boolean(
+      adminPin &&
+      process.env.ADMIN_PIN &&
+      adminPin === process.env.ADMIN_PIN
+    );
 
     const existingRaw = await store.get(email);
 
     if (existingRaw) {
-      const existing = JSON.parse(existingRaw);
+      const existing = safeJson(existingRaw);
 
-      // ❌ zablokowany user NIE może sam się aktywować
-      if (existing.status === "BLOCKED" && !isAdmin) {
+      if (!existing || typeof existing !== "object") {
+        return json(500, {
+          ok: false,
+          error: "Invalid user access record"
+        });
+      }
+
+      // Zablokowany użytkownik nie może sam się aktywować.
+      // Administrator z poprawnym PIN-em nadal może go odblokować aktywacją.
+      const existingStatus = String(existing.status || "").trim().toUpperCase();
+
+      if (existingStatus === "BLOCKED" && !isAdmin) {
         return json(403, {
           ok: false,
           error: "Ten email jest zablokowany."
@@ -54,18 +82,24 @@ exports.handler = async (event) => {
       }
     }
 
-    // ✅ zapis / nadpisanie użytkownika
+    // Zachowujemy dotychczasowe nadpisanie rekordu użytkownika.
+    const isPro = plan === "30d-pro";
+    const accessType = isPro ? "PRO" : "BASIC";
+    const aiLimit = isPro ? 100 : 2;
+
     await store.set(email, JSON.stringify({
       email,
       plan,
+      accessType,
+      aiLimit,
       paymentTitle,
       status: "ACTIVE",
       createdAt: now,
       expires
     }));
 
-    // 📩 mail do Ciebie (jeśli masz API)
-    await sendNotificationEmail({
+    // Błąd wysłania maila nie może cofnąć poprawnie zapisanej aktywacji.
+    const mailResult = await sendNotificationEmail({
       email,
       plan,
       paymentTitle,
@@ -79,45 +113,104 @@ exports.handler = async (event) => {
       plan,
       paymentTitle,
       status: "ACTIVE",
-      expires
+      accessType: plan === "30d-pro" ? "PRO" : "BASIC",
+      aiLimit: plan === "30d-pro" ? 100 : 2,
+      expires,
+      emailSent: mailResult.sent,
+      emailError: mailResult.error || null
     });
 
   } catch (e) {
-    return json(500, { ok: false, error: e.message || String(e) });
+    console.error("access_set error:", e);
+
+    return json(500, {
+      ok: false,
+      error: e?.message || String(e)
+    });
   }
 };
 
 async function sendNotificationEmail({ email, plan, paymentTitle, createdAt, expires }) {
-  if (!process.env.RESEND_API_KEY) return;
+  if (!process.env.RESEND_API_KEY) {
+    return {
+      sent: false,
+      error: "Missing RESEND_API_KEY"
+    };
+  }
 
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer " + process.env.RESEND_API_KEY,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from: "Sense Bridge <onboarding@resend.dev>",
-      to: ["madey.verpakken@gmail.com"],
-      subject: "Nowa aktywacja Sense Bridge",
-      html: `
-        <h2>Nowa aktywacja Sense Bridge</h2>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Plan:</b> ${plan}</p>
-        <p><b>Tytuł przelewu:</b> ${paymentTitle || "-"}</p>
-        <p><b>Aktywacja:</b> ${new Date(createdAt).toLocaleString("pl-PL")}</p>
-        <p><b>Ważne do:</b> ${new Date(expires).toLocaleString("pl-PL")}</p>
-      `
-    })
-  });
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + process.env.RESEND_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Sense Bridge <onboarding@resend.dev>",
+        to: ["madey.verpakken@gmail.com"],
+        subject: "Nowa aktywacja Sense Bridge",
+        html: `
+          <h2>Nowa aktywacja Sense Bridge</h2>
+          <p><b>Email:</b> ${escapeHtml(email)}</p>
+          <p><b>Plan:</b> ${escapeHtml(plan)}</p>
+          <p><b>Typ dostępu:</b> ${plan === "30d-pro" ? "PRO" : "BASIC"}</p>
+          <p><b>Limit narzędzi AI:</b> ${plan === "30d-pro" ? "100" : "2"}</p>
+          <p><b>Tytuł przelewu:</b> ${escapeHtml(paymentTitle || "-")}</p>
+          <p><b>Aktywacja:</b> ${new Date(createdAt).toLocaleString("pl-PL")}</p>
+          <p><b>Ważne do:</b> ${new Date(expires).toLocaleString("pl-PL")}</p>
+        `
+      })
+    });
+
+    const responseText = await res.text();
+
+    if (!res.ok) {
+      return {
+        sent: false,
+        error: "Resend error " + res.status + ": " + responseText
+      };
+    }
+
+    return {
+      sent: true,
+      error: null
+    };
+  } catch (e) {
+    return {
+      sent: false,
+      error: e?.message || String(e)
+    };
+  }
+}
+
+function safeJson(value) {
+  try {
+    if (value && typeof value === "object") return value;
+    return JSON.parse(value || "{}");
+  } catch {
+    return null;
+  }
+}
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (s) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[s]));
 }
 
 function json(statusCode, obj) {
   return {
     statusCode,
     headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*"
+      "Content-Type": "application/json; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Cache-Control": "no-store"
     },
     body: JSON.stringify(obj)
   };
