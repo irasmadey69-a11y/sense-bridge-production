@@ -10,7 +10,9 @@ exports.handler = async (event) => {
 
   try {
     const body = safeJson(event.body);
-    const text = str(body.text || body.input || body.content || body.document || "");
+    const mode = normalizeAnalysisMode(body.mode || body.analysisMode || body.toolMode || "letter");
+    let text = str(body.text || body.input || body.content || body.document || "");
+    text = stripLegacyModeInstruction(text, mode);
     const sourceLang = str(body.sourceLang || body.source || "AUTO").toUpperCase();
     const userLang = str(body.userLang || body.targetLang || body.target || "PL").toUpperCase();
     const tone = str(body.tone || body.style || "neutral").toLowerCase();
@@ -59,7 +61,7 @@ exports.handler = async (event) => {
     }
 
     const analysisPrompt = `
-Zadanie: przeanalizuj pismo urzędowe lub formalne. To NIE jest porada prawna.
+${buildModePrompt(mode, userLang)}
 
 DODATKOWE ZADANIE: oceń spokojnie ryzyko możliwego oszustwa / phishingu / podszywania się.
 To ma być ANALIZA RYZYKA, nie wyrok. Nigdy nie pisz, że dokument jest na 100% prawdziwy albo na 100% fałszywy.
@@ -605,6 +607,77 @@ function str(v) {
 
 function arr(v) {
   return Array.isArray(v) ? v.filter(Boolean).map(x => String(x).trim()).filter(Boolean) : [];
+}
+
+function normalizeAnalysisMode(value) {
+  const raw = String(value || "letter").trim().toLowerCase();
+  const aliases = {
+    letter: "letter",
+    document: "letter",
+    normal: "letter",
+    contract: "contract",
+    document_contract: "contract",
+    pdf: "document_pdf",
+    document_pdf: "document_pdf",
+    form: "document_form",
+    document_form: "document_form",
+    photo: "document_photo",
+    document_photo: "document_photo",
+    bill: "document_bill",
+    invoice: "document_bill",
+    document_bill: "document_bill"
+  };
+  return aliases[raw] || "letter";
+}
+
+function stripLegacyModeInstruction(value, mode) {
+  let text = String(value || "").trim();
+  if (!mode || mode === "letter") return text;
+
+  // Older index versions inserted an English mode instruction directly
+  // before the real document. Remove only that known wrapper so it is not
+  // translated or mistaken for document content.
+  const marker = "DOCUMENT START:";
+  const markerIndex = text.toUpperCase().indexOf(marker);
+  if (markerIndex >= 0 && markerIndex < 1400) {
+    text = text.slice(markerIndex + marker.length).trim();
+  }
+  return text;
+}
+
+function buildModePrompt(mode, userLang) {
+  const common = `To NIE jest porada prawna, podatkowa ani finansowa.
+Odpowiadaj w języku użytkownika: ${userLang}.
+Nie wymyślaj danych, których nie ma w materiale. Wyraźnie zaznaczaj niepewność.`;
+
+  const prompts = {
+    letter: `Zadanie: przeanalizuj pismo urzędowe lub formalne.
+Wyjaśnij jego znaczenie, nadawcę, oczekiwane działania, terminy, możliwe konsekwencje i bezpieczne kolejne kroki.`,
+
+    contract: `TRYB ANALIZY UMOWY.
+Rozpoznaj strony i rodzaj umowy. Wyjaśnij najważniejsze obowiązki, opłaty, terminy, czas trwania, wypowiedzenie, kary, automatyczne przedłużenie, niejasne lub jednostronne zapisy oraz praktyczne pytania, które użytkownik powinien zadać.
+Nie stwierdzaj, że zapis jest legalny lub nielegalny, jeśli nie można tego pewnie ocenić.`,
+
+    document_pdf: `TRYB ANALIZY DOKUMENTU PDF.
+Rozpoznaj typ dokumentu, wystawcę, cel, najważniejsze fakty, daty, terminy, obowiązki, wymagane załączniki, niejasne miejsca, ryzyka i praktyczne kolejne kroki.
+Jeśli tekst zawiera oznaczenia stron, połącz informacje z całego dokumentu i nie traktuj nagłówków stron jako osobnej treści.`,
+
+    document_form: `TRYB POMOCY PRZY FORMULARZU.
+Wyjaśnij cel formularza, widoczne pola i sekcje, jakie informacje należy w nich podać, które pola wyglądają na obowiązkowe, jakie dokumenty lub podpisy mogą być potrzebne oraz co zrobić dalej.
+Nigdy nie wymyślaj danych osobowych użytkownika i nie wypełniaj brakujących informacji za niego.`,
+
+    document_photo: `TRYB ANALIZY ZDJĘCIA Z TEKSTEM.
+Wyjaśnij, co przedstawia sfotografowany materiał, uporządkuj odczytany tekst, rozpoznaj nadawcę lub źródło, jeśli to możliwe, wskaż ważne informacje, terminy, ostrzeżenia i bezpieczne kolejne kroki.
+Uwzględnij możliwość błędów OCR i zaznacz fragmenty nieczytelne lub niepewne.`,
+
+    document_bill: `TRYB ANALIZY RACHUNKU LUB FAKTURY.
+Rozpoznaj dostawcę, odbiorcę, cel dokumentu, pozycje, kwoty netto i brutto, podatek/VAT, sumę, termin i sposób płatności, numer lub referencję płatności, opłaty cykliczne, kary, nietypowe pozycje i elementy wymagające sprawdzenia przed zapłatą.
+Nie oceniaj poprawności podatkowej ani prawnej, jeśli dokument nie daje wystarczających danych.`
+  };
+
+  return `${prompts[mode] || prompts.letter}
+
+${common}`;
 }
 
 
