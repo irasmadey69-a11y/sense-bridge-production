@@ -1,18 +1,23 @@
 const { getStore, connectLambda } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
+  const method = String(event?.httpMethod || "").toUpperCase();
+
+  if (method === "OPTIONS") {
+    return json(200, { ok: true });
+  }
+
+  if (method !== "POST") {
+    return json(405, { ok: false, error: "Method not allowed" });
+  }
+
   try {
     connectLambda(event);
 
-    if (event.httpMethod === "OPTIONS") {
-      return json(200, { ok: true });
+    const body = safeJson(event.body);
+    if (!body) {
+      return json(400, { ok: false, error: "Invalid JSON body" });
     }
-
-    if (event.httpMethod !== "POST") {
-      return json(405, { ok: false, error: "Method not allowed" });
-    }
-
-    const body = JSON.parse(event.body || "{}");
 
     const email = String(body.email || "").trim().toLowerCase();
     const plan = String(body.plan || "—").trim();
@@ -29,37 +34,57 @@ exports.handler = async (event) => {
     });
 
     const paymentsStore = getStore({
-  name: "sb-payments",
-  siteID: process.env.NETLIFY_SITE_ID,
-  token: process.env.NETLIFY_AUTH_TOKEN
-});
+      name: "sb-payments",
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_AUTH_TOKEN
+    });
+
+    const paymentStatsStore = getStore({
+      name: "sb-payment-stats",
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_AUTH_TOKEN
+    });
 
     const now = Date.now();
 
-const paymentRecord = {
-  email,
-  plan,
-  paymentTitle,
-  createdAt: now
-};
+    const paymentRecord = {
+      email,
+      plan,
+      paymentTitle,
+      createdAt: now
+    };
 
-await paymentsStore.set(
-  `${now}_${email}`,
-  JSON.stringify(paymentRecord)
-);
+    // Preserve the existing production behaviour:
+    // every click on "Zapłaciłem" is recorded in sb-payments.
+    await paymentsStore.set(
+      `${now}_${email}`,
+      JSON.stringify(paymentRecord)
+    );
 
-const raw = await store.get(email);
+    // Historical counter: it is not reduced when an item is removed
+    // from the working payment-request list in the admin panel.
+    await incrementPaymentClickCounter(paymentStatsStore, now);
+
+    const raw = await store.get(email);
 
     let repeated = false;
-    let finalStatus = "PENDING";
+    const finalStatus = "PENDING";
     let savedPlan = plan;
     let savedPaymentTitle = paymentTitle;
 
     if (raw) {
-      const existing = JSON.parse(raw);
-      const existingStatus = String(existing.status || "").toUpperCase();
+      const existing = safeJson(raw);
 
-      // Jeśli użytkownik jest BLOCKED, nie przyjmujemy zgłoszenia.
+      if (!existing || typeof existing !== "object") {
+        return json(500, {
+          ok: false,
+          error: "Invalid user access record"
+        });
+      }
+
+      const existingStatus = String(existing.status || "").trim().toUpperCase();
+
+      // Jeśli użytkownik jest BLOCKED, nie zmieniamy jego statusu.
       if (existingStatus === "BLOCKED") {
         return json(200, {
           ok: true,
@@ -117,9 +142,8 @@ const raw = await store.get(email);
 
         await store.set(email, JSON.stringify(userData));
       }
-
     } else {
-      // Nowy użytkownik
+      // Nowy użytkownik.
       const userData = {
         email,
         status: "PENDING",
@@ -149,9 +173,11 @@ const raw = await store.get(email);
     });
 
   } catch (e) {
+    console.error("pending_set error:", e);
+
     return json(500, {
       ok: false,
-      error: e.message || String(e)
+      error: e?.message || String(e)
     });
   }
 };
@@ -176,7 +202,7 @@ async function sendPendingEmail({ email, plan, paymentTitle, createdAt, repeated
       <h2>${escapeHtml(subject)}</h2>
       <p><b>Status:</b> PENDING</p>
       <p><b>Email użytkownika:</b> ${escapeHtml(email)}</p>
-      <p><b>Plan:</b> ${escapeHtml(plan || "—")}</p>
+      <p><b>Plan:</b> ${escapeHtml(formatPlanName(plan))}</p>
       <p><b>Tytuł przelewu / kod:</b> ${escapeHtml(paymentTitle || "—")}</p>
       <p><b>Kliknięto:</b> ${new Date(createdAt).toLocaleString("pl-PL")}</p>
       <p><b>Notatka:</b> ${escapeHtml(note || "—")}</p>
@@ -207,6 +233,39 @@ async function sendPendingEmail({ email, plan, paymentTitle, createdAt, repeated
     sent: true,
     error: null
   };
+}
+
+
+async function incrementPaymentClickCounter(store, now) {
+  const key = "payment_clicks_total";
+  const raw = await store.get(key);
+  const previous = safeJson(raw);
+  const total = Math.max(0, Number(previous?.total) || 0) + 1;
+
+  await store.set(key, JSON.stringify({
+    total,
+    updatedAt: now
+  }));
+
+  return total;
+}
+
+function formatPlanName(plan) {
+  const value = String(plan || "").trim().toLowerCase();
+  if (value === "24h") return "24 godziny";
+  if (value === "7d") return "7 dni";
+  if (value === "30d") return "30 dni";
+  if (value === "30d-pro") return "30 dni PRO — 25 €";
+  return plan || "—";
+}
+
+function safeJson(value) {
+  try {
+    if (value && typeof value === "object") return value;
+    return JSON.parse(value || "{}");
+  } catch {
+    return null;
+  }
 }
 
 function escapeHtml(str) {
