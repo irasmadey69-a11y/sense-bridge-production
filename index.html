@@ -3188,6 +3188,521 @@ body.dark-mode .sb-doclab-file-btn{
 .sb-ai-trials-main strong:empty{display:none;}
 
 </style>
+
+
+<!-- Sense Bridge Mobile Analysis Workspace V2: visual/layout patch only -->
+<style id="sb-mobile-workspace-v2-css">
+/* This layer changes presentation and DOM order only. Existing IDs, handlers and logic stay intact. */
+.sb-mobile-bottom-nav{display:none}
+
+@media (max-width:640px){
+  body{padding-bottom:86px}
+  main{padding:12px 10px 34px;max-width:100%}
+
+  /* Compact, immediately understandable header */
+  .top-card{
+    padding:16px!important;
+    margin-bottom:12px!important;
+    border-radius:24px!important;
+    border-top-width:1px!important;
+    background:radial-gradient(circle at top right,rgba(63,138,114,.10),transparent 36%),#fff!important;
+  }
+  .top-card .topbar{display:block;margin:0}
+  .top-card .sb-brand-row{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:11px;align-items:center;margin-bottom:12px}
+  .top-card .sb-brand-logo{width:62px;height:62px;flex-basis:62px;border-radius:19px;padding:6px}
+  .top-card .sb-brand-copy{min-width:0}
+  .top-card h1{font-size:clamp(32px,10vw,44px)!important;line-height:1!important;letter-spacing:-.055em;white-space:nowrap}
+  .top-card .sb-brand-sub{font-size:13px;padding:0;margin-top:7px;border:0;background:transparent;display:block;line-height:1.22}
+  .top-card #hDesc{font-size:15px!important;line-height:1.35!important;margin:4px 0 12px!important;font-weight:650!important;color:#687385!important}
+  .top-card #hDesc .hero-muted{display:none!important}
+
+  /* Keep language and theme visible at the top */
+  .top-card .theme-switch{position:absolute;top:16px;right:15px;margin:0!important;z-index:3}
+  .top-card .theme-toggle{min-width:auto!important;min-height:40px;padding:8px 11px;font-size:13px;background:#fff}
+  .top-card .sb-language-reach{margin:0 0 10px!important;min-height:42px;padding:9px 11px;font-size:13px}
+  .top-card .sb-language-in-hero{margin:0 0 10px!important}
+  .top-card .sb-language-in-hero .sb-lang-details>summary{min-height:52px!important;padding:11px 13px!important;border-radius:16px!important;font-size:15px!important}
+  .top-card .sb-language-in-hero .ui-switch{padding:10px 2px 2px;display:grid!important;grid-template-columns:repeat(3,1fr);gap:8px!important}
+  .top-card .sb-language-in-hero .ui-btn{width:100%;min-width:0!important;min-height:43px;font-size:14px}
+
+  /* Clear top actions */
+  .top-card .install-btn{width:calc(67% - 5px)!important;min-height:52px;margin:0 6px 0 0!important;border-radius:16px!important;background:linear-gradient(135deg,#158563,#329b78)!important;color:#fff!important;border:0!important;box-shadow:0 9px 19px rgba(21,133,99,.20)!important;font-size:16px!important}
+  .top-card .sb-main-menu-btn{display:inline-flex!important;width:calc(33% - 5px)!important;min-height:52px;margin:0!important;border-radius:16px!important;vertical-align:top;justify-content:center;padding:10px 9px!important}
+  .top-card .sb-main-menu-btn .sb-menu-arrow{display:none}
+
+  /* App view is still available in Settings/More, not in the main task flow */
+  #sbViewSwitchV11{display:none!important}
+
+  /* Analysis is the first workspace after the header */
+  .sb-analysis-workspace{
+    padding:16px!important;
+    border-radius:24px!important;
+    margin-bottom:14px!important;
+  }
+  .sb-analysis-workspace>.section-title{font-size:21px!important;margin-bottom:12px!important}
+  .sb-analysis-workspace>.section-title::before{width:38px!important;height:38px!important;font-size:20px!important;border-radius:13px!important}
+  .sb-analysis-workspace .photo-box{padding:13px!important;border-radius:18px!important;margin-bottom:12px!important}
+  .sb-analysis-workspace #lblPhotoTitle{font-size:17px!important}
+  .sb-analysis-workspace #lblPhotoTitle::before{width:34px!important;height:34px!important}
+
+  /* Camera and gallery stay side by side on phones */
+  .sb-analysis-workspace .sb-photo-actions-v2{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+  .sb-analysis-workspace .sb-photo-action{min-height:58px!important;padding:9px 6px!important;font-size:14px!important;border-radius:16px!important;line-height:1.15;text-align:center}
+  .sb-analysis-workspace #sbPhotoFileName{display:inline-block;max-width:47%;vertical-align:middle;margin:2px 4px 4px 0}
+  .sb-analysis-workspace #sbReadPhotoBtn{float:right;max-width:52%;min-height:44px!important;padding:9px 10px!important;font-size:13px!important;margin:0 0 6px!important}
+  .sb-analysis-workspace #sbPhotoStatus{clear:both}
+  .sb-analysis-workspace #sbFlowDetails{clear:both;margin-top:7px}
+
+  .sb-analysis-workspace textarea{min-height:156px!important;font-size:16px!important;padding:15px!important;border-radius:17px!important}
+
+  /* Two language selectors, then one unmistakable main action */
+  .sb-analysis-workspace .row{display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;align-items:end!important;margin-top:11px!important}
+  .sb-analysis-workspace .row>select,
+  .sb-analysis-workspace .row>div{width:100%!important;min-width:0!important;margin:0!important}
+  .sb-analysis-workspace .row select{width:100%!important;max-width:none!important;min-height:64px!important;margin:0!important;padding:24px 34px 8px 13px!important;font-size:15px!important;font-weight:750;border-radius:16px!important;background-color:#fff!important}
+  .sb-analysis-workspace #sourceLang{grid-column:1}
+  .sb-analysis-workspace .row>div:has(#userLang){grid-column:2;position:relative}
+  .sb-analysis-workspace #lblUserLang{position:absolute;z-index:2;top:7px;left:13px;margin:0!important;font-size:11px!important;color:#687385!important;pointer-events:none;gap:4px}
+  .sb-analysis-workspace #lblUserLang::before{display:none!important}
+  .sb-analysis-workspace #btnAnalyze{grid-column:1/-1;max-width:none!important;width:100%!important;min-height:64px!important;margin:2px 0 0!important;border-radius:17px!important;font-size:19px!important;font-weight:900!important}
+  .sb-analysis-workspace #btnAnalyze::before{content:"✨ ";}
+  .sb-analysis-workspace #analyzeStatus,
+  .sb-analysis-workspace #sbProgressWrap{grid-column:1/-1}
+
+  /* Secondary actions are visible but clearly secondary */
+  .sb-analysis-workspace .tools{display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;margin-top:14px!important}
+  .sb-analysis-workspace .tool-btn{width:100%!important;min-height:54px!important;margin:0!important;padding:10px!important;font-size:14px!important;border-radius:16px!important}
+  .sb-analysis-workspace .tools .tool-btn:nth-child(2),
+  .sb-analysis-workspace .tools .tool-btn:nth-child(3),
+  .sb-analysis-workspace .tools .tool-btn:nth-child(4){display:none}
+  .sb-analysis-workspace .statusbar{margin-top:13px!important;padding-top:12px!important}
+  .sb-analysis-workspace .statusbar .sb-original-status-chip{display:none!important}
+  .sb-analysis-workspace .sb-free-summary-chip{font-size:14px!important;padding:8px 12px!important}
+  .sb-analysis-workspace #sbInfoDetails{margin-top:10px}
+
+  /* AI tools remain intact, but live below analysis and open from bottom navigation */
+  #sbAiToolsCard{margin-top:0!important;border-radius:24px!important}
+  #sbAiToolsCard .sb-ai-tools-title{font-size:29px!important}
+  #sbAiToolsCard .sb-ai-tools-desc{font-size:15px!important}
+
+  /* Result cards remain below; no empty result teaser at the bottom */
+  body:not(.sb-has-analysis-result) .sb-quick-result,
+  body:not(.sb-has-analysis-result) #translationCardV11,
+  body:not(.sb-has-analysis-result) .sb-result-accordion{display:none!important}
+
+  /* Fixed, app-like navigation: no history because documents are not stored */
+  .sb-mobile-bottom-nav{
+    position:fixed;left:10px;right:10px;bottom:8px;z-index:99990;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+    padding:7px;border-radius:22px;background:rgba(255,255,255,.96);
+    border:1px solid rgba(63,138,114,.22);box-shadow:0 14px 34px rgba(15,23,42,.18);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)
+  }
+  .sb-mobile-nav-btn{border:0;background:transparent;min-height:58px;padding:6px 4px;border-radius:16px;color:#5f6b7a;font-weight:800;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:none}
+  .sb-mobile-nav-btn .ico{font-size:22px;line-height:1}
+  .sb-mobile-nav-btn.active{background:#edf5ff;color:#0e2a47}
+
+  body.dark-mode .top-card,
+  body.dark-mode .sb-mobile-bottom-nav{background:rgba(8,21,34,.97)!important}
+  body.dark-mode .sb-analysis-workspace .row select{background:#07111d!important}
+  body.dark-mode .sb-mobile-nav-btn{color:#9fb5ad!important}
+  body.dark-mode .sb-mobile-nav-btn.active{background:rgba(44,255,154,.13)!important;color:#d8ffe9!important}
+}
+
+@media (min-width:641px){
+  .sb-analysis-workspace .row{display:grid;grid-template-columns:minmax(220px,1.35fr) minmax(190px,.75fr) minmax(180px,.65fr);gap:12px;align-items:end}
+  .sb-analysis-workspace .row>div{min-width:0}
+  .sb-analysis-workspace #btnAnalyze{max-width:none;margin:0;min-height:58px}
+  .sb-analysis-workspace .sb-photo-actions-v2{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+
+
+
+<!-- Sense Bridge Mobile Compact Workspace V3: visual-only refinement -->
+<style id="sb-mobile-compact-v3-css">
+@media (max-width:640px){
+  body{padding-bottom:78px!important}
+  main{padding:6px 7px 18px!important}
+
+  /* Compact app header inspired by the approved mock-up */
+  .top-card{padding:10px!important;margin-bottom:8px!important;border-radius:21px!important}
+  .top-card .sb-brand-row{grid-template-columns:48px minmax(0,1fr) auto!important;gap:8px!important;margin-bottom:7px!important}
+  .top-card .sb-brand-logo{width:48px!important;height:48px!important;flex-basis:48px!important;border-radius:15px!important;padding:5px!important}
+  .top-card h1{font-size:clamp(27px,8.2vw,35px)!important;line-height:.98!important;white-space:nowrap!important}
+  .top-card .sb-brand-sub{margin-top:4px!important;font-size:11px!important;line-height:1.12!important}
+  .top-card .sb-brand-sub>div:first-child{font-size:1.05em!important}
+  .top-card .sb-brand-sub>div:last-child{font-size:.78em!important;margin-top:2px!important}
+  .top-card #hDesc{display:none!important}
+  .top-card .theme-switch{position:static!important;margin:0!important;align-self:start!important}
+  .top-card .theme-toggle{min-height:36px!important;padding:6px 9px!important;font-size:11px!important;border-radius:13px!important}
+  .top-card .sb-language-reach{min-height:34px!important;margin:0 0 7px!important;padding:6px 9px!important;font-size:11px!important;border-radius:13px!important}
+  .top-card .sb-language-in-hero{margin:0 0 7px!important}
+  .top-card .sb-language-in-hero .sb-lang-details>summary{min-height:43px!important;padding:8px 10px!important;border-radius:14px!important;font-size:13px!important}
+  .top-card .sb-language-in-hero .ui-switch{padding:8px 0 1px!important;gap:6px!important}
+  .top-card .sb-language-in-hero .ui-btn{min-height:38px!important;font-size:12px!important;padding:5px!important}
+  .top-card .install-btn,.top-card .sb-main-menu-btn{min-height:44px!important;border-radius:14px!important;font-size:13px!important;padding:7px 8px!important}
+  .top-card .install-btn{width:calc(68% - 4px)!important;margin-right:4px!important}
+  .top-card .sb-main-menu-btn{width:calc(32% - 4px)!important}
+  .top-card .install-btn .install-ico{font-size:18px!important}
+  .top-card .install-btn .install-arrow{font-size:15px!important}
+  .top-card #paidMsg{margin-top:7px!important}
+  .top-card #paidMsg>summary{min-height:46px!important;padding:8px 10px!important}
+
+  /* Compact analysis workspace while keeping every existing control */
+  .sb-analysis-workspace{padding:10px!important;border-radius:21px!important;margin-bottom:9px!important}
+  .sb-analysis-workspace>.section-title{font-size:18px!important;margin-bottom:7px!important}
+  .sb-analysis-workspace>.section-title::before{width:31px!important;height:31px!important;font-size:17px!important;border-radius:10px!important}
+  .sb-analysis-workspace .photo-box{padding:8px!important;border-radius:15px!important;margin:0 0 7px!important}
+  .sb-analysis-workspace #lblPhotoTitle{font-size:14px!important;margin-bottom:5px!important}
+  .sb-analysis-workspace #lblPhotoTitle::before{width:28px!important;height:28px!important;font-size:15px!important}
+  .sb-analysis-workspace .sb-photo-actions-v2{gap:7px!important;margin:6px 0!important}
+  .sb-analysis-workspace .sb-photo-action{min-height:47px!important;padding:6px 4px!important;font-size:12px!important;border-radius:14px!important}
+  .sb-analysis-workspace .sb-photo-action .ico{font-size:17px!important}
+  .sb-analysis-workspace #sbPhotoFileName{max-width:45%!important;font-size:11px!important;margin:0 3px 3px 0!important}
+  .sb-analysis-workspace #sbReadPhotoBtn{max-width:54%!important;min-height:37px!important;padding:6px 7px!important;font-size:11px!important;border-radius:12px!important}
+  .sb-analysis-workspace #sbFlowDetails{display:none!important}
+  .sb-analysis-workspace textarea{min-height:108px!important;max-height:140px!important;padding:10px!important;font-size:14px!important;border-radius:14px!important}
+  .sb-analysis-workspace .row{gap:7px!important;margin-top:7px!important}
+  .sb-analysis-workspace .row select{min-height:52px!important;padding:19px 27px 6px 9px!important;font-size:13px!important;border-radius:14px!important}
+  .sb-analysis-workspace #lblUserLang{top:5px!important;left:9px!important;font-size:9px!important}
+  .sb-analysis-workspace #btnAnalyze{min-height:52px!important;margin-top:0!important;border-radius:14px!important;font-size:17px!important}
+  .sb-analysis-workspace .tools{gap:7px!important;margin-top:8px!important}
+  .sb-analysis-workspace .tool-btn{min-height:44px!important;padding:7px!important;font-size:12px!important;border-radius:13px!important}
+  .sb-analysis-workspace .statusbar{margin-top:7px!important;padding-top:7px!important}
+  .sb-analysis-workspace .sb-free-summary-chip{font-size:12px!important;padding:6px 9px!important}
+  .sb-analysis-workspace #sbInfoDetails{margin-top:6px!important}
+
+  /* Smaller navigation so more workspace stays visible */
+  .sb-mobile-bottom-nav{left:7px!important;right:7px!important;bottom:5px!important;padding:5px!important;border-radius:19px!important}
+  .sb-mobile-nav-btn{min-height:51px!important;padding:4px 2px!important;font-size:10.5px!important;border-radius:14px!important}
+  .sb-mobile-nav-btn .ico{font-size:20px!important}
+  .sb-mobile-nav-btn .label{white-space:nowrap!important}
+
+  /* Clicking AI Tools opens the existing translated list; card stays visually compact */
+  #sbAiToolsCard{border-radius:21px!important;margin-bottom:9px!important}
+  #sbAiToolsCard .sb-ai-tools-head{padding:0!important}
+  #sbAiToolsCard .sb-ai-tools-icon{width:44px!important;height:44px!important;font-size:22px!important;border-radius:14px!important}
+  #sbAiToolsCard .sb-ai-tools-title{font-size:25px!important}
+  #sbAiToolsCard .sb-ai-tools-toggle{width:43px!important;height:43px!important}
+}
+</style>
+
+
+<!-- Sense Bridge Mobile Header V4 + AI Tools navigation fix -->
+<style id="sb-mobile-header-v4-css">
+@media (max-width:640px){
+  .top-card{
+    padding:10px!important;
+    overflow:visible!important;
+  }
+
+  .top-card .topbar{
+    display:block!important;
+  }
+
+  .top-card .topbar > div:first-child{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px!important;
+    align-items:center!important;
+  }
+
+  .top-card .sb-brand-row{
+    grid-column:1!important;
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr)!important;
+    gap:8px!important;
+    align-items:center!important;
+    margin:0!important;
+    min-width:0!important;
+  }
+
+  .top-card .sb-brand-logo{
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    flex-basis:42px!important;
+    padding:4px!important;
+    border-radius:14px!important;
+  }
+
+  .top-card h1{
+    font-size:clamp(25px,7.7vw,33px)!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+
+  .top-card .sb-brand-sub{
+    margin-top:3px!important;
+    font-size:10.5px!important;
+    line-height:1.1!important;
+  }
+
+  .top-card .sb-brand-sub > div:last-child{
+    display:none!important;
+  }
+
+  .top-card .sb-header-controls-v4{
+    grid-column:2!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+    min-width:max-content!important;
+  }
+
+  .top-card .sb-language-in-hero{
+    margin:0!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+
+  .top-card .sb-language-in-hero .sb-lang-details{
+    width:auto!important;
+    min-width:68px!important;
+    margin:0!important;
+    overflow:visible!important;
+  }
+
+  .top-card .sb-language-in-hero .sb-lang-details > summary{
+    min-height:40px!important;
+    height:40px!important;
+    padding:6px 9px!important;
+    border-radius:13px!important;
+    gap:5px!important;
+  }
+
+  .top-card .sb-language-in-hero .sb-lang-summary-main{
+    display:none!important;
+  }
+
+  .top-card .sb-language-in-hero .sb-lang-current{
+    font-size:13px!important;
+    font-weight:900!important;
+    white-space:nowrap!important;
+  }
+
+  .top-card .sb-language-in-hero .sb-lang-body{
+    position:absolute!important;
+    z-index:9997!important;
+    right:0!important;
+    top:46px!important;
+    width:min(290px,calc(100vw - 28px))!important;
+    padding:9px!important;
+    border:1px solid rgba(63,138,114,.26)!important;
+    border-radius:16px!important;
+    background:#fff!important;
+    box-shadow:0 14px 34px rgba(15,23,42,.18)!important;
+  }
+
+  .top-card .sb-language-in-hero .ui-switch{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:7px!important;
+    padding:0!important;
+  }
+
+  .top-card .sb-language-in-hero .ui-btn{
+    min-width:0!important;
+    width:100%!important;
+    min-height:39px!important;
+    padding:6px!important;
+    font-size:13px!important;
+  }
+
+  .top-card .theme-switch{
+    position:static!important;
+    margin:0!important;
+  }
+
+  .top-card .theme-toggle{
+    min-width:78px!important;
+    min-height:40px!important;
+    height:40px!important;
+    padding:6px 9px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+
+  .top-card .sb-header-meta-v4{
+    grid-column:1 / -1!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:7px!important;
+    margin-top:8px!important;
+  }
+
+  .top-card .sb-language-reach{
+    margin:0!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:39px!important;
+    padding:7px 8px!important;
+    border-radius:13px!important;
+    font-size:10.5px!important;
+    line-height:1.15!important;
+    gap:5px!important;
+  }
+
+  .top-card .sb-language-reach-icon{
+    font-size:15px!important;
+  }
+
+  .top-card .sb-current-language-chip-v4{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    min-height:39px!important;
+    padding:7px 8px!important;
+    border-radius:13px!important;
+    background:#eef7f3!important;
+    border:1px solid rgba(63,138,114,.20)!important;
+    color:#28634f!important;
+    font-size:10.5px!important;
+    line-height:1.15!important;
+    font-weight:900!important;
+    text-align:center!important;
+  }
+
+  .top-card .sb-current-language-chip-v4 strong{
+    color:inherit!important;
+  }
+
+  .top-card #hDesc,
+  .top-card #sbHeroBenefits{
+    display:none!important;
+  }
+
+  .top-card .sb-header-actions-v4{
+    grid-column:1 / -1!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1.7fr) minmax(100px,.7fr)!important;
+    gap:7px!important;
+    margin-top:8px!important;
+  }
+
+  .top-card .install-btn,
+  .top-card .sb-main-menu-btn{
+    width:100%!important;
+    min-height:45px!important;
+    height:45px!important;
+    margin:0!important;
+    padding:7px 9px!important;
+    border-radius:14px!important;
+    font-size:13px!important;
+  }
+
+  .top-card .install-btn .install-ico{
+    font-size:18px!important;
+  }
+
+  .top-card .install-btn .install-arrow{
+    font-size:16px!important;
+  }
+
+  .top-card .sb-main-menu-btn .sb-menu-icon{
+    font-size:18px!important;
+  }
+
+  body.dark-mode .top-card .sb-language-in-hero .sb-lang-body{
+    background:#081522!important;
+    border-color:rgba(44,255,154,.24)!important;
+  }
+
+  body.dark-mode .top-card .sb-current-language-chip-v4{
+    background:rgba(44,255,154,.09)!important;
+    border-color:rgba(44,255,154,.22)!important;
+    color:#d8ffe9!important;
+  }
+
+  /* Ensure AI tools are visible when opened from bottom navigation. */
+  body.sb-simple-view.sb-menu-ai-open #sbAiToolsCard{
+    display:block!important;
+  }
+
+  /* Wyraźny stan rozwiniętych Narzędzi AI w dolnym menu. */
+  .sb-mobile-nav-btn[data-sb-mobile-nav="tools"][aria-expanded="true"]{
+    background:rgba(63,138,114,.12)!important;
+    color:#245c4d!important;
+    box-shadow:inset 0 0 0 1px rgba(63,138,114,.20)!important;
+  }
+  .sb-mobile-nav-btn[data-sb-mobile-nav="tools"][aria-expanded="true"] .ico{
+    font-size:18px!important;
+    transform:translateY(-1px);
+  }
+  body.dark-mode .sb-mobile-nav-btn[data-sb-mobile-nav="tools"][aria-expanded="true"]{
+    background:rgba(44,255,154,.13)!important;
+    color:#d8ffe9!important;
+    box-shadow:inset 0 0 0 1px rgba(44,255,154,.25)!important;
+  }
+}
+</style>
+
+
+<!-- Sense Bridge: translated two-level document-language selector -->
+<style id="sb-source-language-label-fix">
+.sb-source-lang-wrap{
+  position:relative;
+  width:100%;
+  min-width:0;
+}
+.sb-source-lang-wrap #lblSourceLang{
+  margin:0 0 4px;
+  font-size:13px;
+  color:var(--muted);
+}
+.sb-source-lang-wrap #lblSourceLang::before{
+  display:none;
+}
+
+@media (max-width:640px){
+  .sb-analysis-workspace .row > .sb-source-lang-wrap{
+    grid-column:1!important;
+    position:relative!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+
+  .sb-analysis-workspace #sourceLang{
+    grid-column:auto!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    min-height:64px!important;
+    margin:0!important;
+    padding:24px 34px 8px 13px!important;
+    font-size:15px!important;
+    font-weight:750!important;
+    border-radius:16px!important;
+    text-overflow:ellipsis!important;
+  }
+
+  .sb-analysis-workspace #lblSourceLang{
+    position:absolute!important;
+    z-index:2!important;
+    top:5px!important;
+    left:9px!important;
+    margin:0!important;
+    max-width:calc(100% - 42px)!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    color:#687385!important;
+    font-size:9px!important;
+    line-height:1.15!important;
+    font-weight:750!important;
+    pointer-events:none!important;
+  }
+
+  body.dark-mode .sb-analysis-workspace #lblSourceLang{
+    color:#9fb5ad!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -3555,9 +4070,11 @@ body.dark-mode .sb-doclab-file-btn{
     <textarea id="inputText" placeholder="👇 Kliknij tutaj i wklej treść pisma lub e-maila z urzędu…"></textarea>
 
     <div class="row" style="margin-top:8px">
-      <select id="sourceLang" aria-label="Język dokumentu">
+      <div class="sb-source-lang-wrap">
+        <div id="lblSourceLang" class="section-title">Język dokumentu</div>
+        <select id="sourceLang" aria-label="Język dokumentu">
 
-        <option value="AUTO">Język dokumentu: AUTO</option>
+        <option value="AUTO">🌐 AUTO</option>
         <option value="PL">🇵🇱 Polski</option>
         <option value="UA">🇺🇦 Українська</option>
         <option value="NL">🇳🇱 Nederlands</option>
@@ -3568,7 +4085,8 @@ body.dark-mode .sb-doclab-file-btn{
         <option value="ES">🇪🇸 Español</option>
         <option value="PT">🇵🇹 Português</option>
 
-      </select>
+        </select>
+      </div>
 
       <div>
         <div id="lblUserLang" class="section-title">Twój język</div>
@@ -4235,6 +4753,7 @@ const UI = {
       placeholder: "👇 Kliknij tutaj i wklej treść pisma lub e-maila z urzędu…",
       btnAnalyze: "Analizuj pismo",
       userLang: "Twój język",
+      sourceLangLabel: "Język dokumentu",
       fraudInfoTitle:"🛡️ Sprawdzenie bezpieczeństwa dokumentu",
 fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszustwa, podszywania się pod instytucję oraz podejrzane elementy dokumentu.",
       installApp: '📱 Dodaj Sense Bridge do telefonu',
@@ -4274,7 +4793,7 @@ p30name: "30 dni",
       footerContactText: "Kontakt: w sprawach dostępu lub płatności użyj adresu kontaktowego podanego przez Sense Bridge.",
       analyzingLetter: "Analizuję pismo...",
       helpLinksTitle: "Pomocne strony",
-      srcAuto: "Język dokumentu: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Wyczyść dane po analizie",
       copyTr: "Kopiuj tłumaczenie",
       copyEx: 'Kopiuj odpowiedzi (mój język)'
@@ -4290,6 +4809,7 @@ p30name: "30 dni",
       placeholder: "👇 Натисніть тут і вставте текст офіційного листа або e-mail…",
       btnAnalyze: "Аналізувати лист",
       userLang: "Ваша мова",
+      sourceLangLabel: "Мова документа",
       fraudInfoTitle:"🛡️ Перевірка безпеки документа",
 fraudInfoText:"Після аналізу Sense Bridge також перевірить можливий ризик шахрайства, підробки установи та підозрілі елементи документа.",
       installApp: '📱 Додати Sense Bridge на телефон',
@@ -4329,7 +4849,7 @@ p30name: "30 днів",
       footerContactText: "Контакт: з питань доступу або оплати використовуйте контактну адресу, вказану Sense Bridge.",
       analyzingLetter: "Аналізую документ...",
       helpLinksTitle: "Корисні посилання",
-      srcAuto: "Мова документа: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Очистити дані після аналізу",
       copyTr: "Копіювати переклад",
       copyEx: 'Копіювати відповіді (моя мова)'
@@ -4345,6 +4865,7 @@ p30name: "30 днів",
       placeholder: "👇 Tik hier en plak de tekst van de brief of e-mail…",
       btnAnalyze: "Analyseer brief",
       userLang: "Jouw taal",
+      sourceLangLabel: "Taal van document",
       fraudInfoTitle:"🛡️ Controle van documentveiligheid",
 fraudInfoText:"Sense Bridge controleert na de analyse ook mogelijke fraude, imitatie van instanties en verdachte elementen in het document.",
       installApp: '📱 Zet Sense Bridge op je telefoon',
@@ -4384,7 +4905,7 @@ p30name: "30 dagen",
       footerContactText: "Contact: gebruik voor toegang of betaling het contactadres van Sense Bridge.",
       analyzingLetter: "Brief analyseren...",
       helpLinksTitle: "Nuttige links",
-      srcAuto: "Taal document: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Gegevens wissen na analyse",
       copyTr: "Kopieer vertaling",
       copyEx: 'Kopieer antwoorden (mijn taal)'
@@ -4400,6 +4921,7 @@ p30name: "30 dagen",
       placeholder: "👇 Tap here and paste the content of the letter or email…",
       btnAnalyze: "Analyze letter",
       userLang: "Your language",
+      sourceLangLabel: "Document language",
       fraudInfoTitle:"🛡️ Document safety check",
 fraudInfoText:"After the analysis, Sense Bridge will also check for possible fraud risk, impersonation of an institution, and suspicious elements in the document.",
       installApp: '📱 Add Sense Bridge to your phone',
@@ -4439,7 +4961,7 @@ p30name: "30 days",
       footerContactText: "Contact: for access or payment issues, use the contact address provided by Sense Bridge.",
       analyzingLetter: "Analyzing letter...",
       helpLinksTitle: "Helpful links",
-      srcAuto: "Document language: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Clear data after analysis",
       copyTr: "Copy translation",
       copyEx: 'Copy replies (my language)'
@@ -4455,6 +4977,7 @@ p30name: "30 days",
       placeholder: "👇 Tippe hier und füge den Text des Schreibens oder der E-Mail ein…",
       btnAnalyze: "Schreiben analysieren",
       userLang: "Deine Sprache",
+      sourceLangLabel: "Dokumentsprache",
       fraudInfoTitle:"🛡️ Sicherheitsprüfung des Dokuments",
 fraudInfoText:"Nach der Analyse prüft Sense Bridge auch ein mögliches Betrugsrisiko, die Nachahmung einer Institution und verdächtige Elemente im Dokument.",
       installApp: '📲 App-Verknüpfung zum Handy hinzufügen',
@@ -4494,7 +5017,7 @@ p30name: "30 Tage",
       footerContactText: "Kontakt: Bei Zugangs- oder Zahlungsfragen nutze die von Sense Bridge angegebene Kontaktadresse.",
       analyzingLetter: "Brief wird analysiert...",
       helpLinksTitle: "Hilfreiche Links",
-      srcAuto: "Dokumentsprache: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Daten nach der Analyse löschen",
       copyTr: "Übersetzung kopieren",
       copyEx: 'Antworten kopieren (meine Sprache)'
@@ -4510,6 +5033,7 @@ p30name: "30 Tage",
       placeholder: "👇 Appuyez ici et collez le texte du courrier ou de l’e-mail…",
       btnAnalyze: "Analyser le courrier",
       userLang: "Votre langue",
+      sourceLangLabel: "Langue du document",
       fraudInfoTitle:"🛡️ Vérification de sécurité du document",
 fraudInfoText:"Après l’analyse, Sense Bridge vérifiera également les risques possibles de fraude, d’usurpation d’une institution et les éléments suspects du document.",
       installApp: '📲 Ajouter le raccourci au téléphone',
@@ -4549,7 +5073,7 @@ p30name: "30 jours",
       footerContactText: "Contact : pour l’accès ou le paiement, utilisez l’adresse de contact indiquée par Sense Bridge.",
       analyzingLetter: "Analyse du courrier...",
       helpLinksTitle: "Liens utiles",
-      srcAuto: "Langue du document: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Effacer les données après analyse",
       copyTr: "Copier la traduction",
       copyEx: 'Copier les réponses (ma langue)'
@@ -4565,6 +5089,7 @@ p30name: "30 jours",
       placeholder: "👇 Tocca qui e incolla il testo della lettera o dell’e-mail…",
       btnAnalyze: "Analizza lettera",
       userLang: "La tua lingua",
+      sourceLangLabel: "Lingua del documento",
       fraudInfoTitle:"🛡️ Controllo di sicurezza del documento",
 fraudInfoText:"Dopo l’analisi, Sense Bridge controllerà anche il possibile rischio di frode, imitazione di un’istituzione ed elementi sospetti nel documento.",
       installApp: '📱 Aggiungi Sense Bridge al telefono',
@@ -4604,7 +5129,7 @@ p30name: "30 giorni",
       footerContactText: "Contatto: per accesso o pagamenti usa l’indirizzo di contatto indicato da Sense Bridge.",
       analyzingLetter: "Analisi del documento...",
       helpLinksTitle: "Link utili",
-      srcAuto: "Lingua del documento: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Cancella dati dopo analisi",
       copyTr: "Copia traduzione",
       copyEx: 'Copia risposte (mia lingua)'
@@ -4620,6 +5145,7 @@ p30name: "30 giorni",
       placeholder: "👇 Toca aquí y pega el texto de la carta o del correo…",
       btnAnalyze: "Analizar carta",
       userLang: "Tu idioma",
+      sourceLangLabel: "Idioma del documento",
       fraudInfoTitle:"🛡️ Comprobación de seguridad del documento",
 fraudInfoText:"Después del análisis, Sense Bridge también comprobará posibles riesgos de fraude, suplantación de una institución y elementos sospechosos del documento.",
 
@@ -4660,7 +5186,7 @@ p30name: "30 días",
       footerContactText: "Contacto: para acceso o pagos usa la dirección de contacto indicada por Sense Bridge.",
       analyzingLetter: "Analizando la carta...",
       helpLinksTitle: "Enlaces útiles",
-      srcAuto: "Idioma del documento: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Borrar datos después del análisis",
       copyTr: "Copiar traducción",
       copyEx: 'Copiar respuestas (mi idioma)'
@@ -4676,6 +5202,7 @@ p30name: "30 días",
       placeholder: "👇 Toque aqui e cole o texto da carta ou do e-mail…",
       btnAnalyze: "Analisar carta",
       userLang: "O seu idioma",
+      sourceLangLabel: "Idioma do documento",
       fraudInfoTitle:"🛡️ Verificação de segurança do documento",
 fraudInfoText:"Após a análise, o Sense Bridge também verificará possíveis riscos de fraude, falsificação de uma instituição e elementos suspeitos no documento.",
       installApp: '📱 Adicionar Sense Bridge ao telefone',
@@ -4715,7 +5242,7 @@ p30name: "30 dias",
       footerContactText: "Contacto: para acesso ou pagamentos use o endereço de contacto indicado pelo Sense Bridge.",
       analyzingLetter: "A analisar o documento...",
       helpLinksTitle: "Links úteis",
-      srcAuto: "Idioma do documento: AUTO",
+      srcAuto: "🌐 AUTO",
       clear: "Limpar dados após análise",
       copyTr: "Copiar tradução",
       copyEx: 'Copiar respostas (meu idioma)'
@@ -5507,6 +6034,16 @@ function applyUiLang(){
   const lblUserLang = document.getElementById("lblUserLang");
   if (lblUserLang) {
     lblUserLang.textContent = t.userLang;
+  }
+
+  const lblSourceLang = document.getElementById("lblSourceLang");
+  if (lblSourceLang) {
+    lblSourceLang.textContent = t.sourceLangLabel || "Document language";
+  }
+
+  const sourceLangSelect = document.getElementById("sourceLang");
+  if (sourceLangSelect) {
+    sourceLangSelect.setAttribute("aria-label", t.sourceLangLabel || "Document language");
   }
 
   document.getElementById("lblFree").textContent = t.free;
@@ -9205,6 +9742,245 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
     setInterval(()=>{const l=lang();if(l!==lastLang){lastLang=l;apply();}},400);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+
+
+<script id="sb-mobile-workspace-v2-js">
+(function(){
+  "use strict";
+  const COPY={
+    PL:{analysis:"Analiza",tools:"Narzędzia AI",settings:"Ustawienia"},
+    UA:{analysis:"Аналіз",tools:"AI-інструменти",settings:"Налаштування"},
+    NL:{analysis:"Analyse",tools:"AI-tools",settings:"Instellingen"},
+    EN:{analysis:"Analysis",tools:"AI Tools",settings:"Settings"},
+    DE:{analysis:"Analyse",tools:"KI-Tools",settings:"Einstellungen"},
+    FR:{analysis:"Analyse",tools:"Outils IA",settings:"Réglages"},
+    IT:{analysis:"Analisi",tools:"Strumenti IA",settings:"Impostazioni"},
+    ES:{analysis:"Análisis",tools:"Herramientas IA",settings:"Ajustes"},
+    PT:{analysis:"Análise",tools:"Ferramentas IA",settings:"Definições"}
+  };
+  function lang(){
+    try{return String((window.UI&&UI.lang)||localStorage.getItem("sb_ui_lang_v1")||"PL").toUpperCase()}catch(_){return "PL"}
+  }
+  function markResultState(){
+    const has=!!((document.getElementById("summary")?.textContent||"").trim() || document.getElementById("sbQuickResult")?.classList.contains("show"));
+    document.body.classList.toggle("sb-has-analysis-result",has);
+  }
+  function navText(){
+    const t=COPY[lang()]||COPY.PL;
+    const a=document.querySelector('[data-sb-mobile-nav="analysis"] .label');if(a)a.textContent=t.analysis;
+    const b=document.querySelector('[data-sb-mobile-nav="tools"] .label');if(b)b.textContent=t.tools;
+    const c=document.querySelector('[data-sb-mobile-nav="settings"] .label');if(c)c.textContent=t.settings;
+  }
+  function setActive(key){document.querySelectorAll('.sb-mobile-nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.sbMobileNav===key))}
+  function build(){
+    const top=document.querySelector('.top-card');
+    const paste=document.getElementById('lblPaste');
+    const analysis=paste&&paste.closest('.card');
+    const ai=document.getElementById('sbAiToolsCard');
+    if(analysis){
+      analysis.classList.add('sb-analysis-workspace');
+      if(top&&top.nextElementSibling!==analysis) top.insertAdjacentElement('afterend',analysis);
+      if(ai&&analysis.nextElementSibling!==ai) analysis.insertAdjacentElement('afterend',ai);
+    }
+    if(!document.getElementById('sbMobileBottomNavV2')){
+      const nav=document.createElement('nav');
+      nav.id='sbMobileBottomNavV2';nav.className='sb-mobile-bottom-nav';nav.setAttribute('aria-label','Sense Bridge');
+      nav.innerHTML='<button type="button" class="sb-mobile-nav-btn active" data-sb-mobile-nav="analysis"><span class="ico">⌕</span><span class="label"></span></button><button type="button" class="sb-mobile-nav-btn" data-sb-mobile-nav="tools"><span class="ico">✨</span><span class="label"></span></button><button type="button" class="sb-mobile-nav-btn" data-sb-mobile-nav="settings"><span class="ico">⚙️</span><span class="label"></span></button>';
+      document.body.appendChild(nav);
+      nav.addEventListener('click',function(e){
+        const btn=e.target.closest('[data-sb-mobile-nav]');if(!btn)return;
+        const key=btn.dataset.sbMobileNav;setActive(key);
+        if(key==='analysis') analysis?.scrollIntoView({behavior:'smooth',block:'start'});
+        if(key==='tools'){
+          /* Obsługiwane przez poprawkę sb-mobile-header-v5:
+             jedno stuknięcie otwiera, drugie zamyka. */
+          return;
+        }
+        if(key==='settings'){
+          const menu=document.getElementById('sbMainMenuBtn');
+          if(menu)menu.click(); else document.getElementById('sbViewSwitchV11')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+      });
+    }
+    navText();markResultState();
+    const obs=new MutationObserver(markResultState);
+    ['summary','sbQuickResult'].forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el,{subtree:true,childList:true,characterData:true,attributes:true})});
+    document.addEventListener('click',function(e){if(e.target.closest('[data-ui]'))setTimeout(navText,30)},true);
+    if(typeof window.setUiLang==='function'&&!window.setUiLang.__sbMobileV2){
+      const old=window.setUiLang;window.setUiLang=function(){const r=old.apply(this,arguments);setTimeout(navText,0);return r};window.setUiLang.__sbMobileV2=true;
+    }
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(build,180));
+})();
+</script>
+
+
+<script id="sb-mobile-header-v4-js">
+(function(){
+  "use strict";
+
+  function syncLanguageChip(){
+    const chip = document.getElementById("sbCurrentLanguageChipV4");
+    if(!chip) return;
+
+    const label = (document.getElementById("sbLangLabelV12")?.textContent || "Twój język aplikacji").trim();
+    const current = (document.getElementById("sbLangCurrentV12")?.textContent || "").trim();
+
+    chip.innerHTML =
+      '<span aria-hidden="true">🌐</span>' +
+      '<span>' + label + ': <strong>' + current + '</strong></span>';
+  }
+
+  function rebuildMobileHeader(){
+    const topCard = document.querySelector(".top-card");
+    if(!topCard || topCard.dataset.sbHeaderV4 === "1") return;
+
+    const mainHolder = topCard.querySelector(".topbar > div:first-child");
+    const brand = topCard.querySelector(".sb-brand-row");
+    const language = document.getElementById("sbTopLanguageV13");
+    const theme = topCard.querySelector(".theme-switch");
+    const reach = document.getElementById("sbLanguageReachBar");
+    const install = document.getElementById("installAppBtn");
+    const more = document.getElementById("sbMainMenuBtn");
+
+    if(!mainHolder || !brand || !language || !theme || !install) return;
+
+    topCard.dataset.sbHeaderV4 = "1";
+
+    const controls = document.createElement("div");
+    controls.className = "sb-header-controls-v4";
+    controls.append(language, theme);
+
+    const meta = document.createElement("div");
+    meta.className = "sb-header-meta-v4";
+
+    if(reach) meta.appendChild(reach);
+
+    const currentChip = document.createElement("div");
+    currentChip.id = "sbCurrentLanguageChipV4";
+    currentChip.className = "sb-current-language-chip-v4";
+    currentChip.setAttribute("role", "status");
+    meta.appendChild(currentChip);
+
+    const actions = document.createElement("div");
+    actions.className = "sb-header-actions-v4";
+    actions.appendChild(install);
+    if(more) actions.appendChild(more);
+
+    mainHolder.appendChild(controls);
+    mainHolder.appendChild(meta);
+    mainHolder.appendChild(actions);
+
+    syncLanguageChip();
+
+    const current = document.getElementById("sbLangCurrentV12");
+    const label = document.getElementById("sbLangLabelV12");
+    const observer = new MutationObserver(syncLanguageChip);
+    if(current) observer.observe(current,{subtree:true,childList:true,characterData:true});
+    if(label) observer.observe(label,{subtree:true,childList:true,characterData:true});
+  }
+
+  function syncAiToolsNavState(isOpen){
+    const button = document.querySelector('[data-sb-mobile-nav="tools"]');
+    const analysisButton = document.querySelector('[data-sb-mobile-nav="analysis"]');
+    const icon = button?.querySelector(".ico");
+
+    if(button){
+      button.classList.toggle("active",isOpen);
+      button.setAttribute("aria-pressed",isOpen ? "true" : "false");
+      button.setAttribute("aria-expanded",isOpen ? "true" : "false");
+    }
+    if(analysisButton){
+      analysisButton.classList.toggle("active",!isOpen);
+    }
+    if(icon){
+      icon.textContent = isOpen ? "▲" : "✨";
+    }
+  }
+
+  function setAiToolsOpen(shouldOpen,scrollToPanel){
+    const card = document.getElementById("sbAiToolsCard");
+    if(!card) return;
+
+    document.body.classList.toggle("sb-menu-ai-open",shouldOpen);
+    card.classList.toggle("open",shouldOpen);
+
+    const toggle = document.getElementById("sbAiToolsToggle");
+    if(toggle){
+      toggle.textContent = shouldOpen ? "⌃" : "⌄";
+      toggle.setAttribute("aria-expanded",shouldOpen ? "true" : "false");
+    }
+
+    if(shouldOpen){
+      card.style.removeProperty("display");
+      if(scrollToPanel){
+        requestAnimationFrame(function(){
+          card.scrollIntoView({behavior:"smooth",block:"start"});
+        });
+      }
+    }
+
+    syncAiToolsNavState(shouldOpen);
+  }
+
+  function toggleAiTools(){
+    const card = document.getElementById("sbAiToolsCard");
+    if(!card) return;
+    const isOpen =
+      document.body.classList.contains("sb-menu-ai-open") &&
+      card.classList.contains("open");
+
+    setAiToolsOpen(!isOpen,!isOpen);
+  }
+
+  function installAiNavFix(){
+    document.addEventListener("click",function(event){
+      const button = event.target.closest('[data-sb-mobile-nav="tools"]');
+      if(!button) return;
+
+      /* Przejmujemy kliknięcie przed starszym handlerem,
+         żeby nie otworzył panelu ponownie po jego zamknięciu. */
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toggleAiTools();
+    },true);
+
+    const card = document.getElementById("sbAiToolsCard");
+    if(card){
+      const observer = new MutationObserver(function(){
+        const isOpen =
+          document.body.classList.contains("sb-menu-ai-open") &&
+          card.classList.contains("open");
+        syncAiToolsNavState(isOpen);
+      });
+      observer.observe(card,{attributes:true,attributeFilter:["class"]});
+    }
+
+    syncAiToolsNavState(false);
+  }
+
+  function init(){
+    rebuildMobileHeader();
+    installAiNavFix();
+
+    /* Existing scripts create parts of the header after DOMContentLoaded. */
+    let attempts = 0;
+    const timer = setInterval(function(){
+      attempts += 1;
+      rebuildMobileHeader();
+      if(document.querySelector(".top-card[data-sb-header-v4='1']") || attempts > 40){
+        clearInterval(timer);
+      }
+    },150);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded",init,{once:true});
+  }else{
+    init();
+  }
 })();
 </script>
 
