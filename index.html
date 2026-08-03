@@ -3187,6 +3187,99 @@ body.dark-mode .sb-doclab-file-btn{
 .sb-ai-trials-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .sb-ai-trials-main strong:empty{display:none;}
 
+
+/* =========================================================
+   Sense Bridge — automatic photo OCR + new analysis CTA
+   UX-only patch: keeps OCR/analyze/paywall logic intact
+   ========================================================= */
+#sbReadPhotoBtn{
+  display:none !important;
+}
+.sb-new-analysis-wrap{
+  display:none;
+  margin:18px 0 22px;
+  padding:18px;
+  border-radius:20px;
+  border:1px solid rgba(63,138,114,.28);
+  background:linear-gradient(180deg,#ffffff,#f5fbf8);
+  box-shadow:0 12px 26px rgba(15,23,42,.07);
+  text-align:center;
+}
+.sb-new-analysis-wrap.show{
+  display:block;
+}
+.sb-new-analysis-btn{
+  width:100%;
+  min-height:58px;
+  border:none;
+  border-radius:17px;
+  cursor:pointer;
+  background:linear-gradient(135deg,#3f8a72,#58a58d);
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  box-shadow:0 10px 22px rgba(63,138,114,.22);
+}
+.sb-new-analysis-btn:hover{
+  background:linear-gradient(135deg,#2f6f5c,#3f8a72);
+  transform:translateY(-1px);
+}
+.sb-new-analysis-help{
+  margin:9px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+.sb-reset-toast{
+  position:fixed;
+  left:50%;
+  bottom:96px;
+  z-index:999998;
+  max-width:min(90vw,440px);
+  transform:translate(-50%,18px);
+  opacity:0;
+  pointer-events:none;
+  padding:12px 16px;
+  border-radius:999px;
+  background:#0e2a47;
+  color:#fff;
+  font-size:14px;
+  font-weight:850;
+  text-align:center;
+  box-shadow:0 14px 34px rgba(15,23,42,.26);
+  transition:opacity .2s ease, transform .2s ease;
+}
+.sb-reset-toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+body.dark-mode .sb-new-analysis-wrap{
+  background:linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,.24) !important;
+}
+body.dark-mode .sb-new-analysis-btn{
+  background:linear-gradient(135deg,#12d87d,#2cff9a) !important;
+  color:#04110b !important;
+}
+body.dark-mode .sb-reset-toast{
+  background:#2cff9a;
+  color:#04110b;
+}
+@media (max-width:640px){
+  .sb-new-analysis-wrap{
+    margin:14px 0 18px;
+    padding:14px;
+    border-radius:18px;
+  }
+  .sb-new-analysis-btn{
+    min-height:54px;
+    font-size:17px;
+  }
+  .sb-reset-toast{
+    bottom:104px;
+    border-radius:16px;
+  }
+}
+
 </style>
 
 
@@ -4263,6 +4356,15 @@ body.dark-mode .sb-doclab-file-btn{
       <pre id="examplesDoc"></pre>
     </div>
   </details>
+
+  <div id="sbNewAnalysisWrap" class="sb-new-analysis-wrap" aria-live="polite">
+    <button id="sbNewAnalysisBtn" class="sb-new-analysis-btn" type="button" onclick="sbStartNewAnalysis()">
+      📄 Nowa analiza
+    </button>
+    <p id="sbNewAnalysisHelp" class="sb-new-analysis-help">Rozpocznij analizę kolejnego pisma.</p>
+  </div>
+
+  <div id="sbResetToast" class="sb-reset-toast" role="status" aria-live="polite"></div>
 
   <section id="access" class="access hidden" aria-label="Dostęp Sense Bridge">
     <h2 id="payTitle">Dostęp bez abonamentu</h2>
@@ -6114,6 +6216,7 @@ document.getElementById("p30name").textContent = t.p30name || "30 dni";
     if(toolButtons[3]) toolButtons[3].textContent = t.copyExDoc;
   }
 
+  sbApplyNewAnalysisText();
   applyAiToolsLang();
   applyPaymentLang();
   applyProPlanLang();
@@ -6394,25 +6497,117 @@ async function checkAccessServer(email){
   }
 }
 
-function clearInput(){
+
+function sbNewAnalysisText(key){
+  const lang = String((UI && UI.lang) || "PL").toUpperCase();
+  const map = {
+    PL:{button:"📄 Nowa analiza",help:"Rozpocznij analizę kolejnego pisma.",toast:"✅ Gotowe! Możesz przeanalizować kolejne pismo."},
+    UA:{button:"📄 Новий аналіз",help:"Почніть аналіз наступного листа.",toast:"✅ Готово! Можна аналізувати наступний лист."},
+    NL:{button:"📄 Nieuwe analyse",help:"Start de analyse van een volgende brief.",toast:"✅ Klaar! Je kunt de volgende brief analyseren."},
+    EN:{button:"📄 New analysis",help:"Start analysing another letter.",toast:"✅ Ready! You can analyse another letter."},
+    DE:{button:"📄 Neue Analyse",help:"Starten Sie die Analyse eines weiteren Schreibens.",toast:"✅ Fertig! Sie können das nächste Schreiben analysieren."},
+    FR:{button:"📄 Nouvelle analyse",help:"Commencez l’analyse d’un autre courrier.",toast:"✅ Prêt ! Vous pouvez analyser un autre courrier."},
+    IT:{button:"📄 Nuova analisi",help:"Avvia l’analisi di un’altra lettera.",toast:"✅ Pronto! Puoi analizzare un’altra lettera."},
+    ES:{button:"📄 Nuevo análisis",help:"Empieza a analizar otra carta.",toast:"✅ ¡Listo! Puedes analizar otra carta."},
+    PT:{button:"📄 Nova análise",help:"Comece a analisar outra carta.",toast:"✅ Pronto! Pode analisar outra carta."}
+  };
+  return (map[lang] && map[lang][key]) || map.PL[key] || "";
+}
+
+function sbApplyNewAnalysisText(){
+  const btn = document.getElementById("sbNewAnalysisBtn");
+  const help = document.getElementById("sbNewAnalysisHelp");
+  if(btn) btn.textContent = sbNewAnalysisText("button");
+  if(help) help.textContent = sbNewAnalysisText("help");
+}
+
+function sbShowNewAnalysis(show){
+  const wrap = document.getElementById("sbNewAnalysisWrap");
+  if(wrap) wrap.classList.toggle("show", Boolean(show));
+}
+
+function sbShowResetToast(){
+  const toast = document.getElementById("sbResetToast");
+  if(!toast) return;
+  toast.textContent = sbNewAnalysisText("toast");
+  toast.classList.add("show");
+  clearTimeout(window.__sbResetToastTimer);
+  window.__sbResetToastTimer = setTimeout(function(){
+    toast.classList.remove("show");
+  }, 2200);
+}
+
+function sbStartNewAnalysis(){
+  clearInput({scroll:true});
+  sbShowResetToast();
+}
+
+function clearInput(options){
+  const opts = options || {};
+
   if(typeof sbClearQuickResultCards === "function") sbClearQuickResultCards();
   if(typeof sbProgressHide === "function") sbProgressHide(0);
-  document.getElementById("inputText").value = "";
-  ["translation","summary","examples","examplesDoc"].forEach(id => {
+  if(typeof sbShowNewAnalysis === "function") sbShowNewAnalysis(false);
+
+  const inputText = document.getElementById("inputText");
+  if(inputText){
+    inputText.value = "";
+    inputText.dispatchEvent(new Event("input", {bubbles:true}));
+  }
+
+  ["translation","summary","examples","examplesDoc"].forEach(function(id){
     const el = document.getElementById(id);
     if(el) el.textContent = "";
   });
 
+  ["risks","actions","consequences","help","helpLinks","institutionBox",
+   "legalStatus","urgencyBox","fraudRiskBox"].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = "";
+  });
+
   const topInsight = document.getElementById("topInsightBox");
-  if (topInsight) {
+  if(topInsight){
     topInsight.textContent = "";
     topInsight.style.display = "none";
     topInsight.className = "sb-top-insight";
   }
-  const risks = document.getElementById("risks");
-  if(risks) risks.innerHTML = "";
 
-  /* AI Tools cleanup — additive only, does not reset trial counter */
+  const separator = document.getElementById("sbSummarySeparator");
+  if(separator) separator.style.display = "none";
+
+  const fraudCard = document.getElementById("fraudCard");
+  if(fraudCard){
+    fraudCard.style.display = "none";
+    fraudCard.removeAttribute("open");
+  }
+
+  ["summaryAccordion","risksAccordion","examplesAccordion","examplesDocAccordion"].forEach(function(id){
+    const details = document.getElementById(id);
+    if(details) details.removeAttribute("open");
+  });
+
+  const sourceLang = document.getElementById("sourceLang");
+  if(sourceLang) sourceLang.value = "AUTO";
+
+  const gallery = document.getElementById("sbPhotoInput");
+  const camera = document.getElementById("sbCameraInput");
+  if(gallery) gallery.value = "";
+  if(camera) camera.value = "";
+
+  const fileName = document.getElementById("sbPhotoFileName");
+  if(fileName){
+    fileName.dataset.hasFile = "";
+    fileName.textContent = (UI.dict[UI.lang] && UI.dict[UI.lang].noPhoto) || "Nie wybrano zdjęcia";
+  }
+
+  const photoStatus = document.getElementById("sbPhotoStatus");
+  if(photoStatus) photoStatus.textContent = "";
+
+  const analyzeStatus = document.getElementById("analyzeStatus");
+  if(analyzeStatus) analyzeStatus.textContent = "";
+
+  /* AI Tools cleanup — does not reset the trial counter. */
   const aiInput = document.getElementById("sbAiPreviewInput");
   if(aiInput){
     aiInput.value = "";
@@ -6439,12 +6634,25 @@ function clearInput(){
     aiToggle.textContent = "⌄";
     aiToggle.setAttribute("aria-expanded", "false");
   }
+
   const aiShotFile = document.getElementById("sbAiScreenshotFile");
   if(aiShotFile) aiShotFile.value = "";
+
   const aiShotName = document.getElementById("sbAiScreenshotName");
   if(aiShotName) aiShotName.textContent = "Nie wybrano obrazu";
+
+  if(opts.scroll !== false){
+    const workspace = document.querySelector(".sb-analysis-workspace") ||
+                      document.getElementById("lblPaste") ||
+                      inputText;
+    if(workspace){
+      setTimeout(function(){
+        workspace.scrollIntoView({behavior:"smooth", block:"start"});
+      }, 60);
+    }
+  }
 }
-  
+
 async function copyText(id){
   const el = document.getElementById(id);
   const txt = (el && (el.textContent || "")).trim();
@@ -7912,6 +8120,7 @@ fetch("/.netlify/functions/analyze_count", {
     updatePaidMessage();
 
     if(typeof sbProgressFinish === "function") sbProgressFinish();
+    if(typeof sbShowNewAnalysis === "function") sbShowNewAnalysis(true);
     else if(statusEl){ statusEl.textContent = "✅ " + sbUx10Text("statusDone", sbGetResultLang()); }
     const quickBox = document.getElementById("sbQuickResult");
     (quickBox || document.getElementById("translation")).scrollIntoView({behavior:"smooth"});
@@ -8133,6 +8342,9 @@ fetch("/.netlify/functions/analyze_count", {
       input.addEventListener("change", function () {
         if(cameraInput) cameraInput.value = "";
         updateSelectedFileName(input, "Zdjęcie z galerii");
+        if(input.files && input.files[0]){
+          setTimeout(function(){ readPhotoText(false); }, 40);
+        }
       });
     }
 
@@ -8140,6 +8352,9 @@ fetch("/.netlify/functions/analyze_count", {
       cameraInput.addEventListener("change", function () {
         if(input) input.value = "";
         updateSelectedFileName(cameraInput, "Zdjęcie z aparatu");
+        if(cameraInput.files && cameraInput.files[0]){
+          setTimeout(function(){ readPhotoText(false); }, 40);
+        }
       });
     }
   });
