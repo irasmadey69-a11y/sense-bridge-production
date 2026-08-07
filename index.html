@@ -326,9 +326,6 @@
       margin-bottom:4px;
     }
 
-    /* =========================================================
-       PRO V2 visual polish
-       ========================================================= */
     .top-card{
       border:1px solid rgba(63,138,114,0.34);
       border-top:6px solid var(--primary);
@@ -429,7 +426,6 @@
       }
     }
 
-
     .ui-switch{
       max-width:100%;
     }
@@ -443,7 +439,6 @@
       }
     }
 
-
     .analyze-status{
       margin-top:10px;
       font-size:14px;
@@ -451,7 +446,6 @@
       color:#0e2a47;
       min-height:22px;
     }
-
 
     .install-btn{
       margin:10px 0 14px;
@@ -477,10 +471,6 @@
       transform:translateY(-1px);
     }
 
-    /* =========================================================
-       SENSE BRIDGE V2 - visible icons + stronger visual sections
-       Safe visual layer only: no logic changes
-       ========================================================= */
     .section-title{
       display:flex;
       align-items:center;
@@ -585,8 +575,8 @@
       margin-right:6px;
     }
 
-    #footerPrivacy::before{content:"🔒 ";} 
-    #footerTerms::before{content:"📜 ";} 
+    #footerPrivacy::before{content:"🔒 ";}
+    #footerTerms::before{content:"📜 ";}
     #footerContact::before{content:"✉️ ";}
 
     .footer-links{
@@ -627,8 +617,6 @@
       }
     }
 
-
-    /* UA language added - keep language buttons mobile-safe */
     @media (max-width:640px){
       .ui-switch{
         justify-content:flex-start;
@@ -639,7 +627,6 @@
       }
     }
 
-    /* Language buttons with flags - mobile safe */
     .ui-btn{
       display:inline-flex;
       align-items:center;
@@ -655,7 +642,6 @@
       }
     }
 
-    /* Manual payment / PENDING confirmation box */
     .pending-confirm-box{
       display:none;
       margin-top:14px;
@@ -720,11 +706,6 @@
     .pending-copy-btn:hover{
       background:rgba(63,138,114,0.08);
     }
-    
-    /* =========================================================
-   SENSE BRIDGE THEME SWITCH — LIGHT DEFAULT / DARK PREMIUM
-   Safe visual layer only: no logic changes
-   ========================================================= */
 
 .theme-switch{
   display:flex;
@@ -756,9 +737,6 @@
   .theme-toggle{min-width:106px;}
 }
 
-
-
-/* Sense Bridge custom modal — fixed overlay */
 .hidden{display:none !important;}
 .sb-modal{
   position:fixed;
@@ -1083,7 +1061,6 @@ body.dark-mode .pending-bank-box{
 }
 body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
 
-/* Sense Bridge — fraud risk UI */
 #lblFraudRisk::before{content:"🛡️";}
 .fraud-box{
   border-radius:16px;
@@ -1130,15 +1107,6 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
 }
 .fraud-small{font-size:12px;color:#9fb5ad !important;margin-top:10px !important;}
 
-  
-/* ============================================================
-   Sense Bridge UX SAFE PATCH v9
-   - LOW: calm info visuals, no warning feeling
-   - HIGH: stronger red danger visuals
-   - separator between document content and Sense Bridge guidance
-   CSS only + class hooks from JS
-   ============================================================ */
-
 .box-info{
   background:rgba(63,138,114,0.065);
   color:#245c4d;
@@ -1148,10 +1116,6 @@ body.dark-mode .pending-bank-box strong{color:#eafdf4 !important;}
   margin-bottom:8px;
 }
 
-/* ============================================================
-   Sense Bridge TOP INSIGHT SAFE v2
-   Additive UI layer only: no backend, OCR, paywall or fraud logic changes
-   ============================================================ */
 .sb-top-insight{
   display:none;
   margin:10px 0 12px;
@@ -1303,10 +1267,6 @@ body.dark-mode #consequences.high-risk .box-info{
   background:linear-gradient(180deg, rgba(240,253,244,.90), rgba(255,255,255,.98)) !important;
 }
 
-/* =========================================================
-   Sense Bridge V2 UX experiment — camera + clear path cards
-   Additive layer only: keeps existing OCR/analyze logic
-   ========================================================= */
 .sb-photo-actions-v2{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1410,11 +1370,6 @@ body.dark-mode #sbChoosePhotoBtn.sb-photo-action{
   }
 }
 
-
-/* =========================================================
-   Sense Bridge — clear data button with open red trash icon
-   Additive UX layer only: no logic changes
-   ========================================================= */
 .tools{
   gap:10px;
   align-items:flex-start;
@@ -1491,12 +1446,6 @@ body.dark-mode .clear-data-btn .trash-red{
   .clear-data-btn{width:auto; max-width:100%;}
 }
 
-
-
-/* =========================================================
-   Sense Bridge TOP PREMIUM PATCH — logo + stronger hero copy
-   Safe visual layer: no OCR/analyze/paywall logic changes
-   ========================================================= */
 .sb-brand-row{
   display:flex;
   align-items:center;
@@ -1633,12 +1582,6 @@ body.dark-mode .install-btn:hover{
   .install-btn .install-ico{font-size:23px;}
 }
 
-
-
-/* =========================================================
-   Sense Bridge TOP BENEFITS — translated value chips
-   Safe visual layer: no OCR/analyze/paywall logic changes
-   ========================================================= */
 .sb-hero-benefits{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1695,11 +1638,6 @@ body.dark-mode .sb-hero-benefit .benefit-ico{
   }
 }
 
-
-/* =========================================================
-   Sense Bridge RESULT ACCORDIONS — compact analysis view
-   Safe visual layer: translation stays visible, analysis sections open on tap
-   ========================================================= */
 .sb-result-accordion{
   padding:0 !important;
   overflow:hidden;
@@ -1764,12 +1702,6 @@ body.dark-mode .sb-result-accordion > summary:hover{
   }
 }
 
-
-
-/* =========================================================
-   Sense Bridge UX V10 — progress + 3 result cards + print/PDF
-   Additive frontend layer only: no backend/OCR/paywall/analyze.js changes
-   ========================================================= */
 .sb-progress-wrap{
   display:none;
   margin-top:12px;
@@ -1936,11 +1868,6 @@ body.dark-mode .sb-quick-pill.unknown{background:rgba(159,181,173,.12);color:#c8
   .sb-accordion-body{padding:12px !important;}
 }
 
-
-/* =========================================================
-   Sense Bridge — AI Tools Trial Panel
-   Additive module only: no OCR/analyze/paywall changes
-   ========================================================= */
 .sb-ai-tools-card{
   border-top:6px solid var(--primary);
 }
@@ -2109,11 +2036,6 @@ body.dark-mode .sb-ai-trials-main strong{
   .sb-ai-tool-desc{margin-left:0;}
 }
 
-
-/* =========================================================
-   Sense Bridge — AI Tools preview box
-   Additive only: opens selected AI tool preview without backend
-   ========================================================= */
 .sb-ai-preview{
   display:none;
   margin-top:14px;
@@ -2155,11 +2077,6 @@ body.dark-mode .sb-ai-preview h3{
   color:var(--text) !important;
 }
 
-
-/* =========================================================
-   Sense Bridge — AI Tools production-ready preview result
-   Additive only: ready for separate Netlify function files
-   ========================================================= */
 .sb-ai-preview-result{
   display:none;
   margin-top:12px;
@@ -2193,11 +2110,6 @@ body.dark-mode .sb-ai-preview-result.locked{
   color:#ffd1da !important;
 }
 
-
-/* =========================================================
-   Sense Bridge — AI Tools finished frontend result cards
-   Additive only: keeps main letter analysis untouched
-   ========================================================= */
 .sb-ai-result-cards{
   display:grid;
   gap:10px;
@@ -2236,8 +2148,6 @@ body.dark-mode .sb-ai-risk-low{background:rgba(44,255,154,.08) !important;border
 body.dark-mode .sb-ai-risk-medium{background:rgba(255,211,106,.12) !important;border-color:rgba(255,211,106,.30) !important;}
 body.dark-mode .sb-ai-risk-high{background:rgba(255,77,109,.15) !important;border-color:rgba(255,77,109,.36) !important;}
 
-
-/* AI screenshot image picker — additive only */
 .sb-ai-shot-actions{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -2271,13 +2181,6 @@ body.dark-mode .sb-ai-shot-btn{
   .sb-ai-shot-actions{grid-template-columns:1fr;}
 }
 
-
-
-/* =========================================================
-   Sense Bridge — ACCESS PANEL
-   Additive account/access switcher. Does not change OCR,
-   analysis, payment or server-side access rules.
-   ========================================================= */
 .sb-access-card{
   border:1px solid rgba(63,138,114,0.28);
   border-radius:20px;
@@ -2420,11 +2323,6 @@ body.dark-mode .sb-access-action.primary-action{
   .sb-access-body{padding:0 14px 14px;}
 }
 
-
-/* =========================================================
-   Sense Bridge COMPACT UX PATCH — fewer descriptions on first view
-   Presentation only: no OCR, access, payment or analysis logic changes
-   ========================================================= */
 .sb-compact-details{
   margin:12px 0;
   border:1px solid rgba(63,138,114,0.22);
@@ -2481,13 +2379,6 @@ body.dark-mode .sb-compact-details > summary:hover{background:rgba(44,255,154,0.
   .sb-compact-body{padding:0 12px 12px;}
 }
 
-
-
-/* =========================================================
-   Sense Bridge UX V12 — Simple / Full view + compact language picker
-   Additive interface layer only. Existing IDs, handlers,
-   OCR, analysis, access, payments and AI tools stay unchanged.
-   ========================================================= */
 .sb-view-switch-wrap{
   display:block;position:relative;overflow:hidden;
   margin:0 0 16px;padding:16px;border:1px solid rgba(63,138,114,.34);
@@ -2525,9 +2416,7 @@ body.sb-simple-view #examplesDocAccordion,
 body.sb-simple-view #fraudCard,
 body.sb-simple-view #access,
 body.sb-simple-view #paymentBox{display:none !important}
-/* When the FREE limit is used, always show the access plans also in Simple view. */
 body.sb-simple-view.sb-access-locked #access{display:block !important}
-/* Show the selected payment instructions in Simple view after choosing a plan. */
 body.sb-simple-view.sb-payment-open #paymentBox{display:block !important}
 body.sb-simple-view.sb-full-results-open #translationCardV11,
 body.sb-simple-view.sb-full-results-open #risksAccordion,
@@ -2555,11 +2444,6 @@ body.dark-mode .sb-full-analysis-toggle{background:linear-gradient(180deg,#0b1a2
   .sb-view-btn{font-size:14px}
 }
 
-
-/* =========================================================
-   Sense Bridge UX V13 — header, language, compact view order
-   Additive layout layer only: no OCR/analyze/access logic changes
-   ========================================================= */
 .sb-top-language-wrap{
   margin:0 0 14px;
 }
@@ -2620,11 +2504,6 @@ body.dark-mode.sb-full-view .sb-lang-details{
   .sb-view-switch-wrap.sb-view-compact .sb-view-switch-sub{font-size:12px}
 }
 
-
-/* =========================================================
-   Sense Bridge UX V14 — language immediately under brand
-   Layout-only patch. No OCR, analysis, access, payment or AI logic changes.
-   ========================================================= */
 .top-card .sb-language-in-hero{
   margin:2px 0 12px;
   max-width:680px;
@@ -2657,13 +2536,6 @@ body.dark-mode .top-card .sb-language-in-hero .sb-lang-details{
   }
 }
 
-
-
-/* =========================================================
-   Sense Bridge UX V15 — compact Simple view menu
-   Additive interface only: existing IDs, handlers, OCR,
-   analysis, access, payments and translations stay intact.
-   ========================================================= */
 .sb-main-menu-btn{
   display:none;
   width:100%;
@@ -2688,7 +2560,6 @@ body.dark-mode .top-card .sb-language-in-hero .sb-lang-details{
 body.sb-simple-view .sb-main-menu-btn{display:flex}
 body.sb-full-view .sb-main-menu-btn{display:none!important}
 
-/* In Simple view these optional blocks live behind Menu. */
 body.sb-simple-view:not(.sb-menu-benefits-open) #sbHeroBenefits,
 body.sb-simple-view:not(.sb-menu-benefits-open) .top-card #hDesc,
 body.sb-simple-view:not(.sb-menu-access-open) #paidMsg,
@@ -2766,12 +2637,6 @@ body.dark-mode .sb-menu-tile.active{background:rgba(44,255,154,.12)!important;bo
   .sb-menu-tile{min-height:82px}
 }
 
-
-/* =========================================================
-   Sense Bridge — Contract Analysis v1
-   Additive module. Reuses existing OCR, analyze endpoint,
-   access state and shared AI Tools trial counter.
-   ========================================================= */
 .sb-contract-panel{
   display:none;
   margin-top:16px;
@@ -3014,7 +2879,6 @@ body.dark-mode .sb-contract-run{
   .sb-contract-run,.sb-contract-clear{width:100%;margin-bottom:9px;}
 }
 
-
 .sb-contract-photo-actions{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -3044,12 +2908,6 @@ body.dark-mode .sb-contract-gallery-btn{
   .sb-contract-photo-btn{width:100%;}
 }
 
-
-/* =========================================================
-   Sense Bridge — Document Lab v1
-   PDF, forms, photos, bills/invoices
-   Isolated additive module
-   ========================================================= */
 .sb-doclab-panel{
   display:none;
   margin-top:14px;
@@ -3182,16 +3040,9 @@ body.dark-mode .sb-doclab-file-btn{
   .sb-doclab-run,.sb-doclab-clear{width:100%;margin-bottom:9px;}
 }
 
-
-/* Sense Bridge PRO counter clarity patch — one status only */
 .sb-ai-trials-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .sb-ai-trials-main strong:empty{display:none;}
 
-
-/* =========================================================
-   Sense Bridge — automatic photo OCR + new analysis CTA
-   UX-only patch: keeps OCR/analyze/paywall logic intact
-   ========================================================= */
 #sbReadPhotoBtn{
   display:none !important;
 }
@@ -3282,17 +3133,13 @@ body.dark-mode .sb-reset-toast{
 
 </style>
 
-
-<!-- Sense Bridge Mobile Analysis Workspace V2: visual/layout patch only -->
 <style id="sb-mobile-workspace-v2-css">
-/* This layer changes presentation and DOM order only. Existing IDs, handlers and logic stay intact. */
 .sb-mobile-bottom-nav{display:none}
 
 @media (max-width:640px){
   body{padding-bottom:86px}
   main{padding:12px 10px 34px;max-width:100%}
 
-  /* Compact, immediately understandable header */
   .top-card{
     padding:16px!important;
     margin-bottom:12px!important;
@@ -3309,7 +3156,6 @@ body.dark-mode .sb-reset-toast{
   .top-card #hDesc{font-size:15px!important;line-height:1.35!important;margin:4px 0 12px!important;font-weight:650!important;color:#687385!important}
   .top-card #hDesc .hero-muted{display:none!important}
 
-  /* Keep language and theme visible at the top */
   .top-card .theme-switch{position:absolute;top:16px;right:15px;margin:0!important;z-index:3}
   .top-card .theme-toggle{min-width:auto!important;min-height:40px;padding:8px 11px;font-size:13px;background:#fff}
   .top-card .sb-language-reach{margin:0 0 10px!important;min-height:42px;padding:9px 11px;font-size:13px}
@@ -3318,15 +3164,12 @@ body.dark-mode .sb-reset-toast{
   .top-card .sb-language-in-hero .ui-switch{padding:10px 2px 2px;display:grid!important;grid-template-columns:repeat(3,1fr);gap:8px!important}
   .top-card .sb-language-in-hero .ui-btn{width:100%;min-width:0!important;min-height:43px;font-size:14px}
 
-  /* Clear top actions */
   .top-card .install-btn{width:calc(67% - 5px)!important;min-height:52px;margin:0 6px 0 0!important;border-radius:16px!important;background:linear-gradient(135deg,#158563,#329b78)!important;color:#fff!important;border:0!important;box-shadow:0 9px 19px rgba(21,133,99,.20)!important;font-size:16px!important}
   .top-card .sb-main-menu-btn{display:inline-flex!important;width:calc(33% - 5px)!important;min-height:52px;margin:0!important;border-radius:16px!important;vertical-align:top;justify-content:center;padding:10px 9px!important}
   .top-card .sb-main-menu-btn .sb-menu-arrow{display:none}
 
-  /* App view is still available in Settings/More, not in the main task flow */
   #sbViewSwitchV11{display:none!important}
 
-  /* Analysis is the first workspace after the header */
   .sb-analysis-workspace{
     padding:16px!important;
     border-radius:24px!important;
@@ -3338,7 +3181,6 @@ body.dark-mode .sb-reset-toast{
   .sb-analysis-workspace #lblPhotoTitle{font-size:17px!important}
   .sb-analysis-workspace #lblPhotoTitle::before{width:34px!important;height:34px!important}
 
-  /* Camera and gallery stay side by side on phones */
   .sb-analysis-workspace .sb-photo-actions-v2{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
   .sb-analysis-workspace .sb-photo-action{min-height:58px!important;padding:9px 6px!important;font-size:14px!important;border-radius:16px!important;line-height:1.15;text-align:center}
   .sb-analysis-workspace #sbPhotoFileName{display:inline-block;max-width:47%;vertical-align:middle;margin:2px 4px 4px 0}
@@ -3348,7 +3190,6 @@ body.dark-mode .sb-reset-toast{
 
   .sb-analysis-workspace textarea{min-height:156px!important;font-size:16px!important;padding:15px!important;border-radius:17px!important}
 
-  /* Two language selectors, then one unmistakable main action */
   .sb-analysis-workspace .row{display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;align-items:end!important;margin-top:11px!important}
   .sb-analysis-workspace .row>select,
   .sb-analysis-workspace .row>div{width:100%!important;min-width:0!important;margin:0!important}
@@ -3362,7 +3203,6 @@ body.dark-mode .sb-reset-toast{
   .sb-analysis-workspace #analyzeStatus,
   .sb-analysis-workspace #sbProgressWrap{grid-column:1/-1}
 
-  /* Secondary actions are visible but clearly secondary */
   .sb-analysis-workspace .tools{display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;margin-top:14px!important}
   .sb-analysis-workspace .tool-btn{width:100%!important;min-height:54px!important;margin:0!important;padding:10px!important;font-size:14px!important;border-radius:16px!important}
   .sb-analysis-workspace .tools .tool-btn:nth-child(2),
@@ -3373,17 +3213,14 @@ body.dark-mode .sb-reset-toast{
   .sb-analysis-workspace .sb-free-summary-chip{font-size:14px!important;padding:8px 12px!important}
   .sb-analysis-workspace #sbInfoDetails{margin-top:10px}
 
-  /* AI tools remain intact, but live below analysis and open from bottom navigation */
   #sbAiToolsCard{margin-top:0!important;border-radius:24px!important}
   #sbAiToolsCard .sb-ai-tools-title{font-size:29px!important}
   #sbAiToolsCard .sb-ai-tools-desc{font-size:15px!important}
 
-  /* Result cards remain below; no empty result teaser at the bottom */
   body:not(.sb-has-analysis-result) .sb-quick-result,
   body:not(.sb-has-analysis-result) #translationCardV11,
   body:not(.sb-has-analysis-result) .sb-result-accordion{display:none!important}
 
-  /* Fixed, app-like navigation: no history because documents are not stored */
   .sb-mobile-bottom-nav{
     position:fixed;left:10px;right:10px;bottom:8px;z-index:99990;
     display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
@@ -3410,15 +3247,11 @@ body.dark-mode .sb-reset-toast{
 }
 </style>
 
-
-
-<!-- Sense Bridge Mobile Compact Workspace V3: visual-only refinement -->
 <style id="sb-mobile-compact-v3-css">
 @media (max-width:640px){
   body{padding-bottom:78px!important}
   main{padding:6px 7px 18px!important}
 
-  /* Compact app header inspired by the approved mock-up */
   .top-card{padding:10px!important;margin-bottom:8px!important;border-radius:21px!important}
   .top-card .sb-brand-row{grid-template-columns:48px minmax(0,1fr) auto!important;gap:8px!important;margin-bottom:7px!important}
   .top-card .sb-brand-logo{width:48px!important;height:48px!important;flex-basis:48px!important;border-radius:15px!important;padding:5px!important}
@@ -3442,7 +3275,6 @@ body.dark-mode .sb-reset-toast{
   .top-card #paidMsg{margin-top:7px!important}
   .top-card #paidMsg>summary{min-height:46px!important;padding:8px 10px!important}
 
-  /* Compact analysis workspace while keeping every existing control */
   .sb-analysis-workspace{padding:10px!important;border-radius:21px!important;margin-bottom:9px!important}
   .sb-analysis-workspace>.section-title{font-size:18px!important;margin-bottom:7px!important}
   .sb-analysis-workspace>.section-title::before{width:31px!important;height:31px!important;font-size:17px!important;border-radius:10px!important}
@@ -3466,13 +3298,11 @@ body.dark-mode .sb-reset-toast{
   .sb-analysis-workspace .sb-free-summary-chip{font-size:12px!important;padding:6px 9px!important}
   .sb-analysis-workspace #sbInfoDetails{margin-top:6px!important}
 
-  /* Smaller navigation so more workspace stays visible */
   .sb-mobile-bottom-nav{left:7px!important;right:7px!important;bottom:5px!important;padding:5px!important;border-radius:19px!important}
   .sb-mobile-nav-btn{min-height:51px!important;padding:4px 2px!important;font-size:10.5px!important;border-radius:14px!important}
   .sb-mobile-nav-btn .ico{font-size:20px!important}
   .sb-mobile-nav-btn .label{white-space:nowrap!important}
 
-  /* Clicking AI Tools opens the existing translated list; card stays visually compact */
   #sbAiToolsCard{border-radius:21px!important;margin-bottom:9px!important}
   #sbAiToolsCard .sb-ai-tools-head{padding:0!important}
   #sbAiToolsCard .sb-ai-tools-icon{width:44px!important;height:44px!important;font-size:22px!important;border-radius:14px!important}
@@ -3481,8 +3311,6 @@ body.dark-mode .sb-reset-toast{
 }
 </style>
 
-
-<!-- Sense Bridge Mobile Header V4 + AI Tools navigation fix -->
 <style id="sb-mobile-header-v4-css">
 @media (max-width:640px){
   .top-card{
@@ -3710,12 +3538,10 @@ body.dark-mode .sb-reset-toast{
     color:#d8ffe9!important;
   }
 
-  /* Ensure AI tools are visible when opened from bottom navigation. */
   body.sb-simple-view.sb-menu-ai-open #sbAiToolsCard{
     display:block!important;
   }
 
-  /* Wyraźny stan rozwiniętych Narzędzi AI w dolnym menu. */
   .sb-mobile-nav-btn[data-sb-mobile-nav="tools"][aria-expanded="true"]{
     background:rgba(63,138,114,.12)!important;
     color:#245c4d!important;
@@ -3733,8 +3559,6 @@ body.dark-mode .sb-reset-toast{
 }
 </style>
 
-
-<!-- Sense Bridge: translated two-level document-language selector -->
 <style id="sb-source-language-label-fix">
 .sb-source-lang-wrap{
   position:relative;
@@ -3799,6 +3623,17 @@ body.dark-mode .sb-reset-toast{
 </head>
 
 <body>
+  <div id="sbStartupSplash" role="presentation" aria-hidden="true">
+    <div class="sb-start-inner">
+      <div class="sb-start-logo-wrap">
+        <img class="sb-start-logo" src="/icons/icon-192.png" alt="">
+      </div>
+      <div class="sb-start-name">Sense Bridge</div>
+      <div class="sb-start-tagline">Understand · Decide · Move forward</div>
+      <div class="sb-start-progress"></div>
+    </div>
+  </div>
+
 <main>
 
   <div class="card top-card">
@@ -3965,7 +3800,6 @@ body.dark-mode .sb-reset-toast{
         </button>
       </div>
 
-
       <div class="sb-contract-panel" id="sbContractPanel">
         <div class="sb-contract-head">
           <div>
@@ -4035,7 +3869,6 @@ body.dark-mode .sb-reset-toast{
           </div>
         </div>
       </div>
-
 
       <div class="sb-doclab-panel" id="sbDocLabPanel">
         <div class="sb-doclab-head">
@@ -4111,7 +3944,6 @@ body.dark-mode .sb-reset-toast{
       <div class="sb-ai-note" id="sbAiToolsNote">Wybierz narzędzie, wpisz treść i użyj jednego z 2 testów.</div>
     </div>
   </div>
-
 
   <div class="card">
     <div class="section-title" id="lblPaste">Wklej pismo</div>
@@ -4256,9 +4088,6 @@ body.dark-mode .sb-reset-toast{
     </details>
   </div>
 
-
-
-
 <details class="card sb-compact-details" id="fraudInfoCard">
   <summary>
     <span class="section-title" id="lblFraudInfo">🛡️ Sprawdzenie bezpieczeństwa dokumentu</span>
@@ -4270,7 +4099,6 @@ body.dark-mode .sb-reset-toast{
     </div>
   </div>
 </details>
-
 
   <div class="card sb-quick-result" id="sbQuickResult" aria-live="polite">
     <div class="sb-quick-title" id="sbQuickTitle">✨ Szybkie podsumowanie</div>
@@ -4452,7 +4280,6 @@ body.dark-mode .sb-reset-toast{
   <div class="legal-mini" id="footerText">Sense Bridge ma charakter informacyjny i nie jest kancelarią prawną.</div>
 
 </main>
-<!-- Sense Bridge custom modal -->
 <div id="sbModal" class="sb-modal hidden">
   <div class="sb-modal-box">
     <h3 id="sbModalTitle">Sense Bridge</h3>
@@ -4468,10 +4295,7 @@ body.dark-mode .sb-reset-toast{
 </div>
 
 <script>
-  
-  /* =========================================================
-   SENSE BRIDGE CUSTOM MODAL
-   ========================================================= */
+
 let sbModalResolve = null;
 
 function sbShowModal({ title = "Sense Bridge", text = "", input = false, placeholder = "", value = "", inputType = "text" }) {
@@ -4527,9 +4351,6 @@ function sbModalCancel() {
   }
 }
 
-/* =========================================================
-   THEME MODE — LIGHT DEFAULT / DARK PREMIUM
-   ========================================================= */
 const THEME = {
   key: "sb_theme_mode_v1",
   fallback: "light"
@@ -4578,9 +4399,6 @@ function toggleTheme(){
   applyTheme(next);
 }
 
-/* =========================================================
-   CONFIG
-   ========================================================= */
 const STRIPE_LINKS = {};
 
 const ENDPOINTS = {
@@ -4601,9 +4419,6 @@ async function sbReadJsonResponse(response) {
   }
 }
 
-/* =========================================================
-   PAYWALL (local + stable)
-   ========================================================= */
 const SB = {
   freeMax: 3,
   keyFreeUsed: "sb_free_used_v2",
@@ -4663,7 +4478,6 @@ function refreshUI(){
   const access = hasAccess();
   document.getElementById("accessState").textContent = access.label;
 
-  // Keep the purchase plans visible in Simple view after the FREE limit is used.
   document.body.classList.toggle("sb-access-locked", access.mode === "LOCKED");
 
   const btn = document.getElementById("btnAnalyze");
@@ -4837,9 +4651,6 @@ function applyPaidFromQuery(){
   window.history.replaceState({}, "", url.toString());
 }
 
-/* =========================================================
-   UI LANGUAGE (PL/NL/EN/DE)
-   ========================================================= */
 const UI = {
   key: "sb_ui_lang_v1",
   lang: "PL",
@@ -4878,7 +4689,7 @@ fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszus
       p24meta: "Dla jednego pilnego pisma",
       p7meta: "Na serię wiadomości / odpowiedzi",
       p30meta: "Spokój na cały miesiąc",
-      
+
       p7name: "7 dni",
 p30name: "30 dni",
       best: "Najlepsza wartość",
@@ -4933,7 +4744,7 @@ fraudInfoText:"Після аналізу Sense Bridge також перевір�
       payDesc: "У вас є 3 FREE-аналізи для перевірки. Потім можна вибрати часовий доступ.",
       p24meta: "Для одного термінового листа",
       p7meta: "Для серії повідомлень / відповідей",
-      
+
       p7name: "7 днів",
 p30name: "30 днів",
       p30meta: "Спокій на цілий місяць",
@@ -4990,7 +4801,7 @@ fraudInfoText:"Sense Bridge controleert na de analyse ook mogelijke fraude, imit
       p24meta: "Voor één urgente brief",
       p7meta: "Voor een reeks berichten",
       p30meta: "Rust voor een hele maand",
-      
+
       p7name: "7 dagen",
 p30name: "30 dagen",
       best: "Beste waarde",
@@ -5046,7 +4857,7 @@ fraudInfoText:"After the analysis, Sense Bridge will also check for possible fra
       p24meta: "For one urgent letter",
       p7meta: "For a series of messages",
       p30meta: "Peace for a whole month",
-      
+
       p7name: "7 days",
 p30name: "30 days",
       best: "Best value",
@@ -5102,7 +4913,7 @@ fraudInfoText:"Nach der Analyse prüft Sense Bridge auch ein mögliches Betrugsr
       p24meta: "Für ein dringendes Schreiben",
       p7meta: "Für mehrere Nachrichten",
       p30meta: "Ruhe für einen ganzen Monat",
-      
+
       p7name: "7 Tage",
 p30name: "30 Tage",
       best: "Bester Wert",
@@ -5158,7 +4969,7 @@ fraudInfoText:"Après l’analyse, Sense Bridge vérifiera également les risque
       p24meta: "Pour un courrier urgent",
       p7meta: "Pour plusieurs messages",
       p30meta: "Tranquillité pendant un mois",
-      
+
       p7name: "7 jours",
 p30name: "30 jours",
       best: "Meilleure valeur",
@@ -5214,7 +5025,7 @@ fraudInfoText:"Dopo l’analisi, Sense Bridge controllerà anche il possibile ri
       p24meta: "Per una lettera urgente",
       p7meta: "Per una serie di messaggi",
       p30meta: "Tranquillità per tutto il mese",
-      
+
       p7name: "7 giorni",
 p30name: "30 giorni",
       best: "Miglior valore",
@@ -5271,7 +5082,7 @@ fraudInfoText:"Después del análisis, Sense Bridge también comprobará posible
       p24meta: "Para una carta urgente",
       p7meta: "Para varios mensajes",
       p30meta: "Tranquilidad durante todo el mes",
-      
+
       p7name: "7 días",
 p30name: "30 días",
       best: "Mejor valor",
@@ -5327,7 +5138,7 @@ fraudInfoText:"Após a análise, o Sense Bridge também verificará possíveis r
       p24meta: "Para uma carta urgente",
       p7meta: "Para uma série de mensagens",
       p30meta: "Tranquilidade por todo o mês",
-      
+
       p7name: "7 dias",
 p30name: "30 dias",
       best: "Melhor valor",
@@ -5479,7 +5290,6 @@ function sbActivePhotoInput(){
   return gallery;
 }
 
-
 function sbClearButtonHtml(label){
   return '<span class="trash-red" aria-hidden="true">' +
     '<svg viewBox="0 0 24 24" focusable="false" role="img">' +
@@ -5488,7 +5298,6 @@ function sbClearButtonHtml(label){
   '</span>' +
   '<span class="clear-label">' + label + '</span>';
 }
-
 
 function sbHeroDescHtml(text){
   const raw = String(text || "").trim();
@@ -5521,7 +5330,6 @@ function sbBrandSubText(){
   return map[UI.lang] || map.PL;
 }
 
-
 function sbHeroBenefitsHtml(){
   const map = {
     PL: ["Zrozum pismo", "Wiesz, co zrobić dalej", "Sprawdź, czy wygląda bezpiecznie", "Gotowe przykłady odpowiedzi"],
@@ -5541,9 +5349,6 @@ function sbHeroBenefitsHtml(){
   }).join("");
 }
 
-
-
-/* Sense Bridge ProManager v2 — BASIC 2 / PRO 100 */
 window.SBProManager = (function(){
   const LEGACY_KEY="sb_ai_tools_trial_left_v1";
   const PERIOD_KEY="sb_pro_trial_period_v2";
@@ -5698,7 +5503,6 @@ function sbAiToolsText(key){
   return pack[key] || map.PL[key] || "";
 }
 
-
 function initAiScreenshotPicker(){
   const file = document.getElementById("sbAiScreenshotFile");
   const take = document.getElementById("sbAiTakeScreenshotBtn");
@@ -5739,7 +5543,6 @@ function initAiScreenshotPicker(){
   };
 }
 
-
 function applyAiToolsLang(){
   sbSetText("sbAiToolsTitle", sbAiToolsText("title"));
   sbSetText("sbAiToolsDesc", sbAiToolsText("desc"));
@@ -5772,8 +5575,6 @@ function getAiToolsTrialLeft(){
 function setAiToolsTrialLeft(n){
   if(window.SBProManager) return window.SBProManager.setLeft(n);
 }
-
-
 
 function sbAiPreviewText(tool, key){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
@@ -5846,7 +5647,6 @@ function sbAiPreviewText(tool, key){
   return value || pack.PL[key] || "";
 }
 
-
 function openAiToolsPreview(tool){
   const box = document.getElementById("sbAiPreviewBox");
   if(!box) return;
@@ -5883,7 +5683,6 @@ function applyAiToolsPreviewLang(){
   sbSetText("sbAiClosePreviewBtn", sbAiPreviewText(tool, "close"));
 }
 
-
 function sbAiEndpoint(tool){
   const map = {
     screenshot: "/.netlify/functions/ai-screenshot",
@@ -5894,7 +5693,6 @@ function sbAiEndpoint(tool){
   };
   return map[tool] || map.screenshot;
 }
-
 
 function sbAiRunText(key){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
@@ -6236,7 +6034,6 @@ function showFooterInfo(type){
   footerText.scrollIntoView({ behavior:"smooth", block:"nearest" });
 }
 
-
 function getProPlanLangText(){
   const lang = (typeof UI !== "undefined" && UI && UI.lang) ? UI.lang : "PL";
   const map = {
@@ -6311,19 +6108,18 @@ function applyProPlanLang(){
   if(features) features.textContent = t.features;
 }
 
-
 function getInstallDialogText(){
  const lang=(typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:"PL";
  const t={
-  PL:{lead:"Korzystaj już teraz jak z aplikacji.",sub:"Wkrótce będzie również dostępna w Google Play.",hint:"Do czasu premiery w Google Play kliknij 3 kropki w przeglądarce i wybierz:"},
-  EN:{lead:"Use it now like an app.",sub:"Coming soon to Google Play.",hint:"Until the Google Play release, tap the 3-dot menu and choose:"},
-  NL:{lead:"Gebruik het nu al als een app.",sub:"Binnenkort ook beschikbaar in Google Play.",hint:"Tot de Google Play-release: tik op de 3 puntjes en kies:"},
-  DE:{lead:"Schon jetzt wie eine App nutzen.",sub:"Demnächst auch bei Google Play verfügbar.",hint:"Bis zur Veröffentlichung bei Google Play: Tippen Sie auf die 3 Punkte und wählen Sie:"},
-  UA:{lead:"Користуйтеся вже зараз як застосунком.",sub:"Незабаром також у Google Play.",hint:"До появи в Google Play натисніть 3 крапки та виберіть:"},
-  FR:{lead:"Utilisez-la dès maintenant comme une application.",sub:"Bientôt disponible sur Google Play.",hint:"En attendant Google Play, appuyez sur les 3 points et choisissez :"},
-  IT:{lead:"Usala già come un'app.",sub:"Presto disponibile anche su Google Play.",hint:"Fino al rilascio su Google Play tocca i 3 puntini e scegli:"},
-  ES:{lead:"Úsala ya como una aplicación.",sub:"Próximamente también en Google Play.",hint:"Hasta su llegada a Google Play pulsa los 3 puntos y elige:"},
-  PT:{lead:"Use já como uma aplicação.",sub:"Em breve também no Google Play.",hint:"Até ao lançamento no Google Play toque nos 3 pontos e escolha:"}
+  PL:{lead:"Korzystaj z Sense Bridge jak z normalnej aplikacji.",sub:"",hint:"Kliknij 3 kropki w przeglądarce i wybierz „Dodaj do ekranu głównego”."},
+  EN:{lead:"Use Sense Bridge like a regular app.",sub:"",hint:"Tap the 3-dot browser menu and choose “Add to Home screen”."},
+  NL:{lead:"Gebruik Sense Bridge als een gewone app.",sub:"",hint:"Tik op de 3 puntjes in de browser en kies ‘Toevoegen aan startscherm’."},
+  DE:{lead:"Nutze Sense Bridge wie eine normale App.",sub:"",hint:"Tippe im Browser auf die 3 Punkte und wähle „Zum Startbildschirm hinzufügen“."},
+  UA:{lead:"Користуйтеся Sense Bridge як звичайним застосунком.",sub:"",hint:"Натисніть 3 крапки у браузері та виберіть «Додати на головний екран»."},
+  FR:{lead:"Utilisez Sense Bridge comme une application classique.",sub:"",hint:"Appuyez sur les 3 points du navigateur et choisissez « Ajouter à l’écran d’accueil »."},
+  IT:{lead:"Usa Sense Bridge come una normale app.",sub:"",hint:"Tocca i 3 puntini del browser e scegli “Aggiungi alla schermata Home”."},
+  ES:{lead:"Usa Sense Bridge como una aplicación normal.",sub:"",hint:"Pulsa los 3 puntos del navegador y elige «Agregar a pantalla de inicio»."},
+  PT:{lead:"Use o Sense Bridge como uma aplicação normal.",sub:"",hint:"Toque nos 3 pontos do navegador e escolha «Adicionar ao ecrã inicial»."}
  };
  return t[lang]||t.PL;
 }
@@ -6475,10 +6271,6 @@ function applyPaymentLang(){
   setText("pendingSmallText", t.small);
 }
 
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
 async function checkAccessServer(email){
   try{
     const res = await fetch("/.netlify/functions/access_check",{
@@ -6496,7 +6288,6 @@ async function checkAccessServer(email){
     return null;
   }
 }
-
 
 function sbNewAnalysisText(key){
   const lang = String((UI && UI.lang) || "PL").toUpperCase();
@@ -6607,7 +6398,6 @@ function clearInput(options){
   const analyzeStatus = document.getElementById("analyzeStatus");
   if(analyzeStatus) analyzeStatus.textContent = "";
 
-  /* AI Tools cleanup — does not reset the trial counter. */
   const aiInput = document.getElementById("sbAiPreviewInput");
   if(aiInput){
     aiInput.value = "";
@@ -6675,11 +6465,6 @@ function safeArr(a){
   return Array.isArray(a) ? a : [];
 }
 
-
-/* =========================================================
-   RESULT LANGUAGE PATCH — keeps analysis UI labels in userLang
-   Safe text layer only: no OCR/paywall/API logic changes
-   ========================================================= */
 function sbGetResultLang(){
   const sel = document.getElementById("userLang");
   return String((sel && sel.value) || (UI && UI.lang) || "PL").toUpperCase();
@@ -6687,10 +6472,10 @@ function sbGetResultLang(){
 
 function sbResultText(key, lang){
   const L = String(lang || sbGetResultLang() || "PL").toUpperCase();
-  
+
   if (UI && UI.dict && UI.dict[L] && UI.dict[L][key]) return UI.dict[L][key];
 if (UI && UI.dict && UI.dict.PL && UI.dict.PL[key]) return UI.dict.PL[key];
-  
+
   const dict = {
     PL: {
       fraudRiskTitle:"Analiza ryzyka oszustwa",
@@ -7009,14 +6794,6 @@ function renderFraudRisk(data){
   card.style.display = "block";
 }
 
-
-/* =========================================================
-   Sense Bridge TRUST PATCH V11
-   Safer institution display: do not present a national website/country
-   as certain when the document only gives weak country signals.
-   Frontend display only: no OCR/paywall/backend/analyze.js changes.
-   ========================================================= */
-
 function sbTrustText(key, lang){
   const L = String(lang || sbGetResultLang() || "PL").toUpperCase();
   const dict = {
@@ -7220,12 +6997,6 @@ function escapeHtml(s){
     .replace(/'/g,"&#039;");
 }
 
-
-/* =========================================================
-   GOOGLE PLAY REVIEW ACCESS
-   Isolated activation path. It does not change normal payment,
-   OCR, analysis or admin logic.
-   ========================================================= */
 async function activateGoogleReviewAccessFromQuery(){
   const params = new URLSearchParams(window.location.search);
   const token = String(params.get("review_token") || "").trim();
@@ -7293,9 +7064,6 @@ async function syncAccess(){
   }
 }
 
-/* =========================================================
-   PAY (manual payment + instant client access)
-   ========================================================= */
 let currentPlan = null;
 
 function getPayText(){
@@ -7586,10 +7354,6 @@ async function confirmPaid(){
   }
 }
 
-
-/* =========================================================
-   CORE: analyze + translate fallback
-   ========================================================= */
 function checkPaywall(){
   const access = hasAccess();
   if(access.mode === "LOCKED"){
@@ -7604,12 +7368,6 @@ function checkPaywall(){
   return true;
 }
 
-
-/* =========================================================
-   Sense Bridge TOP INSIGHT SAFE v2
-   Shows the most important conclusion above the detailed result.
-   Additive UI only: does not change backend, OCR, paywall or fraud logic.
-   ========================================================= */
 function sbTopInsightSafeTextV2(lang, level, institutionName) {
   const L = String(lang || "PL").toUpperCase();
   const name = institutionName ? String(institutionName).trim() : "";
@@ -7702,10 +7460,6 @@ function renderTopInsightSafeV2(data) {
   el.style.display = "block";
 }
 
-/* =========================================================
-   Sense Bridge UX V10 — progress + 3 result cards + print/PDF
-   Additive frontend layer only: no backend/OCR/paywall/analyze.js changes
-   ========================================================= */
 const SB_UX_V10_TEXT = {
   PL:{progressTitle:"Analiza dokumentu",progress1:"Przygotowanie",progress2:"Odczyt tekstu",progress3:"Analiza treści",progress4:"Ocena bezpieczeństwa",progress5:"Gotowe",statusPreparing:"Przygotowuję analizę...",statusReading:"Odczytuję dokument...",statusAnalyzing:"Analizuję treść...",statusSafety:"Sprawdzam bezpieczeństwo...",statusDone:"Gotowe – sprawdź poniżej",statusError:"Błąd analizy",quickTitle:"✨ Szybkie podsumowanie",quickMeaning:"📝 Co to oznacza?",quickAction:"⚠️ Czy muszę działać?",quickSafety:"🛡️ Czy to bezpieczne?",noShortSummary:"Brak krótkiego podsumowania. Zobacz szczegóły niżej.",noAction:"Brak jasnego działania. Sprawdź szczegóły analizy.",lowUrgency:"Niska pilność",mediumUrgency:"Średnia pilność",highUrgency:"Pilne",unknownUrgency:"Nie określono",safeLow:"Wygląda raczej bezpiecznie",safeMedium:"Warto zweryfikować",safeHigh:"Wysokie ryzyko",safeUnknown:"Nie da się ocenić",printPdf:"📄 Pobierz / zapisz PDF",printHint:"Użyj opcji drukowania telefonu, aby zapisać wynik jako PDF."},
   EN:{progressTitle:"Document analysis",progress1:"Preparing",progress2:"Reading text",progress3:"Content analysis",progress4:"Safety check",progress5:"Done",statusPreparing:"Preparing analysis...",statusReading:"Reading the document...",statusAnalyzing:"Analyzing the content...",statusSafety:"Checking safety...",statusDone:"Done – check below",statusError:"Analysis error",quickTitle:"✨ Quick summary",quickMeaning:"📝 What does it mean?",quickAction:"⚠️ Do I need to act?",quickSafety:"🛡️ Is it safe?",noShortSummary:"No short summary available. See the details below.",noAction:"No clear action detected. Check the analysis details.",lowUrgency:"Low urgency",mediumUrgency:"Medium urgency",highUrgency:"Urgent",unknownUrgency:"Not specified",safeLow:"Looks rather safe",safeMedium:"Worth verifying",safeHigh:"High risk",safeUnknown:"Cannot be assessed",printPdf:"📄 Download / save PDF",printHint:"Use your phone's print option to save the result as PDF."},
@@ -7846,6 +7600,30 @@ function sbPrintPdf(){
   window.print();
 }
 
+function sbUniqueStrings(items){
+  const seen = new Set();
+  return safeArr(items).filter(function(item){
+    const key = String(item ?? "").replace(/\s+/g," ").trim().toLocaleLowerCase();
+    if(!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function sbPolishResultView(data){
+  ["summaryAccordion","risksAccordion","examplesAccordion","examplesDocAccordion"].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.removeAttribute("open");
+  });
+
+  const fraudCard = document.getElementById("fraudCard");
+  if(fraudCard){
+    const level = sbFraudLevelFromData(data);
+    if(level === "HIGH" || level === "MEDIUM") fraudCard.setAttribute("open","");
+    else fraudCard.removeAttribute("open");
+  }
+}
+
 async function analyze(){
   if (!checkPaywall()) return;
 
@@ -7894,7 +7672,6 @@ if(!text){
       renderTopInsightSafeV2(data);
       renderFraudRisk(data);
       renderInstitution(data);
-      // CZY POTRZEBNA POMOC PRAWNA
 const legalStatusEl = document.getElementById("legalStatus");
 
 if (legalStatusEl) {
@@ -7938,7 +7715,6 @@ legalStatusEl.innerHTML = `
   </div>
 `;
 }
-      // PILNOŚĆ
 const urgencyEl = document.getElementById("urgencyBox");
 const legal = (data.legalHelpNeeded || "").toUpperCase();
 
@@ -7960,10 +7736,9 @@ if(urgencyEl){
   else urgencyEl.textContent = "";
 }
 
-// DZIAŁANIA
 const actionsBox = document.getElementById("actions");
 actionsBox.innerHTML = "";
-(data.actions || []).forEach(a=>{
+sbUniqueStrings(data.actions || []).forEach(a=>{
   const d = document.createElement("div");
   d.className = "box-info";
   d.textContent = "👉 " + a;
@@ -7976,10 +7751,9 @@ const fraudLevel = String(
   "UNKNOWN"
 ).toUpperCase();
 
-// KONSEKWENCJE
 const consBox = document.getElementById("consequences");
 consBox.innerHTML = "";
-(data.consequences || []).forEach(c=>{
+sbUniqueStrings(data.consequences || []).forEach(c=>{
   const d = document.createElement("div");
   if (fraudLevel === "LOW") {
     d.className = "box-info";
@@ -7994,16 +7768,14 @@ consBox.innerHTML = "";
   consBox.appendChild(d);
 });
 
-// POMOC
 const helpBox = document.getElementById("help");
 helpBox.innerHTML = "";
-(data.help || []).forEach(h=>{
+sbUniqueStrings(data.help || []).forEach(h=>{
   const d = document.createElement("div");
   d.className = "box-info";
   d.textContent = "🧭 " + h;
   helpBox.appendChild(d);
 });
-// LINKI DO POMOCY
 const helpLinksBox = document.getElementById("helpLinks");
 if (helpLinksBox) {
   helpLinksBox.innerHTML = "";
@@ -8040,7 +7812,7 @@ if (helpLinksBox) {
 
     const risksBox = document.getElementById("risks");
     risksBox.innerHTML = "";
-    safeArr(data.risks || data.riskList || data.riskChips).forEach(r=>{
+    sbUniqueStrings(data.risks || data.riskList || data.riskChips).forEach(r=>{
       const d=document.createElement("div");
       d.className = fraudLevel === "LOW" ? "box-info" : "box-warn";
       d.textContent=String(r);
@@ -8110,6 +7882,7 @@ if (examplesDocEl) {
     }
 
     document.getElementById("translation").textContent = translation;
+    if(typeof sbPolishResultView === "function") sbPolishResultView(data);
 
 fetch("/.netlify/functions/analyze_count", {
   method: "POST",
@@ -8136,16 +7909,13 @@ fetch("/.netlify/functions/analyze_count", {
   }
 }
 
-/* =========================================================
-   INIT
-   ========================================================= */
 (async function init(){
   UI.lang = getUiLang();
   applyTheme(getTheme());
   applyUiLang();
   if(typeof sbApplyUxV10Texts === "function") sbApplyUxV10Texts();
   applyTheme(getTheme());
-  
+
   trackEvent("app_open");
 
   if (localStorage.getItem("sb_seen_before") === "1") {
@@ -8153,7 +7923,7 @@ fetch("/.netlify/functions/analyze_count", {
 } else {
   localStorage.setItem("sb_seen_before", "1");
   }
-  
+
   applyPaidFromQuery();
   await activateGoogleReviewAccessFromQuery();
   fetch("/.netlify/functions/visit", {
@@ -8166,9 +7936,6 @@ fetch("/.netlify/functions/analyze_count", {
   enableDevReset();
 })();
 
-/* =========================================================
-   PHOTO OCR - mobile safe
-   ========================================================= */
 (function () {
   const MAX_ORIGINAL_MB = 25;
   const MAX_SIDE = 1600;
@@ -8379,7 +8146,6 @@ fetch("/.netlify/functions/analyze_count", {
   }
   }
 
-// INSTALL APP (PWA)
 let deferredPrompt = null;
 
 window.addEventListener("beforeinstallprompt", function(e) {
@@ -8408,93 +8174,85 @@ function installApp() {
 
       PL: {
         title: "Dodaj Sense Bridge<br>do telefonu",
-        text: "Korzystaj już teraz jak z aplikacji.<br><b>Wkrótce będzie również dostępna w Google Play.</b>",
-        privacy: "Sense Bridge nie zapisuje i nie udostepnia Twoich dokumentow.",
-        why: "Dlatego dziala bez konta i bez klasycznej instalacji.",
-        step: "Do czasu premiery w Google Play kliknij <b>3 kropki</b> w przeglądarce<br>i wybierz:",
-        add: "Dodaj do ekranu glownego",
+        text: "Miej Sense Bridge zawsze pod ręką.",
+        privacy: "Twoje pisma i zdjęcia nie są zapisywane ani udostępniane.",
+        step: "W przeglądarce kliknij <b>3 kropki</b> i wybierz:",
+        add: "Dodaj do ekranu głównego",
         ok: "Rozumiem"
       },
 
       NL: {
         title: "Zet Sense Bridge<br>op je telefoon",
-        text: "Gebruik het nu al als een app.<br><b>Binnenkort ook beschikbaar in Google Play.</b>",
-        privacy: "Sense Bridge bewaart en deelt jouw documenten niet.",
-        why: "Daarom werkt het zonder account en zonder klassieke installatie.",
-        step: "Tot de Google Play-release: tik op de <b>3 puntjes</b> in de browser<br>en kies:",
+        text: "Houd Sense Bridge altijd binnen handbereik.",
+        privacy: "Je brieven en foto's worden niet opgeslagen of gedeeld.",
+        step: "Tik in de browser op de <b>3 puntjes</b> en kies:",
         add: "Toevoegen aan startscherm",
-        ok: "Ik begrijp het"
+        ok: "Begrepen"
       },
 
       EN: {
         title: "Add Sense Bridge<br>to your phone",
-        text: "Use it now like an app.<br><b>Coming soon to Google Play.</b>",
-        privacy: "Sense Bridge does not save or share your documents.",
-        why: "That is why it works without an account and without classic installation.",
-        step: "Until the Google Play release, tap the <b>3 dots</b> in your browser<br>and choose:",
+        text: "Keep Sense Bridge always within reach.",
+        privacy: "Your letters and photos are not saved or shared.",
+        step: "Tap the <b>3-dot</b> browser menu and choose:",
         add: "Add to Home screen",
-        ok: "I understand"
+        ok: "Got it"
       },
 
       DE: {
-        title: "Fuege Sense Bridge<br>zum Telefon hinzu",
-        text: "Schon jetzt wie eine App nutzen.<br><b>Demnächst auch bei Google Play verfügbar.</b>",
-        privacy: "Sense Bridge speichert und teilt deine Dokumente nicht.",
-        why: "Deshalb funktioniert es ohne Konto und ohne klassische Installation.",
-        step: "Bis zur Veröffentlichung bei Google Play: Tippe auf die <b>3 Punkte</b> im Browser<br>und wähle:",
-        add: "Zum Startbildschirm hinzufuegen",
+        title: "Sense Bridge<br>zum Handy hinzufügen",
+        text: "So hast du Sense Bridge immer griffbereit.",
+        privacy: "Deine Briefe und Fotos werden nicht gespeichert oder geteilt.",
+        step: "Tippe im Browser auf die <b>3 Punkte</b> und wähle:",
+        add: "Zum Startbildschirm hinzufügen",
         ok: "Verstanden"
       },
 
       UA: {
-  title: "Додайте Sense Bridge<br>на телефон",
-  text: "Користуйтеся вже зараз як застосунком.<br><b>Незабаром також у Google Play.</b>",
-  privacy: "Sense Bridge не зберігає і не передає ваші документи.",
-  why: "Тому працює без акаунта і без класичного встановлення.",
-  step: "До появи в Google Play натисніть <b>3 крапки</b> у браузері<br>і виберіть:",
-  add: "Додати на головний екран",
-  ok: "Зрозуміло"
-},
+        title: "Додайте Sense Bridge<br>на телефон",
+        text: "Нехай Sense Bridge завжди буде під рукою.",
+        privacy: "Ваші листи та фото не зберігаються й не передаються.",
+        step: "У браузері натисніть <b>3 крапки</b> та виберіть:",
+        add: "Додати на головний екран",
+        ok: "Зрозуміло"
+      },
 
       FR: {
-        title: "Ajouter Sense Bridge<br>au telephone",
-        text: "Utilisez-la dès maintenant comme une application.<br><b>Bientôt disponible sur Google Play.</b>",
-        privacy: "Sense Bridge ne sauvegarde ni ne partage vos documents.",
-        why: "C'est pourquoi cela fonctionne sans compte et sans installation classique.",
-        step: "En attendant Google Play, appuyez sur les <b>3 points</b> du navigateur<br>et choisissez :",
-        add: "Ajouter a l'ecran d'accueil",
-        ok: "Je comprends"
+        title: "Ajoutez Sense Bridge<br>à votre téléphone",
+        text: "Gardez Sense Bridge toujours à portée de main.",
+        privacy: "Vos lettres et photos ne sont ni enregistrées ni partagées.",
+        step: "Dans le navigateur, appuyez sur les <b>3 points</b> et choisissez :",
+        add: "Ajouter à l’écran d’accueil",
+        ok: "Compris"
       },
 
       IT: {
         title: "Aggiungi Sense Bridge<br>al telefono",
-        text: "Usala già come un’app.<br><b>Presto disponibile anche su Google Play.</b>",
-        privacy: "Sense Bridge non salva e non condivide i tuoi documenti.",
-        why: "Per questo funziona senza account e senza installazione classica.",
-        step: "Fino al rilascio su Google Play tocca i <b>3 puntini</b> nel browser<br>e scegli:",
+        text: "Tieni Sense Bridge sempre a portata di mano.",
+        privacy: "Le tue lettere e foto non vengono salvate né condivise.",
+        step: "Nel browser tocca i <b>3 puntini</b> e scegli:",
         add: "Aggiungi alla schermata Home",
         ok: "Ho capito"
       },
 
       ES: {
-        title: "Agregar Sense Bridge<br>al telefono",
-        text: "Úsala ya como una aplicación.<br><b>Próximamente también en Google Play.</b>",
-        privacy: "Sense Bridge no guarda ni comparte tus documentos.",
-        why: "Por eso funciona sin cuenta y sin instalacion clasica.",
-        step: "Hasta su llegada a Google Play pulsa los <b>3 puntos</b> del navegador<br>y elige:",
+        title: "Añade Sense Bridge<br>al teléfono",
+        text: "Ten Sense Bridge siempre a mano.",
+        privacy: "Tus cartas y fotos no se guardan ni se comparten.",
+        step: "En el navegador pulsa los <b>3 puntos</b> y elige:",
         add: "Agregar a pantalla de inicio",
-        ok: "Entiendo"
+        ok: "Entendido"
       },
 
       PT: {
-        title: "Adicionar Sense Bridge<br>ao telefone",
-        text: "Use já como uma aplicação.<br><b>Em breve também no Google Play.</b>",
-        privacy: "Sense Bridge nao guarda nem partilha os teus documentos.",
-        why: "Por isso funciona sem conta e sem instalacao classica.",
-        step: "Até ao lançamento no Google Play toque nos <b>3 pontos</b> do navegador<br>e escolha:",
-        add: "Adicionar ao ecra inicial",
+        title: "Adicione Sense Bridge<br>ao telefone",
+        text: "Tenha o Sense Bridge sempre à mão.",
+        privacy: "As suas cartas e fotografias não são guardadas nem partilhadas.",
+        step: "No navegador toque nos <b>3 pontos</b> e escolha:",
+        add: "Adicionar ao ecrã inicial",
         ok: "Entendi"
       }
+
 
     };
 
@@ -8505,86 +8263,86 @@ function installApp() {
 
     var overlay = document.createElement("div");
     overlay.id = "sbInstallBox";
-
     overlay.style.position = "fixed";
-    overlay.style.left = "0";
-    overlay.style.top = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.background = "rgba(0,0,0,.55)";
+    overlay.style.inset = "0";
+    overlay.style.background = "rgba(5,15,25,.48)";
     overlay.style.display = "flex";
     overlay.style.alignItems = "center";
     overlay.style.justifyContent = "center";
     overlay.style.zIndex = "99999";
     overlay.style.padding = "18px";
-    overlay.style.backdropFilter = "blur(4px)";
+    overlay.style.backdropFilter = "blur(10px)";
+    overlay.style.webkitBackdropFilter = "blur(10px)";
 
     var box = document.createElement("div");
-
-    box.style.maxWidth = "420px";
+    box.style.position = "relative";
+    box.style.maxWidth = "410px";
     box.style.width = "100%";
-    box.style.background = "linear-gradient(180deg,#0e2a47,#123e61)";
-    box.style.border = "2px solid #32d296";
-    box.style.borderRadius = "24px";
-    box.style.padding = "20px";
-    box.style.color = "#fff";
-    box.style.boxShadow = "0 0 35px rgba(50,210,150,.25)";
-    box.style.fontFamily = "system-ui,sans-serif";
+    box.style.background = "linear-gradient(165deg,#ffffff 0%,#f6fbf9 100%)";
+    box.style.border = "1px solid rgba(63,138,114,.22)";
+    box.style.borderRadius = "30px";
+    box.style.padding = "24px 22px 20px";
+    box.style.color = "#172033";
+    box.style.boxShadow = "0 28px 80px rgba(5,20,35,.28)";
+    box.style.fontFamily = "system-ui,-apple-system,Segoe UI,Roboto,sans-serif";
     box.style.textAlign = "center";
 
     box.innerHTML = `
-      <div style="font-size:26px;margin-bottom:8px;">📲</div>
+      <button id="sbInstallX" aria-label="Close" style="
+        position:absolute;right:14px;top:14px;width:38px;height:38px;
+        border:0;border-radius:999px;background:#eef5f2;color:#536173;
+        font-size:22px;line-height:1;cursor:pointer;">×</button>
 
-      <div style="font-size:25px;font-weight:900;line-height:1.15;margin-bottom:14px;">
+      <div style="
+        width:84px;height:84px;margin:0 auto 14px;border-radius:24px;
+        display:flex;align-items:center;justify-content:center;
+        background:linear-gradient(145deg,#f3fbf7,#ffffff);
+        border:1px solid rgba(63,138,114,.18);
+        box-shadow:0 12px 28px rgba(15,23,42,.08);overflow:hidden;">
+        <img src="/icons/icon-192.png" alt="Sense Bridge" style="
+          width:68px;height:68px;object-fit:contain;border-radius:18px;"
+          onerror="this.style.display='none';this.parentElement.innerHTML='✓';this.parentElement.style.fontSize='38px';this.parentElement.style.color='#3f8a72';">
+      </div>
+
+      <div style="
+        font-size:26px;font-weight:900;line-height:1.12;
+        letter-spacing:-.035em;margin:0 26px 10px;color:#10233a;">
         ${m.title}
       </div>
 
-      <div style="font-size:16px;line-height:1.55;color:rgba(255,255,255,.92);margin-bottom:16px;">
+      <div style="
+        font-size:16px;line-height:1.5;color:#657183;margin:0 8px 18px;">
         ${m.text}
       </div>
 
       <div style="
-        background:rgba(50,210,150,.10);
-        border:1px solid rgba(50,210,150,.28);
-        border-radius:18px;
-        padding:14px;
-        margin-bottom:16px;
-        line-height:1.5;
-        color:#dffdf2;
-        font-size:14px;
-      ">
-        🔒 ${m.privacy}<br><br>${m.why}
+        display:flex;align-items:flex-start;gap:10px;text-align:left;
+        background:rgba(63,138,114,.075);
+        border:1px solid rgba(63,138,114,.16);
+        border-radius:18px;padding:13px 14px;margin-bottom:18px;
+        color:#365548;font-size:14px;line-height:1.45;">
+        <span style="font-size:18px;line-height:1.2;">🔒</span>
+        <span>${m.privacy}</span>
       </div>
 
-      <div style="font-size:15px;line-height:1.55;margin-bottom:18px;">
+      <div style="
+        font-size:14px;line-height:1.5;color:#526072;margin:0 4px 10px;">
         ${m.step}
       </div>
 
       <div style="
-        display:inline-block;
-        background:#32d296;
-        color:#062b1f;
-        padding:8px 12px;
-        border-radius:12px;
-        font-weight:900;
-        font-size:14px;
-        margin-bottom:20px;
-      ">
-        ${m.add}
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        background:#0e2a47;color:#fff;padding:11px 14px;border-radius:16px;
+        font-weight:850;font-size:14px;margin:0 0 18px;
+        box-shadow:0 8px 18px rgba(14,42,71,.16);">
+        <span>＋</span><span>${m.add}</span>
       </div>
 
-      <button id="sbCloseInstall"
-        style="
-          width:100%;
-          border:none;
-          border-radius:16px;
-          padding:14px;
-          background:#32d296;
-          color:#062b1f;
-          font-size:17px;
-          font-weight:900;
-          cursor:pointer;
-        ">
+      <button id="sbCloseInstall" style="
+        width:100%;border:none;border-radius:18px;padding:14px 16px;
+        background:linear-gradient(135deg,#3f8a72,#58a58d);
+        color:#fff;font-size:16px;font-weight:900;cursor:pointer;
+        box-shadow:0 10px 22px rgba(63,138,114,.20);">
         ${m.ok}
       </button>
     `;
@@ -8592,7 +8350,6 @@ function installApp() {
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
-    // Count manual Home Screen instruction too, because browsers do not always fire native PWA install prompt.
     if (typeof trackEvent === "function") {
       trackEvent("shortcut_add");
     }
@@ -8600,10 +8357,12 @@ function installApp() {
     document.getElementById("sbCloseInstall").onclick = function() {
       overlay.remove();
     };
+    var sbInstallX = document.getElementById("sbInstallX");
+    if(sbInstallX){
+      sbInstallX.onclick = function(){ overlay.remove(); };
+    }
   }
 }
-
-
 
 function sbApplyResultUxPatchV9(data){
   try{
@@ -8673,20 +8432,17 @@ function sbApplyResultUxPatchV9(data){
   }
 }
 
-
 document.addEventListener("DOMContentLoaded", function(){
   if(typeof initAiScreenshotPicker === "function") initAiScreenshotPicker();
 });
 
 </script>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", function(){
   if(typeof initAiToolsPanel === "function") initAiToolsPanel();
 });
 </script>
-
 
 <script>
 (function(){
@@ -8754,8 +8510,6 @@ document.addEventListener("DOMContentLoaded", function(){
     holder.appendChild(details);
     details.querySelector('.sb-lang-body').appendChild(ui);
 
-    // Put language selection directly below the Sense Bridge logo/title
-    // and immediately above the install button.
     const installBtn=document.getElementById('installAppBtn');
     if(installBtn&&installBtn.parentNode){
       installBtn.insertAdjacentElement('beforebegin',holder);
@@ -8768,7 +8522,6 @@ document.addEventListener("DOMContentLoaded", function(){
     const main=document.querySelector('main');if(!main||document.getElementById('sbViewSwitchV11'))return;
     const bar=document.createElement('section');bar.id='sbViewSwitchV11';bar.className='sb-view-switch-wrap sb-view-compact';bar.setAttribute('aria-label','App view');
     bar.innerHTML='<div class="sb-view-heading"><span class="sb-view-icon" aria-hidden="true">👁️</span><span id="sbViewLabelV11" class="sb-view-switch-label"></span></div><p id="sbViewSubV12" class="sb-view-switch-sub"></p><div class="sb-view-switch" role="group"><button id="sbViewSimpleV11" class="sb-view-btn" type="button"></button><button id="sbViewFullV11" class="sb-view-btn" type="button"></button></div>';
-    // The view selector stays below the complete header card.
     const topCard=document.querySelector('.top-card');
     if(topCard)topCard.insertAdjacentElement('afterend',bar);
     else main.insertBefore(bar,main.firstChild);
@@ -8781,7 +8534,7 @@ document.addEventListener("DOMContentLoaded", function(){
     let count=0;try{count=parseInt(localStorage.getItem('sb_analysis_count_v11')||'0',10)||0}catch(e){}
     document.body.classList.toggle('sb-experienced-user',count>=5);
     const analyze=document.getElementById('btnAnalyze');
-    if(analyze)analyze.addEventListener('click',function(){try{const n=(parseInt(localStorage.getItem('sb_analysis_count_v11')||'0',10)||0)+1;localStorage.setItem('sb_analysis_count_v11',String(n));if(n>=5)document.body.classList.add('sb-experienced-user')}catch(e){}setTimeout(updateMoreButton,1200)});
+    if(analyze)analyze.addEventListener('click',function(){try{const n=(parseInt(localStorage.getItem('sb_analysis_count_v11')||'0',10)||0)+1;localStorage.setItem('sb_analysis_count_v11',String(n));if(n>=5)document.body.classList.add('sb-experienced-user')}catch(e){}setTimeout(updateMoreButton, 2300)});
     let hadResult=resultReady();
     const observer=new MutationObserver(function(){
       updateMoreButton();
@@ -8804,8 +8557,6 @@ document.addEventListener("DOMContentLoaded", function(){
   document.addEventListener('DOMContentLoaded',build);
 })();
 </script>
-
-
 
 <script>
 (function(){
@@ -8881,15 +8632,12 @@ document.addEventListener("DOMContentLoaded", function(){
 })();
 </script>
 
-
-
 <!-- =========================================================
      Sense Bridge — UX refinement FIXED
      Visual and translation integration only.
      OCR, analysis, access, payment and AI logic are untouched.
      ========================================================= -->
 <style>
-  /* Clear two-line promise */
   #sbBrandSub{
     display:block !important;
     margin-top:7px !important;
@@ -8920,13 +8668,11 @@ document.addEventListener("DOMContentLoaded", function(){
   body.dark-mode #sbBrandSub .sb-promise-main{color:#edf7f3 !important;}
   body.dark-mode #sbBrandSub .sb-promise-sub{color:#9fb5ad !important;}
 
-  /* Logo and brand form one visual group */
   .sb-brand-row{gap:10px !important;}
   @media (max-width:640px){
     .sb-brand-row{gap:7px !important;}
   }
 
-  /* Fresh, flatter button palette */
   #btnAnalyze,
   #sbTakePhotoBtn{
     background:#123f63 !important;
@@ -8985,7 +8731,6 @@ document.addEventListener("DOMContentLoaded", function(){
     box-shadow:0 5px 13px rgba(15,23,42,.045) !important;
   }
 
-  /* One user-friendly access status */
   .statusbar .sb-original-status-chip{
     display:none !important;
   }
@@ -9046,8 +8791,6 @@ document.addEventListener("DOMContentLoaded", function(){
     background:#2cff9a;
   }
 
-
-  /* Visible reach badge — stays visible also in Simple view */
   .sb-language-reach{
     display:flex;
     align-items:center;
@@ -9089,12 +8832,6 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   }
 
-
-
-/* =========================================================
-   Sense Bridge PRO access preview v1
-   Additive test layer. Existing payments and backend unchanged.
-   ========================================================= */
 .sb-pro-plan{border:2px solid rgba(14,42,71,.30);background:linear-gradient(180deg,#f7fbff,#fff);cursor:default;}
 .sb-pro-plan .price{color:#0e2a47;}
 .sb-pro-badge{background:#0e2a47;color:#fff;border-color:#0e2a47;}
@@ -9105,6 +8842,233 @@ body.dark-mode .sb-pro-plan{background:linear-gradient(180deg,#0b1a28,#081522)!i
 body.dark-mode .sb-pro-plan .price{color:#2cff9a!important;}
 body.dark-mode .sb-pro-badge{background:#2cff9a!important;color:#04110b!important;border-color:#2cff9a!important;}
 body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;color:#d8ffe9!important;border-color:rgba(44,255,154,.24)!important;}
+
+.sb-quick-result{
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+.sb-quick-result::after{display:none !important;}
+.sb-quick-title{
+  margin:2px 2px 12px !important;
+  font-size:18px !important;
+  letter-spacing:-.025em;
+}
+.sb-quick-grid{
+  gap:12px !important;
+}
+.sb-quick-card{
+  border:1px solid rgba(63,138,114,.16) !important;
+  border-radius:22px !important;
+  background:
+    radial-gradient(circle at top right,rgba(63,138,114,.10),transparent 42%),
+    linear-gradient(180deg,#fff,#f8fbfa) !important;
+  box-shadow:0 12px 30px rgba(15,23,42,.065) !important;
+  padding:16px !important;
+}
+.sb-quick-card strong{
+  font-size:15px !important;
+  letter-spacing:-.015em;
+}
+.sb-quick-card p{
+  font-size:14px !important;
+  line-height:1.5 !important;
+}
+.sb-result-accordion{
+  border:1px solid rgba(63,138,114,.15) !important;
+  border-radius:20px !important;
+  box-shadow:0 8px 24px rgba(15,23,42,.045) !important;
+}
+.sb-result-accordion > summary{
+  min-height:56px !important;
+  padding:14px 16px !important;
+}
+.sb-result-accordion > summary .section-title{
+  font-size:15px !important;
+}
+.sb-accordion-chevron{
+  width:30px !important;
+  height:30px !important;
+  flex-basis:30px !important;
+  box-shadow:none !important;
+}
+.sb-accordion-body{
+  padding:0 16px 16px !important;
+}
+#translation{
+  border:0 !important;
+  background:rgba(63,138,114,.045) !important;
+  padding:14px !important;
+  border-radius:16px !important;
+  font-family:inherit !important;
+  font-size:14px !important;
+  line-height:1.55 !important;
+}
+#actions .box-info,
+#help .box-info,
+#risks .box-info,
+#risks .box-warn,
+#consequences .box-info,
+#consequences .box-warn{
+  border-radius:14px !important;
+  padding:11px 12px !important;
+  margin-bottom:7px !important;
+  box-shadow:none !important;
+}
+body.dark-mode .sb-quick-card{
+  background:
+    radial-gradient(circle at top right,rgba(44,255,154,.09),transparent 42%),
+    linear-gradient(180deg,#0b1a28,#081522) !important;
+  border-color:rgba(44,255,154,.18) !important;
+}
+body.dark-mode #translation{
+  background:rgba(44,255,154,.055) !important;
+}
+@media(max-width:640px){
+  .sb-quick-grid{gap:9px !important;}
+  .sb-quick-card{padding:14px !important;border-radius:18px !important;}
+  .sb-result-accordion{border-radius:18px !important;}
+}
+
+
+
+/* Sense Bridge universal startup splash */
+#sbStartupSplash{
+  position:fixed;
+  inset:0;
+  z-index:2147483000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 43%, rgba(82,195,155,.22) 0%, rgba(82,195,155,.08) 24%, transparent 48%),
+    linear-gradient(160deg,#0b2139 0%,#0e2a47 55%,#123b5d 100%);
+  opacity:1;
+  visibility:visible;
+  transition:opacity .8s ease, visibility .8s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+#sbStartupSplash.sb-splash-out{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+#sbStartupSplash::before,
+#sbStartupSplash::after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  filter:blur(1px);
+  pointer-events:none;
+}
+#sbStartupSplash::before{
+  width:340px;
+  height:340px;
+  right:-150px;
+  top:-150px;
+  border:1px solid rgba(93,225,177,.13);
+  box-shadow:0 0 90px rgba(54,211,157,.08);
+}
+#sbStartupSplash::after{
+  width:280px;
+  height:280px;
+  left:-140px;
+  bottom:-130px;
+  border:1px solid rgba(255,255,255,.08);
+}
+.sb-start-inner{
+  position:relative;
+  width:min(88vw,410px);
+  text-align:center;
+  padding:28px 24px;
+  color:#fff;
+  animation:sbSplashEnter .62s cubic-bezier(.2,.78,.25,1) both;
+}
+.sb-start-logo-wrap{
+  width:116px;
+  height:116px;
+  margin:0 auto 22px;
+  border-radius:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(255,255,255,.74);
+  box-shadow:
+    0 24px 55px rgba(0,0,0,.24),
+    0 0 0 7px rgba(66,211,158,.07),
+    0 0 54px rgba(58,224,163,.22);
+}
+.sb-start-logo{
+  width:94px;
+  height:94px;
+  object-fit:contain;
+  border-radius:24px;
+}
+.sb-start-name{
+  margin:0;
+  font-size:clamp(31px,8vw,43px);
+  line-height:1.05;
+  font-weight:900;
+  letter-spacing:-.045em;
+  text-shadow:0 8px 25px rgba(0,0,0,.18);
+}
+.sb-start-tagline{
+  margin:13px 0 0;
+  color:rgba(236,252,246,.88);
+  font-size:14px;
+  line-height:1.4;
+  font-weight:650;
+  letter-spacing:.015em;
+}
+.sb-start-progress{
+  width:88px;
+  height:3px;
+  margin:25px auto 0;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+}
+.sb-start-progress::after{
+  content:"";
+  display:block;
+  width:42%;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#48d7a4,#79efc2);
+  box-shadow:0 0 12px rgba(72,215,164,.65);
+  animation:sbSplashProgress 1.05s ease-in-out infinite;
+}
+@keyframes sbSplashEnter{
+  from{opacity:0;transform:translateY(10px) scale(.965);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+@keyframes sbSplashProgress{
+  0%{transform:translateX(-120%);}
+  55%{transform:translateX(90%);}
+  100%{transform:translateX(250%);}
+}
+@media (max-width:480px){
+  .sb-start-logo-wrap{
+    width:104px;
+    height:104px;
+    border-radius:29px;
+  }
+  .sb-start-logo{
+    width:84px;
+    height:84px;
+    border-radius:22px;
+  }
+  .sb-start-tagline{font-size:13px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .sb-start-inner,
+  .sb-start-progress::after{animation:none !important;}
+  #sbStartupSplash{transition:opacity .18s linear,visibility .18s linear;}
+}
+
 </style>
 
 <script>
@@ -9204,7 +9168,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
       active:s => `Acesso ativo: ${s}`
     }
   };
-
 
   const SB_EXTRA_COPY = {
     PL:{
@@ -9434,7 +9397,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
   }
 })();
 </script>
-
 
 <script>
 (function(){
@@ -9690,9 +9652,7 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
 })();
 </script>
 
-
 <script>
-/* Sense Bridge Document Lab v1 — isolated additive module */
 (function(){
   "use strict";
   const MAX_IMAGES=5, MAX_PDF_PAGES=10;
@@ -9743,7 +9703,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
     }
   };
 
-  // For FR/IT/ES/PT use complete English structure with localized titles/actions/common UI.
   const FALLBACK_LOCAL={
     FR:{pdf:["Analyse PDF","Lire et expliquer un document PDF de plusieurs pages.","Analyser le PDF"],form:["Aide aux formulaires","Explication des champs, informations et documents requis.","Expliquer le formulaire"],photo:["Analyse de photos","Lire et expliquer le texte visible sur les photos.","Analyser les photos"],bill:["Factures et notes","Montants, échéances, postes et points peu clairs.","Expliquer la facture"]},
     IT:{pdf:["Analisi PDF","Leggi e spiega un documento PDF di più pagine.","Analizza PDF"],form:["Assistenza moduli","Spiegazione di campi, informazioni e documenti richiesti.","Spiega modulo"],photo:["Analisi foto","Leggi e spiega il testo visibile nelle foto.","Analizza foto"],bill:["Bollette e fatture","Importi, scadenze, voci e possibili punti poco chiari.","Spiega fattura"]},
@@ -9960,7 +9919,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
 })();
 </script>
 
-
 <script id="sb-mobile-workspace-v2-js">
 (function(){
   "use strict";
@@ -10009,8 +9967,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
         const key=btn.dataset.sbMobileNav;setActive(key);
         if(key==='analysis') analysis?.scrollIntoView({behavior:'smooth',block:'start'});
         if(key==='tools'){
-          /* Obsługiwane przez poprawkę sb-mobile-header-v5:
-             jedno stuknięcie otwiera, drugie zamyka. */
           return;
         }
         if(key==='settings'){
@@ -10030,7 +9986,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
   document.addEventListener('DOMContentLoaded',()=>setTimeout(build,180));
 })();
 </script>
-
 
 <script id="sb-mobile-header-v4-js">
 (function(){
@@ -10155,8 +10110,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
       const button = event.target.closest('[data-sb-mobile-nav="tools"]');
       if(!button) return;
 
-      /* Przejmujemy kliknięcie przed starszym handlerem,
-         żeby nie otworzył panelu ponownie po jego zamknięciu. */
       event.preventDefault();
       event.stopImmediatePropagation();
       toggleAiTools();
@@ -10180,7 +10133,6 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
     rebuildMobileHeader();
     installAiNavFix();
 
-    /* Existing scripts create parts of the header after DOMContentLoaded. */
     let attempts = 0;
     const timer = setInterval(function(){
       attempts += 1;
@@ -10196,6 +10148,40 @@ body.dark-mode .sb-pro-status-pill{background:rgba(44,255,154,.10)!important;col
   }else{
     init();
   }
+})();
+</script>
+
+
+<script id="sbStartupSplashScript">
+(function(){
+  var startedAt = Date.now();
+  var minVisibleMs = 4200;
+  var removed = false;
+
+  function closeSenseBridgeSplash(){
+    if(removed) return;
+    removed = true;
+
+    var splash = document.getElementById("sbStartupSplash");
+    if(!splash) return;
+
+    var elapsed = Date.now() - startedAt;
+    var wait = Math.max(0, minVisibleMs - elapsed);
+
+    window.setTimeout(function(){
+      splash.classList.add("sb-splash-out");
+      window.setTimeout(function(){ if(splash && splash.parentNode) splash.parentNode.removeChild(splash); }, 800);
+    }, wait);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", closeSenseBridgeSplash, {once:true});
+  }else{
+    closeSenseBridgeSplash();
+  }
+
+  /* Safety fallback: the splash must never block Sense Bridge. */
+  window.setTimeout(closeSenseBridgeSplash, 6000);
 })();
 </script>
 
