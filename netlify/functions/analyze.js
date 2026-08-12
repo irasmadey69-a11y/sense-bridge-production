@@ -577,6 +577,13 @@ detectedPhones,
 
     sbApplyExtraLanguageSafetyLocalizationV3(payload, userLang);
 
+    // Final output-only language guard for the extra UI languages.
+    // Runs AFTER all local fraud/institution post-processing, because those
+    // legacy safety layers can still inject PL/EN phrases. It never changes
+    // risk levels, confidence, institution data, URLs, detected links/phones,
+    // OCR text or access/payment logic. On any error it fails open.
+    await sbFinalUserLanguageGuardV4(apiKey, payload, userLang);
+
     sbDedupePayloadArraysV1(payload);
 
     return json(200, headers, payload);
@@ -773,6 +780,132 @@ const SB_EXTRA_LANGS_V3 = {
 
 function sbExtraLangV3(lang) {
   return SB_EXTRA_LANGS_V3[String(lang || "").toUpperCase()] || null;
+}
+
+
+/* ============================================================
+   Sense Bridge FINAL USER LANGUAGE GUARD v4
+   Output-only translation pass for newly added user languages.
+   IMPORTANT: this does NOT touch scoring, OCR, institution recognition,
+   links, phones, access/payment logic or the original 9-language behavior.
+   ============================================================ */
+async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang) {
+  if (!payload || typeof payload !== "object" || !apiKey) return payload;
+
+  const L = String(userLang || payload.userLang || "").toUpperCase();
+  const supported = new Set(["LT", "LV", "HU", "ZH", "JA", "HI", "AR", "EG", "ET", "RO", "HR"]);
+  if (!supported.has(L)) return payload;
+
+  const languageNames = {
+    LT: "Lithuanian",
+    LV: "Latvian",
+    HU: "Hungarian",
+    ZH: "Simplified Chinese",
+    JA: "Japanese",
+    HI: "Hindi",
+    AR: "Modern Standard Arabic",
+    EG: "natural contemporary Egyptian Arabic",
+    ET: "Estonian",
+    RO: "Romanian",
+    HR: "Croatian"
+  };
+
+  // Only user-facing prose is sent to this guard. Structural/safety values
+  // and source identifiers remain outside it and therefore cannot change.
+  const source = {
+    summary: payload.summary || "",
+    whatOfficeSays: payload.whatOfficeSays || "",
+    communication: payload.communication || "",
+    officeSummary: payload.officeSummary || "",
+    documentTone: payload.documentTone || "",
+    nextSteps: Array.isArray(payload.nextSteps) ? payload.nextSteps : [],
+    actions: Array.isArray(payload.actions) ? payload.actions : [],
+    consequences: Array.isArray(payload.consequences) ? payload.consequences : [],
+    risks: Array.isArray(payload.risks) ? payload.risks : [],
+    help: Array.isArray(payload.help) ? payload.help : [],
+    replies: (payload.replies && typeof payload.replies === "object") ? payload.replies : {},
+    fraudRisk: (payload.fraudRisk && typeof payload.fraudRisk === "object") ? {
+      label: payload.fraudRisk.label || "",
+      summary: payload.fraudRisk.summary || "",
+      signals: Array.isArray(payload.fraudRisk.signals) ? payload.fraudRisk.signals : [],
+      suspiciousElements: Array.isArray(payload.fraudRisk.suspiciousElements) ? payload.fraudRisk.suspiciousElements : [],
+      safeSteps: Array.isArray(payload.fraudRisk.safeSteps) ? payload.fraudRisk.safeSteps : [],
+      disclaimer: payload.fraudRisk.disclaimer || ""
+    } : {}
+  };
+
+  const prompt = `
+You are the final language-consistency pass for Sense Bridge.
+Translate ONLY the JSON string values below into ${languageNames[L] || L}.
+
+STRICT RULES:
+- Return ONLY a valid JSON object with exactly the same keys and structure.
+- Do not add, remove, merge, summarize or reinterpret information.
+- Preserve array item count and order.
+- Preserve names of institutions, people, companies and places exactly when they are proper names.
+- Preserve URLs, domains, email addresses, phone numbers, IBANs, reference numbers, dates, amounts, percentages and codes exactly.
+- Keep the meaning and safety level unchanged.
+- Do not change LOW/MEDIUM/HIGH/UNKNOWN or any numeric confidence (they are not included here anyway).
+- Do not translate product name "Sense Bridge".
+- Do not leave Polish, English, Dutch, German or another language in ordinary prose when a natural ${languageNames[L] || L} translation exists.
+- For EG use natural contemporary Egyptian Arabic, not formal MSA.
+
+JSON TO TRANSLATE:
+${JSON.stringify(source)}
+`.trim();
+
+  try {
+    const translated = await callOpenAIJsonObject(apiKey, prompt);
+    if (!translated || typeof translated !== "object") return payload;
+
+    const sameLen = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length;
+    const cleanStr = v => typeof v === "string" ? cleanAiText(v) : "";
+    const safeArray = (incoming, original) => sameLen(incoming, original)
+      ? incoming.map((v, i) => typeof v === "string" ? cleanAiText(v) : original[i])
+      : original;
+
+    if (cleanStr(translated.summary)) payload.summary = cleanStr(translated.summary);
+    if (cleanStr(translated.whatOfficeSays)) payload.whatOfficeSays = cleanStr(translated.whatOfficeSays);
+    if (cleanStr(translated.communication)) payload.communication = cleanStr(translated.communication);
+    if (cleanStr(translated.officeSummary)) payload.officeSummary = cleanStr(translated.officeSummary);
+    if (cleanStr(translated.documentTone)) payload.documentTone = cleanStr(translated.documentTone);
+
+    payload.nextSteps = safeArray(translated.nextSteps, source.nextSteps);
+    payload.actions = safeArray(translated.actions, source.actions);
+    payload.consequences = safeArray(translated.consequences, source.consequences);
+    payload.risks = safeArray(translated.risks, source.risks);
+    payload.help = safeArray(translated.help, source.help);
+
+    if (translated.replies && typeof translated.replies === "object" && payload.replies && typeof payload.replies === "object") {
+      for (const key of ["neutral", "polite", "firm"]) {
+        const value = cleanStr(translated.replies[key]);
+        if (value) payload.replies[key] = value;
+      }
+    }
+
+    if (translated.fraudRisk && typeof translated.fraudRisk === "object" && payload.fraudRisk && typeof payload.fraudRisk === "object") {
+      for (const key of ["label", "summary", "disclaimer"]) {
+        const value = cleanStr(translated.fraudRisk[key]);
+        if (value) payload.fraudRisk[key] = value;
+      }
+      payload.fraudRisk.signals = safeArray(translated.fraudRisk.signals, source.fraudRisk.signals || []);
+      payload.fraudRisk.suspiciousElements = safeArray(translated.fraudRisk.suspiciousElements, source.fraudRisk.suspiciousElements || []);
+      payload.fraudRisk.safeSteps = safeArray(translated.fraudRisk.safeSteps, source.fraudRisk.safeSteps || []);
+    }
+
+    // Keep aliases synchronized after replacing arrays/objects.
+    payload.riskList = payload.risks;
+    payload.riskChips = payload.risks;
+    payload.examples = payload.replies;
+    payload.responseExamples = payload.replies;
+    payload.scamRisk = payload.fraudRisk;
+    payload.authenticityRisk = payload.fraudRisk;
+
+    return payload;
+  } catch (err) {
+    // Fail open: the already-working analysis is returned unchanged.
+    return payload;
+  }
 }
 
 function sbApplyExtraLanguageSafetyLocalizationV3(payload, userLang) {
