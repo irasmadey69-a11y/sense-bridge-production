@@ -823,6 +823,11 @@ async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang) {
     consequences: Array.isArray(payload.consequences) ? payload.consequences : [],
     risks: Array.isArray(payload.risks) ? payload.risks : [],
     help: Array.isArray(payload.help) ? payload.help : [],
+    helpLinks: Array.isArray(payload.helpLinks) ? payload.helpLinks.map(x => ({
+      label: (x && typeof x === "object") ? (x.label || "") : "",
+      url: (x && typeof x === "object") ? (x.url || "") : "",
+      type: (x && typeof x === "object") ? (x.type || "") : ""
+    })) : [],
     replies: (payload.replies && typeof payload.replies === "object") ? payload.replies : {},
     fraudRisk: (payload.fraudRisk && typeof payload.fraudRisk === "object") ? {
       label: payload.fraudRisk.label || "",
@@ -844,6 +849,7 @@ STRICT RULES:
 - Preserve array item count and order.
 - Preserve names of institutions, people, companies and places exactly when they are proper names.
 - Preserve URLs, domains, email addresses, phone numbers, IBANs, reference numbers, dates, amounts, percentages and codes exactly.
+- In helpLinks translate ONLY the visible "label". Keep "url" and "type" exactly unchanged.
 - Keep the meaning and safety level unchanged.
 - Do not change LOW/MEDIUM/HIGH/UNKNOWN or any numeric confidence (they are not included here anyway).
 - Do not translate product name "Sense Bridge".
@@ -875,6 +881,20 @@ ${JSON.stringify(source)}
     payload.consequences = safeArray(translated.consequences, source.consequences);
     payload.risks = safeArray(translated.risks, source.risks);
     payload.help = safeArray(translated.help, source.help);
+
+    // Translate only the visible help-link label. Keep URL and type byte-for-byte
+    // from the original payload so navigation/logic cannot be affected.
+    if (Array.isArray(translated.helpLinks) && Array.isArray(payload.helpLinks) &&
+        translated.helpLinks.length === payload.helpLinks.length) {
+      payload.helpLinks = payload.helpLinks.map((original, i) => {
+        const incoming = translated.helpLinks[i];
+        const label = incoming && typeof incoming === "object" ? cleanStr(incoming.label) : "";
+        return {
+          ...original,
+          label: label || original.label
+        };
+      });
+    }
 
     if (translated.replies && typeof translated.replies === "object" && payload.replies && typeof payload.replies === "object") {
       for (const key of ["neutral", "polite", "firm"]) {
