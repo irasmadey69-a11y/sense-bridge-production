@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+<!-- Sense Bridge V2: external language layer -->
+<script src="languages/core.js"></script>
+<script src="languages/pl.js"></script>
+<script src="languages/ua.js"></script>
+<script src="languages/nl.js"></script>
+<script src="languages/en.js"></script>
+<script src="languages/de.js"></script>
+<script src="languages/fr.js"></script>
+<script src="languages/it.js"></script>
+<script src="languages/es.js"></script>
+<script src="languages/pt.js"></script>
+<script src="languages/lt.js"></script>
+<script src="languages/lv.js"></script>
+<script src="languages/hu.js"></script>
+<script src="languages/newlangs-complete.js"></script>
+<script src="languages/v22-expansion.js"></script>
+<!-- End Sense Bridge V2 language layer -->
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#0E2A47">
@@ -3661,6 +3679,17 @@ body.dark-mode .sb-reset-toast{
         <button class="ui-btn" type="button" data-ui="IT" onclick="setUiLang('IT')">🇮🇹 IT</button>
         <button class="ui-btn" type="button" data-ui="ES" onclick="setUiLang('ES')">🇪🇸 ES</button>
         <button class="ui-btn" type="button" data-ui="PT" onclick="setUiLang('PT')">🇵🇹 PT</button>
+        <button class="ui-btn" type="button" data-ui="LT" onclick="setUiLang('LT')">🇱🇹 LT</button>
+        <button class="ui-btn" type="button" data-ui="LV" onclick="setUiLang('LV')">🇱🇻 LV</button>
+        <button class="ui-btn" type="button" data-ui="HU" onclick="setUiLang('HU')">🇭🇺 HU</button>
+        <button class="ui-btn" type="button" data-ui="ZH" onclick="setUiLang('ZH')">🇨🇳 ZH</button>
+        <button class="ui-btn" type="button" data-ui="JA" onclick="setUiLang('JA')">🇯🇵 JA</button>
+        <button class="ui-btn" type="button" data-ui="HI" onclick="setUiLang('HI')">🇮🇳 HI</button>
+        <button class="ui-btn" type="button" data-ui="AR" onclick="setUiLang('AR')">🇸🇦 AR</button>
+        <button class="ui-btn" type="button" data-ui="EG" onclick="setUiLang('EG')">🇪🇬 EG</button>
+        <button class="ui-btn" type="button" data-ui="ET" onclick="setUiLang('ET')">🇪🇪 ET</button>
+        <button class="ui-btn" type="button" data-ui="RO" onclick="setUiLang('RO')">🇷🇴 RO</button>
+        <button class="ui-btn" type="button" data-ui="HR" onclick="setUiLang('HR')">🇭🇷 HR</button>
       </div>
 
       <div class="theme-switch" aria-label="Motyw strony">
@@ -4009,6 +4038,17 @@ body.dark-mode .sb-reset-toast{
         <option value="IT">🇮🇹 Italiano</option>
         <option value="ES">🇪🇸 Español</option>
         <option value="PT">🇵🇹 Português</option>
+        <option value="LT">🇱🇹 Lietuvių</option>
+        <option value="LV">🇱🇻 Latviešu</option>
+        <option value="HU">🇭🇺 Magyar</option>
+        <option value="ZH">🇨🇳 中文（简体）</option>
+        <option value="JA">🇯🇵 日本語</option>
+        <option value="HI">🇮🇳 हिन्दी</option>
+        <option value="AR">🇸🇦 العربية</option>
+        <option value="EG">🇪🇬 العربية (مصر)</option>
+        <option value="ET">🇪🇪 Eesti</option>
+        <option value="RO">🇷🇴 Română</option>
+        <option value="HR">🇭🇷 Hrvatski</option>
 
         </select>
       </div>
@@ -4026,6 +4066,17 @@ body.dark-mode .sb-reset-toast{
         <option value="IT">🇮🇹 Italiano</option>
         <option value="ES">🇪🇸 Español</option>
         <option value="PT">🇵🇹 Português</option>
+        <option value="LT">🇱🇹 Lietuvių</option>
+        <option value="LV">🇱🇻 Latviešu</option>
+        <option value="HU">🇭🇺 Magyar</option>
+        <option value="ZH">🇨🇳 中文（简体）</option>
+        <option value="JA">🇯🇵 日本語</option>
+        <option value="HI">🇮🇳 हिन्दी</option>
+        <option value="AR">🇸🇦 العربية</option>
+        <option value="EG">🇪🇬 العربية (مصر)</option>
+        <option value="ET">🇪🇪 Eesti</option>
+        <option value="RO">🇷🇴 Română</option>
+        <option value="HR">🇭🇷 Hrvatski</option>
 
         </select>
       </div>
@@ -4364,17 +4415,7 @@ function getTheme(){
 
 function getThemeText(theme){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
-  const labels = {
-    PL: { light:"☀️ Jasny", dark:"🌙 Ciemny" },
-    EN: { light:"☀️ Light", dark:"🌙 Dark" },
-    NL: { light:"☀️ Licht", dark:"🌙 Donker" },
-    DE: { light:"☀️ Hell", dark:"🌙 Dunkel" },
-    UA: { light:"☀️ Світла", dark:"🌙 Темна" },
-    FR: { light:"☀️ Clair", dark:"🌙 Sombre" },
-    IT: { light:"☀️ Chiaro", dark:"🌙 Scuro" },
-    ES: { light:"☀️ Claro", dark:"🌙 Oscuro" },
-    PT: { light:"☀️ Claro", dark:"🌙 Escuro" }
-  };
+  const labels = window.SB_I18N.modules["m4367_labels"];
   const t = labels[lang] || labels.PL;
   return theme === "dark" ? t.dark : t.light;
 }
@@ -4497,17 +4538,7 @@ function refreshUI(){
 
 function sbAccessText(){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
-  const map = {
-    PL:{title:"Dostęp",free:"Pozostałe analizy FREE",email:"Adres dostępu",until:"Ważny do",none:"Niepołączony",active:"Dostęp aktywny",freeMode:"Tryb FREE",locked:"Limit FREE wykorzystany",switchBtn:"Sprawdź dostęp lub użyj innego adresu",disconnect:"Odłącz adres na tym urządzeniu",note:"Zmiana lub odłączenie adresu nie usuwa konta ani dostępu z serwera.",emailTitle:"Podaj adres dostępu",emailText:"Wpisz adres, którego chcesz użyć lub sprawdzić.",notActive:"Dla tego adresu nie znaleziono aktywnego dostępu.",disconnected:"Adres został odłączony tylko na tym urządzeniu.",disconnectTitle:"Odłączyć adres?",disconnectText:"Ten adres zostanie usunięty tylko z tego urządzenia. Konto i aktywny dostęp pozostaną na serwerze."},
-    EN:{title:"Access",free:"FREE analyses left",email:"Access email",until:"Valid until",none:"Not connected",active:"Access active",freeMode:"FREE mode",locked:"FREE limit used",switchBtn:"Check access or use another email",disconnect:"Disconnect email on this device",note:"Changing or disconnecting the email does not delete the account or server access.",emailTitle:"Enter access email",emailText:"Enter the email you want to use or check.",notActive:"No active access was found for this email.",disconnected:"The email was disconnected only on this device.",disconnectTitle:"Disconnect email?",disconnectText:"This email will be removed only from this device. The account and active access will remain on the server."},
-    NL:{title:"Toegang",free:"Resterende FREE-analyses",email:"Toegangsadres",until:"Geldig tot",none:"Niet gekoppeld",active:"Toegang actief",freeMode:"FREE-modus",locked:"FREE-limiet gebruikt",switchBtn:"Controleer of gebruik een ander adres",disconnect:"Adres op dit apparaat loskoppelen",note:"Een adres wijzigen of loskoppelen verwijdert het account of de servertoegang niet.",emailTitle:"Voer het toegangsadres in",emailText:"Voer het adres in dat je wilt gebruiken of controleren.",notActive:"Voor dit adres is geen actieve toegang gevonden.",disconnected:"Het adres is alleen op dit apparaat losgekoppeld.",disconnectTitle:"Adres loskoppelen?",disconnectText:"Dit adres wordt alleen van dit apparaat verwijderd. Het account en de actieve toegang blijven op de server."},
-    DE:{title:"Zugang",free:"Verbleibende FREE-Analysen",email:"Zugangsadresse",until:"Gültig bis",none:"Nicht verbunden",active:"Zugang aktiv",freeMode:"FREE-Modus",locked:"FREE-Limit verbraucht",switchBtn:"Andere Adresse prüfen oder verwenden",disconnect:"Adresse auf diesem Gerät trennen",note:"Das Ändern oder Trennen der Adresse löscht weder Konto noch Serverzugang.",emailTitle:"Zugangsadresse eingeben",emailText:"Gib die Adresse ein, die du verwenden oder prüfen möchtest.",notActive:"Für diese Adresse wurde kein aktiver Zugang gefunden.",disconnected:"Die Adresse wurde nur auf diesem Gerät getrennt.",disconnectTitle:"Adresse trennen?",disconnectText:"Diese Adresse wird nur von diesem Gerät entfernt. Konto und aktiver Zugang bleiben auf dem Server."},
-    UA:{title:"Доступ",free:"Залишилось FREE-аналізів",email:"Адреса доступу",until:"Дійсний до",none:"Не підключено",active:"Доступ активний",freeMode:"Режим FREE",locked:"Ліміт FREE використано",switchBtn:"Перевірити або використати іншу адресу",disconnect:"Від’єднати адресу на цьому пристрої",note:"Зміна або від’єднання адреси не видаляє обліковий запис чи доступ із сервера.",emailTitle:"Введіть адресу доступу",emailText:"Введіть адресу, яку хочете використати або перевірити.",notActive:"Для цієї адреси активного доступу не знайдено.",disconnected:"Адресу від’єднано лише на цьому пристрої.",disconnectTitle:"Від’єднати адресу?",disconnectText:"Цю адресу буде видалено лише з цього пристрою. Обліковий запис і активний доступ залишаться на сервері."},
-    FR:{title:"Accès",free:"Analyses FREE restantes",email:"Adresse d’accès",until:"Valable jusqu’au",none:"Non connecté",active:"Accès actif",freeMode:"Mode FREE",locked:"Limite FREE utilisée",switchBtn:"Vérifier ou utiliser une autre adresse",disconnect:"Déconnecter l’adresse sur cet appareil",note:"Changer ou déconnecter l’adresse ne supprime ni le compte ni l’accès serveur.",emailTitle:"Saisissez l’adresse d’accès",emailText:"Saisissez l’adresse à utiliser ou à vérifier.",notActive:"Aucun accès actif trouvé pour cette adresse.",disconnected:"L’adresse a été déconnectée uniquement sur cet appareil.",disconnectTitle:"Déconnecter l’adresse ?",disconnectText:"Cette adresse sera supprimée uniquement de cet appareil. Le compte et l’accès actif resteront sur le serveur."},
-    IT:{title:"Accesso",free:"Analisi FREE rimaste",email:"Indirizzo di accesso",until:"Valido fino a",none:"Non collegato",active:"Accesso attivo",freeMode:"Modalità FREE",locked:"Limite FREE utilizzato",switchBtn:"Controlla o usa un altro indirizzo",disconnect:"Scollega l’indirizzo su questo dispositivo",note:"Cambiare o scollegare l’indirizzo non elimina l’account né l’accesso dal server.",emailTitle:"Inserisci l’indirizzo di accesso",emailText:"Inserisci l’indirizzo da usare o controllare.",notActive:"Nessun accesso attivo trovato per questo indirizzo.",disconnected:"L’indirizzo è stato scollegato solo su questo dispositivo.",disconnectTitle:"Scollegare l’indirizzo?",disconnectText:"Questo indirizzo verrà rimosso solo da questo dispositivo. L’account e l’accesso attivo resteranno sul server."},
-    ES:{title:"Acceso",free:"Análisis FREE restantes",email:"Dirección de acceso",until:"Válido hasta",none:"No conectado",active:"Acceso activo",freeMode:"Modo FREE",locked:"Límite FREE utilizado",switchBtn:"Comprobar o usar otra dirección",disconnect:"Desconectar la dirección en este dispositivo",note:"Cambiar o desconectar la dirección no elimina la cuenta ni el acceso del servidor.",emailTitle:"Introduce la dirección de acceso",emailText:"Introduce la dirección que deseas usar o comprobar.",notActive:"No se encontró acceso activo para esta dirección.",disconnected:"La dirección se desconectó solo en este dispositivo.",disconnectTitle:"¿Desconectar la dirección?",disconnectText:"Esta dirección se eliminará solo de este dispositivo. La cuenta y el acceso activo permanecerán en el servidor."},
-    PT:{title:"Acesso",free:"Análises FREE restantes",email:"Endereço de acesso",until:"Válido até",none:"Não ligado",active:"Acesso ativo",freeMode:"Modo FREE",locked:"Limite FREE utilizado",switchBtn:"Verificar ou usar outro endereço",disconnect:"Desligar o endereço neste dispositivo",note:"Alterar ou desligar o endereço não elimina a conta nem o acesso do servidor.",emailTitle:"Introduza o endereço de acesso",emailText:"Introduza o endereço que pretende usar ou verificar.",notActive:"Não foi encontrado acesso ativo para este endereço.",disconnected:"O endereço foi desligado apenas neste dispositivo.",disconnectTitle:"Desligar o endereço?",disconnectText:"Este endereço será removido apenas deste dispositivo. A conta e o acesso ativo permanecerão no servidor."}
-  };
+  const map = window.SB_I18N.modules["m4500_map"];
   return map[lang] || map.PL;
 }
 
@@ -4654,513 +4685,7 @@ function applyPaidFromQuery(){
 const UI = {
   key: "sb_ui_lang_v1",
   lang: "PL",
-  dict: {
-    PL: {
-      title: "Sense Bridge",
-      desc: "Pisma urzędowe wyjaśnione w Twoim języku. Bez porad. Bez presji. Po prostu jasno.",
-      paste: "Wklej pismo",
-      photoTitle: "Zdjęcie pisma",
-      choosePhoto: "Wybierz zdjęcie",
-      noPhoto: "Nie wybrano zdjęcia",
-      readPhoto: "Wczytaj tekst ze zdjęcia",
-      placeholder: "👇 Kliknij tutaj i wklej treść pisma lub e-maila z urzędu…",
-      btnAnalyze: "Analizuj pismo",
-      userLang: "Twój język",
-      sourceLangLabel: "Język dokumentu",
-      fraudInfoTitle:"🛡️ Sprawdzenie bezpieczeństwa dokumentu",
-fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszustwa, podszywania się pod instytucję oraz podejrzane elementy dokumentu.",
-      installApp: '📱 Dodaj Sense Bridge do telefonu',
-      installHelp: '',
-      free: "FREE:",
-      analyses: "analizy",
-      access: "Dostęp:",
-      reset: "Reset testowy",
-      lock: "Limit FREE został wykorzystany. Wybierz dostęp poniżej, aby kontynuować.",
-      translation: "Tłumaczenie",
-      summary: "Co pismo komunikuje",
-      risks: "Ryzyka komunikacyjne",
-      examples: "Przykłady odpowiedzi",
-      examplesUser: 'Przykłady odpowiedzi (Twój język)',
-      examplesDoc: 'Przykłady odpowiedzi (język dokumentu)',
-      copyExDoc: 'Kopiuj odpowiedzi do wysłania',
-      examplesDocEmpty: 'Po analizie pojawi się tutaj wersja odpowiedzi w języku dokumentu.',
-      payTitle: "Dostęp bez abonamentu",
-      payDesc: "Masz 3 analizy FREE na sprawdzenie działania. Potem wybierasz spokojny dostęp czasowy.",
-      p24meta: "Dla jednego pilnego pisma",
-      p7meta: "Na serię wiadomości / odpowiedzi",
-      p30meta: "Spokój na cały miesiąc",
-
-      p7name: "7 dni",
-p30name: "30 dni",
-      best: "Najlepsza wartość",
-      fine1: "Sense Bridge nie daje porad prawnych. Pomaga zrozumieć sens, ton i ryzyka pisma, abyś mógł podjąć własną decyzję.",
-      fine2: "Sprzedajemy spokój i zrozumienie, nie „AI”.",
-      hintUI: "„UI” to po prostu <strong>język strony</strong> (przycisków i opisów) — nie zmienia treści dokumentu ani analizy.",
-      privacyNote: "<strong>Prywatność:</strong> Dokumenty nie są publicznie zapisywane ani udostępniane. Wklejaj tylko treści, które chcesz przeanalizować. Sense Bridge pomaga zrozumieć pismo, ale nie zastępuje porady prawnej.",
-      footerPrivacy: "Prywatność",
-      footerTerms: "Warunki",
-      footerContact: "Kontakt",
-      footerDefault: "Sense Bridge ma charakter informacyjny i nie jest kancelarią prawną.",
-      footerPrivacyText: "Prywatność: nie publikujemy dokumentów użytkownika. Dane techniczne i informacje o dostępie mogą być użyte tylko do działania usługi.",
-      footerTermsText: "Warunki: użytkownik odpowiada za treści, które wkleja. Analiza ma charakter informacyjny i nie stanowi porady prawnej.",
-      footerContactText: "Kontakt: w sprawach dostępu lub płatności użyj adresu kontaktowego podanego przez Sense Bridge.",
-      analyzingLetter: "Analizuję pismo...",
-      helpLinksTitle: "Pomocne strony",
-      srcAuto: "🌐 AUTO",
-      clear: "Wyczyść dane po analizie",
-      copyTr: "Kopiuj tłumaczenie",
-      copyEx: 'Kopiuj odpowiedzi (mój język)'
-    },
-    UA: {
-      title: "Sense Bridge",
-      desc: "Офіційні листи пояснені вашою мовою. Без порад. Без тиску. Просто зрозуміло.",
-      paste: "Вставте лист",
-      photoTitle: "Фото листа",
-      choosePhoto: "Вибрати фото",
-      noPhoto: "Фото не вибрано",
-      readPhoto: "Зчитати текст з фото",
-      placeholder: "👇 Натисніть тут і вставте текст офіційного листа або e-mail…",
-      btnAnalyze: "Аналізувати лист",
-      userLang: "Ваша мова",
-      sourceLangLabel: "Мова документа",
-      fraudInfoTitle:"🛡️ Перевірка безпеки документа",
-fraudInfoText:"Після аналізу Sense Bridge також перевірить можливий ризик шахрайства, підробки установи та підозрілі елементи документа.",
-      installApp: '📱 Додати Sense Bridge на телефон',
-      installHelp: 'Щоб додати ярлик застосунку на телефон:\\n\\nНатисніть 3 крапки у браузері\\n→ Додати на головний екран',
-      free: "FREE:",
-      analyses: "аналізи",
-      access: "Доступ:",
-      reset: "Тестове скидання",
-      lock: "Ліміт FREE використано. Виберіть доступ нижче, щоб продовжити.",
-      translation: "Переклад",
-      summary: "Що повідомляє установа",
-      risks: "Комунікаційні ризики",
-      examples: "Приклади відповідей",
-      examplesUser: 'Приклади відповідей (ваша мова)',
-      examplesDoc: 'Приклади відповідей (мова документа)',
-      copyExDoc: 'Копіювати відповідь для відправлення',
-      examplesDocEmpty: 'Після аналізу тут з’явиться версія відповіді мовою документа.',
-      payTitle: "Доступ без підписки",
-      payDesc: "У вас є 3 FREE-аналізи для перевірки. Потім можна вибрати часовий доступ.",
-      p24meta: "Для одного термінового листа",
-      p7meta: "Для серії повідомлень / відповідей",
-
-      p7name: "7 днів",
-p30name: "30 днів",
-      p30meta: "Спокій на цілий місяць",
-      best: "Найкраща вартість",
-      fine1: "Sense Bridge не надає юридичних консультацій. Він допомагає зрозуміти зміст, тон і ризики листа, щоб ви могли прийняти власне рішення.",
-      fine2: "Ми продаємо спокій і розуміння, а не «AI».",
-      hintUI: "«UI» — це просто <strong>мова сторінки</strong> (кнопок і описів) — вона не змінює зміст документа або аналіз.",
-      privacyNote: "<strong>Конфіденційність:</strong> Документи не зберігаються публічно і не передаються іншим. Вставляйте лише той текст, який хочете проаналізувати. Sense Bridge допомагає зрозуміти лист, але не замінює юридичну консультацію.",
-      footerPrivacy: "Конфіденційність",
-      footerTerms: "Умови",
-      footerContact: "Контакт",
-      footerDefault: "Sense Bridge має інформаційний характер і не є юридичною фірмою.",
-      footerPrivacyText: "Конфіденційність: ми не публікуємо документи користувачів. Технічні дані та інформація про доступ можуть використовуватися лише для роботи сервісу.",
-      footerTermsText: "Умови: користувач відповідає за текст, який вставляє. Аналіз має інформаційний характер і не є юридичною консультацією.",
-      footerContactText: "Контакт: з питань доступу або оплати використовуйте контактну адресу, вказану Sense Bridge.",
-      analyzingLetter: "Аналізую документ...",
-      helpLinksTitle: "Корисні посилання",
-      srcAuto: "🌐 AUTO",
-      clear: "Очистити дані після аналізу",
-      copyTr: "Копіювати переклад",
-      copyEx: 'Копіювати відповіді (моя мова)'
-    },
-    NL: {
-      title: "Sense Bridge",
-      desc: "Officiële brieven uitgelegd in jouw taal. Geen advies. Geen druk. Gewoon duidelijk.",
-      paste: "Plak de brief",
-      photoTitle: "Foto van de brief",
-      choosePhoto: "Kies foto",
-      noPhoto: "Geen foto gekozen",
-      readPhoto: "Tekst uit foto lezen",
-      placeholder: "👇 Tik hier en plak de tekst van de brief of e-mail…",
-      btnAnalyze: "Analyseer brief",
-      userLang: "Jouw taal",
-      sourceLangLabel: "Taal van document",
-      fraudInfoTitle:"🛡️ Controle van documentveiligheid",
-fraudInfoText:"Sense Bridge controleert na de analyse ook mogelijke fraude, imitatie van instanties en verdachte elementen in het document.",
-      installApp: '📱 Zet Sense Bridge op je telefoon',
-      installHelp: 'Om een snelkoppeling op je telefoon te zetten:\\n\\nTik op de 3 puntjes in de browser\\n→ Toevoegen aan startscherm',
-      free: "FREE:",
-      analyses: "analyses",
-      access: "Toegang:",
-      reset: "Test reset",
-      lock: "Je FREE-limiet is op. Kies hieronder toegang om door te gaan.",
-      translation: "Vertaling",
-      summary: "Wat de instantie bedoelt",
-      risks: "Communicatierisico’s",
-      examples: "Voorbeelden van antwoorden",
-      examplesUser: 'Voorbeelden van antwoorden (jouw taal)',
-      examplesDoc: 'Voorbeelden van antwoorden (taal van het document)',
-      copyExDoc: 'Kopieer antwoord om te versturen',
-      examplesDocEmpty: 'Na de analyse verschijnt hier de antwoordversie in de taal van het document.',
-      payTitle: "Toegang zonder abonnement",
-      payDesc: "Je krijgt 3 FREE-analyses om te testen. Daarna kies je rustige tijdstoegang.",
-      p24meta: "Voor één urgente brief",
-      p7meta: "Voor een reeks berichten",
-      p30meta: "Rust voor een hele maand",
-
-      p7name: "7 dagen",
-p30name: "30 dagen",
-      best: "Beste waarde",
-      fine1: "Sense Bridge geeft geen juridisch advies. Het helpt je de betekenis, toon en risico’s te begrijpen zodat je zelf beslist.",
-      fine2: "We verkopen rust en begrip, niet ‘AI’.",
-      hintUI: "‘UI’ is gewoon de taal van de pagina (knoppen en teksten) — dit verandert de analyse niet.",
-      privacyNote: "<strong>Privacy:</strong> Documenten worden niet openbaar opgeslagen of gedeeld. Plak alleen inhoud die je wilt laten analyseren. Sense Bridge helpt je de brief te begrijpen, maar vervangt geen juridisch advies.",
-      footerPrivacy: "Privacy",
-      footerTerms: "Voorwaarden",
-      footerContact: "Contact",
-      footerDefault: "Sense Bridge is informatief en is geen advocatenkantoor.",
-      footerPrivacyText: "Privacy: wij publiceren geen documenten van gebruikers. Technische gegevens en toegangsgegevens kunnen alleen worden gebruikt om de dienst te laten werken.",
-      footerTermsText: "Voorwaarden: de gebruiker is verantwoordelijk voor de inhoud die hij plakt. De analyse is informatief en geen juridisch advies.",
-      footerContactText: "Contact: gebruik voor toegang of betaling het contactadres van Sense Bridge.",
-      analyzingLetter: "Brief analyseren...",
-      helpLinksTitle: "Nuttige links",
-      srcAuto: "🌐 AUTO",
-      clear: "Gegevens wissen na analyse",
-      copyTr: "Kopieer vertaling",
-      copyEx: 'Kopieer antwoorden (mijn taal)'
-    },
-    EN: {
-      title: "Sense Bridge",
-      desc: "Official letters explained in your language. No advice. No pressure. Just clarity.",
-      paste: "Paste the letter",
-      photoTitle: "Letter photo",
-      choosePhoto: "Choose photo",
-      noPhoto: "No photo selected",
-      readPhoto: "Read text from photo",
-      placeholder: "👇 Tap here and paste the content of the letter or email…",
-      btnAnalyze: "Analyze letter",
-      userLang: "Your language",
-      sourceLangLabel: "Document language",
-      fraudInfoTitle:"🛡️ Document safety check",
-fraudInfoText:"After the analysis, Sense Bridge will also check for possible fraud risk, impersonation of an institution, and suspicious elements in the document.",
-      installApp: '📱 Add Sense Bridge to your phone',
-      installHelp: 'To add an app shortcut to your phone:\\n\\nTap the 3 dots in your browser\\n→ Add to Home screen',
-      free: "FREE:",
-      analyses: "analyses",
-      access: "Access:",
-      reset: "Test reset",
-      lock: "Your FREE limit is used. Choose access below to continue.",
-      translation: "Translation",
-      summary: "What the office is communicating",
-      risks: "Communication risks",
-      examples: "Reply examples",
-      examplesUser: 'Reply examples (your language)',
-      examplesDoc: 'Reply examples (document language)',
-      copyExDoc: 'Copy reply to send',
-      examplesDocEmpty: 'After analysis, the reply version in the document language will appear here.',
-      payTitle: "No-subscription access",
-      payDesc: "You get 3 FREE analyses to test. Then choose a calm time pass.",
-      p24meta: "For one urgent letter",
-      p7meta: "For a series of messages",
-      p30meta: "Peace for a whole month",
-
-      p7name: "7 days",
-p30name: "30 days",
-      best: "Best value",
-      fine1: "Sense Bridge does not provide legal advice. It helps you understand meaning, tone and risks so you can decide yourself.",
-      fine2: "We sell peace and understanding, not ‘AI’.",
-      hintUI: "‘UI’ is simply the page language (buttons and labels) — it doesn’t change the analysis.",
-      privacyNote: "<strong>Privacy:</strong> Documents are not publicly stored or shared. Paste only content you want to analyze. Sense Bridge helps you understand the letter, but does not replace legal advice.",
-      footerPrivacy: "Privacy",
-      footerTerms: "Terms",
-      footerContact: "Contact",
-      footerDefault: "Sense Bridge is informational and is not a law firm.",
-      footerPrivacyText: "Privacy: we do not publish user documents. Technical data and access information may be used only to run the service.",
-      footerTermsText: "Terms: the user is responsible for the content they paste. The analysis is informational and is not legal advice.",
-      footerContactText: "Contact: for access or payment issues, use the contact address provided by Sense Bridge.",
-      analyzingLetter: "Analyzing letter...",
-      helpLinksTitle: "Helpful links",
-      srcAuto: "🌐 AUTO",
-      clear: "Clear data after analysis",
-      copyTr: "Copy translation",
-      copyEx: 'Copy replies (my language)'
-    },
-    DE: {
-      title: "Sense Bridge",
-      desc: "Hilft, amtliche Schreiben zu verstehen. Keine Beratung. Kein Druck.",
-      paste: "Schreiben einfügen",
-      photoTitle: "Foto des Schreibens",
-      choosePhoto: "Foto wählen",
-      noPhoto: "Kein Foto ausgewählt",
-      readPhoto: "Text aus Foto lesen",
-      placeholder: "👇 Tippe hier und füge den Text des Schreibens oder der E-Mail ein…",
-      btnAnalyze: "Schreiben analysieren",
-      userLang: "Deine Sprache",
-      sourceLangLabel: "Dokumentsprache",
-      fraudInfoTitle:"🛡️ Sicherheitsprüfung des Dokuments",
-fraudInfoText:"Nach der Analyse prüft Sense Bridge auch ein mögliches Betrugsrisiko, die Nachahmung einer Institution und verdächtige Elemente im Dokument.",
-      installApp: '📲 App-Verknüpfung zum Handy hinzufügen',
-      installHelp: 'So fügst du eine App-Verknüpfung hinzu:\\n\\nTippe auf die 3 Punkte im Browser\\n→ Zum Startbildschirm hinzufügen',
-      free: "FREE:",
-      analyses: "Analysen",
-      access: "Zugang:",
-      reset: "Test-Reset",
-      lock: "Dein FREE-Limit ist aufgebraucht. Wähle unten einen Zugang, um fortzufahren.",
-      translation: "Übersetzung",
-      summary: "Was die Behörde mitteilt",
-      risks: "Kommunikationsrisiken",
-      examples: "Antwortbeispiele",
-      examplesUser: 'Antwortbeispiele (deine Sprache)',
-      examplesDoc: 'Antwortbeispiele (Dokumentsprache)',
-      copyExDoc: 'Antwort zum Senden kopieren',
-      examplesDocEmpty: 'Nach der Analyse erscheint hier die Antwortversion in der Dokumentsprache.',
-      payTitle: "Zugang ohne Abo",
-      payDesc: "Du hast 3 FREE-Analysen zum Testen. Danach wählst du einen ruhigen Zeitpass.",
-      p24meta: "Für ein dringendes Schreiben",
-      p7meta: "Für mehrere Nachrichten",
-      p30meta: "Ruhe für einen ganzen Monat",
-
-      p7name: "7 Tage",
-p30name: "30 Tage",
-      best: "Bester Wert",
-      fine1: "Sense Bridge gibt keine Rechtsberatung. Es hilft dir, Sinn, Ton und Risiken zu verstehen, damit du selbst entscheiden kannst.",
-      fine2: "Wir verkaufen Ruhe und Verständnis, nicht ‘KI’.",
-      hintUI: "‘UI’ ist einfach die Seitensprache (Buttons & Texte) — das ändert die Analyse nicht.",
-      privacyNote: "<strong>Datenschutz:</strong> Dokumente werden nicht öffentlich gespeichert oder geteilt. Füge nur Inhalte ein, die du analysieren möchtest. Sense Bridge hilft beim Verstehen, ersetzt aber keine Rechtsberatung.",
-      footerPrivacy: "Datenschutz",
-      footerTerms: "Bedingungen",
-      footerContact: "Kontakt",
-      footerDefault: "Sense Bridge ist informativ und keine Kanzlei.",
-      footerPrivacyText: "Datenschutz: Wir veröffentlichen keine Nutzerdokumente. Technische Daten und Zugangsdaten können nur zum Betrieb des Dienstes verwendet werden.",
-      footerTermsText: "Bedingungen: Der Nutzer ist für eingefügte Inhalte verantwortlich. Die Analyse ist informativ und keine Rechtsberatung.",
-      footerContactText: "Kontakt: Bei Zugangs- oder Zahlungsfragen nutze die von Sense Bridge angegebene Kontaktadresse.",
-      analyzingLetter: "Brief wird analysiert...",
-      helpLinksTitle: "Hilfreiche Links",
-      srcAuto: "🌐 AUTO",
-      clear: "Daten nach der Analyse löschen",
-      copyTr: "Übersetzung kopieren",
-      copyEx: 'Antworten kopieren (meine Sprache)'
-    },
-    FR: {
-      title: "Sense Bridge",
-      desc: "Aide à comprendre les courriers officiels. Sans conseil. Sans pression.",
-      paste: "Coller le courrier",
-      photoTitle: "Photo du courrier",
-      choosePhoto: "Choisir une photo",
-      noPhoto: "Aucune photo sélectionnée",
-      readPhoto: "Lire le texte de la photo",
-      placeholder: "👇 Appuyez ici et collez le texte du courrier ou de l’e-mail…",
-      btnAnalyze: "Analyser le courrier",
-      userLang: "Votre langue",
-      sourceLangLabel: "Langue du document",
-      fraudInfoTitle:"🛡️ Vérification de sécurité du document",
-fraudInfoText:"Après l’analyse, Sense Bridge vérifiera également les risques possibles de fraude, d’usurpation d’une institution et les éléments suspects du document.",
-      installApp: '📲 Ajouter le raccourci au téléphone',
-      installHelp: 'Pour ajouter le raccourci sur le téléphone:\\n\\nAppuyez sur les 3 points du navigateur\\n→ Ajouter à l’écran d’accueil',
-      free: "FREE:",
-      analyses: "analyses",
-      access: "Accès:",
-      reset: "Réinitialisation test",
-      lock: "Votre limite FREE est utilisée. Choisissez un accès ci-dessous pour continuer.",
-      translation: "Traduction",
-      summary: "Ce que l’organisme communique",
-      risks: "Risques de communication",
-      examples: "Exemples de réponses",
-      examplesUser: 'Exemples de réponses (votre langue)',
-      examplesDoc: 'Exemples de réponses (langue du document)',
-      copyExDoc: 'Copier la réponse à envoyer',
-      examplesDocEmpty: 'Après l’analyse, la version de réponse dans la langue du document apparaîtra ici.',
-      payTitle: "Accès sans abonnement",
-      payDesc: "Vous avez 3 analyses FREE pour tester. Ensuite, choisissez un accès temporaire.",
-      p24meta: "Pour un courrier urgent",
-      p7meta: "Pour plusieurs messages",
-      p30meta: "Tranquillité pendant un mois",
-
-      p7name: "7 jours",
-p30name: "30 jours",
-      best: "Meilleure valeur",
-      fine1: "Sense Bridge ne donne pas de conseils juridiques. Il aide à comprendre le sens, le ton et les risques afin que vous puissiez décider vous-même.",
-      fine2: "Nous vendons de la tranquillité et de la compréhension, pas de l’« IA ».",
-      hintUI: "« UI » signifie simplement la langue de la page (boutons et textes) — cela ne change pas l’analyse.",
-      privacyNote: "<strong>Confidentialité :</strong> Les documents ne sont pas enregistrés publiquement ni partagés. Collez uniquement le contenu que vous souhaitez analyser. Sense Bridge aide à comprendre le courrier, mais ne remplace pas un conseil juridique.",
-      footerPrivacy: "Confidentialité",
-      footerTerms: "Conditions",
-      footerContact: "Contact",
-      footerDefault: "Sense Bridge est informatif et n’est pas un cabinet juridique.",
-      footerPrivacyText: "Confidentialité : nous ne publions pas les documents des utilisateurs. Les données techniques et d’accès peuvent être utilisées uniquement pour faire fonctionner le service.",
-      footerTermsText: "Conditions : l’utilisateur est responsable du contenu collé. L’analyse est informative et ne constitue pas un conseil juridique.",
-      footerContactText: "Contact : pour l’accès ou le paiement, utilisez l’adresse de contact indiquée par Sense Bridge.",
-      analyzingLetter: "Analyse du courrier...",
-      helpLinksTitle: "Liens utiles",
-      srcAuto: "🌐 AUTO",
-      clear: "Effacer les données après analyse",
-      copyTr: "Copier la traduction",
-      copyEx: 'Copier les réponses (ma langue)'
-    },
-    IT: {
-      title: "Sense Bridge",
-      desc: "Lettere ufficiali spiegate nella tua lingua. Nessun consiglio. Nessuna pressione. Solo chiarezza.",
-      paste: "Incolla la lettera",
-      photoTitle: "Foto della lettera",
-      choosePhoto: "Scegli foto",
-      noPhoto: "Nessuna foto selezionata",
-      readPhoto: "Leggi testo dalla foto",
-      placeholder: "👇 Tocca qui e incolla il testo della lettera o dell’e-mail…",
-      btnAnalyze: "Analizza lettera",
-      userLang: "La tua lingua",
-      sourceLangLabel: "Lingua del documento",
-      fraudInfoTitle:"🛡️ Controllo di sicurezza del documento",
-fraudInfoText:"Dopo l’analisi, Sense Bridge controllerà anche il possibile rischio di frode, imitazione di un’istituzione ed elementi sospetti nel documento.",
-      installApp: '📱 Aggiungi Sense Bridge al telefono',
-      installHelp: 'Per aggiungere la scorciatoia al telefono:\\n\\nTocca i 3 puntini nel browser\\n→ Aggiungi alla schermata iniziale',
-      free: "FREE:",
-      analyses: "analisi",
-      access: "Accesso:",
-      reset: "Reset test",
-      lock: "Il tuo limite FREE è stato usato. Scegli un accesso qui sotto per continuare.",
-      translation: "Traduzione",
-      summary: "Cosa comunica l’ente",
-      risks: "Rischi comunicativi",
-      examples: "Esempi di risposte",
-      examplesUser: 'Esempi di risposte (la tua lingua)',
-      examplesDoc: 'Esempi di risposte (lingua del documento)',
-      copyExDoc: 'Copia risposta da inviare',
-      examplesDocEmpty: 'Dopo l’analisi, qui apparirà la versione della risposta nella lingua del documento.',
-      payTitle: "Accesso senza abbonamento",
-      payDesc: "Hai 3 analisi FREE per provare. Poi scegli un accesso temporaneo.",
-      p24meta: "Per una lettera urgente",
-      p7meta: "Per una serie di messaggi",
-      p30meta: "Tranquillità per tutto il mese",
-
-      p7name: "7 giorni",
-p30name: "30 giorni",
-      best: "Miglior valore",
-      fine1: "Sense Bridge non fornisce consulenza legale. Aiuta a capire significato, tono e rischi, così puoi decidere tu.",
-      fine2: "Vendiamo tranquillità e comprensione, non ‘AI’.",
-      hintUI: "‘UI’ è semplicemente la lingua della pagina (pulsanti e testi) — non cambia l’analisi.",
-      privacyNote: "<strong>Privacy:</strong> I documenti non vengono salvati pubblicamente né condivisi. Incolla solo contenuti che vuoi analizzare. Sense Bridge aiuta a capire la lettera, ma non sostituisce una consulenza legale.",
-      footerPrivacy: "Privacy",
-      footerTerms: "Termini",
-      footerContact: "Contatto",
-      footerDefault: "Sense Bridge ha carattere informativo e non è uno studio legale.",
-      footerPrivacyText: "Privacy: non pubblichiamo i documenti degli utenti. Dati tecnici e informazioni di accesso possono essere usati solo per il funzionamento del servizio.",
-      footerTermsText: "Termini: l’utente è responsabile dei contenuti che incolla. L’analisi è informativa e non è consulenza legale.",
-      footerContactText: "Contatto: per accesso o pagamenti usa l’indirizzo di contatto indicato da Sense Bridge.",
-      analyzingLetter: "Analisi del documento...",
-      helpLinksTitle: "Link utili",
-      srcAuto: "🌐 AUTO",
-      clear: "Cancella dati dopo analisi",
-      copyTr: "Copia traduzione",
-      copyEx: 'Copia risposte (mia lingua)'
-    },
-    ES: {
-      title: "Sense Bridge",
-      desc: "Ayuda a entender cartas oficiales. Sin asesoramiento. Sin presión.",
-      paste: "Pegar la carta",
-      photoTitle: "Foto de la carta",
-      choosePhoto: "Elegir foto",
-      noPhoto: "No se ha seleccionado foto",
-      readPhoto: "Leer texto de la foto",
-      placeholder: "👇 Toca aquí y pega el texto de la carta o del correo…",
-      btnAnalyze: "Analizar carta",
-      userLang: "Tu idioma",
-      sourceLangLabel: "Idioma del documento",
-      fraudInfoTitle:"🛡️ Comprobación de seguridad del documento",
-fraudInfoText:"Después del análisis, Sense Bridge también comprobará posibles riesgos de fraude, suplantación de una institución y elementos sospechosos del documento.",
-
-      installApp: '📱 Añadir Sense Bridge al teléfono',
-      installHelp: 'Para añadir el acceso directo al teléfono:\\n\\nToca los 3 puntos del navegador\\n→ Añadir a pantalla de inicio',
-      free: "FREE:",
-      analyses: "análisis",
-      access: "Acceso:",
-      reset: "Reinicio de prueba",
-      lock: "Has usado tu límite FREE. Elige un acceso abajo para continuar.",
-      translation: "Traducción",
-      summary: "Qué comunica la institución",
-      risks: "Riesgos de comunicación",
-      examples: "Ejemplos de respuesta",
-      examplesUser: 'Ejemplos de respuesta (tu idioma)',
-      examplesDoc: 'Ejemplos de respuesta (idioma del documento)',
-      copyExDoc: 'Copiar respuesta para enviar',
-      examplesDocEmpty: 'Después del análisis aparecerá aquí la versión de respuesta en el idioma del documento.',
-      payTitle: "Acceso sin suscripción",
-      payDesc: "Tienes 3 análisis FREE para probar. Después eliges un acceso temporal.",
-      p24meta: "Para una carta urgente",
-      p7meta: "Para varios mensajes",
-      p30meta: "Tranquilidad durante todo el mes",
-
-      p7name: "7 días",
-p30name: "30 días",
-      best: "Mejor valor",
-      fine1: "Sense Bridge no ofrece asesoramiento legal. Ayuda a entender el significado, el tono y los riesgos para que puedas decidir por ti mismo.",
-      fine2: "Vendemos tranquilidad y comprensión, no ‘IA’.",
-      hintUI: "‘UI’ es simplemente el idioma de la página (botones y textos) — no cambia el análisis.",
-      privacyNote: "<strong>Privacidad:</strong> Los documentos no se guardan públicamente ni se comparten. Pega solo el contenido que quieras analizar. Sense Bridge ayuda a entender la carta, pero no sustituye el asesoramiento legal.",
-      footerPrivacy: "Privacidad",
-      footerTerms: "Condiciones",
-      footerContact: "Contacto",
-      footerDefault: "Sense Bridge es informativo y no es un despacho legal.",
-      footerPrivacyText: "Privacidad: no publicamos documentos de usuarios. Los datos técnicos y de acceso pueden usarse solo para el funcionamiento del servicio.",
-      footerTermsText: "Condiciones: el usuario es responsable del contenido que pega. El análisis es informativo y no constituye asesoramiento legal.",
-      footerContactText: "Contacto: para acceso o pagos usa la dirección de contacto indicada por Sense Bridge.",
-      analyzingLetter: "Analizando la carta...",
-      helpLinksTitle: "Enlaces útiles",
-      srcAuto: "🌐 AUTO",
-      clear: "Borrar datos después del análisis",
-      copyTr: "Copiar traducción",
-      copyEx: 'Copiar respuestas (mi idioma)'
-    },
-    PT: {
-      title: "Sense Bridge",
-      desc: "Ajuda a entender cartas oficiais. Sem aconselhamento. Sem pressão.",
-      paste: "Colar a carta",
-      photoTitle: "Foto da carta",
-      choosePhoto: "Escolher foto",
-      noPhoto: "Nenhuma foto selecionada",
-      readPhoto: "Ler texto da foto",
-      placeholder: "👇 Toque aqui e cole o texto da carta ou do e-mail…",
-      btnAnalyze: "Analisar carta",
-      userLang: "O seu idioma",
-      sourceLangLabel: "Idioma do documento",
-      fraudInfoTitle:"🛡️ Verificação de segurança do documento",
-fraudInfoText:"Após a análise, o Sense Bridge também verificará possíveis riscos de fraude, falsificação de uma instituição e elementos suspeitos no documento.",
-      installApp: '📱 Adicionar Sense Bridge ao telefone',
-      installHelp: 'Para adicionar o atalho ao telefone:\\n\\nToque nos 3 pontos do navegador\\n→ Adicionar ao ecrã inicial',
-      free: "FREE:",
-      analyses: "análises",
-      access: "Acesso:",
-      reset: "Reset de teste",
-      lock: "O seu limite FREE foi usado. Escolha um acesso abaixo para continuar.",
-      translation: "Tradução",
-      summary: "O que a entidade comunica",
-      risks: "Riscos de comunicação",
-      examples: "Exemplos de respostas",
-      examplesUser: 'Exemplos de respostas (o seu idioma)',
-      examplesDoc: 'Exemplos de respostas (idioma do documento)',
-      copyExDoc: 'Copiar resposta para enviar',
-      examplesDocEmpty: 'Após a análise, aparecerá aqui a versão da resposta no idioma do documento.',
-      payTitle: "Acesso sem subscrição",
-      payDesc: "Tem 3 análises FREE para testar. Depois escolhe um acesso temporário.",
-      p24meta: "Para uma carta urgente",
-      p7meta: "Para uma série de mensagens",
-      p30meta: "Tranquilidade por todo o mês",
-
-      p7name: "7 dias",
-p30name: "30 dias",
-      best: "Melhor valor",
-      fine1: "Sense Bridge não fornece aconselhamento jurídico. Ajuda a entender o significado, o tom e os riscos para que possa decidir por si.",
-      fine2: "Vendemos tranquilidade e compreensão, não ‘IA’.",
-      hintUI: "‘UI’ é simplesmente o idioma da página (botões e textos) — isso não altera a análise.",
-      privacyNote: "<strong>Privacidade:</strong> Os documentos não são guardados publicamente nem partilhados. Cole apenas conteúdo que deseja analisar. O Sense Bridge ajuda a compreender a carta, mas não substitui aconselhamento jurídico.",
-      footerPrivacy: "Privacidade",
-      footerTerms: "Termos",
-      footerContact: "Contacto",
-      footerDefault: "O Sense Bridge é informativo e não é um escritório de advocacia.",
-      footerPrivacyText: "Privacidade: não publicamos documentos de utilizadores. Dados técnicos e informações de acesso podem ser usados apenas para o funcionamento do serviço.",
-      footerTermsText: "Termos: o utilizador é responsável pelo conteúdo que cola. A análise é informativa e não constitui aconselhamento jurídico.",
-      footerContactText: "Contacto: para acesso ou pagamentos use o endereço de contacto indicado pelo Sense Bridge.",
-      analyzingLetter: "A analisar o documento...",
-      helpLinksTitle: "Links úteis",
-      srcAuto: "🌐 AUTO",
-      clear: "Limpar dados após análise",
-      copyTr: "Copiar tradução",
-      copyEx: 'Copiar respostas (meu idioma)'
-    }
-  }
+  dict: window.SB_I18N.modules["ui_main"]
 };
 
 function getUiLang(){
@@ -5173,6 +4698,7 @@ function setUiLang(lang){
   if(!UI.dict[L]) return;
   UI.lang = L;
   localStorage.setItem(UI.key, L);
+  try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr'}[L] || 'en'); }catch(e){}
   applyUiLang();
   applyTheme(getTheme());
 
@@ -5183,98 +4709,7 @@ function setUiLang(lang){
 
 function sbV2Text(key){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
-  const map = {
-    PL:{
-      takePhoto:"Zrób zdjęcie",
-      chooseGallery:"Wybierz z galerii",
-      flow1Title:"1. Co to znaczy?",
-      flow1Text:"Krótko wyjaśnia sens pisma.",
-      flow2Title:"2. Co zrobić teraz?",
-      flow2Text:"Pokazuje najbliższy krok.",
-      flow3Title:"3. Czy to bezpieczne?",
-      flow3Text:"Sprawdza ryzyko oszustwa."
-    },
-    EN:{
-      takePhoto:"Take a photo",
-      chooseGallery:"Choose from gallery",
-      flow1Title:"1. What does it mean?",
-      flow1Text:"Explains the document simply.",
-      flow2Title:"2. What now?",
-      flow2Text:"Shows the next step.",
-      flow3Title:"3. Is it safe?",
-      flow3Text:"Checks scam risk."
-    },
-    NL:{
-      takePhoto:"Maak een foto",
-      chooseGallery:"Kies uit galerij",
-      flow1Title:"1. Wat betekent dit?",
-      flow1Text:"Legt de brief eenvoudig uit.",
-      flow2Title:"2. Wat nu?",
-      flow2Text:"Toont de volgende stap.",
-      flow3Title:"3. Is het veilig?",
-      flow3Text:"Controleert op oplichting."
-    },
-    DE:{
-      takePhoto:"Foto machen",
-      chooseGallery:"Aus Galerie wählen",
-      flow1Title:"1. Was bedeutet das?",
-      flow1Text:"Erklärt das Schreiben einfach.",
-      flow2Title:"2. Was jetzt tun?",
-      flow2Text:"Zeigt den nächsten Schritt.",
-      flow3Title:"3. Ist es sicher?",
-      flow3Text:"Prüft Betrugsrisiken."
-    },
-    UA:{
-      takePhoto:"Зробити фото",
-      chooseGallery:"Вибрати з галереї",
-      flow1Title:"1. Що це означає?",
-      flow1Text:"Просто пояснює зміст листа.",
-      flow2Title:"2. Що робити зараз?",
-      flow2Text:"Показує наступний крок.",
-      flow3Title:"3. Чи це безпечно?",
-      flow3Text:"Перевіряє ризик шахрайства."
-    },
-    FR:{
-      takePhoto:"Prendre une photo",
-      chooseGallery:"Choisir dans la galerie",
-      flow1Title:"1. Qu’est-ce que cela signifie ?",
-      flow1Text:"Explique le document simplement.",
-      flow2Title:"2. Que faire maintenant ?",
-      flow2Text:"Montre la prochaine étape.",
-      flow3Title:"3. Est-ce sûr ?",
-      flow3Text:"Vérifie le risque de fraude."
-    },
-    IT:{
-      takePhoto:"Scatta una foto",
-      chooseGallery:"Scegli dalla galleria",
-      flow1Title:"1. Cosa significa?",
-      flow1Text:"Spiega il documento in modo semplice.",
-      flow2Title:"2. Cosa fare ora?",
-      flow2Text:"Mostra il prossimo passo.",
-      flow3Title:"3. È sicuro?",
-      flow3Text:"Controlla il rischio di truffa."
-    },
-    ES:{
-      takePhoto:"Hacer una foto",
-      chooseGallery:"Elegir de la galería",
-      flow1Title:"1. ¿Qué significa?",
-      flow1Text:"Explica el documento de forma simple.",
-      flow2Title:"2. ¿Qué hacer ahora?",
-      flow2Text:"Muestra el siguiente paso.",
-      flow3Title:"3. ¿Es seguro?",
-      flow3Text:"Comprueba riesgo de fraude."
-    },
-    PT:{
-      takePhoto:"Tirar foto",
-      chooseGallery:"Escolher da galeria",
-      flow1Title:"1. O que significa?",
-      flow1Text:"Explica o documento de forma simples.",
-      flow2Title:"2. O que fazer agora?",
-      flow2Text:"Mostra o próximo passo.",
-      flow3Title:"3. É seguro?",
-      flow3Text:"Verifica risco de fraude."
-    }
-  };
+  const map = window.SB_I18N.modules["m5186_map"];
   return (map[lang] && map[lang][key]) || (map.PL && map.PL[key]) || "";
 }
 
@@ -5316,32 +4751,12 @@ function sbInstallButtonHtml(text){
 }
 
 function sbBrandSubText(){
-  const map = {
-    PL: "Każde pismo. Każdy język. Jasne wyjaśnienie, analiza i odpowiedź.",
-    UA: "Кожен документ. Кожна мова. Зрозуміле пояснення, аналіз і відповідь.",
-    NL: "Elk document. Elke taal. Duidelijke uitleg, analyse en antwoord.",
-    EN: "Every document. Every language. Clear explanation, analysis and response.",
-    DE: "Jedes Dokument. Jede Sprache. Klare Erklärung, Analyse und Antwort.",
-    FR: "Chaque document. Chaque langue. Une explication, une analyse et une réponse claires.",
-    IT: "Ogni documento. Ogni lingua. Spiegazione, analisi e risposta chiare.",
-    ES: "Cada documento. Cada idioma. Explicación, análisis y respuesta claros.",
-    PT: "Cada documento. Cada idioma. Explicação, análise e resposta claras."
-  };
+  const map = window.SB_I18N.modules["m5319_map"];
   return map[UI.lang] || map.PL;
 }
 
 function sbHeroBenefitsHtml(){
-  const map = {
-    PL: ["Zrozum pismo", "Wiesz, co zrobić dalej", "Sprawdź, czy wygląda bezpiecznie", "Gotowe przykłady odpowiedzi"],
-    UA: ["Зрозумій лист", "Знай, що робити далі", "Перевір, чи виглядає безпечно", "Готові приклади відповідей"],
-    NL: ["Begrijp de brief", "Weet wat je nu moet doen", "Controleer of het veilig lijkt", "Kant-en-klare antwoordvoorbeelden"],
-    EN: ["Understand the letter", "Know what to do next", "Check if it looks safe", "Ready-to-send responses"],
-    DE: ["Brief verstehen", "Wissen, was als Nächstes zu tun ist", "Prüfen, ob es sicher wirkt", "Fertige Antwortbeispiele"],
-    FR: ["Comprendre le document", "Savoir quoi faire ensuite", "Vérifier si cela semble sûr", "Réponses prêtes à envoyer"],
-    IT: ["Capisci la lettera", "Sai cosa fare dopo", "Verifica se sembra sicura", "Risposte pronte da inviare"],
-    ES: ["Entiende la carta", "Sabe qué hacer después", "Comprueba si parece segura", "Respuestas listas para enviar"],
-    PT: ["Entenda a carta", "Saiba o que fazer a seguir", "Verifique se parece seguro", "Respostas prontas para enviar"]
-  };
+  const map = window.SB_I18N.modules["m5334_map"];
   const icons = ["✓", "→", "🛡️", "✉️"];
   const items = map[UI.lang] || map.PL;
   return items.map(function(txt, i){
@@ -5461,17 +4876,7 @@ window.SBProManager = (function(){
     if(premiumPill) premiumPill.style.display="none";
 
     const lang=(typeof UI!=="undefined"&&UI&&UI.lang)||"PL";
-    const packs={
-      PL:{free:"DARMOWE — pozostało",basic:"BASIC — pozostało",pro:"PRO — pozostało"},
-      EN:{free:"FREE — remaining",basic:"BASIC — remaining",pro:"PRO — remaining"},
-      NL:{free:"GRATIS — resterend",basic:"BASIC — resterend",pro:"PRO — resterend"},
-      DE:{free:"KOSTENLOS — verbleibend",basic:"BASIC — verbleibend",pro:"PRO — verbleibend"},
-      UA:{free:"БЕЗКОШТОВНО — залишилося",basic:"BASIC — залишилося",pro:"PRO — залишилося"},
-      FR:{free:"GRATUIT — restant",basic:"BASIC — restant",pro:"PRO — restant"},
-      IT:{free:"GRATIS — rimanenti",basic:"BASIC — rimanenti",pro:"PRO — rimanenti"},
-      ES:{free:"GRATIS — restantes",basic:"BASIC — restantes",pro:"PRO — restantes"},
-      PT:{free:"GRÁTIS — restantes",basic:"BASIC — restantes",pro:"PRO — restantes"}
-    };
+    const packs=window.SB_I18N.modules["m5464_packs"];
     const t=packs[lang]||packs.PL;
 
     if(label){
@@ -5488,17 +4893,7 @@ window.SBProManager = (function(){
 
 function sbAiToolsText(key){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
-  const map = {
-    PL:{title:"Otwórz nowe narzędzia AI",desc:"Wypróbuj 2 razy dowolne nowe narzędzie. Potem odblokuj pakiet Premium.",trials:"Testowe użycia:",premium:"BASIC: 2 użycia • PRO: 100 użyć",badge:"AI Tool",screenshotTitle:"Sprawdź zrzut ekranu",screenshotDesc:"Komunikat, reklama, ostrzeżenie lub podejrzany ekran.",linkTitle:"Sprawdź link lub stronę",linkDesc:"Ocena domeny, podszywania się i sygnałów ryzyka.",messageTitle:"Sprawdź e-mail lub SMS",messageDesc:"Wiadomość od firmy, urzędu, banku albo nieznanego nadawcy.",replyTitle:"Pomoc w odpowiedzi",replyDesc:"Uprzejma, stanowcza albo neutralna odpowiedź do dalszej edycji.",conversationTitle:"Przygotuj rozmowę",conversationDesc:"Pytania i zdania do urzędu, firmy lub instytucji.",note:"Wybierz narzędzie, wpisz treść i użyj jednego z 2 testów.",used:"Użycie testowe zostało zaznaczone. Pełne działanie podłączymy w następnym kroku.",locked:"Testowe użycia zostały wykorzystane. Odblokuj pakiet Premium."},
-    EN:{title:"New AI tools",desc:"Try any new tool 2 times. Then unlock the Premium package.",trials:"Trial uses:",premium:"BASIC: 2 uses • PRO: 100 uses",badge:"AI Tool",screenshotTitle:"Check a screenshot",screenshotDesc:"A message, ad, warning or suspicious screen.",linkTitle:"Check a link or website",linkDesc:"Domain, impersonation and risk-signal check.",messageTitle:"Check an email or SMS",messageDesc:"A message from a company, office, bank or unknown sender.",replyTitle:"Reply assistant",replyDesc:"Polite, firm or neutral reply for further editing.",conversationTitle:"Prepare for a conversation",conversationDesc:"Questions and phrases for an office, company or institution.",note:"Choose a tool, enter content and use one of your 2 trials.",used:"Trial use marked. Full functionality will be connected in the next step.",locked:"Trial uses are used. Unlock the Premium package."},
-    NL:{title:"Nieuwe AI-tools",desc:"Probeer 2 keer een nieuw hulpmiddel naar keuze. Ontgrendel daarna Premium.",trials:"Testgebruik:",premium:"BASIC: 2 keer • PRO onbeperkt",badge:"AI-tool",screenshotTitle:"Controleer een screenshot",screenshotDesc:"Een melding, advertentie, waarschuwing of verdacht scherm.",linkTitle:"Controleer een link of website",linkDesc:"Controle van domein, imitatie en risicosignalen.",messageTitle:"Controleer e-mail of SMS",messageDesc:"Een bericht van een bedrijf, instantie, bank of onbekende afzender.",replyTitle:"Hulp bij antwoorden",replyDesc:"Een beleefd, duidelijk of neutraal antwoord om verder te bewerken.",conversationTitle:"Bereid een gesprek voor",conversationDesc:"Vragen en zinnen voor een instantie, bedrijf of kantoor.",note:"Kies een hulpmiddel, voer tekst in en gebruik een van je 2 tests.",used:"Testgebruik gemarkeerd. Volledige werking koppelen we in de volgende stap.",locked:"Testgebruik is op. Ontgrendel Premium."},
-    DE:{title:"Neue KI-Tools",desc:"Teste 2-mal ein beliebiges neues Tool. Danach schaltest du Premium frei.",trials:"Testnutzungen:",premium:"BASIC: 2 Nutzungen • PRO unbegrenzt",badge:"KI-Tool",screenshotTitle:"Screenshot prüfen",screenshotDesc:"Eine Meldung, Werbung, Warnung oder ein verdächtiger Bildschirm.",linkTitle:"Link oder Website prüfen",linkDesc:"Prüfung von Domain, Nachahmung und Risikosignalen.",messageTitle:"E-Mail oder SMS prüfen",messageDesc:"Eine Nachricht von Firma, Behörde, Bank oder unbekanntem Absender.",replyTitle:"Antwort-Hilfe",replyDesc:"Eine höfliche, klare oder neutrale Antwort zur weiteren Bearbeitung.",conversationTitle:"Gespräch vorbereiten",conversationDesc:"Fragen und Sätze für Behörde, Firma oder Institution.",note:"Wähle ein Tool, gib Inhalt ein und nutze einen deiner 2 Tests.",used:"Testnutzung markiert. Die vollständige Funktion verbinden wir im nächsten Schritt.",locked:"Testnutzungen sind aufgebraucht. Premium freischalten."},
-    UA:{title:"Нові AI-інструменти",desc:"Спробуйте будь-який новий інструмент 2 рази. Потім відкрийте Premium.",trials:"Тестові використання:",premium:"BASIC: 2 використання • PRO без обмежень",badge:"AI інструмент",screenshotTitle:"Перевірити скриншот",screenshotDesc:"Повідомлення, реклама, попередження або підозрілий екран.",linkTitle:"Перевірити посилання або сайт",linkDesc:"Перевірка домену, імітації та сигналів ризику.",messageTitle:"Перевірити e-mail або SMS",messageDesc:"Повідомлення від компанії, установи, банку або невідомого відправника.",replyTitle:"Допомога з відповіддю",replyDesc:"Ввічлива, тверда або нейтральна відповідь для редагування.",conversationTitle:"Підготувати розмову",conversationDesc:"Питання і фрази для установи, компанії або офісу.",note:"Виберіть інструмент, введіть текст і використайте один із 2 тестів.",used:"Тестове використання зараховано. Повну функцію під’єднаємо наступним кроком.",locked:"Тестові використання закінчилися. Відкрийте Premium."},
-    FR:{title:"Nouveaux outils IA",desc:"Essayez 2 fois l’outil de votre choix. Ensuite, débloquez Premium.",trials:"Essais disponibles :",premium:"BASIC : 2 essais • PRO illimité",badge:"Outil IA",screenshotTitle:"Vérifier une capture d’écran",screenshotDesc:"Un message, une publicité, une alerte ou un écran suspect.",linkTitle:"Vérifier un lien ou un site",linkDesc:"Contrôle du domaine, de l’imitation et des signaux de risque.",messageTitle:"Vérifier un e-mail ou SMS",messageDesc:"Un message d’une entreprise, administration, banque ou expéditeur inconnu.",replyTitle:"Aide à la réponse",replyDesc:"Une réponse polie, ferme ou neutre à modifier ensuite.",conversationTitle:"Préparer une conversation",conversationDesc:"Questions et phrases pour une administration, entreprise ou institution.",note:"Choisissez un outil, saisissez le contenu et utilisez l’un de vos 2 essais.",used:"Essai utilisé. La fonction complète sera connectée à l’étape suivante.",locked:"Les essais sont utilisés. Débloquez Premium."},
-    IT:{title:"Nuovi strumenti AI",desc:"Prova 2 volte qualsiasi nuovo strumento. Poi sblocca Premium.",trials:"Usi di prova:",premium:"BASIC: 2 usi • PRO illimitato",badge:"Strumento AI",screenshotTitle:"Controlla uno screenshot",screenshotDesc:"Un messaggio, pubblicità, avviso o schermata sospetta.",linkTitle:"Controlla un link o sito",linkDesc:"Controllo di dominio, imitazione e segnali di rischio.",messageTitle:"Controlla e-mail o SMS",messageDesc:"Un messaggio da azienda, ufficio, banca o mittente sconosciuto.",replyTitle:"Aiuto nella risposta",replyDesc:"Una risposta gentile, ferma o neutrale da modificare.",conversationTitle:"Prepara una conversazione",conversationDesc:"Domande e frasi per ufficio, azienda o istituzione.",note:"Scegli uno strumento, inserisci il contenuto e usa uno dei 2 test.",used:"Uso di prova segnato. La funzione completa sarà collegata nel prossimo passaggio.",locked:"Gli usi di prova sono terminati. Sblocca Premium."},
-    ES:{title:"Nuevas herramientas de IA",desc:"Prueba 2 veces cualquier herramienta nueva. Después desbloquea Premium.",trials:"Usos de prueba:",premium:"BASIC: 2 usos • PRO ilimitado",badge:"Herramienta IA",screenshotTitle:"Revisar una captura",screenshotDesc:"Un mensaje, anuncio, advertencia o pantalla sospechosa.",linkTitle:"Revisar enlace o sitio",linkDesc:"Comprobación de dominio, suplantación y señales de riesgo.",messageTitle:"Revisar e-mail o SMS",messageDesc:"Un mensaje de empresa, oficina, banco o remitente desconocido.",replyTitle:"Ayuda para responder",replyDesc:"Una respuesta educada, firme o neutral para editar.",conversationTitle:"Preparar una conversación",conversationDesc:"Preguntas y frases para una oficina, empresa o institución.",note:"Elige una herramienta, introduce el contenido y usa una de tus 2 pruebas.",used:"Uso de prueba marcado. La función completa se conectará en el siguiente paso.",locked:"Los usos de prueba se han agotado. Desbloquea Premium."},
-    PT:{title:"Novas ferramentas de IA",desc:"Teste 2 vezes qualquer nova ferramenta. Depois desbloqueie o Premium.",trials:"Usos de teste:",premium:"BASIC: 2 usos • PRO ilimitado",badge:"Ferramenta IA",screenshotTitle:"Verificar screenshot",screenshotDesc:"Uma mensagem, anúncio, aviso ou ecrã suspeito.",linkTitle:"Verificar link ou site",linkDesc:"Verificação de domínio, imitação e sinais de risco.",messageTitle:"Verificar e-mail ou SMS",messageDesc:"Mensagem de empresa, entidade, banco ou remetente desconhecido.",replyTitle:"Ajuda na resposta",replyDesc:"Resposta educada, firme ou neutra para editar.",conversationTitle:"Preparar conversa",conversationDesc:"Perguntas e frases para entidade, empresa ou instituição.",note:"Escolha uma ferramenta, insira o conteúdo e use um dos seus 2 testes.",used:"Uso de teste marcado. A função completa será ligada no próximo passo.",locked:"Os usos de teste terminaram. Desbloqueie Premium."}
-  };
+  const map = window.SB_I18N.modules["m5491_map"];
   const pack = map[lang] || map.PL;
   return pack[key] || map.PL[key] || "";
 }
@@ -5578,65 +4973,7 @@ function setAiToolsTrialLeft(n){
 
 function sbAiPreviewText(tool, key){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
-  const pack = {
-    PL:{
-      previewDesc:{
-        screenshot:"Opisz podejrzany ekran, komunikat, reklamę albo ostrzeżenie.",
-        link:"Wklej link lub adres strony, którą chcesz sprawdzić.",
-        message:"Wklej treść e-maila, SMS-a lub wiadomości.",
-        reply:"Wklej wiadomość albo pismo, na które chcesz odpowiedzieć.",
-        conversation:"Opisz, z kim będziesz rozmawiać i czego dotyczy sprawa."
-      },
-      placeholder:{
-        screenshot:"Np. wyskoczyło ostrzeżenie o wirusie, prośba o płatność, reklama...",
-        link:"Wklej tutaj link, np. https://...",
-        message:"Wklej treść wiadomości...",
-        reply:"Wklej treść pisma lub wiadomości...",
-        conversation:"Np. rozmowa z urzędem, bankiem, pracodawcą, szkołą..."
-      },
-      useTrial:"Użyj testu", close:"Zamknij", empty:"Wpisz treść, aby wykonać test."
-    },
-    EN:{
-      previewDesc:{screenshot:"Describe the suspicious screen, message, ad or warning.",link:"Paste the link or website address you want to check.",message:"Paste the email, SMS or message content.",reply:"Paste the message or letter you want to reply to.",conversation:"Describe who you will talk to and what the matter is about."},
-      placeholder:{screenshot:"Example: virus warning, payment request, pop-up ad...",link:"Paste the link here, e.g. https://...",message:"Paste the message content...",reply:"Paste the letter or message content...",conversation:"Example: office, bank, employer, school conversation..."},
-      useTrial:"Use trial", close:"Close", empty:"Enter content to run a test."
-    },
-    NL:{
-      previewDesc:{screenshot:"Beschrijf het verdachte scherm, bericht, advertentie of waarschuwing.",link:"Plak de link of website die je wilt controleren.",message:"Plak de inhoud van de e-mail, SMS of boodschap.",reply:"Plak het bericht of de brief waarop je wilt antwoorden.",conversation:"Beschrijf met wie je gaat praten en waarover het gaat."},
-      placeholder:{screenshot:"Bijv. viruswaarschuwing, betaalverzoek, pop-up advertentie...",link:"Plak hier de link, bijv. https://...",message:"Plak de inhoud van het bericht...",reply:"Plak de brief of het bericht...",conversation:"Bijv. gesprek met instantie, bank, werkgever, school..."},
-      useTrial:"Test gebruiken", close:"Sluiten", empty:"Voer tekst in om een test te gebruiken."
-    },
-    DE:{
-      previewDesc:{screenshot:"Beschreibe den verdächtigen Bildschirm, die Meldung, Werbung oder Warnung.",link:"Füge den Link oder die Website-Adresse ein, die du prüfen möchtest.",message:"Füge den Inhalt der E-Mail, SMS oder Nachricht ein.",reply:"Füge die Nachricht oder den Brief ein, auf den du antworten möchtest.",conversation:"Beschreibe, mit wem du sprechen wirst und worum es geht."},
-      placeholder:{screenshot:"Z.B. Viruswarnung, Zahlungsaufforderung, Pop-up-Werbung...",link:"Link hier einfügen, z.B. https://...",message:"Nachrichtentext einfügen...",reply:"Brief oder Nachricht einfügen...",conversation:"Z.B. Gespräch mit Behörde, Bank, Arbeitgeber, Schule..."},
-      useTrial:"Test nutzen", close:"Schließen", empty:"Gib Inhalt ein, um einen Test zu nutzen."
-    },
-    UA:{
-      previewDesc:{screenshot:"Опишіть підозрілий екран, повідомлення, рекламу або попередження.",link:"Вставте посилання або адресу сайту, який хочете перевірити.",message:"Вставте текст e-mail, SMS або повідомлення.",reply:"Вставте повідомлення або лист, на який хочете відповісти.",conversation:"Опишіть, з ким буде розмова і про що справа."},
-      placeholder:{screenshot:"Напр. попередження про вірус, вимога оплати, реклама...",link:"Вставте посилання, напр. https://...",message:"Вставте текст повідомлення...",reply:"Вставте лист або повідомлення...",conversation:"Напр. розмова з установою, банком, роботодавцем, школою..."},
-      useTrial:"Використати тест", close:"Закрити", empty:"Введіть текст, щоб виконати тест."
-    },
-    FR:{
-      previewDesc:{screenshot:"Décrivez l’écran suspect, le message, la publicité ou l’alerte.",link:"Collez le lien ou l’adresse du site à vérifier.",message:"Collez le contenu de l’e-mail, SMS ou message.",reply:"Collez le message ou document auquel vous voulez répondre.",conversation:"Décrivez avec qui vous allez parler et le sujet."},
-      placeholder:{screenshot:"Ex. alerte virus, demande de paiement, publicité pop-up...",link:"Collez le lien ici, ex. https://...",message:"Collez le contenu du message...",reply:"Collez le document ou message...",conversation:"Ex. administration, banque, employeur, école..."},
-      useTrial:"Utiliser un essai", close:"Fermer", empty:"Saisissez un contenu pour lancer un essai."
-    },
-    IT:{
-      previewDesc:{screenshot:"Descrivi la schermata sospetta, messaggio, pubblicità o avviso.",link:"Incolla il link o sito da controllare.",message:"Incolla il contenuto di e-mail, SMS o messaggio.",reply:"Incolla il messaggio o documento a cui vuoi rispondere.",conversation:"Descrivi con chi parlerai e di cosa si tratta."},
-      placeholder:{screenshot:"Es. avviso virus, richiesta pagamento, pop-up...",link:"Incolla il link, es. https://...",message:"Incolla il contenuto del messaggio...",reply:"Incolla lettera o messaggio...",conversation:"Es. ufficio, banca, datore di lavoro, scuola..."},
-      useTrial:"Usa test", close:"Chiudi", empty:"Inserisci contenuto per usare un test."
-    },
-    ES:{
-      previewDesc:{screenshot:"Describe la pantalla sospechosa, mensaje, anuncio o advertencia.",link:"Pega el enlace o sitio web que quieres revisar.",message:"Pega el contenido del e-mail, SMS o mensaje.",reply:"Pega el mensaje o documento al que quieres responder.",conversation:"Describe con quién hablarás y de qué trata el asunto."},
-      placeholder:{screenshot:"Ej. aviso de virus, solicitud de pago, anuncio emergente...",link:"Pega aquí el enlace, ej. https://...",message:"Pega el contenido del mensaje...",reply:"Pega el documento o mensaje...",conversation:"Ej. oficina, banco, empleador, escuela..."},
-      useTrial:"Usar prueba", close:"Cerrar", empty:"Introduce contenido para usar una prueba."
-    },
-    PT:{
-      previewDesc:{screenshot:"Descreva o ecrã suspeito, mensagem, anúncio ou aviso.",link:"Cole o link ou site que quer verificar.",message:"Cole o conteúdo do e-mail, SMS ou mensagem.",reply:"Cole a mensagem ou documento a que quer responder.",conversation:"Descreva com quem vai falar e qual é o assunto."},
-      placeholder:{screenshot:"Ex. aviso de vírus, pedido de pagamento, pop-up...",link:"Cole o link aqui, ex. https://...",message:"Cole o conteúdo da mensagem...",reply:"Cole o documento ou mensagem...",conversation:"Ex. entidade, banco, empregador, escola..."},
-      useTrial:"Usar teste", close:"Fechar", empty:"Insira conteúdo para usar um teste."
-    }
-  };
+  const pack = window.SB_I18N.modules["m5581_pack"];
   const p = pack[lang] || pack.PL;
   if(key === "title"){
     const titles = {screenshot:"screenshotTitle",link:"linkTitle",message:"messageTitle",reply:"replyTitle",conversation:"conversationTitle"};
@@ -5696,17 +5033,7 @@ function sbAiEndpoint(tool){
 
 function sbAiRunText(key){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
-  const map = {
-    PL:{empty:"Wpisz treść, aby wykonać test.",loading:"Analizuję...",what:"Co to jest",risk:"Ryzyko",next:"Co zrobić dalej",reply:"Propozycja",low:"Niskie",medium:"Średnie",high:"Wysokie"},
-    EN:{empty:"Enter content to run a test.",loading:"Analyzing...",what:"What it is",risk:"Risk",next:"What to do next",reply:"Suggestion",low:"Low",medium:"Medium",high:"High"},
-    NL:{empty:"Voer tekst in om een test te gebruiken.",loading:"Analyseren...",what:"Wat het is",risk:"Risico",next:"Wat nu te doen",reply:"Voorstel",low:"Laag",medium:"Middel",high:"Hoog"},
-    DE:{empty:"Gib Inhalt ein, um einen Test zu nutzen.",loading:"Analyse läuft...",what:"Was es ist",risk:"Risiko",next:"Was als Nächstes tun",reply:"Vorschlag",low:"Niedrig",medium:"Mittel",high:"Hoch"},
-    UA:{empty:"Введіть текст, щоб виконати тест.",loading:"Аналізую...",what:"Що це",risk:"Ризик",next:"Що робити далі",reply:"Пропозиція",low:"Низький",medium:"Середній",high:"Високий"},
-    FR:{empty:"Saisissez un contenu pour lancer un essai.",loading:"Analyse...",what:"Ce que c’est",risk:"Risque",next:"Que faire ensuite",reply:"Suggestion",low:"Faible",medium:"Moyen",high:"Élevé"},
-    IT:{empty:"Inserisci contenuto per usare un test.",loading:"Analisi...",what:"Che cos’è",risk:"Rischio",next:"Cosa fare dopo",reply:"Suggerimento",low:"Basso",medium:"Medio",high:"Alto"},
-    ES:{empty:"Introduce contenido para usar una prueba.",loading:"Analizando...",what:"Qué es",risk:"Riesgo",next:"Qué hacer después",reply:"Sugerencia",low:"Bajo",medium:"Medio",high:"Alto"},
-    PT:{empty:"Insira conteúdo para usar um teste.",loading:"A analisar...",what:"O que é",risk:"Risco",next:"O que fazer a seguir",reply:"Sugestão",low:"Baixo",medium:"Médio",high:"Alto"}
-  };
+  const map = window.SB_I18N.modules["m5699_map"];
   return (map[lang] || map.PL)[key] || map.PL[key] || "";
 }
 
@@ -5720,22 +5047,7 @@ function sbAiLocalAnalysis(tool, input){
   else if(hits >= 1) risk = "medium";
 
   const lang = (UI && UI.lang) ? UI.lang : "PL";
-  const copy = {
-    PL:{
-      screenshot:{what:"To wygląda jak ekran lub komunikat wymagający sprawdzenia.",next:"Nie klikaj przycisków ani linków, dopóki nie sprawdzisz źródła. Zrób zrzut ekranu i porównaj z oficjalną stroną.",reply:"Jeśli to wiadomość od instytucji, wejdź samodzielnie na jej oficjalną stronę."},
-      link:{what:"To jest adres lub link do sprawdzenia.",next:"Sprawdź domenę ręcznie. Nie loguj się przez link z wiadomości. Wejdź na stronę instytucji samodzielnie.",reply:"Bezpieczniej otworzyć oficjalną stronę z wyszukiwarki lub zapisanej zakładki."},
-      message:{what:"To wygląda jak wiadomość, którą warto ocenić pod kątem phishingu lub presji.",next:"Sprawdź nadawcę, domenę i czy wiadomość wymusza szybkie działanie. Nie podawaj danych logowania.",reply:"Dziękuję za wiadomość. Sprawdzę sprawę przez oficjalny kanał kontaktu."},
-      reply:{what:"To jest sytuacja, do której można przygotować spokojną odpowiedź.",next:"Odpowiedz krótko, jasno i bez podawania zbędnych danych osobowych.",reply:"Dziękuję za wiadomość. Proszę o dodatkowe wyjaśnienie sprawy oraz wskazanie, jakie działanie jest ode mnie wymagane."},
-      conversation:{what:"To jest temat rozmowy, do której warto przygotować pytania.",next:"Zapisz cel rozmowy, dokumenty, które masz przygotować, i 2–3 pytania.",reply:"Chciałbym wyjaśnić tę sprawę spokojnie. Proszę powiedzieć, jakie są następne kroki i jakie dokumenty są potrzebne."}
-    },
-    EN:{
-      screenshot:{what:"This looks like a screen or warning that should be checked.",next:"Do not click buttons or links until you verify the source. Compare it with the official website.",reply:"If it claims to be from an institution, open the official site yourself."},
-      link:{what:"This is a link or website address to check.",next:"Check the domain manually. Do not log in through a message link. Open the official website yourself.",reply:"It is safer to open the official site from search or a saved bookmark."},
-      message:{what:"This looks like a message worth checking for phishing or pressure.",next:"Check the sender, domain and whether the message pushes urgent action. Do not share login details.",reply:"Thank you for the message. I will verify this through the official contact channel."},
-      reply:{what:"This is a situation where a calm reply can be prepared.",next:"Reply briefly and clearly, without unnecessary personal data.",reply:"Thank you for your message. Please explain the matter and indicate what action is required from me."},
-      conversation:{what:"This is a topic for a conversation that is worth preparing.",next:"Write down the goal, documents to bring, and 2–3 questions.",reply:"I would like to clarify this calmly. Please tell me the next steps and which documents are needed."}
-    }
-  };
+  const copy = window.SB_I18N.modules["m5723_copy"];
   const base = (copy[lang] || copy.EN)[tool] || (copy[lang] || copy.EN).screenshot;
   return {
     risk: risk,
@@ -5868,17 +5180,7 @@ function initAiToolsPanel(){
 }
 
 function applyCompactUiLabels(){
-  const labels = {
-    PL:{flow:"ℹ️ Jak działa analiza?",info:"ℹ️ Informacje i prywatność"},
-    UA:{flow:"ℹ️ Як працює аналіз?",info:"ℹ️ Інформація та конфіденційність"},
-    NL:{flow:"ℹ️ Hoe werkt de analyse?",info:"ℹ️ Informatie en privacy"},
-    EN:{flow:"ℹ️ How does the analysis work?",info:"ℹ️ Information and privacy"},
-    DE:{flow:"ℹ️ Wie funktioniert die Analyse?",info:"ℹ️ Informationen und Datenschutz"},
-    FR:{flow:"ℹ️ Comment fonctionne l’analyse ?",info:"ℹ️ Informations et confidentialité"},
-    IT:{flow:"ℹ️ Come funziona l’analisi?",info:"ℹ️ Informazioni e privacy"},
-    ES:{flow:"ℹ️ ¿Cómo funciona el análisis?",info:"ℹ️ Información y privacidad"},
-    PT:{flow:"ℹ️ Como funciona a análise?",info:"ℹ️ Informações e privacidade"}
-  };
+  const labels = window.SB_I18N.modules["m5871_labels"];
   const l = labels[UI.lang] || labels.EN;
   const flow = document.getElementById("sbFlowSummary");
   const info = document.getElementById("sbInfoSummary");
@@ -5888,6 +5190,8 @@ function applyCompactUiLabels(){
 
 function applyUiLang(){
   const t = UI.dict[UI.lang];
+  try{ document.title = "Sense Bridge"; }catch(e){}
+  try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr'}[UI.lang] || 'en'); }catch(e){}
   applyCompactUiLabels();
 
   document.getElementById("hTitle").textContent = t.title;
@@ -6036,62 +5340,7 @@ function showFooterInfo(type){
 
 function getProPlanLangText(){
   const lang = (typeof UI !== "undefined" && UI && UI.lang) ? UI.lang : "PL";
-  const map = {
-    PL:{
-      name:"30 dni PRO",
-      meta:"Pełny dostęp + zaawansowane narzędzia AI",
-      features:"100 użyć narzędzi AI przez 30 dni oraz pełny dostęp do zwykłej analizy.",
-      aria:"Wybierz dostęp 30 dni PRO za 25 euro"
-    },
-    EN:{
-      name:"30 days PRO",
-      meta:"Full access + advanced AI tools",
-      features:"100 AI tool uses for 30 days plus full access to standard analysis.",
-      aria:"Choose 30 days PRO access for 25 euros"
-    },
-    NL:{
-      name:"30 dagen PRO",
-      meta:"Volledige toegang + geavanceerde AI-tools",
-      features:"100 gebruiken van AI-tools gedurende 30 dagen en volledige toegang tot de gewone analyse.",
-      aria:"Kies 30 dagen PRO-toegang voor 25 euro"
-    },
-    DE:{
-      name:"30 Tage PRO",
-      meta:"Voller Zugang + erweiterte KI-Tools",
-      features:"100 Nutzungen der KI-Tools für 30 Tage sowie voller Zugang zur normalen Analyse.",
-      aria:"30 Tage PRO-Zugang für 25 Euro wählen"
-    },
-    UA:{
-      name:"30 днів PRO",
-      meta:"Повний доступ + розширені AI-інструменти",
-      features:"100 використань AI-інструментів протягом 30 днів і повний доступ до звичайного аналізу.",
-      aria:"Вибрати доступ PRO на 30 днів за 25 євро"
-    },
-    FR:{
-      name:"30 jours PRO",
-      meta:"Accès complet + outils IA avancés",
-      features:"100 utilisations des outils IA pendant 30 jours et accès complet à l’analyse standard.",
-      aria:"Choisir l’accès PRO de 30 jours pour 25 euros"
-    },
-    IT:{
-      name:"30 giorni PRO",
-      meta:"Accesso completo + strumenti AI avanzati",
-      features:"100 utilizzi degli strumenti AI per 30 giorni e accesso completo all’analisi standard.",
-      aria:"Scegli l’accesso PRO di 30 giorni a 25 euro"
-    },
-    ES:{
-      name:"30 días PRO",
-      meta:"Acceso completo + herramientas de IA avanzadas",
-      features:"100 usos de herramientas de IA durante 30 días y acceso completo al análisis estándar.",
-      aria:"Elegir acceso PRO de 30 días por 25 euros"
-    },
-    PT:{
-      name:"30 dias PRO",
-      meta:"Acesso completo + ferramentas avançadas de IA",
-      features:"100 utilizações das ferramentas de IA durante 30 dias e acesso completo à análise normal.",
-      aria:"Escolher acesso PRO de 30 dias por 25 euros"
-    }
-  };
+  const map = window.SB_I18N.modules["m6039_map"];
   return map[lang] || map.PL;
 }
 
@@ -6110,17 +5359,7 @@ function applyProPlanLang(){
 
 function getInstallDialogText(){
  const lang=(typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:"PL";
- const t={
-  PL:{lead:"Korzystaj z Sense Bridge jak z normalnej aplikacji.",sub:"",hint:"Kliknij 3 kropki w przeglądarce i wybierz „Dodaj do ekranu głównego”."},
-  EN:{lead:"Use Sense Bridge like a regular app.",sub:"",hint:"Tap the 3-dot browser menu and choose “Add to Home screen”."},
-  NL:{lead:"Gebruik Sense Bridge als een gewone app.",sub:"",hint:"Tik op de 3 puntjes in de browser en kies ‘Toevoegen aan startscherm’."},
-  DE:{lead:"Nutze Sense Bridge wie eine normale App.",sub:"",hint:"Tippe im Browser auf die 3 Punkte und wähle „Zum Startbildschirm hinzufügen“."},
-  UA:{lead:"Користуйтеся Sense Bridge як звичайним застосунком.",sub:"",hint:"Натисніть 3 крапки у браузері та виберіть «Додати на головний екран»."},
-  FR:{lead:"Utilisez Sense Bridge comme une application classique.",sub:"",hint:"Appuyez sur les 3 points du navigateur et choisissez « Ajouter à l’écran d’accueil »."},
-  IT:{lead:"Usa Sense Bridge come una normale app.",sub:"",hint:"Tocca i 3 puntini del browser e scegli “Aggiungi alla schermata Home”."},
-  ES:{lead:"Usa Sense Bridge como una aplicación normal.",sub:"",hint:"Pulsa los 3 puntos del navegador y elige «Agregar a pantalla de inicio»."},
-  PT:{lead:"Use o Sense Bridge como uma aplicação normal.",sub:"",hint:"Toque nos 3 pontos do navegador e escolha «Adicionar ao ecrã inicial»."}
- };
+ const t=window.SB_I18N.modules["m6113_t"];
  return t[lang]||t.PL;
 }
 function applyInstallDialogText(){
@@ -6135,116 +5374,7 @@ function applyInstallDialogText(){
 function getPaymentLangText(){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
 
-  const map = {
-    PL:{
-      title:"Zakup dostępu",
-      amount:"Kwota:",
-      transfer:"Zapłać przelewem:",
-      receiver:"Odbiorca:",
-      transferTitle:"Tytuł przelewu:",
-      paid:"✔ Zapłaciłem",
-      saved:"✅ Zgłoszenie zapisane",
-      savedText:"Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.",
-      copy:"Kopiuj tytuł przelewu",
-      small:"Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail."
-    },
-    EN:{
-      title:"Purchase access",
-      amount:"Amount:",
-      transfer:"Pay by bank transfer:",
-      receiver:"Recipient:",
-      transferTitle:"Transfer title:",
-      paid:"✔ I paid",
-      saved:"✅ Request saved",
-      savedText:"Thank you. Make the bank transfer using exactly the transfer title below. Access will be activated after manual payment confirmation.",
-      copy:"Copy transfer title",
-      small:"After the payment is received, we will activate access. You can later return to the page and check access using the same email address."
-    },
-    NL:{
-      title:"Toegang kopen",
-      amount:"Bedrag:",
-      transfer:"Betaal via bankoverschrijving:",
-      receiver:"Ontvanger:",
-      transferTitle:"Omschrijving:",
-      paid:"✔ Ik heb betaald",
-      saved:"✅ Aanvraag opgeslagen",
-      savedText:"Dank je. Doe de overschrijving met exact de onderstaande omschrijving. Toegang wordt geactiveerd na handmatige bevestiging van de betaling.",
-      copy:"Kopieer omschrijving",
-      small:"Na ontvangst van de betaling activeren we de toegang. Je kunt later terugkomen naar de pagina en de toegang controleren met hetzelfde e-mailadres."
-    },
-    DE:{
-      title:"Zugang kaufen",
-      amount:"Betrag:",
-      transfer:"Per Banküberweisung bezahlen:",
-      receiver:"Empfänger:",
-      transferTitle:"Verwendungszweck:",
-      paid:"✔ Ich habe bezahlt",
-      saved:"✅ Anfrage gespeichert",
-      savedText:"Danke. Führe die Überweisung genau mit dem unten angegebenen Verwendungszweck aus. Der Zugang wird nach manueller Zahlungsbestätigung aktiviert.",
-      copy:"Verwendungszweck kopieren",
-      small:"Nach Zahlungseingang aktivieren wir den Zugang. Du kannst später zur Seite zurückkehren und den Zugang mit derselben E-Mail-Adresse prüfen."
-    },
-    UA:{
-      title:"Купівля доступу",
-      amount:"Сума:",
-      transfer:"Оплатіть банківським переказом:",
-      receiver:"Отримувач:",
-      transferTitle:"Призначення платежу:",
-      paid:"✔ Я оплатив",
-      saved:"✅ Запит збережено",
-      savedText:"Дякуємо. Виконайте переказ, використовуючи точно вказане нижче призначення платежу. Доступ буде активовано після ручного підтвердження оплати.",
-      copy:"Скопіювати призначення платежу",
-      small:"Після зарахування платежу ми активуємо доступ. Пізніше ви можете повернутися на сторінку і перевірити доступ за тією ж електронною адресою."
-    },
-    FR:{
-      title:"Acheter l’accès",
-      amount:"Montant :",
-      transfer:"Payer par virement bancaire :",
-      receiver:"Bénéficiaire :",
-      transferTitle:"Libellé du virement :",
-      paid:"✔ J’ai payé",
-      saved:"✅ Demande enregistrée",
-      savedText:"Merci. Effectuez le virement en utilisant exactement le libellé ci-dessous. L’accès sera activé après confirmation manuelle du paiement.",
-      copy:"Copier le libellé du virement",
-      small:"Après réception du paiement, nous activerons l’accès. Vous pourrez revenir plus tard sur la page et vérifier l’accès avec la même adresse e-mail."
-    },
-    IT:{
-      title:"Acquisto accesso",
-      amount:"Importo:",
-      transfer:"Paga con bonifico bancario:",
-      receiver:"Beneficiario:",
-      transferTitle:"Causale del bonifico:",
-      paid:"✔ Ho pagato",
-      saved:"✅ Richiesta salvata",
-      savedText:"Grazie. Effettua il bonifico usando esattamente la causale indicata qui sotto. L’accesso sarà attivato dopo la conferma manuale del pagamento.",
-      copy:"Copia causale del bonifico",
-      small:"Dopo la ricezione del pagamento, attiveremo l’accesso. Potrai tornare più tardi alla pagina e verificare l’accesso con lo stesso indirizzo email."
-    },
-    ES:{
-      title:"Comprar acceso",
-      amount:"Importe:",
-      transfer:"Paga por transferencia bancaria:",
-      receiver:"Beneficiario:",
-      transferTitle:"Concepto de la transferencia:",
-      paid:"✔ He pagado",
-      saved:"✅ Solicitud guardada",
-      savedText:"Gracias. Realiza la transferencia usando exactamente el concepto indicado abajo. El acceso se activará tras la confirmación manual del pago.",
-      copy:"Copiar concepto de transferencia",
-      small:"Después de recibir el pago, activaremos el acceso. Puedes volver más tarde a la página y comprobar el acceso con el mismo correo electrónico."
-    },
-    PT:{
-      title:"Comprar acesso",
-      amount:"Valor:",
-      transfer:"Pagar por transferência bancária:",
-      receiver:"Beneficiário:",
-      transferTitle:"Referência da transferência:",
-      paid:"✔ Já paguei",
-      saved:"✅ Pedido guardado",
-      savedText:"Obrigado. Faça a transferência usando exatamente a referência abaixo. O acesso será ativado após confirmação manual do pagamento.",
-      copy:"Copiar referência da transferência",
-      small:"Após recebermos o pagamento, ativaremos o acesso. Pode voltar mais tarde à página e verificar o acesso com o mesmo endereço de email."
-    }
-  };
+  const map = window.SB_I18N.modules["m6138_map"];
 
   return map[lang] || map.PL;
 }
@@ -6291,17 +5421,7 @@ async function checkAccessServer(email){
 
 function sbNewAnalysisText(key){
   const lang = String((UI && UI.lang) || "PL").toUpperCase();
-  const map = {
-    PL:{button:"📄 Nowa analiza",help:"Rozpocznij analizę kolejnego pisma.",toast:"✅ Gotowe! Możesz przeanalizować kolejne pismo."},
-    UA:{button:"📄 Новий аналіз",help:"Почніть аналіз наступного листа.",toast:"✅ Готово! Можна аналізувати наступний лист."},
-    NL:{button:"📄 Nieuwe analyse",help:"Start de analyse van een volgende brief.",toast:"✅ Klaar! Je kunt de volgende brief analyseren."},
-    EN:{button:"📄 New analysis",help:"Start analysing another letter.",toast:"✅ Ready! You can analyse another letter."},
-    DE:{button:"📄 Neue Analyse",help:"Starten Sie die Analyse eines weiteren Schreibens.",toast:"✅ Fertig! Sie können das nächste Schreiben analysieren."},
-    FR:{button:"📄 Nouvelle analyse",help:"Commencez l’analyse d’un autre courrier.",toast:"✅ Prêt ! Vous pouvez analyser un autre courrier."},
-    IT:{button:"📄 Nuova analisi",help:"Avvia l’analisi di un’altra lettera.",toast:"✅ Pronto! Puoi analizzare un’altra lettera."},
-    ES:{button:"📄 Nuevo análisis",help:"Empieza a analizar otra carta.",toast:"✅ ¡Listo! Puedes analizar otra carta."},
-    PT:{button:"📄 Nova análise",help:"Comece a analisar outra carta.",toast:"✅ Pronto! Pode analisar outra carta."}
-  };
+  const map = window.SB_I18N.modules["m6294_map"];
   return (map[lang] && map[lang][key]) || map.PL[key] || "";
 }
 
@@ -6476,251 +5596,7 @@ function sbResultText(key, lang){
   if (UI && UI.dict && UI.dict[L] && UI.dict[L][key]) return UI.dict[L][key];
 if (UI && UI.dict && UI.dict.PL && UI.dict.PL[key]) return UI.dict.PL[key];
 
-  const dict = {
-    PL: {
-      fraudRiskTitle:"Analiza ryzyka oszustwa",
-      separatorText:"Ocena i kroki Sense Bridge",
-      fraudUnknown:"Nie da się ocenić autentyczności",
-      fraudLow:"Wygląda raczej wiarygodnie",
-      fraudMedium:"Warto zweryfikować nadawcę",
-      fraudHigh:"Wysokie ryzyko oszustwa",
-      fraudDisclaimer:"To jest analiza ryzyka, nie potwierdzenie autentyczności dokumentu.",
-      confidence:"Pewność",
-      signals:"Sygnały do sprawdzenia",
-      suspicious:"Podejrzane elementy",
-      safeSteps:"Bezpieczne kroki",
-      country:"Kraj",
-      officialWebsite:"Oficjalna strona",
-      verifyInstitution:"Zweryfikuj sytuację przez oficjalną stronę instytucji.",
-      recognitionConfidence:"Pewność rozpoznania",
-      legalNone:"Brak potrzeby pomocy prawnej",
-      legalRecommended:"Warto skonsultować sytuację",
-      legalUrgent:"Pilna pomoc prawna może być potrzebna",
-      urgencyHigh:"PILNE – wymagane szybkie działanie",
-      urgencyMedium:"ŚREDNIA PILNOŚĆ – warto zareagować",
-      urgencyLow:"NISKA PILNOŚĆ – możesz spokojnie sprawdzić",
-      replyNeutral:"NEUTRALNIE",
-      replyPolite:"UPRZEJMIE",
-      replyFirm:"STANOWCZO",
-      examplesDocFallback:"Nie udało się automatycznie przygotować odpowiedzi w języku dokumentu. Wybierz ręcznie język dokumentu zamiast AUTO i spróbuj ponownie."
-    },
-    EN: {
-      fraudRiskTitle:"Fraud risk analysis",
-      separatorText:"Sense Bridge assessment and steps",
-      fraudUnknown:"Authenticity cannot be assessed",
-      fraudLow:"Looks rather credible",
-      fraudMedium:"Verify the sender",
-      fraudHigh:"High fraud risk",
-      fraudDisclaimer:"This is a risk analysis, not a confirmation of the document's authenticity.",
-      confidence:"Confidence",
-      signals:"Signals to check",
-      suspicious:"Suspicious elements",
-      safeSteps:"Safe steps",
-      country:"Country",
-      officialWebsite:"Official website",
-      verifyInstitution:"Verify the situation through the institution's official website.",
-      recognitionConfidence:"Recognition confidence",
-      legalNone:"No legal help needed",
-      legalRecommended:"It may be worth consulting the situation",
-      legalUrgent:"Urgent legal help may be needed",
-      urgencyHigh:"URGENT – quick action required",
-      urgencyMedium:"MEDIUM URGENCY – it is worth responding",
-      urgencyLow:"LOW URGENCY – you can check calmly",
-      replyNeutral:"NEUTRAL",
-      replyPolite:"POLITE",
-      replyFirm:"FIRM",
-      examplesDocFallback:"The reply in the document language could not be prepared automatically. Select the document language manually instead of AUTO and try again."
-    },
-    NL: {
-      fraudRiskTitle:"Analyse van frauderisico",
-      separatorText:"Sense Bridge beoordeling en stappen",
-      fraudUnknown:"Echtheid kan niet worden beoordeeld",
-      fraudLow:"Lijkt redelijk betrouwbaar",
-      fraudMedium:"Controleer de afzender",
-      fraudHigh:"Hoog frauderisico",
-      fraudDisclaimer:"Dit is een risicoanalyse, geen bevestiging van de echtheid van het document.",
-      confidence:"Zekerheid",
-      signals:"Signalen om te controleren",
-      suspicious:"Verdachte elementen",
-      safeSteps:"Veilige stappen",
-      country:"Land",
-      officialWebsite:"Officiële website",
-      verifyInstitution:"Controleer de situatie via de officiële website van de instantie.",
-      recognitionConfidence:"Herkenningszekerheid",
-      legalNone:"Geen juridische hulp nodig",
-      legalRecommended:"Het kan verstandig zijn de situatie te bespreken",
-      legalUrgent:"Dringende juridische hulp kan nodig zijn",
-      urgencyHigh:"DRINGEND – snelle actie nodig",
-      urgencyMedium:"MIDDELHOGE URGENTIE – reageren is verstandig",
-      urgencyLow:"LAGE URGENTIE – u kunt rustig controleren",
-      replyNeutral:"NEUTRAAL",
-      replyPolite:"BELEEFD",
-      replyFirm:"STELLIG",
-      examplesDocFallback:"Het antwoord in de documenttaal kon niet automatisch worden voorbereid. Kies handmatig de documenttaal in plaats van AUTO en probeer opnieuw."
-    },
-    DE: {
-      fraudRiskTitle:"Analyse des Betrugsrisikos",
-      separatorText:"Sense Bridge Einschätzung und Schritte",
-      fraudUnknown:"Echtheit kann nicht beurteilt werden",
-      fraudLow:"Wirkt eher glaubwürdig",
-      fraudMedium:"Absender prüfen",
-      fraudHigh:"Hohes Betrugsrisiko",
-      fraudDisclaimer:"Dies ist eine Risikoanalyse, keine Bestätigung der Echtheit des Dokuments.",
-      confidence:"Sicherheit",
-      signals:"Zu prüfende Signale",
-      suspicious:"Verdächtige Elemente",
-      safeSteps:"Sichere Schritte",
-      country:"Land",
-      officialWebsite:"Offizielle Website",
-      verifyInstitution:"Prüfen Sie die Situation über die offizielle Website der Institution.",
-      recognitionConfidence:"Erkennungs-Sicherheit",
-      legalNone:"Keine rechtliche Hilfe nötig",
-      legalRecommended:"Es kann sinnvoll sein, die Situation zu besprechen",
-      legalUrgent:"Dringende rechtliche Hilfe kann nötig sein",
-      urgencyHigh:"DRINGEND – schnelles Handeln erforderlich",
-      urgencyMedium:"MITTLERE DRINGLICHKEIT – reagieren ist sinnvoll",
-      urgencyLow:"NIEDRIGE DRINGLICHKEIT – Sie können ruhig prüfen",
-      replyNeutral:"NEUTRAL",
-      replyPolite:"HÖFLICH",
-      replyFirm:"BESTIMMT",
-      examplesDocFallback:"Die Antwort in der Dokumentsprache konnte nicht automatisch vorbereitet werden. Wählen Sie die Dokumentsprache manuell statt AUTO und versuchen Sie es erneut."
-    },
-    UA: {
-      fraudRiskTitle:"Аналіз ризику шахрайства",
-      separatorText:"Оцінка та кроки Sense Bridge",
-      fraudUnknown:"Неможливо оцінити автентичність",
-      fraudLow:"Виглядає досить достовірно",
-      fraudMedium:"Варто перевірити відправника",
-      fraudHigh:"Високий ризик шахрайства",
-      fraudDisclaimer:"Це аналіз ризику, а не підтвердження автентичності документа.",
-      confidence:"Впевненість",
-      signals:"Сигнали для перевірки",
-      suspicious:"Підозрілі елементи",
-      safeSteps:"Безпечні кроки",
-      country:"Країна",
-      officialWebsite:"Офіційний сайт",
-      verifyInstitution:"Перевірте ситуацію через офіційний сайт установи.",
-      recognitionConfidence:"Впевненість розпізнавання",
-      legalNone:"Юридична допомога не потрібна",
-      legalRecommended:"Варто проконсультувати ситуацію",
-      legalUrgent:"Може знадобитися термінова юридична допомога",
-      urgencyHigh:"ТЕРМІНОВО – потрібна швидка дія",
-      urgencyMedium:"СЕРЕДНЯ ТЕРМІНОВІСТЬ – варто відреагувати",
-      urgencyLow:"НИЗЬКА ТЕРМІНОВІСТЬ – можна спокійно перевірити",
-      replyNeutral:"НЕЙТРАЛЬНО",
-      replyPolite:"ВВІЧЛИВО",
-      replyFirm:"РІШУЧЕ",
-      examplesDocFallback:"Не вдалося автоматично підготувати відповідь мовою документа. Виберіть мову документа вручну замість AUTO і спробуйте знову."
-    },
-    FR: {
-      fraudRiskTitle:"Analyse du risque de fraude",
-      separatorText:"Évaluation et étapes Sense Bridge",
-      fraudUnknown:"L’authenticité ne peut pas être évaluée",
-      fraudLow:"Semble plutôt crédible",
-      fraudMedium:"Vérifiez l’expéditeur",
-      fraudHigh:"Risque élevé de fraude",
-      fraudDisclaimer:"Il s’agit d’une analyse de risque, pas d’une confirmation de l’authenticité du document.",
-      confidence:"Confiance",
-      signals:"Signaux à vérifier",
-      suspicious:"Éléments suspects",
-      safeSteps:"Étapes sûres",
-      country:"Pays",
-      officialWebsite:"Site officiel",
-      verifyInstitution:"Vérifiez la situation via le site officiel de l’institution.",
-      recognitionConfidence:"Confiance de reconnaissance",
-      legalNone:"Aucune aide juridique nécessaire",
-      legalRecommended:"Il peut être utile de consulter la situation",
-      legalUrgent:"Une aide juridique urgente peut être nécessaire",
-      urgencyHigh:"URGENT – action rapide requise",
-      urgencyMedium:"URGENCE MOYENNE – il est utile de répondre",
-      urgencyLow:"FAIBLE URGENCE – vous pouvez vérifier calmement",
-      replyNeutral:"NEUTRE",
-      replyPolite:"POLI",
-      replyFirm:"FERME",
-      examplesDocFallback:"La réponse dans la langue du document n’a pas pu être préparée automatiquement. Sélectionnez manuellement la langue du document au lieu d’AUTO et réessayez."
-    },
-    IT: {
-      fraudRiskTitle:"Analisi del rischio di frode",
-      separatorText:"Valutazione e passaggi Sense Bridge",
-      fraudUnknown:"Non è possibile valutare l’autenticità",
-      fraudLow:"Sembra abbastanza credibile",
-      fraudMedium:"Verifica il mittente",
-      fraudHigh:"Alto rischio di frode",
-      fraudDisclaimer:"Questa è un’analisi del rischio, non una conferma dell’autenticità del documento.",
-      confidence:"Affidabilità",
-      signals:"Segnali da verificare",
-      suspicious:"Elementi sospetti",
-      safeSteps:"Passaggi sicuri",
-      country:"Paese",
-      officialWebsite:"Sito ufficiale",
-      verifyInstitution:"Verifica la situazione tramite il sito ufficiale dell’istituzione.",
-      recognitionConfidence:"Affidabilità del riconoscimento",
-      legalNone:"Nessun aiuto legale necessario",
-      legalRecommended:"Può essere utile consultare la situazione",
-      legalUrgent:"Potrebbe essere necessario un aiuto legale urgente",
-      urgencyHigh:"URGENTE – azione rapida richiesta",
-      urgencyMedium:"URGENZA MEDIA – è utile rispondere",
-      urgencyLow:"BASSA URGENZA – puoi verificare con calma",
-      replyNeutral:"NEUTRALE",
-      replyPolite:"GENTILE",
-      replyFirm:"FERMO",
-      examplesDocFallback:"Non è stato possibile preparare automaticamente la risposta nella lingua del documento. Seleziona manualmente la lingua del documento invece di AUTO e riprova."
-    },
-    ES: {
-      fraudRiskTitle:"Análisis de riesgo de fraude",
-      separatorText:"Evaluación y pasos de Sense Bridge",
-      fraudUnknown:"No se puede evaluar la autenticidad",
-      fraudLow:"Parece bastante creíble",
-      fraudMedium:"Verifica el remitente",
-      fraudHigh:"Alto riesgo de fraude",
-      fraudDisclaimer:"Este es un análisis de riesgo, no una confirmación de la autenticidad del documento.",
-      confidence:"Confianza",
-      signals:"Señales para verificar",
-      suspicious:"Elementos sospechosos",
-      safeSteps:"Pasos seguros",
-      country:"País",
-      officialWebsite:"Sitio web oficial",
-      verifyInstitution:"Verifica la situación a través del sitio oficial de la institución.",
-      recognitionConfidence:"Confianza del reconocimiento",
-      legalNone:"No se necesita ayuda legal",
-      legalRecommended:"Puede ser útil consultar la situación",
-      legalUrgent:"Puede ser necesaria ayuda legal urgente",
-      urgencyHigh:"URGENTE – se requiere acción rápida",
-      urgencyMedium:"URGENCIA MEDIA – conviene responder",
-      urgencyLow:"BAJA URGENCIA – puedes verificar con calma",
-      replyNeutral:"NEUTRAL",
-      replyPolite:"CORTÉS",
-      replyFirm:"FIRME",
-      examplesDocFallback:"No se pudo preparar automáticamente la respuesta en el idioma del documento. Selecciona manualmente el idioma del documento en lugar de AUTO e inténtalo de nuevo."
-    },
-    PT: {
-      fraudRiskTitle:"Análise de risco de fraude",
-      separatorText:"Avaliação e passos do Sense Bridge",
-      fraudUnknown:"Não é possível avaliar a autenticidade",
-      fraudLow:"Parece bastante credível",
-      fraudMedium:"Verifique o remetente",
-      fraudHigh:"Alto risco de fraude",
-      fraudDisclaimer:"Esta é uma análise de risco, não uma confirmação da autenticidade do documento.",
-      confidence:"Confiança",
-      signals:"Sinais a verificar",
-      suspicious:"Elementos suspeitos",
-      safeSteps:"Passos seguros",
-      country:"País",
-      officialWebsite:"Site oficial",
-      verifyInstitution:"Verifique a situação através do site oficial da instituição.",
-      recognitionConfidence:"Confiança do reconhecimento",
-      legalNone:"Não é necessária ajuda jurídica",
-      legalRecommended:"Pode ser útil consultar a situação",
-      legalUrgent:"Pode ser necessária ajuda jurídica urgente",
-      urgencyHigh:"URGENTE – é necessária ação rápida",
-      urgencyMedium:"URGÊNCIA MÉDIA – vale a pena responder",
-      urgencyLow:"BAIXA URGÊNCIA – pode verificar com calma",
-      replyNeutral:"NEUTRO",
-      replyPolite:"EDUCADO",
-      replyFirm:"FIRME",
-      examplesDocFallback:"Não foi possível preparar automaticamente a resposta no idioma do documento. Selecione manualmente o idioma do documento em vez de AUTO e tente novamente."
-    }
-  };
+  const dict = window.SB_I18N.modules["m6479_dict"];
   const table = dict[L] || dict.PL;
   return table[key] || (dict.EN && dict.EN[key]) || key;
 }
@@ -6796,17 +5672,7 @@ function renderFraudRisk(data){
 
 function sbTrustText(key, lang){
   const L = String(lang || sbGetResultLang() || "PL").toUpperCase();
-  const dict = {
-    PL:{recognizedInstitution:"Rozpoznana instytucja",countryFromDocument:"Kraj z dokumentu",probableCountry:"Prawdopodobny kontekst kraju",countryNotCertain:"Kraj instytucji nie został jednoznacznie potwierdzony w treści dokumentu.",basedOnContent:"na podstawie treści/linków w dokumencie",basedOnLanguage:"na podstawie języka dokumentu — to tylko wskazówka",websiteHidden:"Nie pokazuję jednej krajowej strony jako pewnej, bo kraj nie jest wystarczająco potwierdzony.",safeInstitutionStep:"Nie klikaj linku z wiadomości. Otwórz oficjalną aplikację albo wyszukaj instytucję ręcznie.",officialWebsiteShown:"Pokazuję stronę tylko wtedy, gdy nie kłóci się z kontekstem dokumentu."},
-    EN:{recognizedInstitution:"Recognized institution",countryFromDocument:"Country from the document",probableCountry:"Probable country context",countryNotCertain:"The institution country was not clearly confirmed in the document text.",basedOnContent:"based on document text/links",basedOnLanguage:"based on the document language — this is only a hint",websiteHidden:"I am not showing one national website as certain because the country is not confirmed enough.",safeInstitutionStep:"Do not click links from the message. Open the official app or search for the institution manually.",officialWebsiteShown:"The website is shown only when it does not conflict with the document context."},
-    NL:{recognizedInstitution:"Herkende instantie",countryFromDocument:"Land uit het document",probableCountry:"Waarschijnlijke landcontext",countryNotCertain:"Het land van de instantie is niet duidelijk bevestigd in de tekst van het document.",basedOnContent:"op basis van tekst/links in het document",basedOnLanguage:"op basis van de documenttaal — dit is alleen een aanwijzing",websiteHidden:"Ik toon niet één nationale website als zeker, omdat het land niet voldoende bevestigd is.",safeInstitutionStep:"Klik niet op links uit het bericht. Open de officiële app of zoek de instantie handmatig.",officialWebsiteShown:"De website wordt alleen getoond wanneer die niet botst met de documentcontext."},
-    DE:{recognizedInstitution:"Erkannte Institution",countryFromDocument:"Land aus dem Dokument",probableCountry:"Wahrscheinlicher Länderkontext",countryNotCertain:"Das Land der Institution wurde im Dokument nicht eindeutig bestätigt.",basedOnContent:"basierend auf Text/Links im Dokument",basedOnLanguage:"basierend auf der Dokumentsprache — nur ein Hinweis",websiteHidden:"Ich zeige keine einzelne nationale Website als sicher an, weil das Land nicht ausreichend bestätigt ist.",safeInstitutionStep:"Klicken Sie nicht auf Links aus der Nachricht. Öffnen Sie die offizielle App oder suchen Sie die Institution manuell.",officialWebsiteShown:"Die Website wird nur angezeigt, wenn sie nicht dem Dokumentkontext widerspricht."},
-    FR:{recognizedInstitution:"Institution reconnue",countryFromDocument:"Pays indiqué par le document",probableCountry:"Contexte pays probable",countryNotCertain:"Le pays de l’institution n’est pas clairement confirmé dans le document.",basedOnContent:"d’après le texte/les liens du document",basedOnLanguage:"d’après la langue du document — seulement un indice",websiteHidden:"Je n’affiche pas un site national comme certain, car le pays n’est pas suffisamment confirmé.",safeInstitutionStep:"Ne cliquez pas sur les liens du message. Ouvrez l’application officielle ou recherchez l’institution manuellement.",officialWebsiteShown:"Le site est affiché uniquement s’il ne contredit pas le contexte du document."},
-    IT:{recognizedInstitution:"Istituzione riconosciuta",countryFromDocument:"Paese dal documento",probableCountry:"Contesto paese probabile",countryNotCertain:"Il paese dell’istituzione non è confermato chiaramente nel testo del documento.",basedOnContent:"in base al testo/ai link del documento",basedOnLanguage:"in base alla lingua del documento — solo un indizio",websiteHidden:"Non mostro un singolo sito nazionale come certo perché il paese non è abbastanza confermato.",safeInstitutionStep:"Non cliccare i link del messaggio. Apri l’app ufficiale oppure cerca manualmente l’istituzione.",officialWebsiteShown:"Il sito viene mostrato solo se non è in conflitto con il contesto del documento."},
-    ES:{recognizedInstitution:"Institución reconocida",countryFromDocument:"País del documento",probableCountry:"Contexto probable del país",countryNotCertain:"El país de la institución no está confirmado claramente en el texto del documento.",basedOnContent:"según el texto/enlaces del documento",basedOnLanguage:"según el idioma del documento — solo es una pista",websiteHidden:"No muestro un sitio nacional como seguro porque el país no está suficientemente confirmado.",safeInstitutionStep:"No hagas clic en enlaces del mensaje. Abre la app oficial o busca la institución manualmente.",officialWebsiteShown:"El sitio se muestra solo cuando no contradice el contexto del documento."},
-    PT:{recognizedInstitution:"Instituição reconhecida",countryFromDocument:"País do documento",probableCountry:"Contexto provável do país",countryNotCertain:"O país da instituição não foi confirmado claramente no texto do documento.",basedOnContent:"com base no texto/links do documento",basedOnLanguage:"com base no idioma do documento — apenas uma pista",websiteHidden:"Não mostro um site nacional como certo porque o país não está suficientemente confirmado.",safeInstitutionStep:"Não clique nos links da mensagem. Abra a app oficial ou procure a instituição manualmente.",officialWebsiteShown:"O site só é mostrado quando não entra em conflito com o contexto do documento."},
-    UA:{recognizedInstitution:"Розпізнана установа",countryFromDocument:"Країна з документа",probableCountry:"Ймовірний контекст країни",countryNotCertain:"Країну установи не підтверджено однозначно в тексті документа.",basedOnContent:"на основі тексту/посилань у документі",basedOnLanguage:"на основі мови документа — це лише підказка",websiteHidden:"Я не показую один національний сайт як певний, бо країну недостатньо підтверджено.",safeInstitutionStep:"Не натискайте посилання з повідомлення. Відкрийте офіційний застосунок або знайдіть установу вручну.",officialWebsiteShown:"Сайт показується лише тоді, коли він не суперечить контексту документа."}
-  };
+  const dict = window.SB_I18N.modules["m6799_dict"];
   return (dict[L] && dict[L][key]) || (dict.EN && dict.EN[key]) || key;
 }
 
@@ -6854,7 +5720,7 @@ function sbInferDocumentCountry(){
     }
   }
 
-  const langMap = {NL:"NL", DE:"DE", FR:"FR", IT:"IT", ES:"ES", PT:"PT", PL:"PL", UA:"UA"};
+  const langMap = window.SB_I18N.modules["m6857_langMap"];
   if(langMap[selectedLang]){
     return {code:langMap[selectedLang], level:"language", reason:"language"};
   }
@@ -7069,134 +5935,7 @@ let currentPlan = null;
 function getPayText(){
   const lang = (UI && UI.lang) ? UI.lang : "PL";
 
-  const txt = {
-    PL:{
-      emailTitle:"Podaj swój email",
-      emailText:"Na ten adres przypiszemy zgłoszenie płatności i dostęp.",
-      placeholder:"twoj@email.com",
-      copied:"Skopiowano ✔",
-      copiedText:"Tytuł przelewu został skopiowany.",
-      noEmail:"Podaj email najpierw.",
-      noPlan:"Brak wybranego planu.",
-      blocked:"Ten email jest zablokowany.",
-      error:"Błąd: ",
-      activationError:"Błąd aktywacji",
-      pendingTitle:"Zgłoszenie zapisane ✔",
-      pendingText:"Wykonaj przelew z podanym tytułem. Dostęp zostanie aktywowany po potwierdzeniu płatności."
-    },
-    NL:{
-      emailTitle:"Voer je e-mailadres in",
-      emailText:"Aan dit adres koppelen we de betalingsmelding en toegang.",
-      placeholder:"jouw@email.com",
-      copied:"Gekopieerd ✔",
-      copiedText:"De omschrijving is gekopieerd.",
-      noEmail:"Voer eerst je e-mailadres in.",
-      noPlan:"Geen plan geselecteerd.",
-      blocked:"Dit e-mailadres is geblokkeerd.",
-      error:"Fout: ",
-      activationError:"Activatiefout",
-      pendingTitle:"Aanvraag opgeslagen ✔",
-      pendingText:"Voer de overschrijving uit met de opgegeven omschrijving. Toegang wordt geactiveerd na bevestiging van betaling."
-    },
-    EN:{
-      emailTitle:"Enter your email",
-      emailText:"We will assign the payment request and access to this address.",
-      placeholder:"your@email.com",
-      copied:"Copied ✔",
-      copiedText:"The transfer title has been copied.",
-      noEmail:"Enter your email first.",
-      noPlan:"No plan selected.",
-      blocked:"This email is blocked.",
-      error:"Error: ",
-      activationError:"Activation error",
-      pendingTitle:"Request saved ✔",
-      pendingText:"Make the transfer using the provided title. Access will be activated after payment confirmation."
-    },
-    DE:{
-      emailTitle:"Gib deine E-Mail-Adresse ein",
-      emailText:"An diese Adresse wird die Zahlungsanfrage und der Zugang zugewiesen.",
-      placeholder:"deine@email.com",
-      copied:"Kopiert ✔",
-      copiedText:"Der Verwendungszweck wurde kopiert.",
-      noEmail:"Bitte zuerst deine E-Mail eingeben.",
-      noPlan:"Kein Paket ausgewählt.",
-      blocked:"Diese E-Mail ist blockiert.",
-      error:"Fehler: ",
-      activationError:"Aktivierungsfehler",
-      pendingTitle:"Anfrage gespeichert ✔",
-      pendingText:"Führe die Überweisung mit dem angegebenen Verwendungszweck aus. Der Zugang wird nach Zahlungsbestätigung aktiviert."
-    },
-    UA:{
-      emailTitle:"Введіть свою електронну пошту",
-      emailText:"На цю адресу буде прив’язано заявку на оплату та доступ.",
-      placeholder:"your@email.com",
-      copied:"Скопійовано ✔",
-      copiedText:"Призначення платежу скопійовано.",
-      noEmail:"Спочатку введіть email.",
-      noPlan:"План не вибрано.",
-      blocked:"Цей email заблоковано.",
-      error:"Помилка: ",
-      activationError:"Помилка активації",
-      pendingTitle:"Запит збережено ✔",
-      pendingText:"Виконайте переказ із вказаним призначенням платежу. Доступ буде активовано після підтвердження оплати."
-    },
-    FR:{
-      emailTitle:"Entrez votre e-mail",
-      emailText:"Nous associerons la demande de paiement et l’accès à cette adresse.",
-      placeholder:"votre@email.com",
-      copied:"Copié ✔",
-      copiedText:"Le libellé du virement a été copié.",
-      noEmail:"Entrez d’abord votre e-mail.",
-      noPlan:"Aucun accès sélectionné.",
-      blocked:"Cet e-mail est bloqué.",
-      error:"Erreur : ",
-      activationError:"Erreur d’activation",
-      pendingTitle:"Demande enregistrée ✔",
-      pendingText:"Effectuez le virement avec le libellé indiqué. L’accès sera activé après confirmation du paiement."
-    },
-    IT:{
-      emailTitle:"Inserisci la tua email",
-      emailText:"A questo indirizzo assoceremo la richiesta di pagamento e l'accesso.",
-      placeholder:"tuo@email.com",
-      copied:"Copiato ✔",
-      copiedText:"La causale del bonifico è stata copiata.",
-      noEmail:"Inserisci prima la tua email.",
-      noPlan:"Nessun piano selezionato.",
-      blocked:"Questa email è bloccata.",
-      error:"Errore: ",
-      activationError:"Errore di attivazione",
-      pendingTitle:"Richiesta salvata ✔",
-      pendingText:"Effettua il bonifico usando la causale indicata. L'accesso sarà attivato dopo la conferma del pagamento."
-    },
-    ES:{
-      emailTitle:"Introduce tu email",
-      emailText:"Asignaremos la solicitud de pago y el acceso a esta dirección.",
-      placeholder:"tu@email.com",
-      copied:"Copiado ✔",
-      copiedText:"El concepto de la transferencia ha sido copiado.",
-      noEmail:"Introduce primero tu email.",
-      noPlan:"No se ha seleccionado ningún plan.",
-      blocked:"Este email está bloqueado.",
-      error:"Error: ",
-      activationError:"Error de activación",
-      pendingTitle:"Solicitud guardada ✔",
-      pendingText:"Realiza la transferencia con el concepto indicado. El acceso se activará después de confirmar el pago."
-    },
-    PT:{
-      emailTitle:"Introduza o seu email",
-      emailText:"Vamos associar o pedido de pagamento e o acesso a este endereço.",
-      placeholder:"seu@email.com",
-      copied:"Copiado ✔",
-      copiedText:"A referência da transferência foi copiada.",
-      noEmail:"Introduza primeiro o seu email.",
-      noPlan:"Nenhum plano selecionado.",
-      blocked:"Este email está bloqueado.",
-      error:"Erro: ",
-      activationError:"Erro de ativação",
-      pendingTitle:"Pedido guardado ✔",
-      pendingText:"Faça a transferência com a referência indicada. O acesso será ativado após confirmação do pagamento."
-    }
-  };
+  const txt = window.SB_I18N.modules["m7072_txt"];
 
   return txt[lang] || txt.PL;
 }
@@ -7372,62 +6111,7 @@ function sbTopInsightSafeTextV2(lang, level, institutionName) {
   const L = String(lang || "PL").toUpperCase();
   const name = institutionName ? String(institutionName).trim() : "";
 
-  const dict = {
-    PL: {
-      HIGH: name ? `🚨 Podejrzenie podszywania się pod ${name}. Nie klikaj linków i sprawdź sprawę przez oficjalną stronę.` : "🚨 Wysokie ryzyko oszustwa. Nie klikaj linków i zweryfikuj sprawę przez oficjalny kanał.",
-      MEDIUM: "⚠️ Dokument wymaga ostrożnej weryfikacji. Sprawdź nadawcę, linki i termin przez oficjalną stronę.",
-      LOW: name ? `✅ Rozpoznano ${name}. Nie wykryto silnych sygnałów oszustwa, ale szczegóły warto sprawdzić przez oficjalną stronę.` : "✅ Nie wykryto silnych sygnałów oszustwa. Sprawdź tylko szczegóły dokumentu.",
-      UNKNOWN: "ℹ️ Nie da się jednoznacznie ocenić bezpieczeństwa dokumentu. Sprawdź nadawcę oficjalnym kanałem."
-    },
-    UA: {
-      HIGH: name ? `🚨 Є підозра на імітацію ${name}. Не натискайте посилання і перевірте справу через офіційний сайт.` : "🚨 Високий ризик шахрайства. Не натискайте посилання і перевірте справу через офіційний канал.",
-      MEDIUM: "⚠️ Документ потребує обережної перевірки. Перевірте відправника, посилання і строк через офіційний сайт.",
-      LOW: name ? `✅ Розпізнано ${name}. Сильних ознак шахрайства не виявлено, але деталі варто перевірити через офіційний сайт.` : "✅ Сильних ознак шахрайства не виявлено. Перевірте лише деталі документа.",
-      UNKNOWN: "ℹ️ Неможливо однозначно оцінити безпечність документа. Перевірте відправника офіційним каналом."
-    },
-    NL: {
-      HIGH: name ? `🚨 Mogelijke imitatie van ${name}. Klik niet op links en controleer dit via de officiële website.` : "🚨 Hoog risico op fraude. Klik niet op links en controleer dit via een officieel kanaal.",
-      MEDIUM: "⚠️ Dit document vraagt om extra controle. Controleer afzender, links en termijn via de officiële website.",
-      LOW: name ? `✅ ${name} is herkend. Er zijn geen sterke fraudesignalen gevonden, maar controleer details via de officiële website.` : "✅ Er zijn geen sterke fraudesignalen gevonden. Controleer alleen de details van het document.",
-      UNKNOWN: "ℹ️ De veiligheid van dit document kan niet duidelijk worden beoordeeld. Controleer de afzender via een officieel kanaal."
-    },
-    EN: {
-      HIGH: name ? `🚨 Possible impersonation of ${name}. Do not click links and verify through the official website.` : "🚨 High fraud risk. Do not click links and verify through an official channel.",
-      MEDIUM: "⚠️ This document needs careful verification. Check the sender, links and deadline through the official website.",
-      LOW: name ? `✅ ${name} was recognized. No strong fraud signals were detected, but verify details through the official website.` : "✅ No strong fraud signals were detected. Just check the document details.",
-      UNKNOWN: "ℹ️ The safety of this document cannot be clearly assessed. Verify the sender through an official channel."
-    },
-    DE: {
-      HIGH: name ? `🚨 Mögliche Nachahmung von ${name}. Klicke nicht auf Links und prüfe die Sache über die offizielle Website.` : "🚨 Hohes Betrugsrisiko. Klicke nicht auf Links und prüfe die Sache über einen offiziellen Kanal.",
-      MEDIUM: "⚠️ Dieses Dokument sollte sorgfältig geprüft werden. Prüfe Absender, Links und Frist über die offizielle Website.",
-      LOW: name ? `✅ ${name} wurde erkannt. Es wurden keine starken Betrugssignale gefunden, prüfe Details aber über die offizielle Website.` : "✅ Es wurden keine starken Betrugssignale gefunden. Prüfe nur die Details des Dokuments.",
-      UNKNOWN: "ℹ️ Die Sicherheit dieses Dokuments kann nicht eindeutig bewertet werden. Prüfe den Absender über einen offiziellen Kanal."
-    },
-    FR: {
-      HIGH: name ? `🚨 Possible usurpation de ${name}. Ne cliquez pas sur les liens et vérifiez via le site officiel.` : "🚨 Risque élevé de fraude. Ne cliquez pas sur les liens et vérifiez via un canal officiel.",
-      MEDIUM: "⚠️ Ce document nécessite une vérification prudente. Vérifiez l’expéditeur, les liens et le délai via le site officiel.",
-      LOW: name ? `✅ ${name} a été reconnu. Aucun signal fort de fraude n’a été détecté, mais vérifiez les détails via le site officiel.` : "✅ Aucun signal fort de fraude n’a été détecté. Vérifiez seulement les détails du document.",
-      UNKNOWN: "ℹ️ La sécurité de ce document ne peut pas être évaluée clairement. Vérifiez l’expéditeur via un canal officiel."
-    },
-    IT: {
-      HIGH: name ? `🚨 Possibile imitazione di ${name}. Non cliccare sui link e verifica tramite il sito ufficiale.` : "🚨 Alto rischio di frode. Non cliccare sui link e verifica tramite un canale ufficiale.",
-      MEDIUM: "⚠️ Questo documento richiede una verifica attenta. Controlla mittente, link e scadenza tramite il sito ufficiale.",
-      LOW: name ? `✅ ${name} è stato riconosciuto. Non sono stati rilevati forti segnali di frode, ma verifica i dettagli tramite il sito ufficiale.` : "✅ Non sono stati rilevati forti segnali di frode. Controlla solo i dettagli del documento.",
-      UNKNOWN: "ℹ️ La sicurezza di questo documento non può essere valutata chiaramente. Verifica il mittente tramite un canale ufficiale."
-    },
-    ES: {
-      HIGH: name ? `🚨 Posible suplantación de ${name}. No hagas clic en enlaces y verifica a través del sitio oficial.` : "🚨 Alto riesgo de fraude. No hagas clic en enlaces y verifica por un canal oficial.",
-      MEDIUM: "⚠️ Este documento requiere verificación cuidadosa. Revisa remitente, enlaces y plazo a través del sitio oficial.",
-      LOW: name ? `✅ Se reconoció ${name}. No se detectaron señales fuertes de fraude, pero verifica los detalles en el sitio oficial.` : "✅ No se detectaron señales fuertes de fraude. Revisa solo los detalles del documento.",
-      UNKNOWN: "ℹ️ No se puede evaluar claramente la seguridad de este documento. Verifica el remitente por un canal oficial."
-    },
-    PT: {
-      HIGH: name ? `🚨 Possível imitação de ${name}. Não clique em links e verifique pelo site oficial.` : "🚨 Alto risco de fraude. Não clique em links e verifique por um canal oficial.",
-      MEDIUM: "⚠️ Este documento requer verificação cuidadosa. Verifique remetente, links e prazo pelo site oficial.",
-      LOW: name ? `✅ ${name} foi reconhecida. Não foram detetados sinais fortes de fraude, mas verifique os detalhes pelo site oficial.` : "✅ Não foram detetados sinais fortes de fraude. Verifique apenas os detalhes do documento.",
-      UNKNOWN: "ℹ️ A segurança deste documento não pode ser avaliada claramente. Verifique o remetente por um canal oficial."
-    }
-  };
+  const dict = window.SB_I18N.modules["m7375_dict"];
 
   const pack = dict[L] || dict.PL;
   return pack[level] || pack.UNKNOWN;
@@ -7460,17 +6144,7 @@ function renderTopInsightSafeV2(data) {
   el.style.display = "block";
 }
 
-const SB_UX_V10_TEXT = {
-  PL:{progressTitle:"Analiza dokumentu",progress1:"Przygotowanie",progress2:"Odczyt tekstu",progress3:"Analiza treści",progress4:"Ocena bezpieczeństwa",progress5:"Gotowe",statusPreparing:"Przygotowuję analizę...",statusReading:"Odczytuję dokument...",statusAnalyzing:"Analizuję treść...",statusSafety:"Sprawdzam bezpieczeństwo...",statusDone:"Gotowe – sprawdź poniżej",statusError:"Błąd analizy",quickTitle:"✨ Szybkie podsumowanie",quickMeaning:"📝 Co to oznacza?",quickAction:"⚠️ Czy muszę działać?",quickSafety:"🛡️ Czy to bezpieczne?",noShortSummary:"Brak krótkiego podsumowania. Zobacz szczegóły niżej.",noAction:"Brak jasnego działania. Sprawdź szczegóły analizy.",lowUrgency:"Niska pilność",mediumUrgency:"Średnia pilność",highUrgency:"Pilne",unknownUrgency:"Nie określono",safeLow:"Wygląda raczej bezpiecznie",safeMedium:"Warto zweryfikować",safeHigh:"Wysokie ryzyko",safeUnknown:"Nie da się ocenić",printPdf:"📄 Pobierz / zapisz PDF",printHint:"Użyj opcji drukowania telefonu, aby zapisać wynik jako PDF."},
-  EN:{progressTitle:"Document analysis",progress1:"Preparing",progress2:"Reading text",progress3:"Content analysis",progress4:"Safety check",progress5:"Done",statusPreparing:"Preparing analysis...",statusReading:"Reading the document...",statusAnalyzing:"Analyzing the content...",statusSafety:"Checking safety...",statusDone:"Done – check below",statusError:"Analysis error",quickTitle:"✨ Quick summary",quickMeaning:"📝 What does it mean?",quickAction:"⚠️ Do I need to act?",quickSafety:"🛡️ Is it safe?",noShortSummary:"No short summary available. See the details below.",noAction:"No clear action detected. Check the analysis details.",lowUrgency:"Low urgency",mediumUrgency:"Medium urgency",highUrgency:"Urgent",unknownUrgency:"Not specified",safeLow:"Looks rather safe",safeMedium:"Worth verifying",safeHigh:"High risk",safeUnknown:"Cannot be assessed",printPdf:"📄 Download / save PDF",printHint:"Use your phone's print option to save the result as PDF."},
-  NL:{progressTitle:"Documentanalyse",progress1:"Voorbereiden",progress2:"Tekst lezen",progress3:"Inhoud analyseren",progress4:"Veiligheid controleren",progress5:"Klaar",statusPreparing:"Analyse voorbereiden...",statusReading:"Document lezen...",statusAnalyzing:"Inhoud analyseren...",statusSafety:"Veiligheid controleren...",statusDone:"Klaar – kijk hieronder",statusError:"Analysefout",quickTitle:"✨ Korte samenvatting",quickMeaning:"📝 Wat betekent dit?",quickAction:"⚠️ Moet ik iets doen?",quickSafety:"🛡️ Is het veilig?",noShortSummary:"Geen korte samenvatting beschikbaar. Bekijk de details hieronder.",noAction:"Geen duidelijke actie gevonden. Bekijk de analysedetails.",lowUrgency:"Lage urgentie",mediumUrgency:"Middelmatige urgentie",highUrgency:"Dringend",unknownUrgency:"Niet bepaald",safeLow:"Lijkt redelijk veilig",safeMedium:"Controleer dit",safeHigh:"Hoog risico",safeUnknown:"Kan niet worden beoordeeld",printPdf:"📄 Download / sla PDF op",printHint:"Gebruik de printfunctie van je telefoon om het resultaat als PDF op te slaan."},
-  DE:{progressTitle:"Dokumentanalyse",progress1:"Vorbereitung",progress2:"Text lesen",progress3:"Inhalt analysieren",progress4:"Sicherheit prüfen",progress5:"Fertig",statusPreparing:"Analyse wird vorbereitet...",statusReading:"Dokument wird gelesen...",statusAnalyzing:"Inhalt wird analysiert...",statusSafety:"Sicherheit wird geprüft...",statusDone:"Fertig – siehe unten",statusError:"Analysefehler",quickTitle:"✨ Kurze Zusammenfassung",quickMeaning:"📝 Was bedeutet das?",quickAction:"⚠️ Muss ich handeln?",quickSafety:"🛡️ Ist es sicher?",noShortSummary:"Keine kurze Zusammenfassung verfügbar. Siehe Details unten.",noAction:"Keine klare Handlung erkannt. Prüfen Sie die Details der Analyse.",lowUrgency:"Geringe Dringlichkeit",mediumUrgency:"Mittlere Dringlichkeit",highUrgency:"Dringend",unknownUrgency:"Nicht bestimmt",safeLow:"Wirkt eher sicher",safeMedium:"Überprüfung empfohlen",safeHigh:"Hohes Risiko",safeUnknown:"Kann nicht bewertet werden",printPdf:"📄 PDF herunterladen / speichern",printHint:"Nutzen Sie die Druckfunktion Ihres Telefons, um das Ergebnis als PDF zu speichern."},
-  FR:{progressTitle:"Analyse du document",progress1:"Préparation",progress2:"Lecture du texte",progress3:"Analyse du contenu",progress4:"Vérification de sécurité",progress5:"Terminé",statusPreparing:"Préparation de l’analyse...",statusReading:"Lecture du document...",statusAnalyzing:"Analyse du contenu...",statusSafety:"Vérification de la sécurité...",statusDone:"Terminé – regardez ci-dessous",statusError:"Erreur d’analyse",quickTitle:"✨ Résumé rapide",quickMeaning:"📝 Qu’est-ce que cela signifie ?",quickAction:"⚠️ Dois-je agir ?",quickSafety:"🛡️ Est-ce sûr ?",noShortSummary:"Aucun résumé court disponible. Voir les détails ci-dessous.",noAction:"Aucune action claire détectée. Consultez les détails de l’analyse.",lowUrgency:"Faible urgence",mediumUrgency:"Urgence moyenne",highUrgency:"Urgent",unknownUrgency:"Non précisé",safeLow:"Semble plutôt sûr",safeMedium:"À vérifier",safeHigh:"Risque élevé",safeUnknown:"Impossible à évaluer",printPdf:"📄 Télécharger / enregistrer PDF",printHint:"Utilisez l’option d’impression du téléphone pour enregistrer le résultat en PDF."},
-  IT:{progressTitle:"Analisi del documento",progress1:"Preparazione",progress2:"Lettura del testo",progress3:"Analisi del contenuto",progress4:"Controllo sicurezza",progress5:"Fatto",statusPreparing:"Preparazione dell’analisi...",statusReading:"Lettura del documento...",statusAnalyzing:"Analisi del contenuto...",statusSafety:"Controllo della sicurezza...",statusDone:"Fatto – controlla qui sotto",statusError:"Errore di analisi",quickTitle:"✨ Riepilogo rapido",quickMeaning:"📝 Cosa significa?",quickAction:"⚠️ Devo agire?",quickSafety:"🛡️ È sicuro?",noShortSummary:"Nessun riepilogo breve disponibile. Vedi i dettagli sotto.",noAction:"Nessuna azione chiara rilevata. Controlla i dettagli dell’analisi.",lowUrgency:"Bassa urgenza",mediumUrgency:"Urgenza media",highUrgency:"Urgente",unknownUrgency:"Non specificato",safeLow:"Sembra abbastanza sicuro",safeMedium:"Da verificare",safeHigh:"Rischio elevato",safeUnknown:"Non valutabile",printPdf:"📄 Scarica / salva PDF",printHint:"Usa l’opzione di stampa del telefono per salvare il risultato in PDF."},
-  ES:{progressTitle:"Análisis del documento",progress1:"Preparación",progress2:"Lectura del texto",progress3:"Análisis del contenido",progress4:"Comprobación de seguridad",progress5:"Listo",statusPreparing:"Preparando el análisis...",statusReading:"Leyendo el documento...",statusAnalyzing:"Analizando el contenido...",statusSafety:"Comprobando la seguridad...",statusDone:"Listo – revisa abajo",statusError:"Error de análisis",quickTitle:"✨ Resumen rápido",quickMeaning:"📝 ¿Qué significa?",quickAction:"⚠️ ¿Tengo que actuar?",quickSafety:"🛡️ ¿Es seguro?",noShortSummary:"No hay resumen corto disponible. Revisa los detalles abajo.",noAction:"No se detectó una acción clara. Revisa los detalles del análisis.",lowUrgency:"Baja urgencia",mediumUrgency:"Urgencia media",highUrgency:"Urgente",unknownUrgency:"No especificado",safeLow:"Parece bastante seguro",safeMedium:"Conviene verificar",safeHigh:"Riesgo alto",safeUnknown:"No se puede evaluar",printPdf:"📄 Descargar / guardar PDF",printHint:"Usa la opción de imprimir del teléfono para guardar el resultado como PDF."},
-  PT:{progressTitle:"Análise do documento",progress1:"Preparação",progress2:"Leitura do texto",progress3:"Análise do conteúdo",progress4:"Verificação de segurança",progress5:"Concluído",statusPreparing:"A preparar a análise...",statusReading:"A ler o documento...",statusAnalyzing:"A analisar o conteúdo...",statusSafety:"A verificar a segurança...",statusDone:"Concluído – veja abaixo",statusError:"Erro de análise",quickTitle:"✨ Resumo rápido",quickMeaning:"📝 O que significa?",quickAction:"⚠️ Preciso agir?",quickSafety:"🛡️ É seguro?",noShortSummary:"Não há resumo curto disponível. Veja os detalhes abaixo.",noAction:"Nenhuma ação clara detetada. Verifique os detalhes da análise.",lowUrgency:"Baixa urgência",mediumUrgency:"Urgência média",highUrgency:"Urgente",unknownUrgency:"Não especificado",safeLow:"Parece relativamente seguro",safeMedium:"Vale a pena verificar",safeHigh:"Alto risco",safeUnknown:"Não é possível avaliar",printPdf:"📄 Descarregar / guardar PDF",printHint:"Use a opção de impressão do telemóvel para guardar o resultado em PDF."},
-  UA:{progressTitle:"Аналіз документа",progress1:"Підготовка",progress2:"Читання тексту",progress3:"Аналіз змісту",progress4:"Перевірка безпеки",progress5:"Готово",statusPreparing:"Підготовка аналізу...",statusReading:"Читання документа...",statusAnalyzing:"Аналіз змісту...",statusSafety:"Перевірка безпеки...",statusDone:"Готово – дивіться нижче",statusError:"Помилка аналізу",quickTitle:"✨ Короткий підсумок",quickMeaning:"📝 Що це означає?",quickAction:"⚠️ Чи потрібно діяти?",quickSafety:"🛡️ Чи це безпечно?",noShortSummary:"Короткий підсумок недоступний. Дивіться деталі нижче.",noAction:"Чіткої дії не виявлено. Перевірте деталі аналізу.",lowUrgency:"Низька терміновість",mediumUrgency:"Середня терміновість",highUrgency:"Терміново",unknownUrgency:"Не визначено",safeLow:"Виглядає досить безпечно",safeMedium:"Варто перевірити",safeHigh:"Високий ризик",safeUnknown:"Неможливо оцінити",printPdf:"📄 Завантажити / зберегти PDF",printHint:"Скористайтеся друком на телефоні, щоб зберегти результат як PDF."}
-};
+const SB_UX_V10_TEXT = window.SB_I18N.modules["m7463_SB_UX_V10_TEXT"];
 function sbUx10Text(key, lang){
   const L = String(lang || sbGetResultLang() || (UI && UI.lang) || "PL").toUpperCase();
   return (SB_UX_V10_TEXT[L] && SB_UX_V10_TEXT[L][key]) || (SB_UX_V10_TEXT.EN && SB_UX_V10_TEXT.EN[key]) || (SB_UX_V10_TEXT.PL && SB_UX_V10_TEXT.PL[key]) || key;
@@ -8290,7 +6964,7 @@ function installApp() {
 
     };
 
-    var m = txt[lang] || txt.PL;
+    var m = (window.SB_INSTALL_I18N && window.SB_INSTALL_I18N[lang]) || txt[lang] || txt.EN || txt.PL;
 
     var oldBox = document.getElementById("sbInstallBox");
     if (oldBox) oldBox.remove();
@@ -8447,17 +7121,7 @@ function sbApplyResultUxPatchV9(data){
     const sep = document.getElementById("sbSummarySeparator");
     if(sep){
       sep.style.display = "block";
-      const labels = {
-        PL:"Ocena i kroki Sense Bridge",
-        EN:"Sense Bridge assessment and steps",
-        NL:"Beoordeling en stappen van Sense Bridge",
-        DE:"Bewertung und Schritte von Sense Bridge",
-        FR:"Évaluation et étapes Sense Bridge",
-        IT:"Valutazione e passi Sense Bridge",
-        ES:"Evaluación y pasos de Sense Bridge",
-        PT:"Avaliação e passos do Sense Bridge",
-        UA:"Оцінка та кроки Sense Bridge"
-      };
+      const labels = window.SB_I18N.modules["m8450_labels"];
       const span = sep.querySelector("span");
       if(span) span.textContent = labels[lang] || labels.PL;
     }
@@ -8481,18 +7145,8 @@ document.addEventListener("DOMContentLoaded", function(){
 <script>
 (function(){
   "use strict";
-  const COPY={
-    PL:{label:"Widok aplikacji",sub:"Wybierz prosty lub pełny sposób korzystania",simple:"Prosty",full:"Pełny",language:"Twój język aplikacji",show:"📂 Pokaż pełną analizę",hide:"📁 Ukryj szczegóły"},
-    EN:{label:"App view",sub:"Choose a simple or full experience",simple:"Simple",full:"Full",language:"Your app language",show:"📂 Show full analysis",hide:"📁 Hide details"},
-    NL:{label:"App-weergave",sub:"Kies de eenvoudige of volledige weergave",simple:"Eenvoudig",full:"Volledig",language:"Taal van je app",show:"📂 Toon volledige analyse",hide:"📁 Verberg details"},
-    DE:{label:"App-Ansicht",sub:"Wähle die einfache oder vollständige Ansicht",simple:"Einfach",full:"Vollständig",language:"Deine App-Sprache",show:"📂 Vollständige Analyse anzeigen",hide:"📁 Details ausblenden"},
-    FR:{label:"Affichage de l’application",sub:"Choisissez l’affichage simple ou complet",simple:"Simple",full:"Complet",language:"Langue de votre application",show:"📂 Afficher l’analyse complète",hide:"📁 Masquer les détails"},
-    IT:{label:"Vista dell’app",sub:"Scegli la visualizzazione semplice o completa",simple:"Semplice",full:"Completa",language:"Lingua dell’app",show:"📂 Mostra analisi completa",hide:"📁 Nascondi dettagli"},
-    ES:{label:"Vista de la aplicación",sub:"Elige la vista simple o completa",simple:"Simple",full:"Completa",language:"Idioma de tu aplicación",show:"📂 Mostrar análisis completo",hide:"📁 Ocultar detalles"},
-    PT:{label:"Vista da aplicação",sub:"Escolha a vista simples ou completa",simple:"Simples",full:"Completa",language:"Idioma da aplicação",show:"📂 Mostrar análise completa",hide:"📁 Ocultar detalhes"},
-    UA:{label:"Вигляд застосунку",sub:"Оберіть простий або повний вигляд",simple:"Простий",full:"Повний",language:"Мова застосунку",show:"📂 Показати повний аналіз",hide:"📁 Сховати деталі"}
-  };
-  const FLAGS={PL:"🇵🇱 PL",UA:"🇺🇦 UA",NL:"🇳🇱 NL",EN:"🇬🇧 EN",DE:"🇩🇪 DE",FR:"🇫🇷 FR",IT:"🇮🇹 IT",ES:"🇪🇸 ES",PT:"🇵🇹 PT"};
+  const COPY=window.SB_I18N.modules["m8484_COPY"];
+  const FLAGS=window.SB_I18N.modules["m8495_FLAGS"];
   function lang(){
     try{return String((window.UI&&UI.lang)||localStorage.getItem('sb_ui_lang_v1')||'PL').toUpperCase()}catch(e){return 'PL'}
   }
@@ -8595,17 +7249,7 @@ document.addEventListener("DOMContentLoaded", function(){
 <script>
 (function(){
   "use strict";
-  const COPY={
-    PL:{menu:"Menu",title:"Menu Sense Bridge",ai:"Nowe narzędzia AI",aiSub:"Sprawdź zrzut, link, wiadomość lub przygotuj odpowiedź.",view:"Widok aplikacji",viewSub:"Przełącz między widokiem prostym i pełnym.",benefits:"Co robi aplikacja",benefitsSub:"Zobacz najważniejsze możliwości Sense Bridge.",access:"Dostęp",accessSub:"Sprawdź analizy FREE lub aktywny dostęp.",note:"W widoku Pełnym wszystkie sekcje są zawsze widoczne.",close:"Zamknij"},
-    EN:{menu:"Menu",title:"Sense Bridge menu",ai:"New AI tools",aiSub:"Check a screenshot, link, message or prepare a reply.",view:"App view",viewSub:"Switch between Simple and Full view.",benefits:"What the app does",benefitsSub:"See the key Sense Bridge features.",access:"Access",accessSub:"Check FREE analyses or active access.",note:"In Full view, all sections are always visible.",close:"Close"},
-    NL:{menu:"Menu",title:"Sense Bridge-menu",ai:"Nieuwe AI-tools",aiSub:"Controleer een screenshot, link of bericht, of maak een antwoord.",view:"App-weergave",viewSub:"Schakel tussen Eenvoudig en Volledig.",benefits:"Wat de app doet",benefitsSub:"Bekijk de belangrijkste functies van Sense Bridge.",access:"Toegang",accessSub:"Controleer FREE-analyses of actieve toegang.",note:"In de Volledige weergave zijn alle onderdelen altijd zichtbaar.",close:"Sluiten"},
-    DE:{menu:"Menü",title:"Sense Bridge-Menü",ai:"Neue KI-Werkzeuge",aiSub:"Screenshot, Link oder Nachricht prüfen oder eine Antwort vorbereiten.",view:"App-Ansicht",viewSub:"Zwischen Einfach und Vollständig wechseln.",benefits:"Was die App macht",benefitsSub:"Die wichtigsten Funktionen von Sense Bridge ansehen.",access:"Zugang",accessSub:"FREE-Analysen oder aktiven Zugang prüfen.",note:"In der vollständigen Ansicht sind alle Bereiche immer sichtbar.",close:"Schließen"},
-    FR:{menu:"Menu",title:"Menu Sense Bridge",ai:"Nouveaux outils IA",aiSub:"Vérifiez une capture, un lien, un message ou préparez une réponse.",view:"Affichage de l’application",viewSub:"Passez de l’affichage Simple à Complet.",benefits:"Ce que fait l’application",benefitsSub:"Découvrez les fonctions principales de Sense Bridge.",access:"Accès",accessSub:"Vérifiez les analyses FREE ou l’accès actif.",note:"En affichage Complet, toutes les sections restent visibles.",close:"Fermer"},
-    IT:{menu:"Menu",title:"Menu Sense Bridge",ai:"Nuovi strumenti IA",aiSub:"Controlla uno screenshot, un link o un messaggio, oppure prepara una risposta.",view:"Vista dell’app",viewSub:"Passa dalla vista Semplice a quella Completa.",benefits:"Cosa fa l’app",benefitsSub:"Scopri le funzioni principali di Sense Bridge.",access:"Accesso",accessSub:"Controlla le analisi FREE o l’accesso attivo.",note:"Nella vista Completa tutte le sezioni sono sempre visibili.",close:"Chiudi"},
-    ES:{menu:"Menú",title:"Menú de Sense Bridge",ai:"Nuevas herramientas de IA",aiSub:"Comprueba una captura, enlace o mensaje, o prepara una respuesta.",view:"Vista de la aplicación",viewSub:"Cambia entre la vista Simple y Completa.",benefits:"Qué hace la aplicación",benefitsSub:"Consulta las funciones principales de Sense Bridge.",access:"Acceso",accessSub:"Comprueba los análisis FREE o el acceso activo.",note:"En la vista Completa todas las secciones están siempre visibles.",close:"Cerrar"},
-    PT:{menu:"Menu",title:"Menu do Sense Bridge",ai:"Novas ferramentas de IA",aiSub:"Verifique uma captura, link ou mensagem, ou prepare uma resposta.",view:"Vista da aplicação",viewSub:"Alterne entre a vista Simples e Completa.",benefits:"O que a aplicação faz",benefitsSub:"Veja as principais funções do Sense Bridge.",access:"Acesso",accessSub:"Verifique análises FREE ou acesso ativo.",note:"Na vista Completa, todas as secções ficam sempre visíveis.",close:"Fechar"},
-    UA:{menu:"Меню",title:"Меню Sense Bridge",ai:"Нові інструменти ШІ",aiSub:"Перевірте знімок екрана, посилання чи повідомлення або підготуйте відповідь.",view:"Вигляд застосунку",viewSub:"Перемикайтеся між Простим і Повним виглядом.",benefits:"Що робить застосунок",benefitsSub:"Перегляньте основні можливості Sense Bridge.",access:"Доступ",accessSub:"Перевірте FREE-аналізи або активний доступ.",note:"У Повному вигляді всі розділи завжди відкриті.",close:"Закрити"}
-  };
+  const COPY=window.SB_I18N.modules["m8598_COPY"];
   const items=[
     {key:'ai',icon:'✨',cls:'sb-menu-ai-open',target:'sbAiToolsCard'},
     {key:'view',icon:'👁️',cls:'sb-menu-view-open',target:'sbViewSwitchV11'},
@@ -9109,156 +7753,9 @@ body.dark-mode #translation{
 (function(){
   "use strict";
 
-  const SB_UX_COPY = {
-    PL:{
-      main:"Każde pismo. Każdy język.",
-      sub:"Jasne wyjaśnienie, analiza i odpowiedź.",
-      more:"Więcej",
-      moreTitle:"Więcej opcji",
-      install:"Zainstaluj aplikację",
-      placeholder:"Wklej tutaj treść pisma lub e-maila…",
-      free:n => n === 1 ? "Pozostała 1 darmowa analiza" :
-        (n >= 2 && n <= 4 ? `Pozostały ${n} darmowe analizy` : `Pozostało ${n} darmowych analiz`),
-      active:s => `Dostęp aktywny: ${s}`
-    },
-    UA:{
-      main:"Кожен документ. Кожна мова.",
-      sub:"Зрозуміле пояснення, аналіз і відповідь.",
-      more:"Більше",
-      moreTitle:"Більше можливостей",
-      install:"Встановити застосунок",
-      placeholder:"Вставте сюди текст листа або електронного повідомлення…",
-      free:n => `Залишилося безкоштовних аналізів: ${n}`,
-      active:s => `Доступ активний: ${s}`
-    },
-    NL:{
-      main:"Elk document. Elke taal.",
-      sub:"Duidelijke uitleg, analyse en antwoord.",
-      more:"Meer",
-      moreTitle:"Meer opties",
-      install:"App installeren",
-      placeholder:"Plak hier de tekst van een brief of e-mail…",
-      free:n => n === 1 ? "Nog 1 gratis analyse" : `Nog ${n} gratis analyses`,
-      active:s => `Toegang actief: ${s}`
-    },
-    EN:{
-      main:"Every document. Every language.",
-      sub:"Clear explanation, analysis and reply.",
-      more:"More",
-      moreTitle:"More options",
-      install:"Install the app",
-      placeholder:"Paste the text of a letter or email here…",
-      free:n => n === 1 ? "1 free analysis left" : `${n} free analyses left`,
-      active:s => `Access active: ${s}`
-    },
-    DE:{
-      main:"Jedes Dokument. Jede Sprache.",
-      sub:"Klare Erklärung, Analyse und Antwort.",
-      more:"Mehr",
-      moreTitle:"Weitere Optionen",
-      install:"App installieren",
-      placeholder:"Füge hier den Text eines Schreibens oder einer E-Mail ein…",
-      free:n => n === 1 ? "Noch 1 kostenlose Analyse" : `Noch ${n} kostenlose Analysen`,
-      active:s => `Zugang aktiv: ${s}`
-    },
-    FR:{
-      main:"Chaque document. Chaque langue.",
-      sub:"Explication claire, analyse et réponse.",
-      more:"Plus",
-      moreTitle:"Plus d’options",
-      install:"Installer l’application",
-      placeholder:"Collez ici le texte d’un courrier ou d’un e-mail…",
-      free:n => n === 1 ? "1 analyse gratuite restante" : `${n} analyses gratuites restantes`,
-      active:s => `Accès actif : ${s}`
-    },
-    IT:{
-      main:"Ogni documento. Ogni lingua.",
-      sub:"Spiegazione chiara, analisi e risposta.",
-      more:"Altro",
-      moreTitle:"Altre opzioni",
-      install:"Installa l’app",
-      placeholder:"Incolla qui il testo di una lettera o e-mail…",
-      free:n => n === 1 ? "Rimane 1 analisi gratuita" : `Rimangono ${n} analisi gratuite`,
-      active:s => `Accesso attivo: ${s}`
-    },
-    ES:{
-      main:"Cada documento. Cada idioma.",
-      sub:"Explicación clara, análisis y respuesta.",
-      more:"Más",
-      moreTitle:"Más opciones",
-      install:"Instalar la aplicación",
-      placeholder:"Pega aquí el texto de una carta o correo electrónico…",
-      free:n => n === 1 ? "Queda 1 análisis gratuito" : `Quedan ${n} análisis gratuitos`,
-      active:s => `Acceso activo: ${s}`
-    },
-    PT:{
-      main:"Cada documento. Cada idioma.",
-      sub:"Explicação clara, análise e resposta.",
-      more:"Mais",
-      moreTitle:"Mais opções",
-      install:"Instalar a aplicação",
-      placeholder:"Cole aqui o texto de uma carta ou e-mail…",
-      free:n => n === 1 ? "Resta 1 análise gratuita" : `Restam ${n} análises gratuitas`,
-      active:s => `Acesso ativo: ${s}`
-    }
-  };
+  const SB_UX_COPY = window.SB_I18N.modules["m9112_SB_UX_COPY"];
 
-  const SB_EXTRA_COPY = {
-    PL:{
-      reach:"Ponad 100 języków — zrozum pismo w swoim języku",
-      takeScreenshot:"Zrób zdjęcie ekranu",
-      chooseScreenshot:"Wybierz z galerii",
-      noScreenshot:"Nie wybrano obrazu"
-    },
-    UA:{
-      reach:"Понад 100 мов — зрозумійте документ своєю мовою",
-      takeScreenshot:"Зробити фото екрана",
-      chooseScreenshot:"Вибрати з галереї",
-      noScreenshot:"Зображення не вибрано"
-    },
-    NL:{
-      reach:"Meer dan 100 talen — begrijp het document in jouw taal",
-      takeScreenshot:"Maak een foto van het scherm",
-      chooseScreenshot:"Kies uit de galerij",
-      noScreenshot:"Geen afbeelding geselecteerd"
-    },
-    EN:{
-      reach:"100+ languages — understand the document in your language",
-      takeScreenshot:"Take a photo of the screen",
-      chooseScreenshot:"Choose from gallery",
-      noScreenshot:"No image selected"
-    },
-    DE:{
-      reach:"Über 100 Sprachen — verstehen Sie das Dokument in Ihrer Sprache",
-      takeScreenshot:"Foto vom Bildschirm aufnehmen",
-      chooseScreenshot:"Aus der Galerie auswählen",
-      noScreenshot:"Kein Bild ausgewählt"
-    },
-    FR:{
-      reach:"Plus de 100 langues — comprenez le document dans votre langue",
-      takeScreenshot:"Prendre une photo de l’écran",
-      chooseScreenshot:"Choisir dans la galerie",
-      noScreenshot:"Aucune image sélectionnée"
-    },
-    IT:{
-      reach:"Oltre 100 lingue — comprendi il documento nella tua lingua",
-      takeScreenshot:"Scatta una foto dello schermo",
-      chooseScreenshot:"Scegli dalla galleria",
-      noScreenshot:"Nessuna immagine selezionata"
-    },
-    ES:{
-      reach:"Más de 100 idiomas — comprende el documento en tu idioma",
-      takeScreenshot:"Tomar una foto de la pantalla",
-      chooseScreenshot:"Elegir de la galería",
-      noScreenshot:"No se ha seleccionado ninguna imagen"
-    },
-    PT:{
-      reach:"Mais de 100 idiomas — compreenda o documento no seu idioma",
-      takeScreenshot:"Tirar uma foto do ecrã",
-      chooseScreenshot:"Escolher da galeria",
-      noScreenshot:"Nenhuma imagem selecionada"
-    }
-  };
+  const SB_EXTRA_COPY = window.SB_I18N.modules["m9206_SB_EXTRA_COPY"];
 
   function currentLang(){
     try{
@@ -9436,17 +7933,7 @@ body.dark-mode #translation{
 (function(){
   "use strict";
 
-  const COPY = {
-    PL:{tool:"Analiza umowy",toolDesc:"Najważniejsze zapisy, obowiązki, terminy i punkty wymagające uwagi.",title:"Analiza umowy",desc:"Wklej tekst umowy albo dodaj maksymalnie 5 zdjęć kolejnych stron.",textTab:"📝 Wklej tekst",imagesTab:"🖼️ Dodaj zdjęcia",placeholder:"Wklej tutaj treść umowy...",camera:"📷 Zrób zdjęcie",gallery:"🖼️ Wybierz z galerii",count:n=>`Wybrano: ${n} z 5`,note:"Sense Bridge wskaże ważne zapisy i możliwe ryzyka. To informacyjne wyjaśnienie AI, a nie porada prawna.",run:"Analizuj umowę",clear:"Wyczyść",close:"Zamknij",empty:"Wklej treść umowy albo dodaj co najmniej jedno zdjęcie.",tooMany:"Możesz dodać maksymalnie 5 zdjęć.",reading:(i,n)=>`Odczytuję stronę ${i} z ${n}...`,analyzing:"Analizuję umowę...",done:"Analiza umowy gotowa.",error:"Nie udało się przeanalizować umowy.",locked:"Wykorzystano bezpłatne testy AI. Aktywuj dostęp Premium.",overview:"📋 Co to za umowa i czego dotyczy",duties:"✅ Obowiązki i najważniejsze warunki",dates:"📅 Terminy, wypowiedzenie i przedłużenie",risks:"⚠️ Zapisy wymagające uwagi",next:"➡️ Co sprawdzić lub zrobić dalej",plain:"🌍 Proste wyjaśnienie / tłumaczenie"},
-    UA:{tool:"Аналіз договору",toolDesc:"Ключові умови, обов’язки, строки та пункти, що потребують уваги.",title:"Аналіз договору",desc:"Вставте текст договору або додайте до 5 фотографій послідовних сторін.",textTab:"📝 Вставити текст",imagesTab:"🖼️ Додати фото",placeholder:"Вставте сюди текст договору...",camera:"📷 Зробити фото",gallery:"🖼️ Вибрати з галереї",count:n=>`Вибрано: ${n} з 5`,note:"Sense Bridge покаже важливі умови та можливі ризики. Це інформаційне пояснення ШІ, а не юридична консультація.",run:"Аналізувати договір",clear:"Очистити",close:"Закрити",empty:"Вставте текст договору або додайте хоча б одне фото.",tooMany:"Можна додати максимум 5 фото.",reading:(i,n)=>`Зчитую сторінку ${i} з ${n}...`,analyzing:"Аналізую договір...",done:"Аналіз договору готовий.",error:"Не вдалося проаналізувати договір.",locked:"Безкоштовні тести ШІ використано. Активуйте Premium.",overview:"📋 Що це за договір і чого він стосується",duties:"✅ Обов’язки та ключові умови",dates:"📅 Строки, розірвання та продовження",risks:"⚠️ Пункти, що потребують уваги",next:"➡️ Що перевірити або зробити далі",plain:"🌍 Просте пояснення / переклад"},
-    NL:{tool:"Contractanalyse",toolDesc:"Belangrijkste bepalingen, verplichtingen, termijnen en aandachtspunten.",title:"Contractanalyse",desc:"Plak de contracttekst of voeg maximaal 5 foto's van opeenvolgende pagina's toe.",textTab:"📝 Tekst plakken",imagesTab:"🖼️ Foto's toevoegen",placeholder:"Plak hier de tekst van het contract...",camera:"📷 Foto maken",gallery:"🖼️ Kies uit galerij",count:n=>`Geselecteerd: ${n} van 5`,note:"Sense Bridge markeert belangrijke bepalingen en mogelijke risico's. Dit is een informatieve AI-uitleg, geen juridisch advies.",run:"Contract analyseren",clear:"Wissen",close:"Sluiten",empty:"Plak de contracttekst of voeg minimaal één foto toe.",tooMany:"Je kunt maximaal 5 foto's toevoegen.",reading:(i,n)=>`Pagina ${i} van ${n} lezen...`,analyzing:"Contract analyseren...",done:"Contractanalyse is klaar.",error:"Het contract kon niet worden geanalyseerd.",locked:"De gratis AI-tests zijn gebruikt. Activeer Premium.",overview:"📋 Wat voor contract dit is en waarover het gaat",duties:"✅ Verplichtingen en belangrijkste voorwaarden",dates:"📅 Termijnen, opzegging en verlenging",risks:"⚠️ Bepalingen die aandacht vragen",next:"➡️ Wat te controleren of te doen",plain:"🌍 Eenvoudige uitleg / vertaling"},
-    EN:{tool:"Contract analysis",toolDesc:"Key clauses, obligations, deadlines and points requiring attention.",title:"Contract analysis",desc:"Paste the contract text or add up to 5 photos of consecutive pages.",textTab:"📝 Paste text",imagesTab:"🖼️ Add photos",placeholder:"Paste the contract text here...",camera:"📷 Take a photo",gallery:"🖼️ Choose from gallery",count:n=>`Selected: ${n} of 5`,note:"Sense Bridge highlights important clauses and possible risks. This is informational AI guidance, not legal advice.",run:"Analyze contract",clear:"Clear",close:"Close",empty:"Paste the contract text or add at least one photo.",tooMany:"You can add a maximum of 5 photos.",reading:(i,n)=>`Reading page ${i} of ${n}...`,analyzing:"Analyzing contract...",done:"Contract analysis is ready.",error:"The contract could not be analyzed.",locked:"The free AI trials have been used. Activate Premium.",overview:"📋 What kind of contract this is and what it covers",duties:"✅ Obligations and key terms",dates:"📅 Deadlines, termination and renewal",risks:"⚠️ Clauses requiring attention",next:"➡️ What to check or do next",plain:"🌍 Plain-language explanation / translation"},
-    DE:{tool:"Vertragsanalyse",toolDesc:"Wichtige Klauseln, Pflichten, Fristen und auffällige Punkte.",title:"Vertragsanalyse",desc:"Fügen Sie den Vertragstext ein oder laden Sie bis zu 5 Fotos aufeinanderfolgender Seiten hoch.",textTab:"📝 Text einfügen",imagesTab:"🖼️ Fotos hinzufügen",placeholder:"Vertragstext hier einfügen...",camera:"📷 Foto aufnehmen",gallery:"🖼️ Aus Galerie wählen",count:n=>`Ausgewählt: ${n} von 5`,note:"Sense Bridge zeigt wichtige Klauseln und mögliche Risiken. Dies ist eine informative KI-Erklärung, keine Rechtsberatung.",run:"Vertrag analysieren",clear:"Löschen",close:"Schließen",empty:"Fügen Sie Vertragstext ein oder mindestens ein Foto hinzu.",tooMany:"Sie können maximal 5 Fotos hinzufügen.",reading:(i,n)=>`Seite ${i} von ${n} wird gelesen...`,analyzing:"Vertrag wird analysiert...",done:"Vertragsanalyse ist fertig.",error:"Der Vertrag konnte nicht analysiert werden.",locked:"Die kostenlosen KI-Tests wurden verwendet. Premium aktivieren.",overview:"📋 Um welche Art Vertrag es sich handelt und worum es geht",duties:"✅ Pflichten und wichtigste Bedingungen",dates:"📅 Fristen, Kündigung und Verlängerung",risks:"⚠️ Klauseln, die Aufmerksamkeit erfordern",next:"➡️ Was geprüft oder getan werden sollte",plain:"🌍 Einfache Erklärung / Übersetzung"},
-    FR:{tool:"Analyse de contrat",toolDesc:"Clauses essentielles, obligations, délais et points à surveiller.",title:"Analyse de contrat",desc:"Collez le texte du contrat ou ajoutez jusqu’à 5 photos de pages successives.",textTab:"📝 Coller le texte",imagesTab:"🖼️ Ajouter des photos",placeholder:"Collez ici le texte du contrat...",camera:"📷 Prendre une photo",gallery:"🖼️ Choisir dans la galerie",count:n=>`Sélectionnées : ${n} sur 5`,note:"Sense Bridge signale les clauses importantes et les risques possibles. Il s’agit d’une explication informative par IA, pas d’un conseil juridique.",run:"Analyser le contrat",clear:"Effacer",close:"Fermer",empty:"Collez le texte du contrat ou ajoutez au moins une photo.",tooMany:"Vous pouvez ajouter au maximum 5 photos.",reading:(i,n)=>`Lecture de la page ${i} sur ${n}...`,analyzing:"Analyse du contrat...",done:"L’analyse du contrat est prête.",error:"Le contrat n’a pas pu être analysé.",locked:"Les essais IA gratuits ont été utilisés. Activez Premium.",overview:"📋 Le type de contrat et son objet",duties:"✅ Obligations et conditions essentielles",dates:"📅 Délais, résiliation et renouvellement",risks:"⚠️ Clauses nécessitant votre attention",next:"➡️ Ce qu’il faut vérifier ou faire",plain:"🌍 Explication simple / traduction"},
-    IT:{tool:"Analisi del contratto",toolDesc:"Clausole principali, obblighi, scadenze e punti da controllare.",title:"Analisi del contratto",desc:"Incolla il testo del contratto o aggiungi fino a 5 foto di pagine consecutive.",textTab:"📝 Incolla il testo",imagesTab:"🖼️ Aggiungi foto",placeholder:"Incolla qui il testo del contratto...",camera:"📷 Scatta una foto",gallery:"🖼️ Scegli dalla galleria",count:n=>`Selezionate: ${n} di 5`,note:"Sense Bridge evidenzia le clausole importanti e i possibili rischi. È una spiegazione informativa dell’IA, non una consulenza legale.",run:"Analizza il contratto",clear:"Cancella",close:"Chiudi",empty:"Incolla il testo del contratto o aggiungi almeno una foto.",tooMany:"Puoi aggiungere al massimo 5 foto.",reading:(i,n)=>`Lettura pagina ${i} di ${n}...`,analyzing:"Analisi del contratto...",done:"L’analisi del contratto è pronta.",error:"Impossibile analizzare il contratto.",locked:"Le prove AI gratuite sono state utilizzate. Attiva Premium.",overview:"📋 Che tipo di contratto è e cosa riguarda",duties:"✅ Obblighi e condizioni principali",dates:"📅 Scadenze, recesso e rinnovo",risks:"⚠️ Clausole che richiedono attenzione",next:"➡️ Cosa controllare o fare",plain:"🌍 Spiegazione semplice / traduzione"},
-    ES:{tool:"Análisis de contrato",toolDesc:"Cláusulas clave, obligaciones, plazos y puntos que requieren atención.",title:"Análisis de contrato",desc:"Pega el texto del contrato o añade hasta 5 fotos de páginas consecutivas.",textTab:"📝 Pegar texto",imagesTab:"🖼️ Añadir fotos",placeholder:"Pega aquí el texto del contrato...",camera:"📷 Hacer una foto",gallery:"🖼️ Elegir de la galería",count:n=>`Seleccionadas: ${n} de 5`,note:"Sense Bridge señalará las cláusulas importantes y los posibles riesgos. Es una explicación informativa de IA, no asesoramiento jurídico.",run:"Analizar contrato",clear:"Borrar",close:"Cerrar",empty:"Pega el texto del contrato o añade al menos una foto.",tooMany:"Puedes añadir un máximo de 5 fotos.",reading:(i,n)=>`Leyendo página ${i} de ${n}...`,analyzing:"Analizando contrato...",done:"El análisis del contrato está listo.",error:"No se pudo analizar el contrato.",locked:"Se han utilizado las pruebas gratuitas de IA. Activa Premium.",overview:"📋 Qué tipo de contrato es y de qué trata",duties:"✅ Obligaciones y condiciones clave",dates:"📅 Plazos, cancelación y renovación",risks:"⚠️ Cláusulas que requieren atención",next:"➡️ Qué comprobar o hacer",plain:"🌍 Explicación sencilla / traducción"},
-    PT:{tool:"Análise de contrato",toolDesc:"Cláusulas principais, obrigações, prazos e pontos que exigem atenção.",title:"Análise de contrato",desc:"Cole o texto do contrato ou adicione até 5 fotografias de páginas consecutivas.",textTab:"📝 Colar texto",imagesTab:"🖼️ Adicionar fotografias",placeholder:"Cole aqui o texto do contrato...",camera:"📷 Tirar uma fotografia",gallery:"🖼️ Escolher da galeria",count:n=>`Selecionadas: ${n} de 5`,note:"O Sense Bridge destaca cláusulas importantes e possíveis riscos. Esta é uma explicação informativa por IA, não aconselhamento jurídico.",run:"Analisar contrato",clear:"Limpar",close:"Fechar",empty:"Cole o texto do contrato ou adicione pelo menos uma fotografia.",tooMany:"Pode adicionar no máximo 5 fotografias.",reading:(i,n)=>`A ler a página ${i} de ${n}...`,analyzing:"A analisar o contrato...",done:"A análise do contrato está pronta.",error:"Não foi possível analisar o contrato.",locked:"Os testes gratuitos de IA foram utilizados. Ative o Premium.",overview:"📋 Que tipo de contrato é e do que trata",duties:"✅ Obrigações e condições principais",dates:"📅 Prazos, cancelamento e renovação",risks:"⚠️ Cláusulas que exigem atenção",next:"➡️ O que verificar ou fazer",plain:"🌍 Explicação simples / tradução"}
-  };
+  const COPY = window.SB_I18N.modules["m9439_COPY"];
 
   let selectedFiles = [];
   let mode = "text";
@@ -9692,57 +8179,11 @@ body.dark-mode #translation{
   const MAX_IMAGES=5, MAX_PDF_PAGES=10;
   let tool="pdf", sourceMode="upload", images=[], pdfFile=null, lastLang="";
 
-  const COMMON={
-    PL:{text:"📝 Wklej tekst",upload:"🖼️ Dodaj plik",take:"📷 Zrób zdjęcie",gallery:"🖼️ Wybierz z galerii",pdf:"📄 Wybierz PDF",clear:"Wyczyść",close:"Zamknij",selected:n=>`Wybrano: ${n} z 5`,none:"Nie wybrano pliku.",maxImages:"Możesz dodać maksymalnie 5 zdjęć.",maxPdf:"PDF może mieć maksymalnie 10 stron w tej wersji testowej.",empty:"Wklej tekst lub dodaj plik.",reading:(i,n)=>`Odczytuję stronę ${i} z ${n}...`,extracting:"Odczytuję PDF...",analyzing:"Analizuję...",done:"Analiza jest gotowa.",error:"Nie udało się wykonać analizy.",locked:"Wykorzystano bezpłatne testy AI. Aktywuj Premium.",pdfLoad:"Nie udało się uruchomić czytnika PDF. Sprawdź połączenie z internetem."},
-    UA:{text:"📝 Вставити текст",upload:"🖼️ Додати файл",take:"📷 Зробити фото",gallery:"🖼️ Вибрати з галереї",pdf:"📄 Вибрати PDF",clear:"Очистити",close:"Закрити",selected:n=>`Вибрано: ${n} з 5`,none:"Файл не вибрано.",maxImages:"Можна додати максимум 5 фото.",maxPdf:"У цій тестовій версії PDF може містити максимум 10 сторінок.",empty:"Вставте текст або додайте файл.",reading:(i,n)=>`Зчитую сторінку ${i} з ${n}...`,extracting:"Зчитую PDF...",analyzing:"Аналізую...",done:"Аналіз готовий.",error:"Не вдалося виконати аналіз.",locked:"Безкоштовні тести ШІ використано. Активуйте Premium.",pdfLoad:"Не вдалося запустити засіб читання PDF. Перевірте інтернет-з’єднання."},
-    NL:{text:"📝 Tekst plakken",upload:"🖼️ Bestand toevoegen",take:"📷 Foto maken",gallery:"🖼️ Kies uit galerij",pdf:"📄 PDF kiezen",clear:"Wissen",close:"Sluiten",selected:n=>`Geselecteerd: ${n} van 5`,none:"Geen bestand geselecteerd.",maxImages:"Je kunt maximaal 5 foto's toevoegen.",maxPdf:"In deze testversie mag een PDF maximaal 10 pagina's bevatten.",empty:"Plak tekst of voeg een bestand toe.",reading:(i,n)=>`Pagina ${i} van ${n} lezen...`,extracting:"PDF lezen...",analyzing:"Analyseren...",done:"De analyse is klaar.",error:"De analyse kon niet worden uitgevoerd.",locked:"De gratis AI-tests zijn gebruikt. Activeer Premium.",pdfLoad:"De PDF-lezer kon niet worden gestart. Controleer je internetverbinding."},
-    EN:{text:"📝 Paste text",upload:"🖼️ Add file",take:"📷 Take a photo",gallery:"🖼️ Choose from gallery",pdf:"📄 Choose PDF",clear:"Clear",close:"Close",selected:n=>`Selected: ${n} of 5`,none:"No file selected.",maxImages:"You can add a maximum of 5 photos.",maxPdf:"A PDF can contain a maximum of 10 pages in this test version.",empty:"Paste text or add a file.",reading:(i,n)=>`Reading page ${i} of ${n}...`,extracting:"Reading PDF...",analyzing:"Analyzing...",done:"The analysis is ready.",error:"The analysis could not be completed.",locked:"The free AI trials have been used. Activate Premium.",pdfLoad:"The PDF reader could not be started. Check your internet connection."},
-    DE:{text:"📝 Text einfügen",upload:"🖼️ Datei hinzufügen",take:"📷 Foto aufnehmen",gallery:"🖼️ Aus Galerie wählen",pdf:"📄 PDF auswählen",clear:"Löschen",close:"Schließen",selected:n=>`Ausgewählt: ${n} von 5`,none:"Keine Datei ausgewählt.",maxImages:"Sie können maximal 5 Fotos hinzufügen.",maxPdf:"In dieser Testversion darf ein PDF maximal 10 Seiten enthalten.",empty:"Fügen Sie Text ein oder laden Sie eine Datei hoch.",reading:(i,n)=>`Seite ${i} von ${n} wird gelesen...`,extracting:"PDF wird gelesen...",analyzing:"Analyse läuft...",done:"Die Analyse ist fertig.",error:"Die Analyse konnte nicht durchgeführt werden.",locked:"Die kostenlosen KI-Tests wurden verwendet. Premium aktivieren.",pdfLoad:"Der PDF-Reader konnte nicht gestartet werden. Prüfen Sie die Internetverbindung."},
-    FR:{text:"📝 Coller le texte",upload:"🖼️ Ajouter un fichier",take:"📷 Prendre une photo",gallery:"🖼️ Choisir dans la galerie",pdf:"📄 Choisir un PDF",clear:"Effacer",close:"Fermer",selected:n=>`Sélectionnées : ${n} sur 5`,none:"Aucun fichier sélectionné.",maxImages:"Vous pouvez ajouter au maximum 5 photos.",maxPdf:"Dans cette version test, un PDF peut contenir au maximum 10 pages.",empty:"Collez du texte ou ajoutez un fichier.",reading:(i,n)=>`Lecture de la page ${i} sur ${n}...`,extracting:"Lecture du PDF...",analyzing:"Analyse...",done:"L’analyse est prête.",error:"L’analyse n’a pas pu être effectuée.",locked:"Les essais IA gratuits ont été utilisés. Activez Premium.",pdfLoad:"Le lecteur PDF n’a pas pu démarrer. Vérifiez votre connexion internet."},
-    IT:{text:"📝 Incolla il testo",upload:"🖼️ Aggiungi file",take:"📷 Scatta una foto",gallery:"🖼️ Scegli dalla galleria",pdf:"📄 Scegli PDF",clear:"Cancella",close:"Chiudi",selected:n=>`Selezionate: ${n} di 5`,none:"Nessun file selezionato.",maxImages:"Puoi aggiungere al massimo 5 foto.",maxPdf:"In questa versione di prova un PDF può contenere al massimo 10 pagine.",empty:"Incolla il testo o aggiungi un file.",reading:(i,n)=>`Lettura pagina ${i} di ${n}...`,extracting:"Lettura del PDF...",analyzing:"Analisi...",done:"L’analisi è pronta.",error:"Impossibile completare l’analisi.",locked:"Le prove AI gratuite sono state utilizzate. Attiva Premium.",pdfLoad:"Impossibile avviare il lettore PDF. Controlla la connessione internet."},
-    ES:{text:"📝 Pegar texto",upload:"🖼️ Añadir archivo",take:"📷 Hacer una foto",gallery:"🖼️ Elegir de la galería",pdf:"📄 Elegir PDF",clear:"Borrar",close:"Cerrar",selected:n=>`Seleccionadas: ${n} de 5`,none:"No se ha seleccionado ningún archivo.",maxImages:"Puedes añadir un máximo de 5 fotos.",maxPdf:"En esta versión de prueba, el PDF puede tener un máximo de 10 páginas.",empty:"Pega texto o añade un archivo.",reading:(i,n)=>`Leyendo página ${i} de ${n}...`,extracting:"Leyendo PDF...",analyzing:"Analizando...",done:"El análisis está listo.",error:"No se pudo completar el análisis.",locked:"Se han utilizado las pruebas gratuitas de IA. Activa Premium.",pdfLoad:"No se pudo iniciar el lector PDF. Comprueba la conexión a internet."},
-    PT:{text:"📝 Colar texto",upload:"🖼️ Adicionar ficheiro",take:"📷 Tirar uma fotografia",gallery:"🖼️ Escolher da galeria",pdf:"📄 Escolher PDF",clear:"Limpar",close:"Fechar",selected:n=>`Selecionadas: ${n} de 5`,none:"Nenhum ficheiro selecionado.",maxImages:"Pode adicionar no máximo 5 fotografias.",maxPdf:"Nesta versão de teste, o PDF pode ter no máximo 10 páginas.",empty:"Cole texto ou adicione um ficheiro.",reading:(i,n)=>`A ler a página ${i} de ${n}...`,extracting:"A ler o PDF...",analyzing:"A analisar...",done:"A análise está pronta.",error:"Não foi possível concluir a análise.",locked:"Os testes gratuitos de IA foram utilizados. Ative o Premium.",pdfLoad:"Não foi possível iniciar o leitor de PDF. Verifique a ligação à internet."}
-  };
+  const COMMON=window.SB_I18N.modules["m9695_COMMON"];
 
-  const TOOLS={
-    PL:{
-      pdf:{title:"Analiza PDF",desc:"Dodaj dokument PDF do 10 stron. Sense Bridge odczyta tekst, a skanowane strony przekaże do OCR.",card:"Odczytaj i wyjaśnij wielostronicowy dokument PDF.",run:"Analizuj PDF",placeholder:"Możesz też wkleić tekst z dokumentu PDF...",note:"Wersja testowa: maksymalnie 10 stron. Dokumenty nie są zapisywane.",labels:["📋 Co to za dokument","🏛️ Kto go wydał i czego dotyczy","📅 Terminy i daty","⚠️ Ważne lub niejasne punkty","➡️ Co zrobić dalej","🌍 Proste wyjaśnienie"]},
-      form:{title:"Pomoc przy formularzach",desc:"Wklej formularz albo dodaj do 5 zdjęć kolejnych stron.",card:"Wyjaśnienie pól, wymaganych informacji i dokumentów.",run:"Wyjaśnij formularz",placeholder:"Wklej tekst formularza lub opisz, z czym potrzebujesz pomocy...",note:"Sense Bridge wyjaśnia pola, ale nie wpisuje za Ciebie danych i nie wysyła formularza.",labels:["📋 Do czego służy formularz","📝 Jak wypełnić pola","📎 Potrzebne informacje i dokumenty","⚠️ Pola wymagające uwagi","➡️ Kolejne kroki","🌍 Proste wyjaśnienie"]},
-      photo:{title:"Analiza zdjęć",desc:"Dodaj do 5 zdjęć z tekstem, komunikatem, tabliczką lub dokumentem.",card:"Odczytaj i wyjaśnij tekst widoczny na zdjęciach.",run:"Analizuj zdjęcia",placeholder:"Opcjonalnie opisz, co znajduje się na zdjęciu lub czego chcesz się dowiedzieć...",note:"Zdjęcie powinno być ostre, dobrze oświetlone i obejmować cały tekst.",labels:["🖼️ Co przedstawiają zdjęcia","📄 Odczytana treść","🏛️ Nadawca lub źródło","⚠️ Ważne sygnały","➡️ Co zrobić dalej","🌍 Proste wyjaśnienie / tłumaczenie"]},
-      bill:{title:"Rachunki i faktury",desc:"Wklej treść rachunku lub dodaj do 5 zdjęć jego stron.",card:"Kwoty, terminy płatności, pozycje i możliwe niejasności.",run:"Wyjaśnij rachunek",placeholder:"Wklej treść rachunku lub faktury...",note:"Sense Bridge wyjaśnia dokument informacyjnie. Przed płatnością sprawdź dane odbiorcy i numer konta.",labels:["🧾 Za co jest rachunek","💶 Kwoty i pozycje","📅 Termin i sposób płatności","⚠️ Opłaty lub niejasności","➡️ Co sprawdzić przed płatnością","🌍 Proste wyjaśnienie"]}
-    },
-    EN:{
-      pdf:{title:"PDF analysis",desc:"Add a PDF document of up to 10 pages. Sense Bridge extracts text and sends scanned pages to OCR.",card:"Read and explain a multi-page PDF document.",run:"Analyze PDF",placeholder:"You can also paste text from a PDF document...",note:"Test version: maximum 10 pages. Documents are not stored.",labels:["📋 What this document is","🏛️ Issuer and purpose","📅 Deadlines and dates","⚠️ Important or unclear points","➡️ What to do next","🌍 Plain-language explanation"]},
-      form:{title:"Form assistance",desc:"Paste a form or add up to 5 photos of consecutive pages.",card:"Explanation of fields, required information and documents.",run:"Explain form",placeholder:"Paste the form text or describe what you need help with...",note:"Sense Bridge explains fields but does not enter your data or submit the form.",labels:["📋 Purpose of the form","📝 How to complete the fields","📎 Required information and documents","⚠️ Fields requiring attention","➡️ Next steps","🌍 Plain-language explanation"]},
-      photo:{title:"Photo analysis",desc:"Add up to 5 photos containing text, a notice, sign or document.",card:"Read and explain text visible in photos.",run:"Analyze photos",placeholder:"Optionally describe the photo or what you want to know...",note:"The photo should be sharp, well lit and include all of the text.",labels:["🖼️ What the photos show","📄 Extracted content","🏛️ Sender or source","⚠️ Important signals","➡️ What to do next","🌍 Plain explanation / translation"]},
-      bill:{title:"Bills and invoices",desc:"Paste bill text or add up to 5 photos of its pages.",card:"Amounts, payment deadlines, line items and possible unclear charges.",run:"Explain bill",placeholder:"Paste the bill or invoice text...",note:"Sense Bridge provides informational guidance. Verify the recipient and bank details before paying.",labels:["🧾 What the bill is for","💶 Amounts and line items","📅 Payment deadline and method","⚠️ Charges or unclear points","➡️ What to check before paying","🌍 Plain-language explanation"]}
-    },
-    NL:{
-      pdf:{title:"PDF-analyse",desc:"Voeg een PDF van maximaal 10 pagina's toe. Sense Bridge leest tekst en stuurt gescande pagina's naar OCR.",card:"Lees en verklaar een PDF-document met meerdere pagina's.",run:"PDF analyseren",placeholder:"Je kunt ook tekst uit een PDF plakken...",note:"Testversie: maximaal 10 pagina's. Documenten worden niet opgeslagen.",labels:["📋 Wat voor document dit is","🏛️ Afzender en doel","📅 Termijnen en datums","⚠️ Belangrijke of onduidelijke punten","➡️ Wat nu te doen","🌍 Eenvoudige uitleg"]},
-      form:{title:"Hulp bij formulieren",desc:"Plak een formulier of voeg maximaal 5 foto's van opeenvolgende pagina's toe.",card:"Uitleg van velden, vereiste informatie en documenten.",run:"Formulier uitleggen",placeholder:"Plak de formuliertekst of beschrijf waarmee je hulp nodig hebt...",note:"Sense Bridge legt velden uit, maar vult geen gegevens in en verstuurt het formulier niet.",labels:["📋 Doel van het formulier","📝 Hoe de velden in te vullen","📎 Benodigde informatie en documenten","⚠️ Velden die aandacht vragen","➡️ Volgende stappen","🌍 Eenvoudige uitleg"]},
-      photo:{title:"Fotoanalyse",desc:"Voeg maximaal 5 foto's toe met tekst, een melding, bord of document.",card:"Lees en verklaar tekst die op foto's zichtbaar is.",run:"Foto's analyseren",placeholder:"Beschrijf eventueel wat op de foto staat of wat je wilt weten...",note:"De foto moet scherp, goed belicht en volledig zijn.",labels:["🖼️ Wat de foto's tonen","📄 Uitgelezen inhoud","🏛️ Afzender of bron","⚠️ Belangrijke signalen","➡️ Wat nu te doen","🌍 Eenvoudige uitleg / vertaling"]},
-      bill:{title:"Rekeningen en facturen",desc:"Plak de tekst of voeg maximaal 5 foto's van de pagina's toe.",card:"Bedragen, betalingstermijnen, posten en mogelijke onduidelijkheden.",run:"Rekening uitleggen",placeholder:"Plak de tekst van de rekening of factuur...",note:"Sense Bridge geeft informatieve uitleg. Controleer ontvanger en bankgegevens vóór betaling.",labels:["🧾 Waarvoor de rekening is","💶 Bedragen en posten","📅 Betaaltermijn en methode","⚠️ Kosten of onduidelijkheden","➡️ Wat te controleren vóór betaling","🌍 Eenvoudige uitleg"]}
-    },
-    DE:{
-      pdf:{title:"PDF-Analyse",desc:"Fügen Sie ein PDF mit bis zu 10 Seiten hinzu. Sense Bridge liest Text und sendet Scans an OCR.",card:"Ein mehrseitiges PDF-Dokument lesen und erklären.",run:"PDF analysieren",placeholder:"Sie können auch Text aus einem PDF einfügen...",note:"Testversion: maximal 10 Seiten. Dokumente werden nicht gespeichert.",labels:["📋 Art des Dokuments","🏛️ Herausgeber und Zweck","📅 Fristen und Daten","⚠️ Wichtige oder unklare Punkte","➡️ Nächste Schritte","🌍 Einfache Erklärung"]},
-      form:{title:"Hilfe bei Formularen",desc:"Fügen Sie Formulartext oder bis zu 5 Fotos aufeinanderfolgender Seiten hinzu.",card:"Erklärung von Feldern, erforderlichen Angaben und Dokumenten.",run:"Formular erklären",placeholder:"Fügen Sie den Formulartext ein oder beschreiben Sie Ihre Frage...",note:"Sense Bridge erklärt Felder, trägt aber keine Daten ein und sendet das Formular nicht.",labels:["📋 Zweck des Formulars","📝 So werden die Felder ausgefüllt","📎 Benötigte Angaben und Dokumente","⚠️ Felder, die Aufmerksamkeit erfordern","➡️ Nächste Schritte","🌍 Einfache Erklärung"]},
-      photo:{title:"Fotoanalyse",desc:"Fügen Sie bis zu 5 Fotos mit Text, Hinweis, Schild oder Dokument hinzu.",card:"Auf Fotos sichtbaren Text lesen und erklären.",run:"Fotos analysieren",placeholder:"Beschreiben Sie optional das Foto oder Ihre Frage...",note:"Das Foto sollte scharf, gut beleuchtet und vollständig sein.",labels:["🖼️ Was die Fotos zeigen","📄 Erkannter Inhalt","🏛️ Absender oder Quelle","⚠️ Wichtige Signale","➡️ Nächste Schritte","🌍 Einfache Erklärung / Übersetzung"]},
-      bill:{title:"Rechnungen und Belege",desc:"Fügen Sie Rechnungstext oder bis zu 5 Fotos hinzu.",card:"Beträge, Zahlungsfristen, Positionen und mögliche Unklarheiten.",run:"Rechnung erklären",placeholder:"Fügen Sie den Rechnungs- oder Belegtext ein...",note:"Sense Bridge erklärt informativ. Prüfen Sie Empfänger und Bankdaten vor der Zahlung.",labels:["🧾 Wofür die Rechnung ist","💶 Beträge und Positionen","📅 Zahlungsfrist und -methode","⚠️ Gebühren oder Unklarheiten","➡️ Vor der Zahlung prüfen","🌍 Einfache Erklärung"]}
-    },
-    UA:{
-      pdf:{title:"Аналіз PDF",desc:"Додайте PDF до 10 сторінок. Sense Bridge витягне текст, а скановані сторінки передасть OCR.",card:"Прочитати й пояснити багатосторінковий PDF.",run:"Аналізувати PDF",placeholder:"Також можна вставити текст із PDF...",note:"Тестова версія: максимум 10 сторінок. Документи не зберігаються.",labels:["📋 Що це за документ","🏛️ Хто його видав і з якою метою","📅 Строки й дати","⚠️ Важливі або незрозумілі пункти","➡️ Що робити далі","🌍 Просте пояснення"]},
-      form:{title:"Допомога з формами",desc:"Вставте форму або додайте до 5 фото послідовних сторінок.",card:"Пояснення полів, потрібної інформації та документів.",run:"Пояснити форму",placeholder:"Вставте текст форми або опишіть, з чим потрібна допомога...",note:"Sense Bridge пояснює поля, але не вводить дані й не надсилає форму.",labels:["📋 Призначення форми","📝 Як заповнити поля","📎 Потрібна інформація та документи","⚠️ Поля, що потребують уваги","➡️ Наступні кроки","🌍 Просте пояснення"]},
-      photo:{title:"Аналіз фото",desc:"Додайте до 5 фото з текстом, повідомленням, табличкою або документом.",card:"Прочитати й пояснити текст на фотографіях.",run:"Аналізувати фото",placeholder:"За бажанням опишіть фото або своє запитання...",note:"Фото має бути чітким, добре освітленим і містити весь текст.",labels:["🖼️ Що показано на фото","📄 Розпізнаний текст","🏛️ Відправник або джерело","⚠️ Важливі сигнали","➡️ Що робити далі","🌍 Просте пояснення / переклад"]},
-      bill:{title:"Рахунки та фактури",desc:"Вставте текст рахунку або додайте до 5 фото його сторінок.",card:"Суми, строки оплати, позиції та можливі незрозумілі нарахування.",run:"Пояснити рахунок",placeholder:"Вставте текст рахунку або фактури...",note:"Sense Bridge надає інформаційне пояснення. Перевірте одержувача й банківські дані перед оплатою.",labels:["🧾 За що виставлено рахунок","💶 Суми й позиції","📅 Строк і спосіб оплати","⚠️ Нарахування або незрозумілі пункти","➡️ Що перевірити перед оплатою","🌍 Просте пояснення"]}
-    }
-  };
+  const TOOLS=window.SB_I18N.modules["m9707_TOOLS"];
 
-  const FALLBACK_LOCAL={
-    FR:{pdf:["Analyse PDF","Lire et expliquer un document PDF de plusieurs pages.","Analyser le PDF"],form:["Aide aux formulaires","Explication des champs, informations et documents requis.","Expliquer le formulaire"],photo:["Analyse de photos","Lire et expliquer le texte visible sur les photos.","Analyser les photos"],bill:["Factures et notes","Montants, échéances, postes et points peu clairs.","Expliquer la facture"]},
-    IT:{pdf:["Analisi PDF","Leggi e spiega un documento PDF di più pagine.","Analizza PDF"],form:["Assistenza moduli","Spiegazione di campi, informazioni e documenti richiesti.","Spiega modulo"],photo:["Analisi foto","Leggi e spiega il testo visibile nelle foto.","Analizza foto"],bill:["Bollette e fatture","Importi, scadenze, voci e possibili punti poco chiari.","Spiega fattura"]},
-    ES:{pdf:["Análisis PDF","Lee y explica un documento PDF de varias páginas.","Analizar PDF"],form:["Ayuda con formularios","Explicación de campos, información y documentos necesarios.","Explicar formulario"],photo:["Análisis de fotos","Lee y explica el texto visible en fotografías.","Analizar fotos"],bill:["Recibos y facturas","Importes, plazos, conceptos y posibles dudas.","Explicar factura"]},
-    PT:{pdf:["Análise PDF","Ler e explicar um documento PDF com várias páginas.","Analisar PDF"],form:["Ajuda com formulários","Explicação de campos, informações e documentos necessários.","Explicar formulário"],photo:["Análise de fotografias","Ler e explicar o texto visível nas fotografias.","Analisar fotografias"],bill:["Contas e faturas","Valores, prazos, itens e possíveis dúvidas.","Explicar fatura"]}
-  };
+  const FALLBACK_LOCAL=window.SB_I18N.modules["m9740_FALLBACK_LOCAL"];
   Object.keys(FALLBACK_LOCAL).forEach(lang=>{
     TOOLS[lang]=TOOLS[lang]||{};
     Object.keys(FALLBACK_LOCAL[lang]).forEach(k=>{
@@ -9956,17 +8397,7 @@ body.dark-mode #translation{
 <script id="sb-mobile-workspace-v2-js">
 (function(){
   "use strict";
-  const COPY={
-    PL:{analysis:"Analiza",tools:"Narzędzia AI",settings:"Ustawienia"},
-    UA:{analysis:"Аналіз",tools:"AI-інструменти",settings:"Налаштування"},
-    NL:{analysis:"Analyse",tools:"AI-tools",settings:"Instellingen"},
-    EN:{analysis:"Analysis",tools:"AI Tools",settings:"Settings"},
-    DE:{analysis:"Analyse",tools:"KI-Tools",settings:"Einstellungen"},
-    FR:{analysis:"Analyse",tools:"Outils IA",settings:"Réglages"},
-    IT:{analysis:"Analisi",tools:"Strumenti IA",settings:"Impostazioni"},
-    ES:{analysis:"Análisis",tools:"Herramientas IA",settings:"Ajustes"},
-    PT:{analysis:"Análise",tools:"Ferramentas IA",settings:"Definições"}
-  };
+  const COPY=window.SB_I18N.modules["m9959_COPY"];
   function lang(){
     try{return String((window.UI&&UI.lang)||localStorage.getItem("sb_ui_lang_v1")||"PL").toUpperCase()}catch(_){return "PL"}
   }
