@@ -77,7 +77,9 @@ Twoim celem jest spokojne wyjaśnienie sytuacji użytkownikowi:
 Odpowiadaj w języku użytkownika: ${userLang}.
 
 DOPRACOWANIE WIELOJĘZYCZNE SENSE BRIDGE:
-Obsługiwane języki użytkownika: PL, UA, NL, EN, DE, FR, IT, ES, PT.
+Obsługiwane języki użytkownika: PL, UA, NL, EN, DE, FR, IT, ES, PT, LT, LV, HU, ZH, JA, HI, AR, EG, ET, RO, HR.
+Kody dodatkowe: LT=litewski, LV=łotewski, HU=węgierski, ZH=chiński uproszczony, JA=japoński, HI=hindi, AR=arabski standardowy, EG=arabski egipski, ET=estoński, RO=rumuński, HR=chorwacki.
+Dla EG odpowiadaj naturalnym współczesnym arabskim egipskim, zachowując czytelność dla użytkownika.
 Wszystkie pola tekstowe JSON mają być w języku użytkownika ${userLang}, w tym:
 summary, actions, consequences, risks, help, fraudRisk.label, fraudRisk.summary, fraudRisk.signals, fraudRisk.suspiciousElements, fraudRisk.safeSteps, fraudRisk.disclaimer oraz replies.
 Nie mieszaj języków w jednej analizie. Nazwy instytucji i oficjalne adresy stron zostaw w oryginale.
@@ -573,6 +575,8 @@ detectedPhones,
 
     forceUserLanguageNormalizationV2(payload, userLang);
 
+    sbApplyExtraLanguageSafetyLocalizationV3(payload, userLang);
+
     sbDedupePayloadArraysV1(payload);
 
     return json(200, headers, payload);
@@ -681,8 +685,156 @@ ${common}`;
 }
 
 
+
+/* ============================================================
+   Sense Bridge EXTRA USER LANGUAGES v3
+   Additive language layer only. Does not change fraud scoring,
+   institution recognition, OCR, access, or analysis mode logic.
+   ============================================================ */
+const SB_EXTRA_LANGS_V3 = {
+  LT: {
+    emptyAnalysis:"Nėra teksto analizei.", emptyFraud:"Nėra teksto sukčiavimo rizikos analizei.",
+    fraud:{LOW:"Atrodo gana patikimai",MEDIUM:"Patikrinkite siuntėją",HIGH:"Didelė sukčiavimo rizika",UNKNOWN:"Autentiškumo įvertinti negalima",summary:"Tai rami rizikos analizė. Ji nepatvirtina dokumento autentiškumo.",disclaimer:"Tai rizikos analizė, o ne dokumento autentiškumo patvirtinimas.",safe:["Nespauskite įtartinų nuorodų.","Nesidalykite prisijungimo duomenimis, slaptažodžiais ar banko duomenimis.","Patikrinkite per oficialią institucijos svetainę arba telefono numerį."]},
+    reply:{neutral:"Laba diena,\ndėkoju už žinutę. Prašau patvirtinti, ar turiu imtis kokių nors veiksmų ir kokie yra terminai.\nPagarbiai,",polite:"Laba diena,\nprašau patvirtinti, ar iš mano pusės reikia atlikti papildomus veiksmus ir iki kada.\nPagarbiai,",firm:"Laba diena,\nprašau aiškiai nurodyti reikiamus veiksmus ir terminus.\nPagarbiai,"},
+    phrases:{time:"Laiko spaudimas arba skubus patvirtinimas.",account:"Grasinimas užblokuoti paskyrą arba prarasti prieigą.",click:"Nespauskite nuorodos žinutėje.",share:"Nesidalykite prisijungimo vardu, slaptažodžiu, SMS kodu ar TAN.",external:"Institucija atpažinta, tačiau nuoroda veda už oficialaus domeno ribų.",suspicious:"Aptiktas įtartinas domenas arba telefono numeris."},
+    official:{label:"✅ Atpažinta oficiali institucija",summary:"Atpažinta oficiali institucija ir neaptikta tipinių sukčiavimo požymių. Vis tiek patikrinkite dokumento informaciją oficialioje svetainėje.",steps:["Patikrinkite dokumentą oficialioje institucijos svetainėje.","Oficialią svetainę atidarykite rankiniu būdu.","Nenaudokite žinutėje esančių nuorodų, jei domenas skiriasi nuo oficialaus."]}
+  },
+  LV: {
+    emptyAnalysis:"Nav teksta analīzei.", emptyFraud:"Nav teksta krāpšanas riska analīzei.",
+    fraud:{LOW:"Izskatās diezgan ticami",MEDIUM:"Pārbaudiet sūtītāju",HIGH:"Augsts krāpšanas risks",UNKNOWN:"Autentiskumu nevar novērtēt",summary:"Šī ir mierīga riska analīze. Tā neapstiprina dokumenta autentiskumu.",disclaimer:"Šī ir riska analīze, nevis dokumenta autentiskuma apstiprinājums.",safe:["Neklikšķiniet uz aizdomīgām saitēm.","Neizpaudiet pieteikšanās datus, paroli vai bankas informāciju.","Pārbaudiet informāciju iestādes oficiālajā vietnē vai pa oficiālo tālruni."]},
+    reply:{neutral:"Labdien,\npaldies par ziņu. Lūdzu, apstipriniet, vai man ir jāveic kādas darbības un kādi ir termiņi.\nAr cieņu,",polite:"Labdien,\nlūdzu, apstipriniet, vai no manas puses ir nepieciešamas papildu darbības un līdz kuram datumam.\nAr cieņu,",firm:"Labdien,\nlūdzu, skaidri norādiet nepieciešamās darbības un termiņus.\nAr cieņu,"},
+    phrases:{time:"Laika spiediens vai steidzama pārbaude.",account:"Draudi bloķēt kontu vai zaudēt piekļuvi.",click:"Neklikšķiniet uz saites ziņojumā.",share:"Neizpaudiet lietotājvārdu, paroli, SMS kodu vai TAN.",external:"Iestāde ir atpazīta, taču saite ved ārpus oficiālā domēna.",suspicious:"Konstatēts aizdomīgs domēns vai tālruņa numurs."},
+    official:{label:"✅ Atpazīta oficiāla iestāde",summary:"Ir atpazīta oficiāla iestāde, un tipiskas pikšķerēšanas pazīmes nav konstatētas. Tomēr pārbaudiet dokumenta informāciju iestādes oficiālajā vietnē.",steps:["Pārbaudiet dokumentu iestādes oficiālajā vietnē.","Atveriet oficiālo vietni manuāli.","Neizmantojiet ziņojumā esošās saites, ja domēns atšķiras no oficiālā."]}
+  },
+  HU: {
+    emptyAnalysis:"Nincs elemezhető szöveg.", emptyFraud:"Nincs szöveg a csalási kockázat elemzéséhez.",
+    fraud:{LOW:"Megbízhatónak tűnik",MEDIUM:"Ellenőrizze a feladót",HIGH:"Magas csalási kockázat",UNKNOWN:"A hitelesség nem állapítható meg",summary:"Ez egy nyugodt kockázatelemzés. Nem igazolja a dokumentum hitelességét.",disclaimer:"Ez kockázatelemzés, nem a dokumentum hitelességének igazolása.",safe:["Ne kattintson gyanús linkekre.","Ne adja meg bejelentkezési adatait, jelszavát vagy banki adatait.","Ellenőrizze az ügyet az intézmény hivatalos weboldalán vagy telefonszámán."]},
+    reply:{neutral:"Tisztelt Hölgyem/Uram!\nKöszönöm az üzenetet. Kérem, erősítse meg, hogy szükséges-e részemről bármilyen intézkedés, és mik a határidők.\nÜdvözlettel,",polite:"Tisztelt Hölgyem/Uram!\nKérem, szíveskedjen megerősíteni, hogy szükséges-e további lépés részemről, és meddig.\nÜdvözlettel,",firm:"Tisztelt Hölgyem/Uram!\nKérem, egyértelműen jelezze a szükséges intézkedéseket és határidőket.\nÜdvözlettel,"},
+    phrases:{time:"Időnyomás vagy sürgős ellenőrzés.",account:"A fiók felfüggesztésével vagy a hozzáférés elvesztésével fenyegetnek.",click:"Ne kattintson az üzenetben lévő linkre.",share:"Ne adja meg bejelentkezési nevét, jelszavát, SMS-kódját vagy TAN-kódját.",external:"Az intézményt felismertük, de a link nem a hivatalos domainre vezet.",suspicious:"Gyanús domaint vagy telefonszámot észleltünk."},
+    official:{label:"✅ Hivatalos intézmény felismerve",summary:"Hivatalos intézményt ismertünk fel, és nem észleltünk tipikus adathalász jeleket. Ettől függetlenül ellenőrizze a dokumentum részleteit az intézmény hivatalos weboldalán.",steps:["Ellenőrizze a dokumentumot az intézmény hivatalos weboldalán.","Nyissa meg kézzel a hivatalos weboldalt.","Ne használja az üzenet linkjeit, ha a domain eltér a hivatalostól."]}
+  },
+  ZH: {
+    emptyAnalysis:"没有可供分析的文本。", emptyFraud:"没有可供诈骗风险分析的文本。",
+    fraud:{LOW:"看起来较可信",MEDIUM:"请核实发件人",HIGH:"诈骗风险较高",UNKNOWN:"无法评估真实性",summary:"这是谨慎的风险分析，并不证明文件真实。",disclaimer:"这是风险分析，并非对文件真实性的确认。",safe:["不要点击可疑链接。","不要提供登录信息、密码或银行资料。","请通过机构的官方网站或官方电话号码核实。"]},
+    reply:{neutral:"您好，\n感谢您的来信。请确认我是否需要采取任何行动，以及相关截止日期。\n此致敬礼",polite:"您好，\n烦请确认我是否还需要采取其他步骤，以及应在何时之前完成。\n此致敬礼",firm:"您好，\n请明确说明所需采取的行动和截止日期。\n此致敬礼"},
+    phrases:{time:"存在时间压力或要求紧急验证。",account:"威胁暂停账户或失去访问权限。",click:"不要点击消息中的链接。",share:"不要提供登录名、密码、短信验证码或TAN。",external:"已识别该机构，但链接指向其官方域名之外。",suspicious:"检测到可疑域名或电话号码。"},
+    official:{label:"✅ 已识别官方机构",summary:"已识别官方机构，未发现典型网络钓鱼迹象。仍建议通过该机构的官方网站核实文件详情。",steps:["通过该机构的官方网站核实文件。","手动打开官方网站。","如果消息中的域名与官方域名不同，请勿使用其中的链接。"]}
+  },
+  JA: {
+    emptyAnalysis:"分析するテキストがありません。", emptyFraud:"詐欺リスクを分析するテキストがありません。",
+    fraud:{LOW:"比較的信頼できそうです",MEDIUM:"送信者を確認してください",HIGH:"詐欺のリスクが高いです",UNKNOWN:"真正性を評価できません",summary:"これは慎重なリスク分析であり、文書の真正性を保証するものではありません。",disclaimer:"これはリスク分析であり、文書の真正性を確認するものではありません。",safe:["不審なリンクを開かないでください。","ログイン情報、パスワード、銀行情報を共有しないでください。","機関の公式サイトまたは公式電話番号で確認してください。"]},
+    reply:{neutral:"お世話になっております。\nご連絡ありがとうございます。私が対応すべきことがあるか、また期限をご確認いただけますでしょうか。\nよろしくお願いいたします。",polite:"お世話になっております。\n恐れ入りますが、私の側で追加の手続きが必要か、また期限はいつまでかご確認ください。\nよろしくお願いいたします。",firm:"お世話になっております。\n必要な対応内容と期限を明確にご提示ください。\nよろしくお願いいたします。"},
+    phrases:{time:"時間的な圧力または緊急の確認要求があります。",account:"アカウント停止またはアクセス喪失の警告があります。",click:"メッセージ内のリンクをクリックしないでください。",share:"ログイン情報、パスワード、SMSコード、TANを共有しないでください。",external:"機関は認識されましたが、リンクは公式ドメイン外を指しています。",suspicious:"不審なドメインまたは電話番号が検出されました。"},
+    official:{label:"✅ 公式機関を認識しました",summary:"公式機関を認識し、典型的なフィッシングの兆候は検出されませんでした。それでも公式サイトで文書の詳細を確認してください。",steps:["機関の公式サイトで文書を確認してください。","公式サイトを手動で開いてください。","メッセージ内のドメインが公式と異なる場合、そのリンクを使用しないでください。"]}
+  },
+  HI: {
+    emptyAnalysis:"विश्लेषण के लिए कोई पाठ नहीं है।", emptyFraud:"धोखाधड़ी जोखिम विश्लेषण के लिए कोई पाठ नहीं है।",
+    fraud:{LOW:"काफी विश्वसनीय लगता है",MEDIUM:"प्रेषक की जाँच करें",HIGH:"धोखाधड़ी का उच्च जोखिम",UNKNOWN:"प्रामाणिकता का आकलन नहीं किया जा सकता",summary:"यह शांत जोखिम विश्लेषण है। यह दस्तावेज़ की प्रामाणिकता की पुष्टि नहीं करता।",disclaimer:"यह जोखिम विश्लेषण है, दस्तावेज़ की प्रामाणिकता की पुष्टि नहीं।",safe:["संदिग्ध लिंक पर क्लिक न करें।","लॉगिन, पासवर्ड या बैंक विवरण साझा न करें।","संस्था की आधिकारिक वेबसाइट या फोन नंबर से सत्यापन करें।"]},
+    reply:{neutral:"नमस्कार,\nआपके संदेश के लिए धन्यवाद। कृपया पुष्टि करें कि क्या मुझे कोई कार्रवाई करनी है और समय-सीमाएँ क्या हैं।\nसादर,",polite:"नमस्कार,\nकृपया पुष्टि करें कि क्या मेरी ओर से कोई अतिरिक्त कदम आवश्यक है और कब तक।\nसादर,",firm:"नमस्कार,\nकृपया आवश्यक कार्रवाइयों और समय-सीमाओं को स्पष्ट रूप से बताएं।\nसादर,"},
+    phrases:{time:"समय का दबाव या तत्काल सत्यापन।",account:"खाता निलंबित होने या पहुँच खोने की धमकी।",click:"संदेश में दिए गए लिंक पर क्लिक न करें।",share:"लॉगिन, पासवर्ड, SMS कोड या TAN साझा न करें।",external:"संस्था की पहचान हुई, लेकिन लिंक आधिकारिक डोमेन के बाहर जाता है।",suspicious:"संदिग्ध डोमेन या फोन नंबर मिला।"},
+    official:{label:"✅ आधिकारिक संस्था की पहचान हुई",summary:"आधिकारिक संस्था की पहचान हुई और सामान्य फ़िशिंग संकेत नहीं मिले। फिर भी दस्तावेज़ का विवरण संस्था की आधिकारिक वेबसाइट पर सत्यापित करें।",steps:["दस्तावेज़ को संस्था की आधिकारिक वेबसाइट पर सत्यापित करें।","आधिकारिक वेबसाइट को स्वयं खोलें।","यदि संदेश का डोमेन आधिकारिक डोमेन से अलग है तो उसमें दिए लिंक का उपयोग न करें।"]}
+  },
+  AR: {
+    emptyAnalysis:"لا يوجد نص للتحليل.", emptyFraud:"لا يوجد نص لتحليل مخاطر الاحتيال.",
+    fraud:{LOW:"يبدو موثوقًا إلى حدٍّ ما",MEDIUM:"تحقق من المرسل",HIGH:"مخاطر احتيال مرتفعة",UNKNOWN:"لا يمكن تقييم الموثوقية",summary:"هذا تحليل هادئ للمخاطر ولا يؤكد صحة المستند.",disclaimer:"هذا تحليل للمخاطر وليس تأكيدًا لصحة المستند.",safe:["لا تضغط على الروابط المشبوهة.","لا تشارك بيانات الدخول أو كلمة المرور أو البيانات البنكية.","تحقق عبر الموقع الرسمي أو رقم الهاتف الرسمي للجهة."]},
+    reply:{neutral:"مرحبًا،\nشكرًا على رسالتكم. يرجى تأكيد ما إذا كان مطلوبًا مني اتخاذ أي إجراء وما هي المواعيد النهائية.\nمع التحية،",polite:"مرحبًا،\nيرجى التكرم بتأكيد ما إذا كانت هناك خطوات إضافية مطلوبة مني والموعد النهائي لها.\nمع خالص التحية،",firm:"مرحبًا،\nيرجى توضيح الإجراءات المطلوبة والمواعيد النهائية بشكل واضح.\nمع التحية،"},
+    phrases:{time:"ضغط زمني أو طلب تحقق عاجل.",account:"تهديد بتعليق الحساب أو فقدان الوصول.",click:"لا تضغط على الرابط الموجود في الرسالة.",share:"لا تشارك اسم الدخول أو كلمة المرور أو رمز SMS أو TAN.",external:"تم التعرف على الجهة، لكن الرابط يؤدي إلى خارج نطاقها الرسمي.",suspicious:"تم اكتشاف نطاق أو رقم هاتف مشبوه."},
+    official:{label:"✅ تم التعرف على جهة رسمية",summary:"تم التعرف على جهة رسمية ولم تُكتشف مؤشرات تصيد شائعة. ومع ذلك، تحقق من تفاصيل المستند عبر الموقع الرسمي للجهة.",steps:["تحقق من المستند عبر الموقع الرسمي للجهة.","افتح الموقع الرسمي يدويًا.","لا تستخدم روابط الرسالة إذا كان النطاق مختلفًا عن النطاق الرسمي."]}
+  },
+  EG: {
+    emptyAnalysis:"مفيش نص للتحليل.", emptyFraud:"مفيش نص لتحليل مخاطر الاحتيال.",
+    fraud:{LOW:"يبدو موثوق إلى حد كبير",MEDIUM:"اتأكد من المرسل",HIGH:"مخاطر احتيال عالية",UNKNOWN:"مش ممكن نحدد الموثوقية",summary:"ده تحليل هادي للمخاطر، ومش تأكيد إن المستند أصلي.",disclaimer:"ده تحليل للمخاطر، مش تأكيد إن المستند أصلي.",safe:["ما تضغطش على روابط مشبوهة.","ما تشاركش بيانات الدخول أو الباسورد أو بيانات البنك.","اتأكد من خلال الموقع الرسمي أو رقم التليفون الرسمي للجهة."]},
+    reply:{neutral:"مرحبًا،\nشكرًا على رسالتكم. من فضلكم أكدوا إذا كان مطلوب مني أي إجراء وإيه المواعيد النهائية.\nمع التحية،",polite:"مرحبًا،\nمن فضلكم أكدوا إذا كان فيه خطوات إضافية مطلوبة مني وآخر موعد ليها.\nمع خالص التحية،",firm:"مرحبًا،\nمن فضلكم وضحوا الإجراءات المطلوبة والمواعيد النهائية بشكل واضح.\nمع التحية،"},
+    phrases:{time:"فيه ضغط وقت أو طلب تحقق عاجل.",account:"تهديد بإيقاف الحساب أو فقدان الوصول.",click:"ما تضغطش على اللينك اللي في الرسالة.",share:"ما تشاركش اسم الدخول أو الباسورد أو كود SMS أو TAN.",external:"الجهة اتعرفت، بس اللينك خارج الدومين الرسمي بتاعها.",suspicious:"اتكشف دومين أو رقم تليفون مشبوه."},
+    official:{label:"✅ تم التعرف على جهة رسمية",summary:"تم التعرف على جهة رسمية ومفيش مؤشرات تصيد واضحة. برضه اتأكد من تفاصيل المستند من الموقع الرسمي للجهة.",steps:["اتأكد من المستند على الموقع الرسمي للجهة.","افتح الموقع الرسمي بنفسك.","ما تستخدمش لينكات الرسالة لو الدومين مختلف عن الرسمي."]}
+  },
+  ET: {
+    emptyAnalysis:"Analüüsitavat teksti pole.", emptyFraud:"Pettuseriski analüüsimiseks pole teksti.",
+    fraud:{LOW:"Tundub üsna usaldusväärne",MEDIUM:"Kontrollige saatjat",HIGH:"Kõrge pettuserisk",UNKNOWN:"Autentsust ei saa hinnata",summary:"See on rahulik riskianalüüs. See ei kinnita dokumendi autentsust.",disclaimer:"See on riskianalüüs, mitte dokumendi autentsuse kinnitus.",safe:["Ärge klõpsake kahtlastel linkidel.","Ärge jagage sisselogimisandmeid, parooli ega pangaandmeid.","Kontrollige ametliku veebisaidi või asutuse telefoninumbri kaudu."]},
+    reply:{neutral:"Tere,\ntäname sõnumi eest. Palun kinnitage, kas minult on vaja mõnda toimingut ja millised on tähtajad.\nLugupidamisega,",polite:"Tere,\npalun kinnitage, kas minu poolt on vaja täiendavaid samme ja mis tähtajaks.\nLugupidamisega,",firm:"Tere,\npalun märkige selgelt vajalikud toimingud ja tähtajad.\nLugupidamisega,"},
+    phrases:{time:"Ajasurve või kiire kinnitamise nõue.",account:"Ähvardus konto blokeerimise või juurdepääsu kaotamisega.",click:"Ärge klõpsake sõnumis oleval lingil.",share:"Ärge jagage kasutajanime, parooli, SMS-koodi ega TAN-i.",external:"Asutus tuvastati, kuid link viib ametlikust domeenist väljapoole.",suspicious:"Tuvastati kahtlane domeen või telefoninumber."},
+    official:{label:"✅ Ametlik asutus tuvastatud",summary:"Ametlik asutus tuvastati ja tavapäraseid andmepüügi tunnuseid ei leitud. Kontrollige siiski dokumendi üksikasju asutuse ametlikul veebisaidil.",steps:["Kontrollige dokumenti asutuse ametlikul veebisaidil.","Avage ametlik veebisait käsitsi.","Ärge kasutage sõnumi linke, kui domeen erineb ametlikust."]}
+  },
+  RO: {
+    emptyAnalysis:"Nu există text pentru analiză.", emptyFraud:"Nu există text pentru analiza riscului de fraudă.",
+    fraud:{LOW:"Pare destul de credibil",MEDIUM:"Verificați expeditorul",HIGH:"Risc ridicat de fraudă",UNKNOWN:"Autenticitatea nu poate fi evaluată",summary:"Aceasta este o analiză calmă a riscului. Nu confirmă autenticitatea documentului.",disclaimer:"Aceasta este o analiză de risc, nu o confirmare a autenticității documentului.",safe:["Nu accesați linkuri suspecte.","Nu comunicați date de conectare, parole sau date bancare.","Verificați prin site-ul oficial sau numărul oficial al instituției."]},
+    reply:{neutral:"Bună ziua,\nvă mulțumesc pentru mesaj. Vă rog să confirmați dacă este necesară vreo acțiune din partea mea și care sunt termenele.\nCu stimă,",polite:"Bună ziua,\nvă rog să confirmați dacă sunt necesari pași suplimentari din partea mea și până la ce dată.\nCu stimă,",firm:"Bună ziua,\nvă rog să indicați clar acțiunile necesare și termenele.\nCu stimă,"},
+    phrases:{time:"Presiune de timp sau verificare urgentă.",account:"Amenințare cu suspendarea contului sau pierderea accesului.",click:"Nu accesați linkul din mesaj.",share:"Nu comunicați numele de utilizator, parola, codul SMS sau TAN.",external:"Instituția a fost recunoscută, dar linkul duce în afara domeniului oficial.",suspicious:"A fost detectat un domeniu sau număr de telefon suspect."},
+    official:{label:"✅ Instituție oficială recunoscută",summary:"A fost recunoscută o instituție oficială și nu au fost detectate semne tipice de phishing. Verificați totuși detaliile documentului pe site-ul oficial al instituției.",steps:["Verificați documentul pe site-ul oficial al instituției.","Deschideți manual site-ul oficial.","Nu utilizați linkurile din mesaj dacă domeniul diferă de cel oficial."]}
+  },
+  HR: {
+    emptyAnalysis:"Nema teksta za analizu.", emptyFraud:"Nema teksta za analizu rizika od prijevare.",
+    fraud:{LOW:"Djeluje prilično vjerodostojno",MEDIUM:"Provjerite pošiljatelja",HIGH:"Visok rizik od prijevare",UNKNOWN:"Autentičnost se ne može procijeniti",summary:"Ovo je smirena analiza rizika. Ne potvrđuje autentičnost dokumenta.",disclaimer:"Ovo je analiza rizika, a ne potvrda autentičnosti dokumenta.",safe:["Ne klikajte sumnjive poveznice.","Ne dijelite podatke za prijavu, lozinku ili bankovne podatke.","Provjerite putem službene web-stranice ili službenog broja institucije."]},
+    reply:{neutral:"Poštovani,\nhvala na poruci. Molim potvrdite trebam li poduzeti neku radnju i koji su rokovi.\nSrdačan pozdrav,",polite:"Poštovani,\nmolim vas da potvrdite jesu li potrebni dodatni koraci s moje strane i do kojeg datuma.\nSrdačan pozdrav,",firm:"Poštovani,\nmolim jasno navedite potrebne radnje i rokove.\nSrdačan pozdrav,"},
+    phrases:{time:"Vremenski pritisak ili hitna provjera.",account:"Prijetnja blokadom računa ili gubitkom pristupa.",click:"Ne klikajte poveznicu u poruci.",share:"Ne dijelite korisničko ime, lozinku, SMS kod ili TAN.",external:"Institucija je prepoznata, ali poveznica vodi izvan službene domene.",suspicious:"Otkrivena je sumnjiva domena ili telefonski broj."},
+    official:{label:"✅ Prepoznata službena institucija",summary:"Prepoznata je službena institucija i nisu otkriveni tipični znakovi phishinga. Ipak provjerite detalje dokumenta na službenoj web-stranici institucije.",steps:["Provjerite dokument na službenoj web-stranici institucije.","Ručno otvorite službenu web-stranicu.","Ne koristite poveznice iz poruke ako se domena razlikuje od službene."]}
+  }
+};
+
+function sbExtraLangV3(lang) {
+  return SB_EXTRA_LANGS_V3[String(lang || "").toUpperCase()] || null;
+}
+
+function sbApplyExtraLanguageSafetyLocalizationV3(payload, userLang) {
+  const x = sbExtraLangV3(userLang);
+  if (!x || !payload || typeof payload !== "object") return payload;
+  const fr = payload.fraudRisk;
+  if (fr && typeof fr === "object") {
+    const level = String(fr.level || "UNKNOWN").toUpperCase();
+    const institutionStrong = payload.institution && payload.institution.officialWebsite && Number(payload.institution.confidence || 0) >= 85;
+    if (institutionStrong && level === "LOW") {
+      const name = payload.institution.name ? ` – ${payload.institution.name}` : "";
+      fr.label = x.official.label + name;
+      fr.summary = x.official.summary;
+      fr.safeSteps = x.official.steps.slice();
+    } else {
+      fr.label = x.fraud[level] || x.fraud.UNKNOWN;
+      if (!fr.summary || /To jest spokojna analiza|This is a calm risk analysis|Dit is een rustige risicoanalyse|Dies ist eine ruhige Risikoanalyse/i.test(fr.summary)) fr.summary = x.fraud.summary;
+      if (!Array.isArray(fr.safeSteps) || !fr.safeSteps.length) fr.safeSteps = x.fraud.safe.slice();
+    }
+    fr.disclaimer = x.fraud.disclaimer;
+  }
+  const pairs = [
+    [/Presja czasu|Time pressure|Tijdsdruk|Zeitdruck|Pression temporelle|Pressione temporale|Presión de tiempo|Pressão de tempo|Тиск часу/i, x.phrases.time],
+    [/Groźba blokady|Threat of account suspension|Dreiging van blokkade|Drohung mit Sperrung|Menace de blocage|Minaccia di blocco|Amenaza de bloqueo|Ameaça de bloqueio|Погроза блокування/i, x.phrases.account],
+    [/Nie klikaj linku|Do not click the link|Klik niet op de link|Klicken Sie nicht auf den Link|Ne cliquez pas sur le lien|Non cliccare sul link|No hagas clic en el enlace|Não clique no link|Не натискайте посилання/i, x.phrases.click],
+    [/Nie podawaj loginu|Do not share login|Deel geen login|Geben Sie keinen Login|Ne partagez pas votre identifiant|Non condividere login|No compartas usuario|Não partilhe login|Не передавайте логін/i, x.phrases.share],
+    [/Rozpoznano instytucję, ale link|institution was recognized, but the link|instantie is herkend, maar de link|Institution wurde erkannt, aber der Link|institution a été reconnue, mais le lien|istituzione è stata riconosciuta, ma il link|reconoció la institución, pero el enlace|instituição foi reconhecida, mas o link|Установу розпізнано, але посилання/i, x.phrases.external],
+    [/Wykryto podejrzaną domenę|suspicious domain or phone number|verdacht domein of telefoonnummer|verdächtige Domain oder Telefonnummer|domaine ou un numéro de téléphone suspect|dominio o numero di telefono sospetto|dominio o número de teléfono sospechoso|domínio ou número de telefone suspeito|підозрілий домен або номер телефону/i, x.phrases.suspicious]
+  ];
+  function localizeString(v){
+    if (typeof v !== "string" || /https?:\/\//i.test(v)) return v;
+    for (const [re, repl] of pairs) if (re.test(v)) return repl;
+    return v;
+  }
+  function localizeArray(a){ return Array.isArray(a) ? a.map(localizeString) : a; }
+  payload.risks = localizeArray(payload.risks);
+  payload.riskList = localizeArray(payload.riskList);
+  payload.riskChips = localizeArray(payload.riskChips);
+  payload.actions = localizeArray(payload.actions);
+  payload.nextSteps = localizeArray(payload.nextSteps);
+  payload.consequences = localizeArray(payload.consequences);
+  payload.help = localizeArray(payload.help);
+  if (fr) {
+    fr.signals = localizeArray(fr.signals);
+    fr.suspiciousElements = localizeArray(fr.suspiciousElements);
+    fr.safeSteps = localizeArray(fr.safeSteps);
+  }
+  if (payload.replies && typeof payload.replies === "object") {
+    const joined = Object.values(payload.replies).join(" ");
+    if (/Dzień dobry|Hello,|Goedemiddag|Guten Tag|Доброго дня|Bonjour|Buongiorno|Buenos días|Bom dia/i.test(joined)) {
+      payload.replies = { ...x.reply };
+      payload.examples = payload.replies;
+      payload.responseExamples = payload.replies;
+    }
+  }
+  return payload;
+}
+
 function emptyAnalysisText(lang) {
   const L = (lang || "PL").toUpperCase();
+  const extra = sbExtraLangV3(L);
+  if (extra) return extra.emptyAnalysis;
   const map = {
     PL: "Brak tekstu do analizy.",
     EN: "No text to analyze.",
@@ -699,6 +851,8 @@ function emptyAnalysisText(lang) {
 
 function emptyFraudText(lang) {
   const L = (lang || "PL").toUpperCase();
+  const extra = sbExtraLangV3(L);
+  if (extra) return extra.emptyFraud;
   const map = {
     PL: "Brak tekstu do analizy ryzyka oszustwa.",
     EN: "No text for fraud risk analysis.",
@@ -1224,6 +1378,8 @@ function normalizeInstitution(v) {
 
 function fraudFallback(lang, level) {
   const L = (lang || "PL").toUpperCase();
+  const extra = sbExtraLangV3(L);
+  if (extra) return { label: extra.fraud[level] || extra.fraud.UNKNOWN, summary: extra.fraud.summary, safeSteps: extra.fraud.safe.slice(), disclaimer: extra.fraud.disclaimer };
 
   const map = {
     PL: {
@@ -1321,6 +1477,8 @@ function fraudFallback(lang, level) {
 
 function buildReplies(lang, tone) {
   const L = (lang || "PL").toUpperCase();
+  const extra = sbExtraLangV3(L);
+  if (extra) return { ...extra.reply };
 
   const replies = {
     PL: {
@@ -1542,6 +1700,8 @@ function extractJson(s) {
 
 function sbFraudTextMapV8(lang) {
   const L = (lang || "PL").toUpperCase();
+  const extra = sbExtraLangV3(L);
+  if (extra) return { highLabel: extra.fraud.HIGH, highSummary: extra.fraud.summary, risk1: extra.phrases.click, risk2: extra.phrases.share, risk3: extra.official.steps[0], timePressure: extra.phrases.time, accountThreat: extra.phrases.account, consequence1: extra.fraud.HIGH, consequence2: extra.fraud.summary };
   const map = {
     PL: {
       highLabel: "Wysokie ryzyko phishingu lub podszywania się",
@@ -1979,6 +2139,16 @@ function sbApplyFraudLogicSyncV8(ctx) {
 
 function sbLocalTextV1(lang, key, vars = {}) {
   const L = (lang || "PL").toUpperCase();
+  const extra = sbExtraLangV3(L);
+  if (extra) {
+    const em = {
+      suspiciousDomainOrPhone: extra.phrases.suspicious,
+      officialInstitutionSoftRisk: extra.official.summary,
+      timePressureShort: extra.phrases.time,
+      accountThreatShort: extra.phrases.account
+    };
+    if (em[key]) return String(em[key]).replace(/\{name\}/g, String(vars.name || ""));
+  }
   const dict = {
     suspiciousDomainOrPhone: {
       PL: "Wykryto podejrzaną domenę lub numer telefonu.",
