@@ -175,7 +175,7 @@ fraudInfoText:"Sense Bridge po analizie sprawdzi również możliwe ryzyko oszus
       examplesDocEmpty: 'Po analizie pojawi się tutaj wersja odpowiedzi w języku dokumentu.',
       payTitle: "Dostęp bez abonamentu",
       payDesc: "Masz 3 analizy FREE na sprawdzenie działania. Potem wybierasz spokojny dostęp czasowy.",
-      p24meta: "Dla jednego pilnego pisma",
+      p24meta: "Dostęp do analiz przez 24 godziny",
       p7meta: "Na serię wiadomości / odpowiedzi",
       p30meta: "Spokój na cały miesiąc",
 

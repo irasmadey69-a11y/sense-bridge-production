@@ -161,7 +161,7 @@ fraudInfoText:"After the analysis, Sense Bridge will also check for possible fra
       examplesDocEmpty: 'After analysis, the reply version in the document language will appear here.',
       payTitle: "No-subscription access",
       payDesc: "You get 3 FREE analyses to test. Then choose a calm time pass.",
-      p24meta: "For one urgent letter",
+      p24meta: "Access to analyses for 24 hours",
       p7meta: "For a series of messages",
       p30meta: "Peace for a whole month",
 
