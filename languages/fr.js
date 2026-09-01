@@ -150,7 +150,7 @@ fraudInfoText:"Après l’analyse, Sense Bridge vérifiera également les risque
       examplesDocEmpty: 'Après l’analyse, la version de réponse dans la langue du document apparaîtra ici.',
       payTitle: "Accès sans abonnement",
       payDesc: "Vous avez 3 analyses FREE pour tester. Ensuite, choisissez un accès temporaire.",
-      p24meta: "Pour un courrier urgent",
+      p24meta: "Accès aux analyses pendant 24 heures",
       p7meta: "Pour plusieurs messages",
       p30meta: "Tranquillité pendant un mois",
 

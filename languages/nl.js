@@ -155,7 +155,7 @@ fraudInfoText:"Sense Bridge controleert na de analyse ook mogelijke fraude, imit
       examplesDocEmpty: 'Na de analyse verschijnt hier de antwoordversie in de taal van het document.',
       payTitle: "Toegang zonder abonnement",
       payDesc: "Je krijgt 3 FREE-analyses om te testen. Daarna kies je rustige tijdstoegang.",
-      p24meta: "Voor één urgente brief",
+      p24meta: "Toegang tot analyses gedurende 24 uur",
       p7meta: "Voor een reeks berichten",
       p30meta: "Rust voor een hele maand",
 
