@@ -1,7 +1,8 @@
+const { recordUsage } = require("./_usage");
 // netlify/functions/analyze.js  (CommonJS)
 // Sense Bridge — analiza pisma + spokojna analiza ryzyka oszustwa
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
   const headers = corsHeaders();
 
   if (event.httpMethod === "OPTIONS") {
@@ -16,6 +17,8 @@ exports.handler = async (event) => {
     const sourceLang = str(body.sourceLang || body.source || "AUTO").toUpperCase();
     const userLang = str(body.userLang || body.targetLang || body.target || "PL").toUpperCase();
     const tone = str(body.tone || body.style || "neutral").toLowerCase();
+    const accessType = str(body.accessType || "UNKNOWN").toUpperCase();
+    const usageBase = { event, context, uiLang:userLang, accessType, feature:featureFromMode(mode) };
 
     if (!text) {
       const fallbackReplies = buildReplies(userLang, tone);
@@ -307,6 +310,7 @@ ${text}
     const modelJson = await callOpenAIJsonObject(apiKey, analysisPrompt);
 
     const detectedLang = str(modelJson.detectedLang || "UNKNOWN").toUpperCase();
+    if(modelJson.__sbResponseData) await recordUsage(event, context, modelJson.__sbResponseData, { ...usageBase, documentLang:detectedLang, model:modelJson.__sbResponseData.model||"gpt-4o-mini" });
     const summary = cleanAiText(str(modelJson.summary || ""));
     const smartResult = cleanAiText(str(modelJson.smartResult || ""));
     const documentTone = cleanAiText(str(modelJson.documentTone || ""));
@@ -522,7 +526,9 @@ TEKST:
 ${text}
 `.trim();
 
-      translation = cleanAiText(await callOpenAIText(apiKey, translatePrompt));
+      const trInternal = await callOpenAIText(apiKey, translatePrompt);
+      translation = cleanAiText(trInternal.text);
+      if(trInternal.data) await recordUsage(event, context, trInternal.data, { feature:"TRANSLATION_INTERNAL", uiLang:userLang, documentLang:effectiveSource, accessType, model:trInternal.data.model||"gpt-4o-mini" });
     }
 
     const fallbackReplies = buildReplies(userLang, tone);
@@ -586,7 +592,7 @@ detectedPhones,
     // legacy safety layers can still inject PL/EN phrases. It never changes
     // risk levels, confidence, institution data, URLs, detected links/phones,
     // OCR text or access/payment logic. On any error it fails open.
-    await sbFinalUserLanguageGuardV4(apiKey, payload, userLang);
+    await sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase);
 
     sbDedupePayloadArraysV1(payload);
 
@@ -857,7 +863,7 @@ function sbExtraLangV3(lang) {
    IMPORTANT: this does NOT touch scoring, OCR, institution recognition,
    links, phones, access/payment logic or the original 9-language behavior.
    ============================================================ */
-async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang) {
+async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase) {
   if (!payload || typeof payload !== "object" || !apiKey) return payload;
 
   const L = String(userLang || payload.userLang || "").toUpperCase();
@@ -931,6 +937,7 @@ ${JSON.stringify(source)}
 
   try {
     const translated = await callOpenAIJsonObject(apiKey, prompt);
+    if(translated.__sbResponseData && usageBase) await recordUsage(usageBase.event, usageBase.context, translated.__sbResponseData, { ...usageBase, feature:"LANGUAGE_GUARD", documentLang:payload.detectedLang||"UNKNOWN", model:translated.__sbResponseData.model||"gpt-4o-mini" });
     if (!translated || typeof translated !== "object") return payload;
 
     const sameLen = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length;
@@ -1835,6 +1842,13 @@ Com os melhores cumprimentos,`
   return replies[L] || replies.PL;
 }
 
+function featureFromMode(mode){
+  const m=String(mode||"letter").toUpperCase();
+  if(m==="CONTRACT")return "CONTRACT";
+  if(m.startsWith("DOCUMENT_"))return m;
+  return "LETTER_ANALYSIS";
+}
+
 async function callOpenAIJsonObject(apiKey, prompt) {
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -1856,10 +1870,14 @@ async function callOpenAIJsonObject(apiKey, prompt) {
 
   const raw = extractTextFromResponses(data);
   try {
-    return JSON.parse(raw);
+    const obj = JSON.parse(raw);
+    if(obj && typeof obj === "object") Object.defineProperty(obj,"__sbResponseData",{value:data,enumerable:false});
+    return obj;
   } catch {
     const jsonText = extractJson(raw);
-    return JSON.parse(jsonText);
+    const obj = JSON.parse(jsonText);
+    if(obj && typeof obj === "object") Object.defineProperty(obj,"__sbResponseData",{value:data,enumerable:false});
+    return obj;
   }
 }
 
@@ -1882,7 +1900,7 @@ async function callOpenAIText(apiKey, prompt) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`OpenAI error ${res.status}: ${JSON.stringify(data)}`);
 
-  return extractTextFromResponses(data).trim();
+  return { text: extractTextFromResponses(data).trim(), data };
 }
 
 function extractTextFromResponses(data) {

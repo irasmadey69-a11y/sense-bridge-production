@@ -1,9 +1,10 @@
+const { recordUsage } = require("./_usage");
 // Sense Bridge AI Tools — screenshot vision check
 // Production Netlify Function
 // CommonJS
 // Accepts text input and optional imageData (data:image/...;base64,...)
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
   const headers = corsHeaders();
 
   if (event.httpMethod === "OPTIONS") {
@@ -74,7 +75,7 @@ ${input || "(no extra text)"}
       });
     }
 
-    const result = await callOpenAIVision(apiKey, content);
+    const result = await callOpenAIVision(apiKey, content, {event,context,uiLang,accessType:String(body.accessType||"UNKNOWN").toUpperCase()});
 
     return json(200, headers, {
       ok: true,
@@ -129,7 +130,7 @@ function emptyText(lang) {
   return map[L] || map.PL;
 }
 
-async function callOpenAIVision(apiKey, content) {
+async function callOpenAIVision(apiKey, content, meta) {
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -150,6 +151,8 @@ async function callOpenAIVision(apiKey, content) {
   });
 
   const data = await res.json().catch(() => ({}));
+  await recordUsage(meta.event, meta.context, data, { feature:"SCREENSHOT", uiLang:meta.uiLang, documentLang:"UNKNOWN", accessType:meta.accessType, model:data.model||"gpt-4o-mini" });
+
   if (!res.ok) {
     throw new Error(`OpenAI error ${res.status}: ${JSON.stringify(data)}`);
   }

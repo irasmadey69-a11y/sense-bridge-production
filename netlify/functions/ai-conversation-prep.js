@@ -1,9 +1,10 @@
+const { recordUsage } = require("./_usage");
 // Sense Bridge AI Tools — conversation-prep
 // Production Netlify Function
 // CommonJS
 // Dual-language answer layer: user understands what they send/say.
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
   const headers = corsHeaders();
 
   if (event.httpMethod === "OPTIONS") {
@@ -56,7 +57,9 @@ User content:
 ${input}
 `.trim();
 
-    const result = await callOpenAIText(apiKey, prompt);
+    const aiResult = await callOpenAIText(apiKey, prompt);
+    const result = aiResult.text;
+    await recordUsage(event, context, aiResult.data, { feature:"CONVERSATION_PREP", uiLang, documentLang:"UNKNOWN", accessType:String(body.accessType||"UNKNOWN").toUpperCase(), model:aiResult.data?.model||"gpt-4o-mini" });
 
     return json(200, headers, {
       ok: true,
@@ -135,5 +138,5 @@ async function callOpenAIText(apiKey, prompt) {
       ? data.output.flatMap(o => o.content || []).map(c => c.text || "").join("\n")
       : "");
 
-  return String(text || "").trim();
+  return { text:String(text || "").trim(), data };
 }

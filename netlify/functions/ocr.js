@@ -1,10 +1,14 @@
-exports.handler = async (event) => {
+const { recordUsage } = require("./_usage");
+exports.handler = async (event, context) => {
   try {
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
     }
 
-    const { imageDataUrl } = JSON.parse(event.body || "{}");
+    const body = JSON.parse(event.body || "{}");
+    const { imageDataUrl } = body;
+    const uiLang = String(body.uiLang || body.userLang || "UNKNOWN").toUpperCase();
+    const accessType = String(body.accessType || "UNKNOWN").toUpperCase();
 
     if (!imageDataUrl || !String(imageDataUrl).startsWith("data:image/")) {
       return json(400, { ok: false, error: "Missing image" });
@@ -50,6 +54,8 @@ exports.handler = async (event) => {
         error: data?.error?.message || "OpenAI OCR error"
       });
     }
+
+    await recordUsage(event, context, data, { feature:"OCR", uiLang, documentLang:"UNKNOWN", accessType, model:data.model || process.env.OCR_MODEL || "gpt-4.1-mini" });
 
     const text =
       data.output_text ||
