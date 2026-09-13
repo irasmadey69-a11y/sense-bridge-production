@@ -21,6 +21,8 @@
 <script src="languages/sv.js"></script>
 <script src="languages/no.js"></script>
 <script src="languages/da.js"></script>
+<script src="languages/free-access-24.js"></script>
+<script src="languages/core9-language-complete.js"></script>
 <!-- End Sense Bridge V2 language layer -->
 
   <meta charset="utf-8" />
@@ -3694,6 +3696,8 @@ body.dark-mode .sb-reset-toast{
 @media(max-height:720px){.sb-flag-arc{height:95px}.sb-start-logo-approved{width:min(64vw,260px)}.sb-start-name{font-size:40px}.sb-start-tagline{font-size:16px;margin-top:6px}.sb-start-progress{margin-top:13px}.sb-start-features{margin:14px auto 12px}.sb-start-feature-ico{width:44px;height:44px;font-size:21px}.sb-start-site{padding:10px 22px;font-size:25px}.sb-start-private{margin-top:10px}}
 @media(prefers-reduced-motion:reduce){.sb-start-inner,.sb-start-progress span{animation:none!important}#sbStartupSplash{transition:opacity .18s linear,visibility .18s linear}
 </style>
+<style id="sb-free-access-cleanup-css">#sbAiToolsCard .sb-ai-premium-pill{display:none!important}</style>
+<style id="sb-access-flow-v1">.sb-access-flow-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,24,39,.64);backdrop-filter:blur(8px)}.sb-access-flow-overlay.open{display:flex}.sb-access-flow-box{position:relative;width:min(560px,100%);max-height:90vh;overflow:auto;background:#fff;border:1px solid rgba(63,138,114,.22);border-radius:26px;padding:24px;box-shadow:0 28px 80px rgba(5,24,38,.28)}.sb-access-flow-close{position:absolute;top:14px;right:14px;width:44px;min-height:44px;padding:0;border-radius:999px;background:#fff;border:1px solid rgba(63,138,114,.26);font-size:24px;color:#245c4d}.sb-access-flow-icon{font-size:34px;margin-bottom:6px}.sb-access-flow-box h3{margin:0 50px 14px 0;font-size:26px;line-height:1.15;color:#172033}.sb-access-flow-box p{margin:9px 0;color:#5f6979;font-size:16px;line-height:1.45}.sb-access-flow-left{margin:18px 0 12px;padding:12px 14px;border-radius:15px;background:#eef8f4;color:#2b705d;font-weight:900}.sb-access-flow-request{display:none;width:100%;min-height:52px;border:0;border-radius:15px;background:linear-gradient(135deg,#3f8a72,#52aa8e);color:#fff;font-weight:900;font-size:16px}.sb-access-flow-later{font-size:13px!important;text-align:center}body.dark-mode .sb-access-flow-box{background:#10241f;border-color:#2d6e5b}body.dark-mode .sb-access-flow-box h3{color:#eafdf4}body.dark-mode .sb-access-flow-box p{color:#b9cec6}body.dark-mode .sb-access-flow-left{background:#17362d;color:#c9f2df}</style>
 </head>
 
 <body>
@@ -3819,8 +3823,8 @@ body.dark-mode .sb-reset-toast{
 
     <div class="sb-ai-tools-body" id="sbAiToolsBody">
       <div class="sb-ai-trial-box">
-        <div class="sb-ai-trials-main"><span class="sb-trial-vector" aria-hidden="true"><svg class="sb-ui-icon" viewBox="0 0 24 24"><path d="M9 3h6M10 3v5l-5 9a2 2 0 0 0 1.7 3h10.6A2 2 0 0 0 19 17l-5-9V3"/><path d="M8 14h8"/></svg></span><span id="sbAiTrialsLabel">Testowe użycia:</span> <strong id="sbAiTrialsLeft">2</strong></div>
-        <div class="sb-ai-premium-pill"><span class="sb-trial-vector" aria-hidden="true"><svg class="sb-ui-icon" viewBox="0 0 24 24"><path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7Z"/></svg></span><span id="sbAiPremiumLabel">BASIC: 2 użycia • PRO: 100 użyć</span></div>
+        <div class="sb-ai-trials-main"><span class="sb-trial-vector" aria-hidden="true"><svg class="sb-ui-icon" viewBox="0 0 24 24"><path d="M9 3h6M10 3v5l-5 9a2 2 0 0 0 1.7 3h10.6A2 2 0 0 0 19 17l-5-9V3"/><path d="M8 14h8"/></svg></span><span id="sbAiTrialsLabel">Bezpłatne użycia:</span> <strong id="sbAiTrialsLeft">3</strong></div>
+        <div class="sb-ai-premium-pill" style="display:none"><span id="sbAiPremiumLabel"></span></div>
       </div>
 
       <div class="sb-ai-tool-grid">
@@ -4197,7 +4201,7 @@ body.dark-mode .sb-reset-toast{
 
     <div class="statusbar">
       <div class="chip">
-        <span id="lblFree">FREE:</span> <strong id="freeLeft">3</strong> <span id="lblAnalyses">analizy</span>
+        <span id="lblFree">Bezpłatne użycia:</span> <strong id="freeLeft">3</strong> <span id="lblAnalyses">pozostało</span>
       </div>
       <div class="chip">
         <span id="lblAccess">Dostęp:</span> <strong id="accessState">FREE</strong>
@@ -4206,7 +4210,7 @@ body.dark-mode .sb-reset-toast{
     </div>
 
     <div id="lockBox" class="lock">
-      Limit FREE został wykorzystany. Wybierz dostęp poniżej, aby kontynuować.
+      Wykorzystano 3 bezpłatne użycia. Poproś o dalszy dostęp, aby kontynuować.
     </div>
 
     <details class="sb-compact-details" id="sbInfoDetails">
@@ -4330,118 +4334,12 @@ body.dark-mode .sb-reset-toast{
   <div id="sbResetToast" class="sb-reset-toast" role="status" aria-live="polite"></div>
 
   <section id="access" class="access hidden" aria-label="Dostęp Sense Bridge">
-    <h2 id="payTitle">Dostęp bez abonamentu</h2>
-    <p id="payDesc">Masz <strong>3 analizy FREE</strong> na sprawdzenie działania. Potem wybierasz spokojny dostęp czasowy.</p>
-
-    <div class="plans">
-      <button class="plan" type="button" onclick="goPay('24h')" aria-label="Wybierz dostęp 24 godziny za 3 euro">
-        <div class="name" id="p24name">24h PASS</div>
-        <div class="price" id="p24price">3 €</div>
-        <div class="meta" id="p24meta">Dostęp do analiz przez 24 godziny</div>
-        <div class="plan-ai-extra" id="p24ai">Dodatkowo: 3 użycia narzędzi AI</div>
-      </button>
-
-      <button class="plan" type="button" onclick="goPay('7d')" aria-label="Wybierz dostęp 7 dni za 7 euro">
-        <div class="name" id="p7name">7 dni</div>
-        <div class="price" id="p7price">7 €</div>
-        <div class="meta" id="p7meta">Na serię wiadomości / odpowiedzi</div>
-        <div class="plan-ai-extra" id="p7ai">Dodatkowo: 15 użyć narzędzi AI</div>
-      </button>
-
-      <button class="plan best" type="button" onclick="goPay('30d')" aria-label="Wybierz dostęp 30 dni za 15 euro">
-        <span class="badge" id="pBest">Najlepsza wartość</span>
-        <div class="name" id="p30name">30 dni</div>
-        <div class="price" id="p30price">15 €</div>
-        <div class="meta" id="p30meta">Spokój na cały miesiąc</div>
-        <div class="plan-ai-extra" id="p30ai">Dodatkowo: 40 użyć narzędzi AI</div>
-      </button>
-
-      <button class="plan sb-pro-plan" id="sbProPlanPreview" type="button" onclick="goPay('30d-pro')" aria-label="Wybierz dostęp 30 dni PRO za 25 euro">
-        <span class="badge sb-pro-badge" id="sbProBadge">PRO</span>
-        <div class="name" id="sbProPlanName">30 dni PRO</div>
-        <div class="price" id="sbProPlanPrice">25 €</div>
-        <div class="meta" id="sbProPlanMeta">Wszystkie funkcje + zaawansowane narzędzia AI</div>
-        <div class="sb-pro-features" id="sbProPlanFeatures">100 użyć narzędzi AI przez 30 dni oraz pełny dostęp do zwykłej analizy.</div>
-      </button>
-    </div>
-
-    <p class="fine" id="fine1">
-      Sense Bridge nie daje porad prawnych. Pomaga zrozumieć sens, ton i ryzyka pisma,
-      abyś mógł podjąć własną decyzję.
-    </p>
-    <p class="fine" id="fine2">
-      Sprzedajemy <strong>spokój i zrozumienie</strong>, nie „AI”.
-    </p>
+    <h2 id="payTitle">Dalszy dostęp do Sense Bridge</h2>
+    <p id="payDesc">Masz 3 bezpłatne użycia Sense Bridge. Po ich wykorzystaniu możesz poprosić o dalszy bezpłatny dostęp.</p>
+    <div class="notice" id="sbFreeRequestNote">Zgłoszenie jest rozpatrywane ręcznie. Podaj ten sam adres e-mail, którego będziesz używać do sprawdzania dostępu.</div>
+    <button class="primary" id="sbRequestAccessBtn" type="button" onclick="requestFreeAccess()">✉️ Poproś o dalszy dostęp</button>
+    <p class="fine" id="fine1">Sense Bridge ma charakter informacyjny. Pomaga zrozumieć sens, ton i ryzyka dokumentu, ale nie zastępuje profesjonalnej porady.</p>
   </section>
-
-  <div id="paymentBox" class="card" style="display:none;">
-    <h3 id="paymentBoxTitle">Zakup dostępu</h3>
-
-    <div class="sb-pay-row">
-      <div class="sb-pay-field">
-        <span class="sb-pay-label" id="paymentAmountLabel">Kwota:</span>
-        <strong id="amountText"></strong>
-      </div>
-      <button id="sbCopyAmountBtn" class="sb-pay-copy" type="button" onclick="sbCopyPaymentField('amount')">Kopiuj kwotę</button>
-    </div>
-
-    <p><b id="paymentTransferLabel">Zapłać przelewem:</b></p>
-
-    <div class="sb-pay-row">
-      <div class="sb-pay-field">
-        <span class="sb-pay-label">IBAN</span>
-        <strong id="paymentIbanValue">NL60 RABO 0324 8128 84</strong>
-      </div>
-      <button id="sbCopyIbanBtn" class="sb-pay-copy" type="button" onclick="sbCopyPaymentField('iban')">Kopiuj IBAN</button>
-    </div>
-
-    <div class="sb-pay-row">
-      <div class="sb-pay-field">
-        <span class="sb-pay-label" id="paymentReceiverLabel">Odbiorca:</span>
-        <strong id="paymentReceiverValue">I. Madej</strong>
-      </div>
-    </div>
-
-    <div class="sb-pay-row">
-      <div class="sb-pay-field">
-        <span class="sb-pay-label" id="paymentTitleLabel">Tytuł przelewu:</span>
-        <strong id="transferTitle" class="sb-transfer-title"></strong>
-      </div>
-      <button id="sbCopyTitleBtn" class="sb-pay-copy" type="button" onclick="sbCopyPaymentField('title')">Kopiuj tytuł</button>
-    </div>
-
-    <div class="sb-payment-helper">
-      <button id="sbCopyAllBtn" class="sb-copy-all-btn" type="button" onclick="sbCopyAllPaymentData()">📋 Kopiuj wszystkie dane</button>
-
-      <div class="sb-sepa-qr-wrap">
-        <div class="sb-sepa-qr-copy">
-          <strong id="sbSepaQrTitle">QR przelewu SEPA</strong>
-          <span id="sbSepaQrText">Zeskanuj kod QR aplikacją bankową, aby uzupełnić dane przelewu.</span>
-        </div>
-        <div id="sbSepaQr" class="sb-sepa-qr" aria-label="Kod QR przelewu SEPA"></div>
-      </div>
-      <p id="sbSepaQrHint" class="sb-sepa-hint">Przed zatwierdzeniem zawsze sprawdź w banku kwotę, IBAN i tytuł przelewu.</p>
-    </div>
-
-    <button id="confirmPaidBtn" class="primary" type="button" onclick="confirmPaid()">✔ Zapłaciłem</button>
-
-    <div id="pendingConfirmBox" class="pending-confirm-box">
-      <div id="pendingConfirmTitle" class="pending-confirm-title">✅ Zgłoszenie zapisane</div>
-      <div id="pendingConfirmText" class="pending-confirm-text">
-        Dziękujemy. Wykonaj przelew używając dokładnie poniższego tytułu. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
-      </div>
-      <div class="pending-bank-box">
-        <div><strong>IBAN:</strong> NL60 RABO 0324 8128 84</div>
-        <div><strong id="pendingReceiverLabel">Odbiorca:</strong> I. Madej</div>
-        <div><strong id="pendingTitleLabel">Tytuł przelewu:</strong></div>
-        <span id="pendingCodeView" class="pending-code"></span>
-      </div>
-      <button id="pendingCopyBtn" class="pending-copy-btn" type="button" onclick="copyPendingCode()">Kopiuj tytuł przelewu</button>
-      <div id="pendingSmallText" class="pending-small">
-        Po zaksięgowaniu płatności aktywujemy dostęp. Możesz później wrócić do strony i sprawdzić dostęp tym samym adresem e-mail.
-      </div>
-    </div>
-  </div>
 
   <footer class="footer-links" aria-label="Informacje prawne">
     <button type="button" id="footerPrivacy" onclick="showFooterInfo('privacy')">Prywatność</button>
@@ -4570,14 +4468,15 @@ function toggleTheme(){
   applyTheme(next);
 }
 
-const STRIPE_LINKS = {};
+const STRIPE_LINKS = {}; // legacy placeholder; public payments disabled
 
 const ENDPOINTS = {
   analyze: "/.netlify/functions/analyze",
   translate: "/.netlify/functions/translate",
   pendingSet: "/.netlify/functions/pending_set",
   accessCheck: "/.netlify/functions/access_check",
-  reviewAccess: "/.netlify/functions/review_access"
+  reviewAccess: "/.netlify/functions/review_access",
+  freeUsageSync: "/.netlify/functions/free_usage_sync"
 };
 
 async function sbReadJsonResponse(response) {
@@ -4593,6 +4492,7 @@ async function sbReadJsonResponse(response) {
 const SB = {
   freeMax: 3,
   keyFreeUsed: "sb_free_used_v2",
+  keyBonusGranted: "sb_bonus_granted_v1",
   keyPass: "sb_pass_v2"
 };
 
@@ -4604,6 +4504,29 @@ function getFreeUsed(){
 }
 function setFreeUsed(n){
   localStorage.setItem(SB.keyFreeUsed, String(Math.max(0, n|0)));
+}
+function getBonusGranted(){
+  const n = parseInt(localStorage.getItem(SB.keyBonusGranted) || "0", 10);
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
+}
+function setBonusGranted(n){ localStorage.setItem(SB.keyBonusGranted, String(Math.max(0, Number(n) || 0))); }
+
+async function sbSyncFreeUsage(email){
+  const normalized = String(email || localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
+  if(!normalized || !normalized.includes("@")) return null;
+  try{
+    const res = await fetch(ENDPOINTS.freeUsageSync, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ email: normalized, used: getFreeUsed() })
+    });
+    const data = await sbReadJsonResponse(res);
+    if(!res.ok || !data.ok) return null;
+    setBonusGranted(data.bonusUsesGranted || 0);
+    const serverUsed = Math.max(0, Number(data.freeUsesUsed) || 0);
+    if(serverUsed > getFreeUsed()) setFreeUsed(serverUsed);
+    return data;
+  }catch(_){ return null; }
 }
 
 function getPass(){
@@ -4632,7 +4555,7 @@ function clearPass(){
 
 function freeLeft(){
   const used = getFreeUsed();
-  return Math.max(0, SB.freeMax - used);
+  return Math.max(0, (SB.freeMax + getBonusGranted()) - used);
 }
 
 function hasAccess(){
@@ -4645,11 +4568,13 @@ function hasAccess(){
 
 function refreshUI(){
   document.getElementById("freeLeft").textContent = String(freeLeft());
+  if(typeof sbApplyFreeAccessCopy === "function") sbApplyFreeAccessCopy();
 
   const access = hasAccess();
   document.getElementById("accessState").textContent = access.label;
 
   document.body.classList.toggle("sb-access-locked", access.mode === "LOCKED");
+  if(access.mode === "LOCKED") sbTrackFreeLimitOnce();
 
   const btn = document.getElementById("btnAnalyze");
   const lockBox = document.getElementById("lockBox");
@@ -4712,13 +4637,15 @@ function updatePaidMessage(){
     if(untilRow) untilRow.style.display = "flex";
     if(untilValue) untilValue.textContent = until;
   } else if(access.mode === "FREE"){
-    text.textContent = t.freeMode + " • " + left + " " + t.free.toLowerCase();
+    const ux=(window.SB_I18N.modules["m9112_SB_UX_COPY"]||{})[lang] || (window.SB_I18N.modules["m9112_SB_UX_COPY"]||{}).PL;
+    text.textContent = (ux && typeof ux.free === "function") ? ux.free(left) : (left + " " + t.free.toLowerCase());
     if(untilRow) untilRow.style.display = "none";
   } else {
     text.textContent = t.locked;
     if(untilRow) untilRow.style.display = "none";
   }
   box.style.display = "block";
+  if(typeof window.sbRefreshAccessFlowCopy === "function") window.sbRefreshAccessFlowCopy();
 }
 
 async function sbSwitchAccessEmail(){
@@ -4738,8 +4665,11 @@ async function sbSwitchAccessEmail(){
 
   const result = await checkAccessServer(normalized);
   localStorage.setItem("sb_user_email", normalized);
+  setBonusGranted(result && result.bonusUsesGranted ? result.bonusUsesGranted : 0);
+  if(result && Number.isFinite(Number(result.freeUsesUsed)) && Number(result.freeUsesUsed) > getFreeUsed()) setFreeUsed(Number(result.freeUsesUsed));
+  await sbSyncFreeUsage(normalized);
   if(result && result.status === "ACTIVE"){
-    setPass(result.plan || "active", result.expires);
+    setPass(result.plan || "active", result.expires, result.accessType, result.aiLimit);
   } else {
     clearPass();
     sbShowNotice(t.notActive);
@@ -4761,6 +4691,7 @@ async function sbDisconnectAccess(){
   if(!confirmed) return;
 
   localStorage.removeItem("sb_user_email");
+  setBonusGranted(0);
   clearPass();
   refreshUI();
   updatePaidMessage();
@@ -4776,6 +4707,8 @@ function consumeFreeIfNeeded(){
   const access = hasAccess();
   if(access.mode === "FREE"){
     setFreeUsed(getFreeUsed() + 1);
+    const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
+    if(email) sbSyncFreeUsage(email).catch(()=>{});
   }
 }
 
@@ -4828,7 +4761,7 @@ function setUiLang(lang){
   if(!UI.dict[L]) return;
   UI.lang = L;
   localStorage.setItem(UI.key, L);
-  try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr'}[L] || 'en'); }catch(e){}
+  try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr',FI:'fi',SV:'sv',NO:'no',DA:'da'}[L] || 'en'); }catch(e){}
   applyUiLang();
   applyTheme(getTheme());
 
@@ -4924,15 +4857,15 @@ const SB_AI_ACCESS_COPY = {
 function sbAiAccessCopy(){ const l=(UI&&UI.lang)?UI.lang:"PL"; return SB_AI_ACCESS_COPY[l]||SB_AI_ACCESS_COPY.EN; }
 
 const SB_AI_LOCKED_COPY={
- PL:{free:"Darmowe użycia AI zostały wykorzystane. Wybierz dostęp czasowy lub PRO.",basic:"Dodatkowy limit AI w tym dostępie został wykorzystany. Zwykła analiza nadal działa do końca dostępu.",pro:"Limit 100 użyć AI w PRO został wykorzystany. Zwykła analiza nadal działa do końca dostępu."},
- EN:{free:"Your free AI uses are finished. Choose a time pass or PRO.",basic:"The additional AI limit for this pass has been used. Standard analysis still works until your pass expires.",pro:"The 100 AI uses in PRO have been used. Standard analysis still works until your pass expires."},
- NL:{free:"Je gratis AI-gebruik is op. Kies een tijdspas of PRO.",basic:"De extra AI-limiet van deze pas is opgebruikt. De gewone analyse blijft werken tot het einde van je toegang.",pro:"De 100 AI-gebruiken van PRO zijn opgebruikt. De gewone analyse blijft werken tot het einde van je toegang."},
- DE:{free:"Deine kostenlosen KI-Nutzungen sind aufgebraucht. Wähle einen Zeitpass oder PRO.",basic:"Das zusätzliche KI-Limit dieses Passes ist aufgebraucht. Die normale Analyse funktioniert bis zum Ende des Zugangs weiter.",pro:"Die 100 KI-Nutzungen in PRO sind aufgebraucht. Die normale Analyse funktioniert bis zum Ende des Zugangs weiter."},
- UA:{free:"Безкоштовні використання AI закінчилися. Виберіть часовий доступ або PRO.",basic:"Додатковий ліміт AI для цього доступу використано. Звичайний аналіз працює до завершення доступу.",pro:"Ліміт 100 використань AI у PRO вичерпано. Звичайний аналіз працює до завершення доступу."},
- FR:{free:"Vos utilisations gratuites de l’IA sont épuisées. Choisissez un accès temporaire ou PRO.",basic:"La limite IA supplémentaire de cet accès est épuisée. L’analyse standard reste disponible jusqu’à la fin de l’accès.",pro:"Les 100 utilisations IA de PRO sont épuisées. L’analyse standard reste disponible jusqu’à la fin de l’accès."},
- IT:{free:"Gli utilizzi gratuiti dell’AI sono terminati. Scegli un accesso a tempo o PRO.",basic:"Il limite AI aggiuntivo di questo accesso è esaurito. L’analisi standard continua a funzionare fino alla scadenza.",pro:"I 100 utilizzi AI di PRO sono esauriti. L’analisi standard continua a funzionare fino alla scadenza."},
- ES:{free:"Se han agotado los usos gratuitos de IA. Elige un acceso temporal o PRO.",basic:"Se ha agotado el límite adicional de IA de este acceso. El análisis estándar sigue disponible hasta que termine el acceso.",pro:"Se han agotado los 100 usos de IA de PRO. El análisis estándar sigue disponible hasta que termine el acceso."},
- PT:{free:"As utilizações gratuitas de IA terminaram. Escolha um acesso temporário ou PRO.",basic:"O limite adicional de IA deste acesso foi utilizado. A análise normal continua disponível até ao fim do acesso.",pro:"As 100 utilizações de IA do PRO foram utilizadas. A análise normal continua disponível até ao fim do acesso."},
+ PL:{free:"Wykorzystano 3 bezpłatne użycia Sense Bridge. Poproś o dalszy dostęp.",basic:"Dodatkowy limit AI w tym dostępie został wykorzystany. Zwykła analiza nadal działa do końca dostępu.",pro:"Limit 100 użyć AI w PRO został wykorzystany. Zwykła analiza nadal działa do końca dostępu."},
+ EN:{free:"Your 3 free Sense Bridge uses are finished. Request more access.",basic:"The additional AI limit for this pass has been used. Standard analysis still works until your pass expires.",pro:"The 100 AI uses in PRO have been used. Standard analysis still works until your pass expires."},
+ NL:{free:"Je 3 gratis Sense Bridge-gebruiksmomenten zijn op. Vraag meer toegang aan.",basic:"De extra AI-limiet van deze pas is opgebruikt. De gewone analyse blijft werken tot het einde van je toegang.",pro:"De 100 AI-gebruiken van PRO zijn opgebruikt. De gewone analyse blijft werken tot het einde van je toegang."},
+ DE:{free:"Deine 3 kostenlosen Sense Bridge-Nutzungen sind aufgebraucht. Bitte fordere weiteren Zugang an.",basic:"Das zusätzliche KI-Limit dieses Passes ist aufgebraucht. Die normale Analyse funktioniert bis zum Ende des Zugangs weiter.",pro:"Die 100 KI-Nutzungen in PRO sind aufgebraucht. Die normale Analyse funktioniert bis zum Ende des Zugangs weiter."},
+ UA:{free:"3 безкоштовні використання Sense Bridge закінчилися. Запросіть подальший доступ.",basic:"Додатковий ліміт AI для цього доступу використано. Звичайний аналіз працює до завершення доступу.",pro:"Ліміт 100 використань AI у PRO вичерпано. Звичайний аналіз працює до завершення доступу."},
+ FR:{free:"Vos 3 utilisations gratuites de Sense Bridge sont épuisées. Demandez un accès supplémentaire.",basic:"La limite IA supplémentaire de cet accès est épuisée. L’analyse standard reste disponible jusqu’à la fin de l’accès.",pro:"Les 100 utilisations IA de PRO sont épuisées. L’analyse standard reste disponible jusqu’à la fin de l’accès."},
+ IT:{free:"I 3 utilizzi gratuiti di Sense Bridge sono terminati. Richiedi ulteriore accesso.",basic:"Il limite AI aggiuntivo di questo accesso è esaurito. L’analisi standard continua a funzionare fino alla scadenza.",pro:"I 100 utilizzi AI di PRO sono esauriti. L’analisi standard continua a funzionare fino alla scadenza."},
+ ES:{free:"Has agotado los 3 usos gratuitos de Sense Bridge. Solicita más acceso.",basic:"Se ha agotado el límite adicional de IA de este acceso. El análisis estándar sigue disponible hasta que termine el acceso.",pro:"Se han agotado los 100 usos de IA de PRO. El análisis estándar sigue disponible hasta que termine el acceso."},
+ PT:{free:"As 3 utilizações gratuitas do Sense Bridge terminaram. Peça mais acesso.",basic:"O limite adicional de IA deste acesso foi utilizado. A análise normal continua disponível até ao fim do acesso.",pro:"As 100 utilizações de IA do PRO foram utilizadas. A análise normal continua disponível até ao fim do acesso."},
  LT:{free:"Nemokami AI naudojimai baigėsi. Pasirinkite laikiną prieigą arba PRO.",basic:"Papildomas šios prieigos AI limitas išnaudotas. Įprasta analizė veiks iki prieigos pabaigos.",pro:"100 PRO AI naudojimų išnaudota. Įprasta analizė veiks iki prieigos pabaigos."},
  LV:{free:"Bezmaksas AI lietojumi ir iztērēti. Izvēlieties laika piekļuvi vai PRO.",basic:"Šīs piekļuves papildu AI limits ir iztērēts. Parastā analīze darbojas līdz piekļuves beigām.",pro:"PRO 100 AI lietojumi ir iztērēti. Parastā analīze darbojas līdz piekļuves beigām."},
  HU:{free:"Az ingyenes AI-használatok elfogytak. Válasszon időalapú hozzáférést vagy PRO-t.",basic:"Ennek a hozzáférésnek a kiegészítő AI-limitje elfogyott. A normál elemzés a hozzáférés végéig működik.",pro:"A PRO 100 AI-használata elfogyott. A normál elemzés a hozzáférés végéig működik."},
@@ -4995,7 +4928,8 @@ window.SBProManager = (function(){
   }
 
   function max(){
-    return status().limit;
+    const x=status();
+    return x.paid||x.review||x.beta||x.pro ? x.limit : SB.freeMax;
   }
 
   function sync(){
@@ -5023,6 +4957,8 @@ window.SBProManager = (function(){
   }
 
   function left(){
+    const x=status();
+    if(!(x.paid||x.review||x.beta||x.pro)) return freeLeft();
     sync();
     const currentMax=max();
     const n=Number(localStorage.getItem(LEFT_KEY));
@@ -5030,11 +4966,17 @@ window.SBProManager = (function(){
   }
 
   function setLeft(n){
+    const x=status();
+    if(!(x.paid||x.review||x.beta||x.pro)){
+      const v=Math.max(0,Math.min(SB.freeMax,Number(n)||0));
+      setFreeUsed(SB.freeMax-v);
+      refreshUI(); updatePaidMessage(); render();
+      return v;
+    }
     sync();
     const currentMax=max();
     const v=Math.max(0,Math.min(currentMax,Number(n)||0));
     localStorage.setItem(LEFT_KEY,String(v));
-    if(currentMax===2) localStorage.setItem(LEGACY_KEY,String(v));
     render();
     return v;
   }
@@ -5130,12 +5072,8 @@ function applyAiToolsLang(){
   sbSetText("sbAiToolsTitle", sbAiToolsText("title"));
   {
     const descEl=document.getElementById("sbAiToolsDesc");
-    if(descEl && window.SBProManager){
-      const st=window.SBProManager.status();
-      const c=sbAiAccessCopy();
-      descEl.textContent=st.pro||st.review||st.beta ? c.pro : (st.paid ? c.basic(window.SBProManager.max()) : c.free);
-    }else{
-      sbSetText("sbAiToolsDesc", sbAiToolsText("desc"));
+    if(descEl){
+      descEl.textContent=sbAiToolsText("desc");
     }
   }
   sbSetText("sbAiTrialsLabel", sbAiToolsText("trials"));
@@ -5385,9 +5323,11 @@ async function runAiToolsPreview(){
     const output = data.result || data.text || data.answer || "";
 
     setAiToolsTrialLeft(left - 1);
+    trackEvent("ai_" + String(tool||"unknown"));
 
     sbAiSetResult(output || sbAiRunText("empty"), "");
   }catch(e){
+    trackEvent("ai_error");
     const pref=(UI&&UI.dict&&UI.dict[UI.lang]&&UI.dict[UI.lang].error)||"Error: ";
     sbAiSetResult(pref + (e && e.message ? e.message : e), "locked");
   }
@@ -5435,7 +5375,7 @@ function applyCompactUiLabels(){
 function applyUiLang(){
   const t = UI.dict[UI.lang];
   try{ document.title = "Sense Bridge"; }catch(e){}
-  try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr'}[UI.lang] || 'en'); }catch(e){}
+  try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr',FI:'fi',SV:'sv',NO:'no',DA:'da'}[UI.lang] || 'en'); }catch(e){}
   applyCompactUiLabels();
 
   document.getElementById("hTitle").textContent = t.title;
@@ -5567,8 +5507,7 @@ document.getElementById("p30name").textContent = t.p30name || "30 dni";
 
   sbApplyNewAnalysisText();
   applyAiToolsLang();
-  applyPaymentLang();
-  applyProPlanLang();
+  if(typeof sbApplyFreeAccessCopy === "function") sbApplyFreeAccessCopy();
   applyInstallDialogText();
 }
 
@@ -6389,12 +6328,15 @@ async function syncAccess(){
     const data = await sbReadJsonResponse(res);
 
     if(!res.ok || !data.ok) return;
+    setBonusGranted(data.bonusUsesGranted || 0);
+    if(Number.isFinite(Number(data.freeUsesUsed)) && Number(data.freeUsesUsed) > getFreeUsed()) setFreeUsed(Number(data.freeUsesUsed));
+    await sbSyncFreeUsage(email);
 
     if(data.status === "ACTIVE"){
       setPass(data.plan, data.expires, data.accessType, data.aiLimit);
     }
 
-    if(data.status === "EXPIRED" || data.status === "BLOCKED"){
+    if(data.status === "EXPIRED" || data.status === "BLOCKED" || data.status === "BONUS" || data.status === "PENDING"){
       clearPass();
     }
 
@@ -6403,168 +6345,129 @@ async function syncAccess(){
   }
 }
 
-let currentPlan = null;
+const SB_ACCESS_REQUEST_TEXT = {
+  PL:{title:"Dalszy dostęp",text:"Wykorzystałeś 3 bezpłatne użycia. Podaj adres e-mail, aby wysłać prośbę o dalszy bezpłatny dostęp.",placeholder:"email@example.com",sentTitle:"Zgłoszenie wysłane",sent:"Dziękujemy. Twoja prośba o dalszy dostęp została wysłana i będzie rozpatrzona ręcznie.",error:"Nie udało się wysłać zgłoszenia: ",blocked:"Ten adres e-mail jest zablokowany."},
+  EN:{title:"More access",text:"You have used your 3 free uses. Enter your email to request more free access.",placeholder:"email@example.com",sentTitle:"Request sent",sent:"Thank you. Your request for more access was sent and will be reviewed manually.",error:"Could not send the request: ",blocked:"This email address is blocked."},
+  NL:{title:"Meer toegang",text:"Je hebt je 3 gratis gebruiksmomenten gebruikt. Vul je e-mailadres in om meer gratis toegang aan te vragen.",placeholder:"email@example.com",sentTitle:"Aanvraag verzonden",sent:"Bedankt. Je aanvraag voor meer toegang is verzonden en wordt handmatig beoordeeld.",error:"Aanvraag kon niet worden verzonden: ",blocked:"Dit e-mailadres is geblokkeerd."},
+  DE:{title:"Weiterer Zugang",text:"Du hast deine 3 kostenlosen Nutzungen verbraucht. Gib deine E-Mail-Adresse ein, um weiteren kostenlosen Zugang anzufragen.",placeholder:"email@example.com",sentTitle:"Anfrage gesendet",sent:"Danke. Deine Anfrage wurde gesendet und wird manuell geprüft.",error:"Anfrage konnte nicht gesendet werden: ",blocked:"Diese E-Mail-Adresse ist gesperrt."},
+  UA:{title:"Подальший доступ",text:"Ви використали 3 безкоштовні використання. Введіть e-mail, щоб надіслати запит на подальший безкоштовний доступ.",placeholder:"email@example.com",sentTitle:"Запит надіслано",sent:"Дякуємо. Ваш запит надіслано і буде розглянуто вручну.",error:"Не вдалося надіслати запит: ",blocked:"Цю адресу e-mail заблоковано."},
+  FR:{title:"Accès supplémentaire",text:"Vous avez utilisé vos 3 utilisations gratuites. Saisissez votre e-mail pour demander un accès gratuit supplémentaire.",placeholder:"email@example.com",sentTitle:"Demande envoyée",sent:"Merci. Votre demande a été envoyée et sera examinée manuellement.",error:"Impossible d’envoyer la demande : ",blocked:"Cette adresse e-mail est bloquée."},
+  IT:{title:"Ulteriore accesso",text:"Hai utilizzato i 3 usi gratuiti. Inserisci la tua e-mail per richiedere ulteriore accesso gratuito.",placeholder:"email@example.com",sentTitle:"Richiesta inviata",sent:"Grazie. La richiesta è stata inviata e verrà esaminata manualmente.",error:"Impossibile inviare la richiesta: ",blocked:"Questo indirizzo e-mail è bloccato."},
+  ES:{title:"Más acceso",text:"Has utilizado tus 3 usos gratuitos. Introduce tu correo para solicitar más acceso gratuito.",placeholder:"email@example.com",sentTitle:"Solicitud enviada",sent:"Gracias. Tu solicitud se ha enviado y se revisará manualmente.",error:"No se pudo enviar la solicitud: ",blocked:"Este correo está bloqueado."},
+  PT:{title:"Mais acesso",text:"Já utilizou as 3 utilizações gratuitas. Introduza o seu e-mail para pedir mais acesso gratuito.",placeholder:"email@example.com",sentTitle:"Pedido enviado",sent:"Obrigado. O seu pedido foi enviado e será analisado manualmente.",error:"Não foi possível enviar o pedido: ",blocked:"Este e-mail está bloqueado."},
+  LT:{title:"Tolesnė prieiga",text:"Išnaudojote 3 nemokamus naudojimus. Įveskite el. paštą, kad paprašytumėte tolesnės nemokamos prieigos.",placeholder:"email@example.com",sentTitle:"Prašymas išsiųstas",sent:"Ačiū. Jūsų prašymas išsiųstas ir bus peržiūrėtas rankiniu būdu.",error:"Nepavyko išsiųsti prašymo: ",blocked:"Šis el. paštas užblokuotas."},
+  LV:{title:"Papildu piekļuve",text:"Jūs esat izmantojis 3 bezmaksas lietošanas reizes. Ievadiet e-pastu, lai pieprasītu turpmāku bezmaksas piekļuvi.",placeholder:"email@example.com",sentTitle:"Pieprasījums nosūtīts",sent:"Paldies. Pieprasījums ir nosūtīts un tiks pārskatīts manuāli.",error:"Neizdevās nosūtīt pieprasījumu: ",blocked:"Šis e-pasts ir bloķēts."},
+  HU:{title:"További hozzáférés",text:"Felhasználta a 3 ingyenes használatot. Adja meg e-mail-címét további ingyenes hozzáférés kéréséhez.",placeholder:"email@example.com",sentTitle:"Kérelem elküldve",sent:"Köszönjük. Kérelmét elküldtük, és manuálisan ellenőrizzük.",error:"A kérelem nem küldhető el: ",blocked:"Ez az e-mail-cím blokkolva van."},
+  FI:{title:"Lisää käyttöoikeutta",text:"Olet käyttänyt 3 ilmaista käyttökertaa. Anna sähköpostiosoitteesi pyytääksesi lisää maksutonta käyttöoikeutta.",placeholder:"email@example.com",sentTitle:"Pyyntö lähetetty",sent:"Kiitos. Pyyntösi on lähetetty ja tarkistetaan manuaalisesti.",error:"Pyyntöä ei voitu lähettää: ",blocked:"Tämä sähköpostiosoite on estetty."},
+  SV:{title:"Mer åtkomst",text:"Du har använt dina 3 kostnadsfria användningar. Ange din e-postadress för att begära mer kostnadsfri åtkomst.",placeholder:"email@example.com",sentTitle:"Begäran skickad",sent:"Tack. Din begäran har skickats och granskas manuellt.",error:"Det gick inte att skicka begäran: ",blocked:"Den här e-postadressen är blockerad."},
+  NO:{title:"Mer tilgang",text:"Du har brukt dine 3 gratis bruk. Skriv inn e-postadressen din for å be om mer gratis tilgang.",placeholder:"email@example.com",sentTitle:"Forespørsel sendt",sent:"Takk. Forespørselen er sendt og vil bli vurdert manuelt.",error:"Kunne ikke sende forespørselen: ",blocked:"Denne e-postadressen er blokkert."},
+  DA:{title:"Mere adgang",text:"Du har brugt dine 3 gratis anvendelser. Indtast din e-mail for at anmode om mere gratis adgang.",placeholder:"email@example.com",sentTitle:"Anmodning sendt",sent:"Tak. Din anmodning er sendt og bliver gennemgået manuelt.",error:"Kunne ikke sende anmodningen: ",blocked:"Denne e-mailadresse er blokeret."},
+  ZH:{title:"更多访问权限",text:"您已使用 3 次免费机会。请输入电子邮件地址以申请更多免费访问权限。",placeholder:"email@example.com",sentTitle:"申请已发送",sent:"谢谢。您的申请已发送，将由人工审核。",error:"无法发送申请：",blocked:"此电子邮件地址已被封锁。"},
+  JA:{title:"追加アクセス",text:"3回の無料利用を使い切りました。追加の無料アクセスを申請するにはメールアドレスを入力してください。",placeholder:"email@example.com",sentTitle:"申請を送信しました",sent:"ありがとうございます。申請は送信され、手動で確認されます。",error:"申請を送信できませんでした：",blocked:"このメールアドレスはブロックされています。"},
+  HI:{title:"अतिरिक्त एक्सेस",text:"आप अपने 3 निःशुल्क उपयोग कर चुके हैं। आगे के निःशुल्क एक्सेस के लिए अपना ईमेल दर्ज करें।",placeholder:"email@example.com",sentTitle:"अनुरोध भेजा गया",sent:"धन्यवाद। आपका अनुरोध भेज दिया गया है और मैन्युअल रूप से समीक्षा की जाएगी।",error:"अनुरोध नहीं भेजा जा सका: ",blocked:"यह ईमेल पता ब्लॉक है।"},
+  AR:{title:"وصول إضافي",text:"لقد استخدمت 3 مرات مجانية. أدخل بريدك الإلكتروني لطلب وصول مجاني إضافي.",placeholder:"email@example.com",sentTitle:"تم إرسال الطلب",sent:"شكراً لك. تم إرسال طلبك وسيتم مراجعته يدوياً.",error:"تعذر إرسال الطلب: ",blocked:"عنوان البريد الإلكتروني هذا محظور."},
+  EG:{title:"وصول إضافي",text:"استخدمت الـ3 مرات المجانية. اكتب بريدك الإلكتروني علشان تطلب وصول مجاني إضافي.",placeholder:"email@example.com",sentTitle:"الطلب اتبعت",sent:"شكراً. طلبك اتبعت وهيتم مراجعته يدويًا.",error:"ماقدرناش نبعت الطلب: ",blocked:"الإيميل ده محظور."},
+  ET:{title:"Rohkem ligipääsu",text:"Oled kasutanud 3 tasuta kasutuskorda. Sisesta e-post, et taotleda täiendavat tasuta ligipääsu.",placeholder:"email@example.com",sentTitle:"Taotlus saadetud",sent:"Aitäh. Taotlus saadeti ja vaadatakse käsitsi üle.",error:"Taotlust ei õnnestunud saata: ",blocked:"See e-posti aadress on blokeeritud."},
+  RO:{title:"Acces suplimentar",text:"Ai folosit cele 3 utilizări gratuite. Introdu adresa de e-mail pentru a solicita acces gratuit suplimentar.",placeholder:"email@example.com",sentTitle:"Cerere trimisă",sent:"Mulțumim. Cererea a fost trimisă și va fi verificată manual.",error:"Cererea nu a putut fi trimisă: ",blocked:"Această adresă de e-mail este blocată."},
+  HR:{title:"Dodatni pristup",text:"Iskoristili ste 3 besplatna korištenja. Unesite e-mail kako biste zatražili dodatni besplatni pristup.",placeholder:"email@example.com",sentTitle:"Zahtjev poslan",sent:"Hvala. Vaš zahtjev je poslan i bit će ručno pregledan.",error:"Zahtjev nije moguće poslati: ",blocked:"Ova e-mail adresa je blokirana."}
+};
 
-function getPayText(){
-  const lang = (UI && UI.lang) ? UI.lang : "PL";
 
-  const txt = window.SB_I18N.modules["m7072_txt"];
+const SB_ACCESS_REQUEST_NEUTRAL={
+ PL:{text:"Wykorzystałeś 3 użycia. Podaj adres e-mail, aby wysłać prośbę o dalszy dostęp."},
+ EN:{text:"You have used your 3 uses. Enter your email to request further access."},
+ NL:{text:"Je hebt je 3 gebruiken verbruikt. Vul je e-mailadres in om verdere toegang aan te vragen."},
+ DE:{text:"Du hast deine 3 Nutzungen verbraucht. Gib deine E-Mail-Adresse ein, um weiteren Zugang anzufragen."},
+ UA:{text:"Ви використали 3 використання. Введіть e-mail, щоб надіслати запит на подальший доступ."},
+ FR:{text:"Vous avez utilisé vos 3 utilisations. Saisissez votre e-mail pour demander un accès supplémentaire."},
+ IT:{text:"Hai utilizzato i 3 usi. Inserisci la tua e-mail per richiedere ulteriore accesso."},
+ ES:{text:"Has utilizado tus 3 usos. Introduce tu correo para solicitar más acceso."},
+ PT:{text:"Já utilizou as 3 utilizações. Introduza o seu e-mail para pedir mais acesso."},
+ LT:{text:"Išnaudojote 3 naudojimus. Įveskite el. paštą, kad paprašytumėte tolesnės prieigos."},
+ LV:{text:"Jūs esat izmantojis 3 lietošanas reizes. Ievadiet e-pastu, lai pieprasītu turpmāku piekļuvi."},
+ HU:{text:"Felhasználta a 3 használatot. Adja meg e-mail-címét további hozzáférés kéréséhez."},
+ FI:{text:"Olet käyttänyt 3 käyttökertaa. Anna sähköpostiosoitteesi pyytääksesi lisää käyttöoikeutta."},
+ SV:{text:"Du har använt dina 3 användningar. Ange din e-postadress för att begära mer åtkomst."},
+ NO:{text:"Du har brukt dine 3 bruk. Skriv inn e-postadressen din for å be om mer tilgang."},
+ DA:{text:"Du har brugt dine 3 anvendelser. Indtast din e-mail for at anmode om mere adgang."},
+ ZH:{text:"您已使用 3 次。请输入电子邮件地址以申请更多访问权限。"},
+ JA:{text:"3回の利用を使い切りました。追加アクセスを申請するにはメールアドレスを入力してください。"},
+ HI:{text:"आप अपने 3 उपयोग कर चुके हैं। आगे के एक्सेस के लिए अपना ईमेल दर्ज करें।"},
+ AR:{text:"لقد استخدمت 3 مرات. أدخل بريدك الإلكتروني لطلب وصول إضافي."},
+ EG:{text:"استخدمت الـ3 مرات. اكتب بريدك الإلكتروني علشان تطلب وصول إضافي."},
+ ET:{text:"Oled kasutanud 3 kasutuskorda. Sisesta e-post, et taotleda täiendavat ligipääsu."},
+ RO:{text:"Ai folosit cele 3 utilizări. Introdu adresa de e-mail pentru a solicita acces suplimentar."},
+ HR:{text:"Iskoristili ste 3 korištenja. Unesite e-mail kako biste zatražili dodatni pristup."}
+};
+Object.keys(SB_ACCESS_REQUEST_NEUTRAL).forEach(function(L){ if(SB_ACCESS_REQUEST_TEXT[L]) Object.assign(SB_ACCESS_REQUEST_TEXT[L],SB_ACCESS_REQUEST_NEUTRAL[L]); });
 
-  return txt[lang] || txt.PL;
+function sbAccessRequestText(){
+  const lang=(UI&&UI.lang)?String(UI.lang).toUpperCase():"PL";
+  return SB_ACCESS_REQUEST_TEXT[lang]||SB_ACCESS_REQUEST_TEXT.EN;
 }
 
-async function goPay(which){
-  currentPlan = which;
+function sbApplyFreeAccessCopy(){
+  const t=sbAccessRequestText();
+  const title=document.getElementById("payTitle");
+  const desc=document.getElementById("payDesc");
+  const btn=document.getElementById("sbRequestAccessBtn");
+  const lock=document.getElementById("lockBox");
+  if(title) title.textContent=t.title;
+  if(desc) desc.textContent=t.text;
+  if(btn) btn.textContent="✉️ "+t.title;
+  if(lock && freeLeft()<=0) lock.textContent=t.text;
+}
 
-  let amount = "";
-  let title = "";
-  const tPay = getPayText();
-
-  const email = await sbShowModal({
-    title: tPay.emailTitle,
-    text: tPay.emailText,
-    input: true,
-    placeholder: tPay.placeholder
-  });
-
+async function requestFreeAccess(){
+  const t=sbAccessRequestText();
+  const current=(localStorage.getItem("sb_user_email")||"").trim().toLowerCase();
+  const email=await sbShowModal({title:t.title,text:t.text,input:true,inputType:"email",value:current,placeholder:t.placeholder});
   if(!email) return;
+  const normalized=String(email).trim().toLowerCase();
+  if(!normalized || !normalized.includes("@")){ sbShowNotice(t.error+"email"); return; }
 
-  let planNum = "24";
-
-  if(which === "24h"){
-    amount = "3 €";
-    planNum = "24";
+  const accessCheck=await checkAccessServer(normalized);
+  if(accessCheck){
+    setBonusGranted(accessCheck.bonusUsesGranted || 0);
+    if(Number.isFinite(Number(accessCheck.freeUsesUsed)) && Number(accessCheck.freeUsesUsed) > getFreeUsed()) setFreeUsed(Number(accessCheck.freeUsesUsed));
   }
-
-  if(which === "7d"){
-    amount = "7 €";
-    planNum = "7";
+  await sbSyncFreeUsage(normalized);
+  if(accessCheck && accessCheck.status==="BLOCKED"){ sbShowNotice(t.blocked); return; }
+  if(accessCheck && accessCheck.status==="ACTIVE"){
+    localStorage.setItem("sb_user_email",normalized);
+    setPass(accessCheck.plan||"active",accessCheck.expires,accessCheck.accessType,accessCheck.aiLimit);
+    refreshUI(); updatePaidMessage();
+    sbShowNotice("✅ "+((sbAccessText()&&sbAccessText().active)||"Access active"));
+    return;
   }
-
-  if(which === "30d"){
-    amount = "15 €";
-    planNum = "30";
+  if(freeLeft()>0){
+    localStorage.setItem("sb_user_email",normalized);
+    refreshUI(); updatePaidMessage();
+    const flow=(window.SB_ACCESS_FLOW_COPY||{})[(UI&&UI.lang)?String(UI.lang).toUpperCase():"PL"] || (window.SB_ACCESS_FLOW_COPY||{}).EN;
+    sbShowNotice("✅ "+(flow?.bonusReady || "Additional uses are available."));
+    return;
   }
-
-  if(which === "30d-pro"){
-    amount = "25 €";
-    planNum = "PRO30";
-  }
-
-  const code = Math.floor(1000 + Math.random() * 9000);
-  title = "SB" + planNum + "-" + code + "-SenseB";
-
-  localStorage.setItem("sb_payment_code", code);
-
-  document.getElementById("amountText").textContent = amount;
-  document.getElementById("transferTitle").textContent = title;
-  localStorage.setItem("sb_user_email", email);
-
-  document.body.classList.add("sb-payment-open");
-  document.getElementById("paymentBox").style.display = "block";
-  document.getElementById("paymentBox").scrollIntoView({ behavior: "smooth" });
-}
-
-function showPendingConfirmBox(){
-  const box = document.getElementById("pendingConfirmBox");
-  const codeView = document.getElementById("pendingCodeView");
-  const transferTitleEl = document.getElementById("transferTitle");
-
-  if(codeView && transferTitleEl){
-    codeView.textContent = (transferTitleEl.textContent || "").trim();
-  }
-
-  if(box){
-    box.classList.add("show");
-    box.scrollIntoView({ behavior:"smooth", block:"center" });
-  }
-}
-
-async function copyPendingCode(){
-  const tPay = getPayText();
-  const transferTitleEl = document.getElementById("transferTitle");
-  const txt = transferTitleEl ? (transferTitleEl.textContent || "").trim() : "";
-  if(!txt) return;
 
   try{
-    await navigator.clipboard.writeText(txt);
-  }catch{
-    const ta = document.createElement("textarea");
-    ta.value = txt;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
-  }
-
-  await sbShowModal({
-    title: tPay.copied,
-    text: tPay.copiedText,
-    input: false
-  });
+    const res=await fetch(ENDPOINTS.pendingSet,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:normalized,plan:"free-request",paymentTitle:"ACCESS_REQUEST",lang:(window.UI&&UI.lang)?String(UI.lang).toUpperCase():"UNKNOWN"})});
+    const data=await sbReadJsonResponse(res);
+    if(!res.ok || !data.ok) throw new Error(data.error||"Request error");
+    localStorage.setItem("sb_user_email",normalized);
+    trackEvent("access_request");
+    await sbShowModal({title:t.sentTitle,text:t.sent,input:false});
+    refreshUI(); updatePaidMessage();
+  }catch(e){ sbShowNotice(t.error+(e&&e.message?e.message:e)); }
 }
 
-async function confirmPaid(){
-  const tPay = getPayText();
-  const email = (localStorage.getItem("sb_user_email") || "").trim().toLowerCase();
 
-  if(!email){
-    sbShowNotice(tPay.noEmail);
-    return;
-  }
-
-  if(!currentPlan){
-    sbShowNotice(tPay.noPlan);
-    return;
-  }
-
-  const accessCheck = await checkAccessServer(email);
-
-  if (accessCheck && accessCheck.status === "BLOCKED") {
-    clearPass();
-    refreshUI();
-    updatePaidMessage();
-    sbShowNotice(tPay.blocked);
-    return;
-  }
-
-  try {
-    const res = await fetch(ENDPOINTS.pendingSet, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        plan: currentPlan,
-        paymentTitle: document.getElementById("transferTitle").textContent.trim()
-      })
-    });
-
-    const data = await sbReadJsonResponse(res);
-
-    if(!res.ok || !data.ok){
-      throw new Error(data.error || tPay.activationError);
+function sbTrackFreeLimitOnce(){
+  try{
+    if(freeLeft()<=0 && !localStorage.getItem("sb_free_limit_tracked_v1")){
+      localStorage.setItem("sb_free_limit_tracked_v1","1");
+      if(typeof trackEvent==="function") trackEvent("free_limit_reached");
     }
-
-    trackEvent("pending");
-
-    clearPass();
-
-    showPendingConfirmBox();
-
-    await sbShowModal({
-      title: tPay.pendingTitle,
-      text: tPay.pendingText,
-      input: false
-    });
-
-    refreshUI();
-    updatePaidMessage();
-
-  } catch (e) {
-    sbShowNotice(tPay.error + (e.message || e));
-  }
+  }catch(_){}
 }
-
 function checkPaywall(){
   const access = hasAccess();
   if(access.mode === "LOCKED"){
@@ -7151,6 +7054,7 @@ fetch("/.netlify/functions/analyze_count", {
   method: "POST",
   headers: { "X-SB-Event": "analyze" }
 }).catch(()=>{});
+    trackEvent("analysis_use");
     consumeFreeIfNeeded();
     refreshUI();
     updatePaidMessage();
@@ -7191,7 +7095,8 @@ fetch("/.netlify/functions/analyze_count", {
   await activateGoogleReviewAccessFromQuery();
   fetch("/.netlify/functions/visit", {
   method: "POST",
-  headers: { "X-SB-Event": "visit" }
+  headers: { "X-SB-Event": "visit", "Content-Type": "application/json" },
+  body: JSON.stringify({lang:(window.UI&&UI.lang)?String(UI.lang).toUpperCase():"UNKNOWN"})
 }).catch(()=>{});
   await syncAccess();
   refreshUI();
@@ -7400,7 +7305,8 @@ fetch("/.netlify/functions/analyze_count", {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          event: eventName
+          event: eventName,
+          lang: (window.UI && UI.lang) ? String(UI.lang).toUpperCase() : "UNKNOWN"
         })
       }
     );
@@ -8656,6 +8562,7 @@ body.dark-mode #translation{
       cards.forEach((card,index)=>card.style.display=index===0?"":"none");
 
       if(typeof setAiToolsTrialLeft==="function") setAiToolsTrialLeft(left-1);
+      if(typeof trackEvent==="function") trackEvent("ai_contract");
       el("sbContractResult").classList.add("show");
       set("sbContractStatus",c.done);
       el("sbContractResult").scrollIntoView({behavior:"smooth",block:"nearest"});
@@ -9015,6 +8922,7 @@ body.dark-mode #translation{
         if(!natural)throw new Error("Empty photo analysis");
         showNaturalPhotoResult(natural,output);
         if(typeof setAiToolsTrialLeft==="function")setAiToolsTrialLeft(left-1);
+        if(typeof trackEvent==="function") trackEvent("ai_doc_"+String(tool||"unknown"));
         id("sbDocLabResult").classList.add("show");set("sbDocLabStatus",com.done);
         id("sbDocLabResult").scrollIntoView({behavior:"smooth",block:"nearest"});
         return;
@@ -9039,6 +8947,7 @@ body.dark-mode #translation{
         const compact=smart || Array.from(new Set(fallbackValues)).join("\n\n");
         showSmartDocumentResult(compact);
         if(typeof setAiToolsTrialLeft==="function")setAiToolsTrialLeft(left-1);
+        if(typeof trackEvent==="function") trackEvent("ai_doc_"+String(tool||"unknown"));
         id("sbDocLabResult").classList.add("show");set("sbDocLabStatus",com.done);
         id("sbDocLabResult").scrollIntoView({behavior:"smooth",block:"nearest"});
         return;
@@ -9054,6 +8963,7 @@ body.dark-mode #translation{
       ];
       values.forEach((v,i)=>set("sbDocLabR"+(i+1),lines(v)));
       if(typeof setAiToolsTrialLeft==="function")setAiToolsTrialLeft(left-1);
+        if(typeof trackEvent==="function") trackEvent("ai_doc_"+String(tool||"unknown"));
       id("sbDocLabResult").classList.add("show");set("sbDocLabStatus",com.done);
       id("sbDocLabResult").scrollIntoView({behavior:"smooth",block:"nearest"});
     }catch(e){set("sbDocLabStatus",com.error+" "+(e&&e.message?e.message:""));}
@@ -10697,125 +10607,6 @@ module.exports = QRCode;
 </script>
 
 
-<script id="sbSepaPaymentHelper">
-(function(){
-  "use strict";
-  const I18N={"PL":["Kopiuj kwotę","Kopiuj IBAN","Kopiuj tytuł","📋 Kopiuj wszystkie dane","QR przelewu SEPA","Zeskanuj kod QR aplikacją bankową, aby uzupełnić dane przelewu.","Przed zatwierdzeniem zawsze sprawdź w banku kwotę, IBAN i tytuł przelewu.","Skopiowano","Dane przelewu zostały skopiowane."],"UA":["Копіювати суму","Копіювати IBAN","Копіювати призначення","📋 Копіювати всі дані","QR-код SEPA-переказу","Відскануйте QR-код у банківському застосунку, щоб заповнити дані переказу.","Перед підтвердженням завжди перевірте в банку суму, IBAN і призначення платежу.","Скопійовано","Дані переказу скопійовано."],"NL":["Bedrag kopiëren","IBAN kopiëren","Omschrijving kopiëren","📋 Alle betaalgegevens kopiëren","SEPA-betaal-QR","Scan de QR-code met je bankapp om de overschrijving in te vullen.","Controleer vóór bevestiging altijd het bedrag, IBAN en de omschrijving in je bankapp.","Gekopieerd","De betaalgegevens zijn gekopieerd."],"EN":["Copy amount","Copy IBAN","Copy reference","📋 Copy all payment details","SEPA payment QR","Scan the QR code with your banking app to fill in the bank transfer details.","Before confirming, always check the amount, IBAN and payment reference in your bank.","Copied","Payment details copied."],"DE":["Betrag kopieren","IBAN kopieren","Verwendungszweck kopieren","📋 Alle Zahlungsdaten kopieren","SEPA-Zahlungs-QR","Scannen Sie den QR-Code mit Ihrer Banking-App, um die Überweisungsdaten auszufüllen.","Prüfen Sie vor der Bestätigung immer Betrag, IBAN und Verwendungszweck in Ihrer Bank.","Kopiert","Zahlungsdaten wurden kopiert."],"FR":["Copier le montant","Copier l’IBAN","Copier la référence","📋 Copier toutes les données de paiement","QR de paiement SEPA","Scannez le QR code avec votre application bancaire pour remplir les données du virement.","Avant de confirmer, vérifiez toujours le montant, l’IBAN et la référence dans votre banque.","Copié","Les données de paiement ont été copiées."],"IT":["Copia importo","Copia IBAN","Copia causale","📋 Copia tutti i dati di pagamento","QR pagamento SEPA","Scansiona il codice QR con l’app bancaria per compilare i dati del bonifico.","Prima di confermare, controlla sempre importo, IBAN e causale nella tua banca.","Copiato","Dati di pagamento copiati."],"ES":["Copiar importe","Copiar IBAN","Copiar concepto","📋 Copiar todos los datos de pago","QR de pago SEPA","Escanea el código QR con tu app bancaria para completar los datos de la transferencia.","Antes de confirmar, comprueba siempre el importe, el IBAN y el concepto en tu banco.","Copiado","Los datos de pago se han copiado."],"PT":["Copiar valor","Copiar IBAN","Copiar referência","📋 Copiar todos os dados de pagamento","QR de pagamento SEPA","Digitalize o código QR com a app do banco para preencher os dados da transferência.","Antes de confirmar, verifique sempre o valor, o IBAN e a referência no seu banco.","Copiado","Os dados de pagamento foram copiados."],"LT":["Kopijuoti sumą","Kopijuoti IBAN","Kopijuoti paskirtį","📋 Kopijuoti visus mokėjimo duomenis","SEPA mokėjimo QR","Nuskaitykite QR kodą banko programėle, kad būtų užpildyti pavedimo duomenys.","Prieš patvirtindami banke visada patikrinkite sumą, IBAN ir mokėjimo paskirtį.","Nukopijuota","Mokėjimo duomenys nukopijuoti."],"LV":["Kopēt summu","Kopēt IBAN","Kopēt maksājuma mērķi","📋 Kopēt visus maksājuma datus","SEPA maksājuma QR","Noskenējiet QR kodu ar bankas lietotni, lai aizpildītu pārskaitījuma datus.","Pirms apstiprināšanas bankā vienmēr pārbaudiet summu, IBAN un maksājuma mērķi.","Nokopēts","Maksājuma dati ir nokopēti."],"HU":["Összeg másolása","IBAN másolása","Közlemény másolása","📋 Minden fizetési adat másolása","SEPA fizetési QR","Olvassa be a QR-kódot a banki alkalmazással az átutalási adatok kitöltéséhez.","Jóváhagyás előtt mindig ellenőrizze az összeget, az IBAN-t és a közleményt a bankban.","Másolva","A fizetési adatok másolva."],"ZH":["复制金额","复制 IBAN","复制付款备注","📋 复制全部付款信息","SEPA 付款二维码","使用银行应用扫描二维码以填写转账信息。","确认前，请务必在银行应用中核对金额、IBAN 和付款备注。","已复制","付款信息已复制。"],"JA":["金額をコピー","IBANをコピー","支払参照をコピー","📋 支払情報をすべてコピー","SEPA支払いQR","銀行アプリでQRコードを読み取り、振込情報を入力できます。","確定前に、銀行アプリで金額・IBAN・支払参照を必ず確認してください。","コピーしました","支払情報をコピーしました。"],"HI":["राशि कॉपी करें","IBAN कॉपी करें","भुगतान संदर्भ कॉपी करें","📋 सभी भुगतान विवरण कॉपी करें","SEPA भुगतान QR","बैंक ट्रांसफ़र विवरण भरने के लिए अपने बैंकिंग ऐप से QR कोड स्कैन करें।","पुष्टि करने से पहले बैंक में राशि, IBAN और भुगतान संदर्भ हमेशा जाँचें।","कॉपी किया गया","भुगतान विवरण कॉपी हो गए।"],"AR":["نسخ المبلغ","نسخ IBAN","نسخ مرجع الدفع","📋 نسخ جميع بيانات الدفع","رمز QR لدفع SEPA","امسح رمز QR بتطبيق البنك لملء بيانات التحويل.","قبل التأكيد، تحقق دائمًا من المبلغ وIBAN ومرجع الدفع في تطبيق البنك.","تم النسخ","تم نسخ بيانات الدفع."],"EG":["نسخ المبلغ","نسخ IBAN","نسخ مرجع الدفع","📋 نسخ كل بيانات الدفع","QR لتحويل SEPA","امسح رمز QR بتطبيق البنك علشان بيانات التحويل تتعبّى.","قبل التأكيد راجع المبلغ وIBAN ومرجع الدفع في تطبيق البنك.","تم النسخ","تم نسخ بيانات الدفع."],"ET":["Kopeeri summa","Kopeeri IBAN","Kopeeri makse selgitus","📋 Kopeeri kõik makseandmed","SEPA makse QR","Skanni QR-kood pangarakendusega, et ülekande andmed täita.","Enne kinnitamist kontrolli pangas alati summat, IBAN-i ja makse selgitust.","Kopeeritud","Makseandmed on kopeeritud."],"RO":["Copiază suma","Copiază IBAN","Copiază referința","📋 Copiază toate datele de plată","QR plată SEPA","Scanează codul QR cu aplicația bancară pentru a completa datele transferului.","Înainte de confirmare, verifică întotdeauna suma, IBAN-ul și referința în aplicația băncii.","Copiat","Datele de plată au fost copiate."],"HR":["Kopiraj iznos","Kopiraj IBAN","Kopiraj opis plaćanja","📋 Kopiraj sve podatke za plaćanje","SEPA QR za plaćanje","Skenirajte QR kod bankovnom aplikacijom kako biste ispunili podatke za prijenos.","Prije potvrde uvijek provjerite iznos, IBAN i opis plaćanja u banci.","Kopirano","Podaci za plaćanje su kopirani."],"FI":["Kopioi summa","Kopioi IBAN","Kopioi viite","📋 Kopioi kaikki maksutiedot","SEPA-maksun QR","Skannaa QR-koodi pankkisovelluksella täyttääksesi tilisiirron tiedot.","Tarkista ennen vahvistamista aina summa, IBAN ja maksuviite pankissa.","Kopioitu","Maksutiedot kopioitu."],"SV":["Kopiera belopp","Kopiera IBAN","Kopiera betalningsreferens","📋 Kopiera alla betalningsuppgifter","SEPA-betalnings-QR","Skanna QR-koden med din bankapp för att fylla i överföringsuppgifterna.","Kontrollera alltid belopp, IBAN och betalningsreferens i banken innan du godkänner.","Kopierat","Betalningsuppgifterna har kopierats."],"NO":["Kopier beløp","Kopier IBAN","Kopier betalingsreferanse","📋 Kopier alle betalingsopplysninger","SEPA-betalings-QR","Skann QR-koden med bankappen for å fylle inn overføringsopplysningene.","Kontroller alltid beløp, IBAN og betalingsreferanse i banken før du bekrefter.","Kopiert","Betalingsopplysningene er kopiert."],"DA":["Kopiér beløb","Kopiér IBAN","Kopiér betalingsreference","📋 Kopiér alle betalingsoplysninger","SEPA-betalings-QR","Scan QR-koden med din bankapp for at udfylde overførselsoplysningerne.","Kontrollér altid beløb, IBAN og betalingsreference i banken før godkendelse.","Kopieret","Betalingsoplysningerne er kopieret."]};
-  const BANK={iban:"NL60 RABO 0324 8128 84",receiver:"I. Madej"};
-
-  function L(){
-    let x="PL";
-    try{ x=String((window.UI&&UI.lang)||localStorage.getItem("sb_ui_lang_v1")||"PL").toUpperCase(); }catch(_){}
-    return I18N[x]?x:"PL";
-  }
-  function T(){return I18N[L()]||I18N.PL;}
-  function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
-  function cleanIban(v){return String(v||"").replace(/\s+/g,"").toUpperCase();}
-  function amountNumber(){
-    const raw=String(document.getElementById("amountText")?.textContent||"").replace(",",".");
-    const m=raw.match(/\d+(?:\.\d+)?/); return m?Number(m[0]):0;
-  }
-  function currentTitle(){return String(document.getElementById("transferTitle")?.textContent||"").trim();}
-  function paymentData(){return {amount:amountNumber(), iban:BANK.iban, receiver:BANK.receiver, title:currentTitle()};}
-  function textFor(kind){
-    const d=paymentData();
-    if(kind==="amount") return d.amount?d.amount.toFixed(2)+" EUR":"";
-    if(kind==="iban") return d.iban;
-    if(kind==="title") return d.title;
-    return "";
-  }
-  async function copy(v){
-    if(!v)return false;
-    try{await navigator.clipboard.writeText(v);return true;}catch(_){
-      const ta=document.createElement("textarea");ta.value=v;document.body.appendChild(ta);ta.select();
-      const ok=document.execCommand("copy");ta.remove();return ok;
-    }
-  }
-  function toast(msg){
-    if(typeof sbShowModal==="function"){
-      const t=T(); sbShowModal({title:t[7],text:msg||t[8],input:false});
-    }
-  }
-
-  window.sbCopyPaymentField=async function(kind){
-    const ok=await copy(textFor(kind));
-    if(ok) toast(T()[7]);
-  };
-
-  window.sbCopyAllPaymentData=async function(){
-    const d=paymentData(), t=(typeof getPayText==="function"?getPayText():{});
-    const amountLabel=(t&&t.amount)||"Amount";
-    const receiverLabel=(t&&t.receiver)||"Receiver";
-    const titleLabel=(t&&t.transferTitle)||"Payment reference";
-    const value=[amountLabel+": "+(d.amount?d.amount.toFixed(2)+" EUR":""),"IBAN: "+d.iban,receiverLabel+": "+d.receiver,titleLabel+": "+d.title].join("\n");
-    if(await copy(value)) toast(T()[8]);
-  };
-
-  function epcPayload(){
-    const d=paymentData();
-    if(!d.amount||!d.title)return "";
-    return ["BCD","002","1","SCT","",d.receiver,cleanIban(d.iban),"EUR"+d.amount.toFixed(2),"","",d.title,"Sense Bridge"].join("\n");
-  }
-
-  function renderQr(){
-    const box=document.getElementById("sbSepaQr"); if(!box)return;
-    box.innerHTML="";
-    const payload=epcPayload(); if(!payload)return;
-    try{
-      if(!window.SBLocalQRCode||!window.SBLocalQRErrorCorrectLevel) throw new Error("QR library unavailable");
-      const qr=new window.SBLocalQRCode(0,window.SBLocalQRErrorCorrectLevel.M);
-      qr.addData(payload); qr.make();
-      const n=qr.getModuleCount(), quiet=4, size=n+quiet*2;
-      let p=[];
-      for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(qr.isDark(r,c))p.push("M"+(c+quiet)+" "+(r+quiet)+"h1v1h-1z");
-      box.innerHTML='<svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="SEPA QR"><rect width="100%" height="100%" fill="#fff"/><path d="'+p.join("")+'" fill="#000"/></svg>';
-    }catch(e){
-      console.warn("Sense Bridge SEPA QR:",e);
-      box.textContent="QR";
-    }
-  }
-
-  window.sbApplyPaymentHelperLang=function(){
-    const t=T();
-    set("sbCopyAmountBtn",t[0]);set("sbCopyIbanBtn",t[1]);set("sbCopyTitleBtn",t[2]);
-    set("sbCopyAllBtn",t[3]);set("sbSepaQrTitle",t[4]);set("sbSepaQrText",t[5]);set("sbSepaQrHint",t[6]);
-  };
-
-  window.sbPreparePaymentHelper=function(){
-    sbApplyPaymentHelperLang();
-    set("paymentIbanValue",BANK.iban);set("paymentReceiverValue",BANK.receiver);
-    renderQr();
-  };
-
-  const originalGoPay=window.goPay;
-  if(typeof originalGoPay==="function"&&!originalGoPay.__sbSepaWrapped){
-    const wrapped=async function(which){
-      const out=await originalGoPay(which);
-      const box=document.getElementById("paymentBox");
-      if(box&&box.style.display!=="none") sbPreparePaymentHelper();
-      return out;
-    };
-    wrapped.__sbSepaWrapped=true; window.goPay=wrapped;
-  }
-
-  const originalSetUiLang=window.setUiLang;
-  if(typeof originalSetUiLang==="function"&&!originalSetUiLang.__sbSepaWrapped){
-    const wrapped=function(code){
-      const out=originalSetUiLang(code);
-      sbApplyPaymentHelperLang();
-      const box=document.getElementById("paymentBox");
-      if(box&&box.style.display!=="none") renderQr();
-      return out;
-    };
-    wrapped.__sbSepaWrapped=true; window.setUiLang=wrapped;
-  }
-
-  function init(){sbApplyPaymentHelperLang();}
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
-})();
-</script>
-
-
 <!-- SB_REFERENCE_DESIGN_2026 -->
 <link rel="stylesheet" href="reference-design.css?v=20260831">
 
@@ -11615,6 +11406,8 @@ module.exports = QRCode;
   }catch(e){}
 })();
 </script>
+<script src="languages/lang-sync-24.js"></script>
+<script src="languages/access-flow-24.js"></script>
 </body>
       </html>
 
