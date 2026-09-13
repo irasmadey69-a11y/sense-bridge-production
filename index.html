@@ -4569,6 +4569,7 @@ function hasAccess(){
 function refreshUI(){
   document.getElementById("freeLeft").textContent = String(freeLeft());
   if(typeof sbApplyFreeAccessCopy === "function") sbApplyFreeAccessCopy();
+  if(typeof sbApplyNewAnalysisText === "function") sbApplyNewAnalysisText();
 
   const access = hasAccess();
   document.getElementById("accessState").textContent = access.label;
@@ -4637,7 +4638,8 @@ function updatePaidMessage(){
     if(untilRow) untilRow.style.display = "flex";
     if(untilValue) untilValue.textContent = until;
   } else if(access.mode === "FREE"){
-    const ux=(window.SB_I18N.modules["m9112_SB_UX_COPY"]||{})[lang] || (window.SB_I18N.modules["m9112_SB_UX_COPY"]||{}).PL;
+    const currentLang = String((typeof UI!=="undefined" && UI && UI.lang) || localStorage.getItem("sb_ui_lang_v1") || "PL").toUpperCase();
+    const ux=(window.SB_I18N.modules["m9112_SB_UX_COPY"]||{})[currentLang] || (window.SB_I18N.modules["m9112_SB_UX_COPY"]||{}).PL;
     text.textContent = (ux && typeof ux.free === "function") ? ux.free(left) : (left + " " + t.free.toLowerCase());
     if(untilRow) untilRow.style.display = "none";
   } else {
@@ -4768,6 +4770,10 @@ function setUiLang(lang){
   if(typeof updatePaidMessage === "function"){
     updatePaidMessage();
   }
+  try{ if(typeof sbApplyFreeAccessCopy === "function") sbApplyFreeAccessCopy(); }catch(_){ }
+  try{ if(typeof sbApplyNewAnalysisText === "function") sbApplyNewAnalysisText(); }catch(_){ }
+  try{ if(typeof window.sbRefreshAccessFlowCopy === "function") window.sbRefreshAccessFlowCopy(); }catch(_){ }
+  try{ if(typeof window.sbSyncVisibleLanguage === "function") window.sbSyncVisibleLanguage(); }catch(_){ }
 }
 
 function sbV2Text(key){
@@ -6416,6 +6422,16 @@ function sbApplyFreeAccessCopy(){
   if(desc) desc.textContent=t.text;
   if(btn) btn.textContent="✉️ "+t.title;
   if(lock && freeLeft()<=0) lock.textContent=t.text;
+
+  // Keep the whole access card in the selected UI language. Reuse the
+  // already-loaded 24-language packs instead of introducing Polish fallbacks.
+  const L=String((typeof UI!=="undefined" && UI && UI.lang) || localStorage.getItem("sb_ui_lang_v1") || "PL").toUpperCase();
+  const flow=(window.SB_ACCESS_FLOW_COPY||{})[L] || (window.SB_ACCESS_FLOW_COPY||{}).EN;
+  const note=document.getElementById("sbFreeRequestNote");
+  if(note && flow && flow.verify) note.textContent=flow.verify;
+  const fine=document.getElementById("fine1");
+  const main=(typeof UI!=="undefined" && UI && UI.dict) ? (UI.dict[L] || UI.dict.EN || UI.dict.PL || {}) : {};
+  if(fine && main.footerDefault) fine.textContent=main.footerDefault;
 }
 
 async function requestFreeAccess(){
