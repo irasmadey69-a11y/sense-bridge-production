@@ -35,7 +35,7 @@ exports.handler = async (event) => {
     const raw = await store.get(email);
 
     if (!raw) {
-      return json(200, { ok: true, status: "NONE" });
+      return json(200, { ok: true, status: "NONE", bonusUsesGranted: 0, requestCount: 0, freeUsesUsed: 0, freeUsesAllowance: 3, freeUsesRemaining: 3 });
     }
 
     const data = safeJson(raw);
@@ -45,9 +45,15 @@ exports.handler = async (event) => {
 
     const now = Date.now();
     const storedStatus = String(data.status || "").trim().toUpperCase();
+    const bonusUsesGranted = Math.max(0, Number(data.bonusUsesGranted) || 0);
+    const requestCount = Math.max(0, Number(data.requestCount) || 0);
+    const freeUsesUsed = Math.max(0, Number(data.freeUsesUsed) || 0);
+    const freeUsesAllowance = 3 + bonusUsesGranted;
+    const freeUsesRemaining = Math.max(0, freeUsesAllowance - freeUsesUsed);
+    const requestCountry = data.requestCountry || "—"; const requestLang = data.requestLang || "—";
 
     if (storedStatus === "BLOCKED") {
-      return json(200, { ok: true, status: "BLOCKED" });
+      return json(200, { ok: true, status: "BLOCKED", bonusUsesGranted, requestCount, freeUsesUsed, freeUsesAllowance, freeUsesRemaining, requestCountry, requestLang });
     }
 
     // Google Play closed tester: full access.
@@ -60,7 +66,8 @@ exports.handler = async (event) => {
         plan: "BETA",
         accessType: "BETA",
         aiLimit: 100,
-        expires: now + (10 * 365 * 24 * 60 * 60 * 1000)
+        expires: now + (10 * 365 * 24 * 60 * 60 * 1000),
+        bonusUsesGranted, requestCount, freeUsesUsed, freeUsesAllowance, freeUsesRemaining
       });
     }
 
@@ -69,16 +76,17 @@ exports.handler = async (event) => {
     const expires = Number(data.expires);
 
     if (!Number.isFinite(expires) || expires <= 0 || now > expires) {
-      return json(200, { ok: true, status: "EXPIRED" });
+      if (bonusUsesGranted > 0) {
+        return json(200, { ok: true, status: storedStatus === "PENDING" ? "PENDING" : "BONUS", bonusUsesGranted, requestCount, freeUsesUsed, freeUsesAllowance, freeUsesRemaining, bonusGrantCount: Math.max(0, Number(data.bonusGrantCount) || 0), lastRequestAt: Number(data.lastRequestAt) || null });
+      }
+      return json(200, { ok: true, status: storedStatus === "PENDING" ? "PENDING" : "EXPIRED", bonusUsesGranted, requestCount, freeUsesUsed, freeUsesAllowance, freeUsesRemaining, lastRequestAt: Number(data.lastRequestAt) || null });
     }
 
     return json(200, {
-      ok: true,
-      status: "ACTIVE",
-      plan: data.plan,
+      ok: true, status: "ACTIVE", plan: data.plan,
       accessType: data.accessType || (data.plan === "30d-pro" ? "PRO" : "BASIC"),
-      aiLimit: aiLimitForPlan(data.plan),
-      expires
+      aiLimit: aiLimitForPlan(data.plan), expires, bonusUsesGranted, requestCount, freeUsesUsed, freeUsesAllowance, freeUsesRemaining,
+      bonusGrantCount: Math.max(0, Number(data.bonusGrantCount) || 0), lastRequestAt: Number(data.lastRequestAt) || null
     });
 
   } catch (e) {
@@ -91,7 +99,7 @@ exports.handler = async (event) => {
 };
 
 function aiLimitForPlan(plan) {
-  const limits = { "24h": 3, "7d": 15, "30d": 40, "30d-pro": 100 };
+  const limits = { "24h": 3, "3d": 15, "7d": 15, "30d": 40, "30d-pro": 100 };
   return limits[String(plan || "").toLowerCase()] || 2;
 }
 

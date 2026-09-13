@@ -66,7 +66,8 @@ exports.handler = async (event) => {
         if (
           status !== "BLOCKED" &&
           status !== "PENDING" &&
-          status !== "BETA"
+          status !== "BETA" &&
+          status !== "BONUS"
         ) {
 
           if (
@@ -89,8 +90,13 @@ exports.handler = async (event) => {
           plan: data.plan || "—",
           expires: data.expires || "—",
           paymentCode: data.paymentTitle || data.paymentCode || "—",
-          createdAt: data.createdAt || "—",
-          last: data.last || "—"
+          createdAt: data.createdAt || "—", last: data.last || "—",
+          requestCount: Math.max(0, Number(data.requestCount) || 0),
+          lastRequestAt: data.lastRequestAt || data.requestedAt || "—",
+          bonusUsesGranted: Math.max(0, Number(data.bonusUsesGranted) || 0),
+          bonusGrantCount: Math.max(0, Number(data.bonusGrantCount) || 0),
+          bonusGrantedAt: data.bonusGrantedAt || "—", accessType: data.accessType || "—",
+          requestCountry: data.requestCountry || "—", requestLang: data.requestLang || "—"
         });
 
       } catch (e) {
@@ -114,10 +120,11 @@ exports.handler = async (event) => {
         PENDING: 1,
         BETA: 2,
         ACTIVE: 3,
-        EXPIRED: 4,
-        BLOCKED: 5,
-        NONE: 6,
-        ERROR: 7
+        BONUS: 4,
+        EXPIRED: 5,
+        BLOCKED: 6,
+        NONE: 7,
+        ERROR: 8
       };
 
       const sa = order[a.status] || 99;

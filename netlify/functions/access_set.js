@@ -29,6 +29,7 @@ exports.handler = async (event) => {
 
     const planDurations = {
       "24h": 24 * 60 * 60 * 1000,
+      "3d": 3 * 24 * 60 * 60 * 1000,
       "7d": 7 * 24 * 60 * 60 * 1000,
       "30d": 30 * 24 * 60 * 60 * 1000,
       "30d-pro": 30 * 24 * 60 * 60 * 1000
@@ -85,19 +86,19 @@ exports.handler = async (event) => {
     // Zachowujemy dotychczasowe nadpisanie rekordu użytkownika.
     const isPro = plan === "30d-pro";
     const accessType = isPro ? "PRO" : "BASIC";
-    const aiLimits = { "24h": 3, "7d": 15, "30d": 40, "30d-pro": 100 };
+    const aiLimits = { "24h": 3, "3d": 15, "7d": 15, "30d": 40, "30d-pro": 100 };
     const aiLimit = aiLimits[plan] || 2;
 
+    const existingSafe = existingRaw ? safeJson(existingRaw) : {};
     await store.set(email, JSON.stringify({
-      email,
-      plan,
-      accessType,
-      aiLimit,
-      paymentTitle,
-      status: "ACTIVE",
-      createdAt: now,
-      expires
+      ...(existingSafe && typeof existingSafe === "object" ? existingSafe : {}),
+      email, plan, accessType, aiLimit, paymentTitle, status: "ACTIVE",
+      createdAt: existingSafe?.createdAt || now, activatedAt: now, expires, last: "Przyznano dostęp czasowy"
     }));
+    const stats = getStore({name:"sb-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
+    await incrementStat(stats,"access_grant_time"); await incrementStat(stats,"access_granted");
+    await incrementMap(stats,"geo_access_grant_time",existingSafe?.requestCountry||"UNKNOWN");
+    await incrementMap(stats,"lang_access_grant_time",existingSafe?.requestLang||"UNKNOWN");
 
     // Błąd wysłania maila nie może cofnąć poprawnie zapisanej aktywacji.
     const mailResult = await sendNotificationEmail({
@@ -131,6 +132,36 @@ exports.handler = async (event) => {
     });
   }
 };
+
+async function incrementStat(store,key){const raw=await store.get(key);const n=raw?parseInt(raw,10):0;const next=Number.isFinite(n)?n+1:1;await store.set(key,String(next));return next;}
+
+
+function normCode(v, maxLen=8){
+  const s=String(v||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"");
+  return s && s.length<=maxLen ? s : "UNKNOWN";
+}
+function requestCountry(event, context){
+  const h=event?.headers||{};
+  return normCode(
+    h["x-nf-country"] || h["X-Nf-Country"] || h["x-country"] || h["X-Country"] ||
+    h["cf-ipcountry"] || h["CF-IPCountry"] || event?.geo?.country?.code || context?.geo?.country?.code || "UNKNOWN",
+    4
+  );
+}
+async function incrementMap(store,key,label){
+  const raw=await store.get(key);
+  let map={};
+  try{ map=raw?JSON.parse(raw):{}; }catch(_){ map={}; }
+  if(!map || typeof map!=="object" || Array.isArray(map)) map={};
+  const k=normCode(label);
+  map[k]=Math.max(0,Number(map[k])||0)+1;
+  await store.set(key,JSON.stringify(map));
+  return map[k];
+}
+async function readMap(store,key){
+  const raw=await store.get(key);
+  try{ const v=raw?JSON.parse(raw):{}; return v&&typeof v==="object"&&!Array.isArray(v)?v:{}; }catch(_){ return {}; }
+}
 
 async function sendNotificationEmail({ email, plan, paymentTitle, aiLimit, createdAt, expires }) {
   if (!process.env.RESEND_API_KEY) {
