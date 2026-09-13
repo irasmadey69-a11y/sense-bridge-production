@@ -66,16 +66,29 @@ exports.handler = async (event, context) => {
     };
     await users.set(email, JSON.stringify(userData));
 
+    // Niezależna kolejka zgłoszeń: admin nie zależy już od listowania pojedynczych blobów.
+    // To jest zapis dodatkowy; stary sb-payments pozostaje bez zmian dla kompatybilności.
+    try {
+      await appendRequestQueue(stats, { ...baseRecord, key: requestKey });
+    } catch (e) {
+      console.error("access request queue error:", e);
+    }
+
     // Mail używa dokładnie tego samego, sprawdzonego nadawcy i odbiorcy
     // co działający mail po ręcznej aktywacji w panelu admina.
-    const mailResult = await sendRequestEmail({
-      email,
-      createdAt: now,
-      repeated: requestCount > 1,
-      requestCount,
-      requestCountry: requestCountryCode,
-      requestLang
+    let mailResult = await sendRequestEmail({
+      email, createdAt: now, repeated: requestCount > 1, requestCount,
+      requestCountry: requestCountryCode, requestLang
     });
+    // Jeden bezpieczny retry przy chwilowym błędzie Resend.
+    if (!mailResult.sent) {
+      console.error("access request email first attempt failed:", mailResult.error);
+      await new Promise(resolve => setTimeout(resolve, 350));
+      mailResult = await sendRequestEmail({
+        email, createdAt: now, repeated: requestCount > 1, requestCount,
+        requestCountry: requestCountryCode, requestLang
+      });
+    }
 
     // Analityka jest ważna, ale jej chwilowy błąd nie może zatrzymać
     // zgłoszenia ani wysyłki maila.
@@ -146,6 +159,18 @@ async function sendRequestEmail({ email, createdAt, repeated, requestCount, requ
   } catch (e) {
     return { sent: false, error: e?.message || String(e) };
   }
+}
+
+async function appendRequestQueue(store, item) {
+  const key = "access_requests_queue_v2";
+  const raw = await store.get(key);
+  let arr = [];
+  try { arr = raw ? JSON.parse(raw) : []; } catch { arr = []; }
+  if (!Array.isArray(arr)) arr = [];
+  arr.push(item);
+  // Zachowujemy ostatnie 500 zgłoszeń; nie wpływa to na stare rekordy użytkowników ani stare statystyki.
+  if (arr.length > 500) arr = arr.slice(-500);
+  await store.set(key, JSON.stringify(arr));
 }
 
 async function incrementStat(store, key) {
