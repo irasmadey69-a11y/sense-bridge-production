@@ -45,15 +45,10 @@ exports.handler = async (event, context) => {
       lang: requestLang
     };
 
+    // Najpierw zapisujemy samo zgłoszenie. Statystyki i e-mail nie mogą
+    // zablokować prawidłowego zgłoszenia użytkownika.
     await requests.set(requestKey, JSON.stringify(baseRecord));
     await incrementRequestCounter(requestStats, now);
-
-    // Server-side request tracking is authoritative. This avoids losing the event
-    // if the browser closes immediately after the request is saved.
-    await incrementStat(stats, "access_request");
-    await incrementMap(stats, "geo_access_request", requestCountryCode);
-    await incrementMap(stats, "lang_access_request", requestLang);
-    if (previousRequestCount === 0) await incrementStat(stats, "access_request_unique");
 
     const userData = {
       ...(existing && typeof existing === "object" ? existing : {}),
@@ -71,6 +66,8 @@ exports.handler = async (event, context) => {
     };
     await users.set(email, JSON.stringify(userData));
 
+    // Mail używa dokładnie tego samego, sprawdzonego nadawcy i odbiorcy
+    // co działający mail po ręcznej aktywacji w panelu admina.
     const mailResult = await sendRequestEmail({
       email,
       createdAt: now,
@@ -79,6 +76,19 @@ exports.handler = async (event, context) => {
       requestCountry: requestCountryCode,
       requestLang
     });
+
+    // Analityka jest ważna, ale jej chwilowy błąd nie może zatrzymać
+    // zgłoszenia ani wysyłki maila.
+    let analyticsError = null;
+    try {
+      await incrementStat(stats, "access_request");
+      await incrementMap(stats, "geo_access_request", requestCountryCode);
+      await incrementMap(stats, "lang_access_request", requestLang);
+      if (previousRequestCount === 0) await incrementStat(stats, "access_request_unique");
+    } catch (e) {
+      analyticsError = e?.message || String(e);
+      console.error("access request analytics error:", e);
+    }
 
     // Save mail delivery diagnostics in the existing request/user records.
     // The access request remains valid even if email delivery fails.
@@ -100,7 +110,8 @@ exports.handler = async (event, context) => {
       status: "PENDING",
       requestCount,
       emailSent: mailResult.sent,
-      emailError: mailResult.error || null
+      emailError: mailResult.error || null,
+      analyticsError
     });
   } catch (e) {
     console.error("access request error:", e);
@@ -112,8 +123,8 @@ async function sendRequestEmail({ email, createdAt, repeated, requestCount, requ
   if (!process.env.RESEND_API_KEY) return { sent: false, error: "Missing RESEND_API_KEY" };
 
   const subject = repeated ? "Ponowne zgłoszenie dostępu Sense Bridge" : "Nowe zgłoszenie dostępu Sense Bridge";
-  const from = process.env.RESEND_FROM || "Sense Bridge <onboarding@resend.dev>";
-  const to = process.env.ADMIN_NOTIFY_EMAIL || "madey.verpakken@gmail.com";
+  const from = "Sense Bridge <onboarding@resend.dev>";
+  const to = "madey.verpakken@gmail.com";
 
   try {
     const res = await fetch("https://api.resend.com/emails", {

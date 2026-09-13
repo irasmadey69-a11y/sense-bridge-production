@@ -4,6 +4,15 @@ exports.handler = async (event) => {
   try {
     connectLambda(event);
 
+    const method = String(event?.httpMethod || "").toUpperCase();
+    if (method === "OPTIONS") return json(200, { ok: true });
+    if (method !== "POST") return json(405, { ok: false, error: "Method not allowed" });
+    const body = JSON.parse(event.body || "{}");
+    const adminPin = String(body.adminPin || "").trim();
+    if (!process.env.ADMIN_PIN || adminPin !== process.env.ADMIN_PIN) {
+      return json(401, { ok: false, error: "Unauthorized" });
+    }
+
     const store = getStore({
       name: "sb-payments",
       siteID: process.env.NETLIFY_SITE_ID,
@@ -56,6 +65,8 @@ function json(statusCode, obj) {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Cache-Control": "no-store"
     },
     body: JSON.stringify(obj)
