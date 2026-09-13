@@ -24,9 +24,27 @@ exports.handler = async (event, context) => {
     const raw = await users.get(email);
     const existing = raw ? safeJson(raw) : null;
     const status = String(existing?.status || "NONE").toUpperCase();
+    const nowForStatus = Date.now();
+    const expiresForStatus = Number(existing?.expires);
+    const hasFutureExpiry = Number.isFinite(expiresForStatus) && expiresForStatus > nowForStatus;
 
-    if (status === "BLOCKED") return json(200, { ok: true, status: "BLOCKED", emailSent: false, message: "User is blocked" });
-    if (status === "ACTIVE" || status === "BETA") return json(200, { ok: true, status, emailSent: false, message: "User already has access" });
+    if (status === "BLOCKED") {
+      return json(200, { ok: true, status: "BLOCKED", requestSaved: false, emailSent: false, message: "User is blocked" });
+    }
+
+    // BETA naprawdę ma stały dostęp. Dla ACTIVE patrzymy również na datę wygaśnięcia.
+    // Stare rekordy zostawiały status ACTIVE nawet po upływie expires. Wcześniej właśnie
+    // przez to prośba użytkownika była po cichu odrzucana: access_check widział EXPIRED,
+    // ale pending_set widział surowe ACTIVE i niczego nie zapisywał ani nie wysyłał maila.
+    if (status === "BETA" || (status === "ACTIVE" && hasFutureExpiry)) {
+      return json(200, {
+        ok: true,
+        status: status === "BETA" ? "BETA" : "ACTIVE",
+        requestSaved: false,
+        emailSent: false,
+        message: "User already has active access"
+      });
+    }
 
     const previousRequestCount = Math.max(0, Number(existing?.requestCount) || 0);
     const requestCount = previousRequestCount + 1;
@@ -121,6 +139,7 @@ exports.handler = async (event, context) => {
     return json(200, {
       ok: true,
       status: "PENDING",
+      requestSaved: true,
       requestCount,
       emailSent: mailResult.sent,
       emailError: mailResult.error || null,
