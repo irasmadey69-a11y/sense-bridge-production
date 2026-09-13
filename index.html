@@ -4764,7 +4764,11 @@ function setUiLang(lang){
   UI.lang = L;
   localStorage.setItem(UI.key, L);
   try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr',FI:'fi',SV:'sv',NO:'no',DA:'da'}[L] || 'en'); }catch(e){}
-  applyUiLang();
+  try{
+    applyUiLang();
+  }catch(e){
+    console.error("Sense Bridge language refresh error", e);
+  }
   applyTheme(getTheme());
 
   if(typeof updatePaidMessage === "function"){
@@ -5466,15 +5470,15 @@ UI.dict[UI.lang].fraudInfoText;
 
   document.getElementById("payTitle").textContent = t.payTitle;
   document.getElementById("payDesc").textContent = t.payDesc;
-  document.getElementById("p24meta").textContent = t.p24meta;
-  document.getElementById("p7meta").textContent = t.p7meta;
-  document.getElementById("p30meta").textContent = t.p30meta;
+  sbSetText("p24meta", t.p24meta);
+  sbSetText("p7meta", t.p7meta);
+  sbSetText("p30meta", t.p30meta);
   sbApplyPlanAiExtras();
-  document.getElementById("p7name").textContent = t.p7name || "7 dni";
-document.getElementById("p30name").textContent = t.p30name || "30 dni";
-  document.getElementById("pBest").textContent = t.best;
+  sbSetText("p7name", t.p7name || "7 dni");
+sbSetText("p30name", t.p30name || "30 dni");
+  sbSetText("pBest", t.best);
   document.getElementById("fine1").textContent = t.fine1;
-  document.getElementById("fine2").textContent = t.fine2;
+  sbSetText("fine2", t.fine2);
   document.getElementById("hintUI").innerHTML = t.hintUI;
 
   const privacyNote = document.getElementById("privacyNote");
@@ -7095,7 +7099,11 @@ fetch("/.netlify/functions/analyze_count", {
 (async function init(){
   UI.lang = getUiLang();
   applyTheme(getTheme());
-  applyUiLang();
+  try{
+    applyUiLang();
+  }catch(e){
+    console.error("Sense Bridge initial language refresh error", e);
+  }
   if(typeof sbApplyUxV10Texts === "function") sbApplyUxV10Texts();
   applyTheme(getTheme());
 
