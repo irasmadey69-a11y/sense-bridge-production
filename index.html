@@ -4497,6 +4497,25 @@ const SB = {
 };
 
 function nowMs(){ return Date.now(); }
+function sbTelemetryAccessType(){
+  try{
+    const pass=typeof getPass==="function"?getPass():null;
+    if(pass){
+      const at=String(pass.accessType||"").toUpperCase();
+      const type=String(pass.type||"").toUpperCase();
+      if(at==="PRO"||type.indexOf("PRO")!==-1)return "PRO";
+      if(at==="BETA"||type==="BETA")return "BETA";
+      if(at==="REVIEW"||type==="REVIEW")return "REVIEW";
+      return type||"TIME_ACCESS";
+    }
+    const used=typeof getFreeUsed==="function"?getFreeUsed():0;
+    const bonus=typeof getBonusGranted==="function"?getBonusGranted():0;
+    if(used<SB.freeMax)return "FREE3";
+    if(bonus>0 && used<(SB.freeMax+bonus))return "BONUS3";
+    return "FREE_OR_LOCKED";
+  }catch(_){return "UNKNOWN";}
+}
+
 
 function getFreeUsed(){
   const n = parseInt(localStorage.getItem(SB.keyFreeUsed) || "0", 10);
@@ -5301,7 +5320,8 @@ async function runAiToolsPreview(){
         body: JSON.stringify({
           input: "Read the visible text, sender, links/URLs and relevant details from this image faithfully. Keep the content useful for the next Sense Bridge tool.",
           uiLang: (UI && UI.lang) ? UI.lang : "PL",
-          imageData: imageData
+          imageData: imageData,
+          accessType: sbTelemetryAccessType()
         })
       });
       const visionData = await visionRes.json().catch(function(){ return {}; });
@@ -5320,7 +5340,8 @@ async function runAiToolsPreview(){
         uiLang: (UI && UI.lang) ? UI.lang : "PL",
         tool: tool,
         premium: !!hasPremium,
-        imageData: (tool === "screenshot") ? imageData : ""
+        imageData: (tool === "screenshot") ? imageData : "",
+        accessType: sbTelemetryAccessType()
       })
     });
 
@@ -6469,7 +6490,7 @@ async function requestFreeAccess(){
   }
 
   try{
-    const res=await fetch(ENDPOINTS.pendingSet,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:normalized,plan:"free-request",paymentTitle:"ACCESS_REQUEST",lang:(window.UI&&UI.lang)?String(UI.lang).toUpperCase():"UNKNOWN"})});
+    const res=await fetch(ENDPOINTS.pendingSet,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:normalized,plan:"free-request",paymentTitle:"ACCESS_REQUEST",lang:(typeof UI!=="undefined"&&UI&&UI.lang)?String(UI.lang).toUpperCase():"UNKNOWN"})});
     const data=await sbReadJsonResponse(res);
     if(!res.ok || !data.ok) throw new Error(data.error||"Request error");
 
@@ -6854,7 +6875,7 @@ if(!text){
     const res = await fetch(ENDPOINTS.analyze,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ text, sourceLang, userLang, mode:"letter" })
+      body:JSON.stringify({ text, sourceLang, userLang, mode:"letter", accessType:sbTelemetryAccessType() })
     });
 
     const data = await res.json();
@@ -7045,7 +7066,8 @@ if (docTargetLang && docTargetLang !== userLang && parts.length > 0) {
   text: parts.join("\n\n"),
   sourceLang: userLang,
   targetLang: docTargetLang,
-  userLang: docTargetLang
+  userLang: docTargetLang,
+  accessType: sbTelemetryAccessType()
 })
     });
 
@@ -7074,7 +7096,7 @@ if (examplesDocEl) {
       const trRes = await fetch(ENDPOINTS.translate,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ text, sourceLang, userLang })
+        body:JSON.stringify({ text, sourceLang, userLang, accessType:sbTelemetryAccessType() })
       });
       const trData = await sbReadJsonResponse(trRes);
       if(!trRes.ok){
@@ -7136,7 +7158,7 @@ fetch("/.netlify/functions/analyze_count", {
   fetch("/.netlify/functions/visit", {
   method: "POST",
   headers: { "X-SB-Event": "visit", "Content-Type": "application/json" },
-  body: JSON.stringify({lang:(window.UI&&UI.lang)?String(UI.lang).toUpperCase():"UNKNOWN"})
+  body: JSON.stringify({lang:(typeof UI!=="undefined"&&UI&&UI.lang)?String(UI.lang).toUpperCase():"UNKNOWN"})
 }).catch(()=>{});
   await syncAccess();
   refreshUI();
@@ -7246,7 +7268,7 @@ fetch("/.netlify/functions/analyze_count", {
       const res = await fetch("/.netlify/functions/ocr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageDataUrl })
+        body: JSON.stringify({ imageDataUrl, uiLang:(typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:"PL", accessType:sbTelemetryAccessType() })
       });
 
       const data = await res.json();
@@ -7694,7 +7716,7 @@ document.addEventListener("DOMContentLoaded", function(){
   const COPY=window.SB_I18N.modules["m8484_COPY"];
   const FLAGS=window.SB_I18N.modules["m8495_FLAGS"];
   function lang(){
-    try{return String((window.UI&&UI.lang)||localStorage.getItem('sb_ui_lang_v1')||'PL').toUpperCase()}catch(e){return 'PL'}
+    try{return String(((typeof UI!=='undefined'&&UI&&UI.lang)?UI.lang:null)||localStorage.getItem('sb_ui_lang_v1')||'PL').toUpperCase()}catch(e){return 'PL'}
   }
   function text(){return COPY[lang()]||COPY.PL}
   function wrapTranslation(){const el=document.getElementById('translation');const card=el&&el.closest('.card');if(card&&!card.id)card.id='translationCardV11'}
@@ -7833,7 +7855,7 @@ document.addEventListener("DOMContentLoaded", function(){
     {key:'benefits',icon:'✅',cls:'sb-menu-benefits-open',target:'sbHeroBenefits'},
     {key:'access',icon:'🔑',cls:'sb-menu-access-open',target:'paidMsg'}
   ];
-  function lang(){try{return String((window.UI&&UI.lang)||localStorage.getItem('sb_ui_lang_v1')||'PL').toUpperCase()}catch(e){return 'PL'}}
+  function lang(){try{return String(((typeof UI!=='undefined'&&UI&&UI.lang)?UI.lang:null)||localStorage.getItem('sb_ui_lang_v1')||'PL').toUpperCase()}catch(e){return 'PL'}}
   function t(){return COPY[lang()]||COPY.PL}
   function refresh(){
     const x=t();
@@ -8580,7 +8602,7 @@ body.dark-mode #translation{
       const payloadText=instruction(outputLang)+"\n\n"+contractText;
       const res=await fetch("/.netlify/functions/analyze",{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({text:payloadText,sourceLang,userLang:outputLang,mode:"contract"})
+        body:JSON.stringify({text:payloadText,sourceLang,userLang:outputLang,mode:"contract",accessType:sbTelemetryAccessType()})
       });
       const data=await res.json().catch(()=>({}));
       if(!res.ok) throw new Error(data.error||data.message||("HTTP "+res.status));
@@ -8886,7 +8908,7 @@ body.dark-mode #translation{
     return cv.toDataURL("image/jpeg",.80);
   }
   async function ocrData(url){
-    const r=await fetch("/.netlify/functions/ocr",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageDataUrl:url})});
+    const r=await fetch("/.netlify/functions/ocr",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageDataUrl:url,uiLang:lang(),accessType:sbTelemetryAccessType()})});
     const x=await r.json().catch(()=>({}));if(!r.ok||!x.ok)throw new Error(x.error||"OCR error");return String(x.text||"").trim();
   }
   async function ocrImages(){
@@ -8954,7 +8976,7 @@ body.dark-mode #translation{
         const extra=String(id("sbDocLabText").value||"").trim();
         const vr=await fetch("/.netlify/functions/ai-screenshot",{
           method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({input:extra,uiLang:output,tool:"photo",premium,imageData})
+          body:JSON.stringify({input:extra,uiLang:output,tool:"photo",premium,imageData,accessType:sbTelemetryAccessType()})
         });
         const vd=await vr.json().catch(()=>({}));
         if(!vr.ok)throw new Error(vd.error||vd.message||("HTTP "+vr.status));
@@ -8973,7 +8995,7 @@ body.dark-mode #translation{
         else{if(!images.length){set("sbDocLabStatus",com.empty);return;}text=await ocrImages();}
       }
       if(!text){set("sbDocLabStatus",com.empty);return;}
-      const r=await fetch("/.netlify/functions/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:instruction(output)+"\n\n"+text,sourceLang:source,userLang:output,mode:"document_"+tool})});
+      const r=await fetch("/.netlify/functions/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:instruction(output)+"\n\n"+text,sourceLang:source,userLang:output,mode:"document_"+tool,accessType:sbTelemetryAccessType()})});
       const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||data.message||("HTTP "+r.status));
       const smart=String(data.smartResult||"").trim();
       if(tool==="pdf" || tool==="form" || tool==="bill"){
@@ -9049,7 +9071,7 @@ body.dark-mode #translation{
   "use strict";
   const COPY=window.SB_I18N.modules["m9959_COPY"];
   function lang(){
-    try{return String((window.UI&&UI.lang)||localStorage.getItem("sb_ui_lang_v1")||"PL").toUpperCase()}catch(_){return "PL"}
+    try{return String(((typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:null)||localStorage.getItem("sb_ui_lang_v1")||"PL").toUpperCase()}catch(_){return "PL"}
   }
   function markResultState(){
     const has=!!((document.getElementById("summary")?.textContent||"").trim() || document.getElementById("sbQuickResult")?.classList.contains("show"));

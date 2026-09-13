@@ -36,6 +36,27 @@
 <section class="card"><h2>🔐 Dostęp admina</h2><label for="pin">PIN admina</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN admina"><div class="notice">PIN zostaje tylko w tej sesji przeglądarki. Po odświeżeniu możesz wpisać go ponownie.</div></section>
 <details class="card admin-section"><summary>📊 Statystyki</summary><div class="admin-section-body"><button class="btn-main" onclick="loadStats()">Odśwież statystyki</button><div class="status-box"><div class="line"><div class="key">Wejścia na stronę</div><div class="value" id="statVisits">—</div></div><div class="line"><div class="key">Kliknięcia „Analizuj”</div><div class="value" id="statAnalyzes">—</div></div><div class="line"><div class="key">Kliknięcia „Otwórz aplikację”</div><div class="value" id="statAppOpens">—</div></div><div class="line"><div class="key">Dodanie / pobranie skrótu</div><div class="value" id="statShortcutAdds">—</div></div><div class="line"><div class="key">Użycia OCR / zdjęcia</div><div class="value" id="statOcrUses">—</div></div><div class="line"><div class="key">Powracający użytkownicy</div><div class="value" id="statReturnUsers">—</div></div><div class="line"><div class="key">Otwarcia „Co dalej po 3 użyciach?”</div><div class="value" id="statAccessInfoOpens">—</div></div><div class="line"><div class="key">Wykorzystany limit 3 użyć</div><div class="value" id="statFreeLimitReached">—</div></div><div class="line"><div class="key">Zgłoszenia o dostęp</div><div class="value" id="statAccessRequests">—</div></div><div class="line"><div class="key">Unikalni użytkownicy proszący</div><div class="value" id="statUniqueAccessRequesters">—</div></div><div class="line"><div class="key">Przyznano +3 użycia</div><div class="value" id="statAccessGrant3">—</div></div><div class="line"><div class="key">Przyznano dostęp czasowy</div><div class="value" id="statAccessGrantTime">—</div></div><div class="line"><div class="key">Wszystkie przyznania dostępu</div><div class="value" id="statAccessGranted">—</div></div><div class="line"><div class="key">AI: Screenshot</div><div class="value" id="statAiScreenshot">—</div></div><div class="line"><div class="key">AI: Link / strona</div><div class="value" id="statAiLink">—</div></div><div class="line"><div class="key">AI: Email / SMS</div><div class="value" id="statAiMessage">—</div></div><div class="line"><div class="key">AI: Odpowiedź</div><div class="value" id="statAiReply">—</div></div><div class="line"><div class="key">AI: Przygotowanie rozmowy</div><div class="value" id="statAiConversation">—</div></div><div class="line"><div class="key">AI: Umowy</div><div class="value" id="statAiContract">—</div></div><div class="line"><div class="key">Dokument Lab: PDF</div><div class="value" id="statAiDocPdf">—</div></div><div class="line"><div class="key">Dokument Lab: Formularze</div><div class="value" id="statAiDocForm">—</div></div><div class="line"><div class="key">Dokument Lab: Zdjęcia</div><div class="value" id="statAiDocPhoto">—</div></div><div class="line"><div class="key">Dokument Lab: Rachunki</div><div class="value" id="statAiDocBill">—</div></div><div class="line"><div class="key">Błędy narzędzi AI</div><div class="value" id="statAiErrors">—</div></div></div><div id="statsMsg" class="notice hidden"></div></div></details>
 
+
+<details class="card admin-section" open><summary>💶 Użycie i przybliżone koszty</summary><div class="admin-section-body">
+<p>Dokładne metadane kosztowe są zbierane od wdrożenia tego modułu. Nie zapisujemy treści pism, zdjęć ani odpowiedzi AI.</p>
+<button class="btn-main" onclick="loadUsageCosts()">Odśwież użycie i koszty</button>
+<div id="usageCostSummary" class="status-box" style="margin-top:14px">
+<div class="line"><div class="key">Start dokładnych danych</div><div class="value" id="ucSince">—</div></div>
+<div class="line"><div class="key">Wywołania API AI</div><div class="value" id="ucCalls">—</div></div>
+<div class="line"><div class="key">Tokeny wejściowe</div><div class="value" id="ucInput">—</div></div>
+<div class="line"><div class="key">Tokeny wyjściowe</div><div class="value" id="ucOutput">—</div></div>
+<div class="line"><div class="key">Przybliżony koszt OpenAI</div><div class="value" id="ucCost">—</div></div>
+<div class="line"><div class="key">Średni koszt / wywołanie</div><div class="value" id="ucAvg">—</div></div>
+</div>
+<h3>🧰 Co jest używane</h3><div id="ucFeatures" class="status-box"></div>
+<h3>🎟️ Rodzaj dostępu</h3><div id="ucAccess" class="status-box"></div>
+<h3>🌍 Kraje</h3><div id="ucCountries" class="status-box"></div>
+<h3>🗣️ Język aplikacji</h3><div id="ucUiLang" class="status-box"></div>
+<h3>📄 Język dokumentu</h3><div id="ucDocLang" class="status-box"></div>
+<h3>📅 Ostatnie dni</h3><div id="ucDays" class="status-box"></div>
+<div id="usageCostMsg" class="notice hidden"></div>
+<p class="small">Koszt jest szacunkiem na podstawie tokenów raportowanych przez API i stawek modelu zapisanych w module. Nie obejmuje kosztów Netlify ani innych usług.</p>
+</div></details>
 <details class="card admin-section"><summary>🌍 Kraje i języki ruchu</summary><div class="admin-section-body">
 <p>Ruch i reakcje według kraju odwiedzającego oraz języka aplikacji. Kraj pochodzi z danych sieciowych Netlify; UNKNOWN oznacza, że nie udało się go wiarygodnie ustalić.</p>
 <h3 style="margin:16px 0 8px">Kraje</h3><div id="countryBreakdown" class="traffic-table"></div>
@@ -169,6 +190,25 @@ async function deletePayment(key){const pin=getPin();if(!pin){showMsg("paymentsM
 function formatPlanLabel(plan){const value=String(plan||"").toLowerCase();if(value==="24h")return"24 godziny";if(value==="3d")return"3 dni";if(value==="7d")return"7 dni (stary)";if(value==="30d")return"30 dni";if(value==="30d-pro")return"PRO";if(value==="free-request")return"Prośba o dostęp";return plan||"—"}
 function escapeHtml(str){return String(str??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]))}
 function escapeAttr(str){const safe=String(str??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\r/g,"\\r").replace(/\n/g,"\\n").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029");return escapeHtml(safe)}
+
+
+function ucMoney(v){const n=Number(v)||0;return "$"+n.toFixed(n<0.01?5:3);}
+function ucNum(v){return (Number(v)||0).toLocaleString("pl-PL");}
+function ucDate(v){if(!v)return "—";try{return new Date(Number(v)||v).toLocaleString("pl-PL");}catch(_){return "—";}}
+function renderUsageBucket(id,map,limit=20){
+  const box=document.getElementById(id);if(!box)return;box.innerHTML="";
+  const rows=Object.entries(map||{}).sort((a,b)=>(Number(b[1]?.calls)||0)-(Number(a[1]?.calls)||0)).slice(0,limit);
+  if(!rows.length){box.innerHTML='<div class="notice">Brak nowych danych.</div>';return;}
+  rows.forEach(([name,b])=>{const d=document.createElement("div");d.className="line";d.innerHTML='<div class="key">'+escapeHtml(name)+'</div><div class="value">'+ucNum(b.calls)+' · '+ucMoney(b.costUsd)+'</div>';box.appendChild(d);});
+}
+async function loadUsageCosts(){
+  const pin=getPin();if(!pin){showMsg("usageCostMsg","Wpisz PIN admina.",true);return;}
+  showMsg("usageCostMsg","Pobieram dane użycia...",false);
+  try{const res=await fetch(API+"/admin_usage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({adminPin:pin})});const data=await readJsonResponse(res);if(!res.ok||data.ok===false)throw new Error(data.error||"Błąd pobierania danych użycia");const x=data.summary||{};
+    setText("ucSince",ucDate(x.since));setText("ucCalls",ucNum(x.totalCalls));setText("ucInput",ucNum(x.inputTokens));setText("ucOutput",ucNum(x.outputTokens));setText("ucCost",ucMoney(x.estimatedCostUsd));setText("ucAvg",ucMoney((Number(x.estimatedCostUsd)||0)/Math.max(1,Number(x.totalCalls)||0)));
+    renderUsageBucket("ucFeatures",x.byFeature);renderUsageBucket("ucAccess",x.byAccessType);renderUsageBucket("ucCountries",x.byCountry);renderUsageBucket("ucUiLang",x.byUiLang);renderUsageBucket("ucDocLang",x.byDocumentLang);renderUsageBucket("ucDays",x.byDay,30);showMsg("usageCostMsg","✅ Dane użycia i kosztów odświeżone.",false);
+  }catch(e){showMsg("usageCostMsg","❌ "+(e.message||e),true);}
+}
 
 renderUsers([]);updateCounts({});updateFunnel();
 
