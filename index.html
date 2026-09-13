@@ -6472,6 +6472,22 @@ async function requestFreeAccess(){
     const res=await fetch(ENDPOINTS.pendingSet,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:normalized,plan:"free-request",paymentTitle:"ACCESS_REQUEST",lang:(window.UI&&UI.lang)?String(UI.lang).toUpperCase():"UNKNOWN"})});
     const data=await sbReadJsonResponse(res);
     if(!res.ok || !data.ok) throw new Error(data.error||"Request error");
+
+    // Nie pokazuj „Zgłoszenie wysłane”, jeśli backend niczego nie zapisał.
+    // To zabezpiecza przypadek starego ACTIVE/BETA oraz chwilowego rozjazdu statusu.
+    if(data.requestSaved===false){
+      if(data.status==="BLOCKED"){ sbShowNotice(t.blocked); return; }
+      const fresh=await checkAccessServer(normalized);
+      if(fresh && fresh.status==="ACTIVE"){
+        localStorage.setItem("sb_user_email",normalized);
+        setPass(fresh.plan||"active",fresh.expires,fresh.accessType,fresh.aiLimit);
+        refreshUI(); updatePaidMessage();
+        sbShowNotice("✅ "+((sbAccessText()&&sbAccessText().active)||"Access active"));
+        return;
+      }
+      throw new Error(data.message||"Request was not saved");
+    }
+
     localStorage.setItem("sb_user_email",normalized);
     // access_request is counted server-side by pending_set after the request is safely stored.
     await sbShowModal({title:t.sentTitle,text:t.sent,input:false});
