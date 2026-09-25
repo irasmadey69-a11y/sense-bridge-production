@@ -12,6 +12,16 @@ const language = value => String(value || 'AUTO').replace(/[^A-Za-z-]/g, '').sli
 const languageNames = { PL: 'Polish', UA: 'Ukrainian', NL: 'Dutch', EN: 'English', DE: 'German', FR: 'French', IT: 'Italian', ES: 'Spanish', PT: 'Portuguese', LT: 'Lithuanian', LV: 'Latvian', HU: 'Hungarian', ZH: 'Simplified Chinese', JA: 'Japanese', HI: 'Hindi', AR: 'Modern Standard Arabic', EG: 'Egyptian Arabic', ET: 'Estonian', RO: 'Romanian', HR: 'Croatian', FI: 'Finnish', SV: 'Swedish', NO: 'Norwegian Bokmål', DA: 'Danish' };
 const isJapanese = value => /[\u3040-\u30ff\u3400-\u9fff]/u.test(value);
 const citedSources = data => [...new Map((data.output || []).flatMap(item => item.content || []).flatMap(content => content.annotations || []).filter(a => a.type === 'url_citation' && /^https?:\/\//i.test(a.url || '')).map(a => [a.url, { title: String(a.title || '').slice(0, 160), url: a.url }])).values()].slice(0, 8);
+const searchedOfficialSources = data => [...new Map((data.output || [])
+  .filter(item => item.type === 'web_search_call')
+  .flatMap(item => item.action?.sources || [])
+  .filter(source => {
+    try {
+      const url = new URL(source.url);
+      return url.protocol === 'https:' && url.pathname !== '/' && /(^|\.)(gov(\.[a-z]{2})?|edu(\.[a-z]{2})?|ac\.[a-z]{2}|go\.[a-z]{2}|int)$/i.test(url.hostname) && String(source.title || '').trim().length >= 5;
+    } catch { return false; }
+  })
+  .map(source => [source.url, { title: String(source.title).slice(0, 160), url: source.url }])).values()].slice(0, 3);
 const polishOnlySources = sources => sources.length > 0 && sources.every(source => {
   try { return new URL(source.url).hostname.toLowerCase().endsWith('.pl'); } catch { return false; }
 });
@@ -49,6 +59,7 @@ exports.handler = async (event, context) => {
     let result = answerText(data);
     if (!result) return respond(502, { ok: false, error: 'Empty AI response' });
     let sources = citedSources(data);
+    if (mode === 'question' && !sources.length && asksForSource(text)) sources = searchedOfficialSources(data);
     const usageMeta = { feature: mode === 'exercise' ? 'EXERCISE' : mode === 'question' ? 'QUESTION_ANSWER' : 'DOCUMENT_OPTIONS', uiLang: userLang, documentLang: sourceLang, accessType: String(body.accessType || 'UNKNOWN').toUpperCase(), model: data.model || (mode === 'question' ? 'gpt-4.1-mini' : 'gpt-4o-mini') };
     await recordUsage(event, context, data, usageMeta);
     if (mode === 'question' && userLang !== 'PL' && (polishOnlySources(sources) || (!sources.length && asksForSource(text))) && !/polsk|poland|ポーランド/i.test(text)) {
@@ -74,7 +85,7 @@ exports.handler = async (event, context) => {
       if (retry.ok) {
         const revised = await retry.json();
         await recordUsage(event, context, revised, { ...usageMeta, feature: 'SOURCE_REPAIR', model: revised.model || 'gpt-4.1-mini' });
-        const revisedSources = citedSources(revised);
+        const revisedSources = citedSources(revised).length ? citedSources(revised) : searchedOfficialSources(revised);
         if (answerText(revised) && revisedSources.length && !polishOnlySources(revisedSources)) {
           result = answerText(revised);
           sources = revisedSources.filter(source => { try { return !new URL(source.url).hostname.toLowerCase().endsWith('.pl'); } catch { return false; } });
