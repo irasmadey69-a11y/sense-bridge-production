@@ -1,7 +1,7 @@
 const { getStore } = require("@netlify/blobs");
 const ALLOWED_EVENTS=[
   "app_open","shortcut_add","ocr_use","return_user","analysis_use","access_request","access_info_open","free_limit_reached",
-  "ai_screenshot","ai_link","ai_message","ai_reply","ai_conversation","ai_contract","ai_doc_pdf","ai_doc_form","ai_doc_photo","ai_doc_bill","ai_doc_unknown","ai_error"
+  "ai_screenshot","ai_link","ai_message","ai_reply","ai_conversation","ai_contract","ai_doc_pdf","ai_doc_form","ai_doc_photo","ai_doc_bill","ai_doc_exercise","ai_doc_options","ai_doc_question","ai_doc_unknown","ai_error"
 ];
 exports.handler=async(event,context)=>{try{
   if(event.httpMethod!=="POST")return json(405,{ok:false,error:"Method not allowed"});

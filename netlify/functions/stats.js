@@ -5,7 +5,7 @@ exports.handler=async(event)=>{try{
   if(!process.env.ADMIN_PIN||adminPin!==process.env.ADMIN_PIN)return json(403,{ok:false,error:"Wrong admin PIN"});
   const store=getStore({name:"sb-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
   const requestStats=getStore({name:"sb-payment-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
-  const keys=["visits","analyzes","app_open","shortcut_add","ocr_use","return_user","analysis_use","access_request","access_request_unique","access_info_open","free_limit_reached","access_grant_3","access_grant_time","access_granted","ai_screenshot","ai_link","ai_message","ai_reply","ai_conversation","ai_contract","ai_doc_pdf","ai_doc_form","ai_doc_photo","ai_doc_bill","ai_doc_unknown","ai_error"];
+  const keys=["visits","analyzes","app_open","shortcut_add","ocr_use","return_user","analysis_use","access_request","access_request_unique","access_info_open","free_limit_reached","access_grant_3","access_grant_time","access_granted","ai_screenshot","ai_link","ai_message","ai_reply","ai_conversation","ai_contract","ai_doc_pdf","ai_doc_form","ai_doc_photo","ai_doc_bill","ai_doc_exercise","ai_doc_options","ai_doc_question","ai_doc_unknown","ai_error"];
   const vals={}; await Promise.all(keys.map(async k=>{vals[k]=await getCount(store,k)}));
   const breakEvents=["visits","app_open","analysis_use","access_info_open","free_limit_reached","access_request","access_grant_3","access_grant_time"];
   const legacyRequestRaw=await requestStats.get("payment_clicks_total");
@@ -22,7 +22,7 @@ exports.handler=async(event)=>{try{
     analysisUses:vals.analysis_use,accessRequests:accessRequestsTotal,legacyAccessRequests:legacyRequestTotal,uniqueAccessRequesters:vals.access_request_unique,accessInfoOpens:vals.access_info_open,freeLimitReached:vals.free_limit_reached,
     accessGrant3:vals.access_grant_3,accessGrantTime:vals.access_grant_time,accessGranted:vals.access_granted,
     aiScreenshot:vals.ai_screenshot,aiLink:vals.ai_link,aiMessage:vals.ai_message,aiReply:vals.ai_reply,aiConversation:vals.ai_conversation,aiContract:vals.ai_contract,
-    aiDocPdf:vals.ai_doc_pdf,aiDocForm:vals.ai_doc_form,aiDocPhoto:vals.ai_doc_photo,aiDocBill:vals.ai_doc_bill,aiDocUnknown:vals.ai_doc_unknown,aiErrors:vals.ai_error,
+    aiDocPdf:vals.ai_doc_pdf,aiDocForm:vals.ai_doc_form,aiDocPhoto:vals.ai_doc_photo,aiDocBill:vals.ai_doc_bill,aiDocExercise:vals.ai_doc_exercise,aiDocOptions:vals.ai_doc_options,aiDocQuestion:vals.ai_doc_question,aiDocUnknown:vals.ai_doc_unknown,aiErrors:vals.ai_error,
     breakdown:{country,language}
   });
 }catch(e){return json(500,{ok:false,error:e.message})}};
