@@ -50,14 +50,25 @@ exports.handler = async (event, context) => {
     let sources = citedSources(data);
     const usageMeta = { feature: mode === 'exercise' ? 'EXERCISE' : mode === 'question' ? 'QUESTION_ANSWER' : 'DOCUMENT_OPTIONS', uiLang: userLang, documentLang: sourceLang, accessType: String(body.accessType || 'UNKNOWN').toUpperCase(), model: data.model || (mode === 'question' ? 'gpt-4.1-mini' : 'gpt-4o-mini') };
     await recordUsage(event, context, data, usageMeta);
-    // A Polish query with Japanese UI may yield exclusively Polish search results.
-    // Search again using Japanese terms, while preserving the original question as context.
     if (mode === 'question' && userLang !== 'PL' && polishOnlySources(sources) && !/polsk|poland|ポーランド/i.test(text)) {
+      let searchInput = text;
+      if (/[ąćęłńóśźż]/i.test(text)) {
+        const translatedQuery = await fetch('https://api.openai.com/v1/responses', {
+          method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'gpt-4o-mini', temperature: 0, max_output_tokens: 400,
+            instructions: `Translate this question into ${languageNames[userLang] || userLang} for a search engine. Preserve the user's meaning and numbers. Output only the translated question.`, input: text })
+        });
+        if (translatedQuery.ok) {
+          const translated = await translatedQuery.json();
+          await recordUsage(event, context, translated, { ...usageMeta, feature: 'QUERY_TRANSLATION', model: translated.model || 'gpt-4o-mini' });
+          if (answerText(translated)) searchInput = answerText(translated);
+        }
+      }
       const retry = await fetch('https://api.openai.com/v1/responses', {
         method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'gpt-4.1-mini', temperature: 0.2, max_output_tokens: 3000,
           tools: [{ type: 'web_search' }], tool_choice: 'auto',
-          instructions: `Answer the user's question entirely in ${languageNames[userLang] || userLang}. Search with ${languageNames[userLang] || userLang}-language search queries. Use a relevant official scientific or academic source in that language when possible; otherwise use an authoritative international source and identify its language. Do not cite Polish-language websites unless the question specifically concerns Poland. Do not cite numerology or astrology for astronomy. Cite only pages that support the answer.`, input: text })
+          instructions: `Answer the user's question entirely in ${languageNames[userLang] || userLang}. Search with ${languageNames[userLang] || userLang}-language search queries. Use a relevant official scientific or academic source in that language when possible; otherwise use an authoritative international source and identify its language. Do not cite Polish-language websites unless the question specifically concerns Poland. Do not cite numerology or astrology for astronomy. Cite only pages that support the answer.`, input: searchInput })
       });
       if (retry.ok) {
         const revised = await retry.json();
@@ -68,7 +79,19 @@ exports.handler = async (event, context) => {
           sources = revisedSources.filter(source => { try { return !new URL(source.url).hostname.toLowerCase().endsWith('.pl'); } catch { return false; } });
         }
       }
-      if (polishOnlySources(sources)) return respond(502, { ok: false, error: 'Could not find a relevant source in the selected language. Please try again.' });
+      if (polishOnlySources(sources)) {
+        const withoutSources = await fetch('https://api.openai.com/v1/responses', {
+          method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.2, max_output_tokens: 1800,
+            instructions: `Answer the supplied question in ${languageNames[userLang] || userLang}. We have no relevant verified source to link. Give a useful factual answer only where well established; clearly say in the answer that no source could be verified. Do not cite websites, links, numerology, or astrology. Do not invent a source.`, input: searchInput })
+        });
+        if (withoutSources.ok) {
+          const uncited = await withoutSources.json();
+          await recordUsage(event, context, uncited, { ...usageMeta, feature: 'UNCITED_ANSWER', model: uncited.model || 'gpt-4o-mini' });
+          if (answerText(uncited)) { result = answerText(uncited); sources = []; }
+        }
+        if (sources.length) return respond(502, { ok: false, error: ({ JA: '適切な出典を確認できませんでした。後でもう一度お試しください。', ZH: '目前无法核实合适的来源，请稍后重试。' })[userLang] || 'No suitable source could be verified. Please try again.' });
+      }
     }
     if (userLang === 'JA' && !isJapanese(result)) {
       const translation = await fetch('https://api.openai.com/v1/responses', {
