@@ -3762,7 +3762,7 @@ body.dark-mode .sb-reset-toast{
         <button class="ui-btn" type="button" data-ui="JA" onclick="setUiLang('JA')">🇯🇵 JA</button>
         <button class="ui-btn" type="button" data-ui="HI" onclick="setUiLang('HI')">🇮🇳 HI</button>
         <button class="ui-btn" type="button" data-ui="AR" onclick="setUiLang('AR')">🇸🇦 AR</button>
-        <button class="ui-btn" type="button" data-ui="EG" onclick="setUiLang('EG')">🇪🇬 EG</button>
+        <button class="ui-btn" type="button" data-ui="EG" onclick="setUiLang('EG')">🇪🇬 العربية (مصر)</button>
         <button class="ui-btn" type="button" data-ui="ET" onclick="setUiLang('ET')">🇪🇪 ET</button>
         <button class="ui-btn" type="button" data-ui="RO" onclick="setUiLang('RO')">🇷🇴 RO</button>
         <button class="ui-btn" type="button" data-ui="HR" onclick="setUiLang('HR')">🇭🇷 HR</button>
@@ -3876,6 +3876,18 @@ body.dark-mode .sb-reset-toast{
           <p class="sb-ai-tool-desc" id="sbContractToolDesc">Najważniejsze zapisy, obowiązki, terminy i punkty wymagające uwagi.</p>
         </button>
 
+        <button class="sb-ai-tool sb-learning-tile" type="button" data-sb-doc-tool="exercise">
+          <div class="sb-ai-tool-top"><div class="sb-ai-tool-name"><span class="sb-ai-tool-svg"><svg class="sb-ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 11-11 3 3L7 20H4zM13 8l3 3M16 5l2-2 3 3-2 2M4 12h5"/></svg></span><span id="sbDocExerciseTitle">Rozwiąż zadanie lub ćwiczenie</span></div><span aria-hidden="true">↗</span></div>
+          <p class="sb-ai-tool-desc" id="sbDocExerciseDesc">Wyjaśnienie, kolejne kroki i wynik w obu językach.</p>
+        </button>
+        <button class="sb-ai-tool sb-options-tile" type="button" data-sb-doc-tool="options">
+          <div class="sb-ai-tool-top"><div class="sb-ai-tool-name"><span class="sb-ai-tool-svg"><svg class="sb-ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.4 4.6-4.6 2.4 2.4-4.6z"/></svg></span><span id="sbDocOptionsTitle">Moje możliwości z pisma</span></div><span aria-hidden="true">↗</span></div>
+          <p class="sb-ai-tool-desc" id="sbDocOptionsDesc">Możliwe działania, warunki, terminy i źródła pomocy.</p>
+        </button>
+        <button class="sb-ai-tool sb-question-tile" type="button" data-sb-doc-tool="question">
+          <div class="sb-ai-tool-top"><div class="sb-ai-tool-name"><span class="sb-ai-tool-svg"><svg class="sb-ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8a3.2 3.2 0 1 1 5.2 2.5c-1.6 1.2-2.2 1.8-2.2 3"/><circle cx="12" cy="18" r=".7"/><circle cx="12" cy="12" r="9"/></svg></span><span id="sbDocQuestionTitle">Odpowiedź na pytanie</span></div><span aria-hidden="true">↗</span></div>
+          <p class="sb-ai-tool-desc" id="sbDocQuestionDesc">Sprawdź odpowiedź i źródła dalszych informacji.</p>
+        </button>
         <button class="sb-ai-tool" type="button" data-sb-doc-tool="pdf">
           <div class="sb-ai-tool-top">
             <div class="sb-ai-tool-name"><span class="sb-ai-tool-svg"><svg class="sb-ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg></span><span id="sbDocPdfTitle">Analiza PDF</span></div>
@@ -4783,6 +4795,7 @@ function setUiLang(lang){
   UI.lang = L;
   localStorage.setItem(UI.key, L);
   try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr',FI:'fi',SV:'sv',NO:'no',DA:'da'}[L] || 'en'); }catch(e){}
+  try{ document.documentElement.dir = (L === 'AR' || L === 'EG') ? 'rtl' : 'ltr'; }catch(e){}
   try{
     applyUiLang();
   }catch(e){
@@ -5407,6 +5420,7 @@ function applyUiLang(){
   const t = UI.dict[UI.lang];
   try{ document.title = "Sense Bridge"; }catch(e){}
   try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr',FI:'fi',SV:'sv',NO:'no',DA:'da'}[UI.lang] || 'en'); }catch(e){}
+  try{ document.documentElement.dir = (UI.lang === 'AR' || UI.lang === 'EG') ? 'rtl' : 'ltr'; }catch(e){}
   applyCompactUiLabels();
 
   document.getElementById("hTitle").textContent = t.title;
@@ -8759,6 +8773,33 @@ body.dark-mode #translation{
     TOOLS[L].photo=PHOTO_LOCAL[L];
   });
 
+  const NEW_TOOLS_COPY = {"PL": ["Rozwiąż zadanie lub ćwiczenie", "Moje możliwości z pisma", "Kroki i wynik w języku zadania oraz użytkownika.", "Możliwe działania, terminy i źródła pomocy.", "Rozwiąż zadanie", "Sprawdź możliwości"], "EN": ["Solve an exercise", "My options from a letter", "Steps and answer in the exercise and user languages.", "Possible actions, deadlines and sources of help.", "Solve exercise", "Explore options"], "NL": ["Los een opgave op", "Mijn mogelijkheden bij een brief", "Stappen en antwoord in beide talen.", "Mogelijke stappen, termijnen en hulp.", "Los op", "Bekijk mogelijkheden"], "DE": ["Aufgabe lösen", "Meine Möglichkeiten aus dem Schreiben", "Lösungsweg und Antwort in beiden Sprachen.", "Mögliche Schritte, Fristen und Hilfe.", "Aufgabe lösen", "Möglichkeiten prüfen"], "FR": ["Résoudre un exercice", "Mes options selon la lettre", "Étapes et réponse dans les deux langues.", "Actions possibles, délais et aide.", "Résoudre", "Voir les options"], "IT": ["Risolvi un esercizio", "Le mie opzioni dalla lettera", "Passaggi e risultato in entrambe le lingue.", "Azioni possibili, scadenze e aiuto.", "Risolvi", "Esamina le opzioni"], "ES": ["Resolver un ejercicio", "Mis opciones según la carta", "Pasos y resultado en ambos idiomas.", "Posibles acciones, plazos y ayuda.", "Resolver", "Ver opciones"], "PT": ["Resolver um exercício", "As minhas opções da carta", "Passos e resposta nos dois idiomas.", "Possíveis ações, prazos e ajuda.", "Resolver", "Ver opções"], "UA": ["Розв’язати завдання", "Мої можливості за листом", "Кроки й відповідь двома мовами.", "Можливі дії, терміни й допомога.", "Розв’язати", "Переглянути можливості"], "SV": ["Lös en uppgift", "Mina möjligheter utifrån brevet", "Steg och svar på båda språken.", "Möjliga åtgärder, tidsfrister och hjälp.", "Lös uppgift", "Visa möjligheter"], "NO": ["Løs en oppgave", "Mine muligheter ut fra brevet", "Fremgangsmåte og svar på begge språk.", "Mulige tiltak, frister og hjelp.", "Løs oppgave", "Se muligheter"], "DA": ["Løs en opgave", "Mine muligheder ud fra brevet", "Trin og svar på begge sprog.", "Mulige handlinger, frister og hjælp.", "Løs opgave", "Se muligheder"], "FI": ["Ratkaise tehtävä", "Kirjeen tarjoamat vaihtoehdot", "Vaiheet ja vastaus molemmilla kielillä.", "Mahdolliset toimet, määräajat ja apu.", "Ratkaise", "Katso vaihtoehdot"], "HU": ["Feladat megoldása", "Lehetőségeim a levél alapján", "Lépések és eredmény mindkét nyelven.", "Lehetséges lépések, határidők és segítség.", "Megoldás", "Lehetőségek"], "LV": ["Atrisini uzdevumu", "Manas iespējas pēc vēstules", "Soļi un atbilde abās valodās.", "Iespējamie soļi, termiņi un palīdzība.", "Atrisināt", "Skatīt iespējas"], "LT": ["Išspręsti užduotį", "Mano galimybės pagal laišką", "Žingsniai ir atsakymas abiem kalbomis.", "Galimi veiksmai, terminai ir pagalba.", "Spręsti", "Rodyti galimybes"]};
+  Object.assign(NEW_TOOLS_COPY, {
+    AR:["حل تمرين","خياراتي من الخطاب","خطوات الحل والإجابة بلغتي التمرين والمستخدم.","إجراءات ممكنة ومواعيد ومصادر مساعدة.","حل التمرين","اعرض الخيارات"],
+    EG:["حل تمرين","اختياراتي من الجواب","خطوات الحل والإجابة بلغة التمرين ولغتك.","الخطوات الممكنة والمواعيد والمساعدة.","حل التمرين","شوف الاختيارات"],
+    ET:["Lahenda ülesanne","Minu võimalused kirja põhjal","Lahenduskäik ja vastus mõlemas keeles.","Võimalikud sammud, tähtajad ja abi.","Lahenda","Vaata võimalusi"],
+    HR:["Riješi zadatak","Moje mogućnosti iz pisma","Koraci i odgovor na oba jezika.","Mogući koraci, rokovi i pomoć.","Riješi","Pogledaj mogućnosti"],
+    HI:["अभ्यास हल करें","पत्र से मेरे विकल्प","दोनों भाषाओं में चरण और उत्तर।","संभावित कदम, समय सीमा और सहायता।","हल करें","विकल्प देखें"],
+    JA:["問題を解く","文書から分かる選択肢","問題文と利用者の言語で手順と答えを表示。","可能な対応、期限、相談先。","解く","選択肢を見る"],
+    RO:["Rezolvă exercițiul","Opțiunile mele din scrisoare","Pași și răspuns în ambele limbi.","Acțiuni posibile, termene și ajutor.","Rezolvă","Vezi opțiunile"],
+    ZH:["解答练习","信件中的可选方案","以题目语言和用户语言提供步骤与答案。","可能的行动、期限和求助途径。","解答","查看方案"]
+  });
+  const QUESTION_COPY = {"PL": ["Odpowiedź na pytanie", "Sprawdź odpowiedź i źródła dalszych informacji.", "Odpowiedz"], "EN": ["Answer a question", "Check the answer and sources for further reading.", "Answer"], "NL": ["Beantwoord een vraag", "Controleer het antwoord en verdere bronnen.", "Beantwoord"], "DE": ["Frage beantworten", "Antwort und Quellen für weitere Informationen prüfen.", "Antworten"], "FR": ["Répondre à une question", "Vérifiez la réponse et les sources utiles.", "Répondre"], "IT": ["Rispondi a una domanda", "Verifica la risposta e le fonti per approfondire.", "Rispondi"], "ES": ["Responder una pregunta", "Comprueba la respuesta y las fuentes para saber más.", "Responder"], "PT": ["Responder a uma pergunta", "Verifique a resposta e as fontes para saber mais.", "Responder"], "UA": ["Відповісти на запитання", "Перевірте відповідь і джерела додаткової інформації.", "Відповісти"], "SV": ["Svara på en fråga", "Kontrollera svaret och källor för mer information.", "Svara"], "NO": ["Svar på et spørsmål", "Kontroller svaret og kilder til mer informasjon.", "Svar"], "DA": ["Besvar et spørgsmål", "Tjek svaret og kilder til mere information.", "Besvar"], "FI": ["Vastaa kysymykseen", "Tarkista vastaus ja lisätietojen lähteet.", "Vastaa"], "HU": ["Válasz egy kérdésre", "Ellenőrizze a választ és a további forrásokat.", "Válasz"], "LV": ["Atbildēt uz jautājumu", "Pārbaudiet atbildi un papildu avotus.", "Atbildēt"], "LT": ["Atsakyti į klausimą", "Patikrinkite atsakymą ir papildomus šaltinius.", "Atsakyti"], "AR": ["الإجابة عن سؤال", "تحقق من الإجابة ومصادر المعلومات الإضافية.", "أجب"], "EG": ["الإجابة على سؤال", "اتأكد من الإجابة ومصادر معلومات تانية.", "جاوب"], "ET": ["Vasta küsimusele", "Kontrolli vastust ja lisateabe allikaid.", "Vasta"], "HR": ["Odgovori na pitanje", "Provjeri odgovor i izvore za više informacija.", "Odgovori"], "HI": ["सवाल का जवाब", "जवाब और आगे की जानकारी के स्रोत जाँचें।", "जवाब दें"], "JA": ["質問に答える", "回答と詳しい情報の出典を確認。", "回答する"], "RO": ["Răspunde la întrebare", "Verifică răspunsul și sursele pentru detalii.", "Răspunde"], "ZH": ["回答问题", "核查答案和更多信息来源。", "回答"]};
+  Object.entries(NEW_TOOLS_COPY).forEach(([code, pair])=>{
+    const base=(TOOLS[code]&&TOOLS[code].pdf)||TOOLS.EN.pdf;
+    TOOLS[code]=TOOLS[code]||{};
+    for(const [i,key] of [[0,"exercise"],[1,"options"]]){
+      const title=pair[i], card=pair[i+2], run=pair[i+4];
+      TOOLS[code][key]={...base,title,card,run,desc:card,labels:[title],placeholder:title+"…"};
+    }
+  });
+  Object.entries(QUESTION_COPY).forEach(([code, pair])=>{
+    const base=(TOOLS[code]&&TOOLS[code].pdf)||TOOLS.EN.pdf;
+    TOOLS[code].question={...base,title:pair[0],desc:pair[1],card:pair[1],run:pair[2],placeholder:pair[0]+"…",note:"",labels:[pair[0]]};
+    for(const mode of ["exercise","options"]){
+      TOOLS[code][mode].note="";
+    }
+  });
   function id(x){return document.getElementById(x);}
   function set(x,v){const e=id(x);if(e)e.textContent=v;}
   function cleanLabel(value){ return String(value||"").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D]+\s*/u,""); }
@@ -8839,9 +8880,9 @@ body.dark-mode #translation{
   }
 
   function applyCards(){
-    const map={pdf:"Pdf",form:"Form",photo:"Photo",bill:"Bill"};
+    const map={pdf:"Pdf",form:"Form",photo:"Photo",bill:"Bill",exercise:"Exercise",options:"Options",question:"Question"};
     Object.keys(map).forEach(k=>{
-      const data=(TOOLS[lang()]||TOOLS.PL)[k];
+      const data=(TOOLS[lang()]||TOOLS.PL)[k]||TOOLS.PL[k]||TOOLS.EN[k];
       set("sbDoc"+map[k]+"Title",data.title);set("sbDoc"+map[k]+"Desc",data.card);
     });
   }
@@ -8856,7 +8897,9 @@ body.dark-mode #translation{
     set("sbDocLabClear",com.clear);set("sbDocLabRun",x.run);set("sbDocLabNote",x.note);
     const close=id("sbDocLabClose");if(close)close.setAttribute("aria-label",com.close);
     resetDocResultCards();
-    x.labels.forEach((v,i)=>set("sbDocLabL"+(i+1),cleanLabel(v)));
+    for(let i=1;i<=6;i++)set("sbDocLabL"+i,cleanLabel(x.labels[i-1]||""));
+    id("sbDocLabPdfActions").style.display=["exercise","options","question"].includes(tool)?"flex":"none";
+    id("sbDocLabImageActions").style.display=["exercise","options","question"].includes(tool)?"flex":"none";
     renderFiles();applyCards();
   }
   function setSource(next){
@@ -8992,13 +9035,43 @@ body.dark-mode #translation{
 
       if(sourceMode==="upload"){
         if(tool==="pdf")text=await pdfText();
+        else if(["exercise","options","question"].includes(tool)){
+          if(!pdfFile&&!images.length){set("sbDocLabStatus",com.empty);return;}
+          text=[pdfFile?await pdfText():"",images.length?await ocrImages():""].filter(Boolean).join("\n\n");
+        }
         else{if(!images.length){set("sbDocLabStatus",com.empty);return;}text=await ocrImages();}
       }
       if(!text){set("sbDocLabStatus",com.empty);return;}
+      if(["exercise","options","question"].includes(tool)){
+        const response=await fetch("/.netlify/functions/ai-document-guidance",{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({mode:tool,text,sourceLang:source,userLang:output,accessType:sbTelemetryAccessType()})
+        });
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok||!result.ok)throw new Error(result.error||("HTTP "+response.status));
+        showSmartDocumentResult(result.result);
+        if(tool==="question" && Array.isArray(result.sources)){
+          const target=id("sbDocLabR1");
+          for(const source of result.sources){
+            try{
+              const url=new URL(source.url);
+              if(!["https:","http:"].includes(url.protocol))continue;
+              const link=document.createElement("a");link.href=url.href;link.target="_blank";link.rel="noopener noreferrer";
+              link.textContent=source.title||url.hostname;
+              target.append(document.createTextNode("\n• "),link);
+            }catch(_){ }
+          }
+        }
+        if(typeof setAiToolsTrialLeft==="function")setAiToolsTrialLeft(left-1);
+        if(typeof trackEvent==="function")trackEvent("ai_doc_"+tool);
+        id("sbDocLabResult").classList.add("show");set("sbDocLabStatus",com.done);
+        id("sbDocLabResult").scrollIntoView({behavior:"smooth",block:"nearest"});
+        return;
+      }
       const r=await fetch("/.netlify/functions/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:instruction(output)+"\n\n"+text,sourceLang:source,userLang:output,mode:"document_"+tool,accessType:sbTelemetryAccessType()})});
       const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||data.message||("HTTP "+r.status));
       const smart=String(data.smartResult||"").trim();
-      if(tool==="pdf" || tool==="form" || tool==="bill"){
+      if(["pdf","form","bill","exercise","options"].includes(tool)){
         const fallbackValues=[
           pick(data,["summary","whatOfficeSays","communication","whatItIs","overview"]),
           pick(data,["keyPoints","obligations","requiredActions","actions","details","fields"]),
@@ -9049,6 +9122,7 @@ body.dark-mode #translation{
     id("sbDocLabUploadTab").onclick=()=>{
       setSource("upload");
       if(tool==="pdf") id("sbDocLabPdfFile").click();
+      else if(["exercise","options","question"].includes(tool)) id("sbDocLabGalleryFiles").click();
       else id("sbDocLabGalleryFiles").click();
     };
     id("sbDocLabTextTab").onclick=()=>setSource("text");
@@ -9292,10 +9366,11 @@ body.dark-mode #translation{
 <script id="sbStartupSplashScript">
 (function(){
   "use strict";
-  var startedAt=Date.now(), minVisibleMs=4000, closeScheduled=false, removed=false;
+  var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var startedAt=Date.now(), minVisibleMs=reduceMotion?0:3600, closeScheduled=false, removed=false;
   /* Same 24 languages as the app menu; Ukrainian is intentionally last. */
   var flags=["🇵🇱","🇳🇱","🇬🇧","🇩🇪","🇫🇷","🇮🇹","🇪🇸","🇵🇹","🇱🇹","🇱🇻","🇭🇺","🇨🇳","🇯🇵","🇮🇳","🇸🇦","🇪🇬","🇪🇪","🇷🇴","🇭🇷","🇫🇮","🇸🇪","🇳🇴","🇩🇰","🇺🇦"];
-  var slots=[], startPerf=0, duration=4000;
+  var slots=[], startPerf=0, duration=reduceMotion?1:3600;
   /* 8 flags are visible at once. During 4 seconds the strip moves left by
      exactly 16 positions, so flags 1-8 become flags 17-24. Ukraine is
      therefore the final flag on the right at the end of the splash. */
@@ -9368,7 +9443,7 @@ body.dark-mode #translation{
   seedFlags();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',closeSenseBridgeSplash,{once:true});
   else closeSenseBridgeSplash();
-  window.setTimeout(closeSenseBridgeSplash,6000);
+  window.setTimeout(closeSenseBridgeSplash,2500);
 })();
 </script>
 
@@ -10671,6 +10746,7 @@ module.exports = QRCode;
 
 <!-- SB_REFERENCE_DESIGN_2026 -->
 <link rel="stylesheet" href="reference-design.css?v=20260831">
+<link rel="stylesheet" href="ui-v20.css?v=20260922">
 
 
 <!-- Sense Bridge focus mode v1: presentation only; existing analysis/tool logic is untouched. -->
@@ -11147,10 +11223,22 @@ module.exports = QRCode;
   body.sb-ai-focus .sb-ai-shot-name{grid-column:1/-1!important;color:#7a8493!important;font-size:13px!important}
 }
 </style>
+<style id="sb-three-tools-visual">
+#sbDocLabNote:empty{display:none!important}
+@media (max-width:900px){
+  .sb-modern-tone-orchid{background:linear-gradient(145deg,#e7a8f9,#fbe9ff)!important;color:#8e32b1!important}
+  .sb-modern-tone-jade{background:linear-gradient(145deg,#8be8c4,#e1f9ed)!important;color:#087f58!important}
+  .sb-modern-tone-sky{background:linear-gradient(145deg,#92d9ff,#e3f5ff)!important;color:#1768a3!important}
+  body.sb-ai-focus [data-sb-open-tone="orchid"]{border:2px solid #c574e3!important;box-shadow:0 18px 50px rgba(142,50,177,.14)!important}
+  body.sb-ai-focus [data-sb-open-tone="jade"]{border:2px solid #51c99c!important;box-shadow:0 18px 50px rgba(8,127,88,.14)!important}
+  body.sb-ai-focus [data-sb-open-tone="sky"]{border:2px solid #66b9e9!important;box-shadow:0 18px 50px rgba(23,104,163,.14)!important}
+}
+</style>
 <script id="sb-modern-ai-v5-js">
 (function(){
   "use strict";
   const toneByIndex=["mint","blue","violet","green","purple","indigo","coral","cyan","amber","rose"];
+  const newTones={exercise:"orchid",options:"jade",question:"sky"};
 
   function toolsCard(){return document.getElementById("sbAiToolsCard")}
   function aiNav(){return document.querySelector('[data-sb-mobile-nav="tools"]')}
@@ -11189,14 +11277,15 @@ module.exports = QRCode;
       const desc=btn.querySelector(".sb-ai-tool-desc");
       if(!icon||!title||!desc)return;
       const iconWrap=document.createElement("span");
-      iconWrap.className="sb-modern-icon sb-modern-tone-"+(toneByIndex[i]||"mint");
+      const tone=newTones[btn.dataset.sbDocTool]||toneByIndex[i]||"mint";
+      iconWrap.className="sb-modern-icon sb-modern-tone-"+tone;
       iconWrap.appendChild(icon);
       const copy=document.createElement("span");copy.className="sb-modern-copy";
       copy.appendChild(title);copy.appendChild(desc);
       const arrow=document.createElement("span");arrow.className="sb-modern-arrow";arrow.setAttribute("aria-hidden","true");arrow.textContent="›";
       btn.replaceChildren(iconWrap,copy,arrow);
       btn.dataset.sbModernized="1";
-      btn.dataset.sbModernTone=toneByIndex[i]||"mint";
+      btn.dataset.sbModernTone=tone;
     });
   }
 
@@ -11615,4 +11704,3 @@ document.addEventListener("DOMContentLoaded", function(){
   try{ if(typeof sbApplyStoreShell === "function") sbApplyStoreShell(); }catch(_){}
 });
 </script>
-

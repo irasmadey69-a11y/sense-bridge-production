@@ -821,4 +821,39 @@ body.dark-mode footer a{
   background:#12231f!important;
   border-color:#2d5147!important;
 }
-\n\n/* =========================================================\n   REFERENCE DESIGN v6 — access AI limits + modern notices\n   ========================================================= */\n.plan-ai-extra{\n  margin-top:10px; padding:9px 11px; border-radius:14px;\n  border:1px solid rgba(73,148,123,.25); background:rgba(221,241,233,.55);\n  color:#2b6a57; font-size:13px; line-height:1.35; font-weight:800;\n}\nbody.dark-mode .plan-ai-extra{\n  background:rgba(24,83,66,.45); border-color:rgba(67,212,164,.24); color:#d9f8ea;\n}\n#paymentBox,.pending-confirm-box,.sb-modal-box{\n  border-radius:26px !important; border:1px solid rgba(64,112,96,.18) !important;\n  box-shadow:0 22px 60px rgba(22,42,35,.12) !important;\n}\n.sb-modal{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}\n.sb-modal-box{max-width:520px !important;}\n.sb-modal-box h3{font-size:26px !important;letter-spacing:-.025em !important;}\n.sb-modal-box p{font-size:16px !important;line-height:1.55 !important;}\n.sb-modal-actions button,.pending-copy-btn,.sb-pay-copy{border-radius:15px !important;min-height:46px !important;font-weight:800 !important;}\n.sb-modal-ok{background:#172b46 !important;color:#fff !important;border-color:#172b46 !important;}\n.sb-modal-cancel{background:#f2f6f3 !important;color:#315f51 !important;border-color:#d9e5df !important;}\nbody.dark-mode .sb-modal-box,body.dark-mode #paymentBox,body.dark-mode .pending-confirm-box{\n  background:#0d211d !important;border-color:rgba(73,213,165,.22) !important;box-shadow:0 22px 64px rgba(0,0,0,.34) !important;\n}\nbody.dark-mode .sb-modal-ok{background:#28c98b !important;color:#071713 !important;border-color:#28c98b !important;}\nbody.dark-mode .sb-modal-cancel{background:#102b25 !important;color:#d8f5e9 !important;border-color:#245b4b !important;}\n#lockBox.lock{border-radius:18px !important;padding:15px 17px !important;border:1px solid #e8caca !important;background:#fff8f8 !important;color:#8b3030 !important;font-weight:750 !important;}\nbody.dark-mode #lockBox.lock{background:#301a1c !important;color:#ffd9da !important;border-color:#6c3538 !important;}\n.sb-reset-toast{border-radius:16px !important;box-shadow:0 16px 42px rgba(20,47,39,.18) !important;}\n.sb-contract-status,.sb-doclab-status,#sbPhotoStatus{border-radius:13px;padding:8px 10px;transition:.2s ease;}\nbody.dark-mode .sb-contract-status,body.dark-mode .sb-doclab-status,body.dark-mode #sbPhotoStatus{color:#cce9df !important;}\n#paymentBox .sb-pay-field,.pending-bank-box{border-radius:16px !important;}\n@media(max-width:620px){.plan-ai-extra{font-size:12.5px;padding:8px 10px}.sb-modal-box{padding:22px !important}.sb-modal-box h3{font-size:23px !important}}\n
+
+
+/* =========================================================
+   REFERENCE DESIGN v6 — access AI limits + modern notices
+   ========================================================= */
+.plan-ai-extra{
+  margin-top:10px; padding:9px 11px; border-radius:14px;
+  border:1px solid rgba(73,148,123,.25); background:rgba(221,241,233,.55);
+  color:#2b6a57; font-size:13px; line-height:1.35; font-weight:800;
+}
+body.dark-mode .plan-ai-extra{
+  background:rgba(24,83,66,.45); border-color:rgba(67,212,164,.24); color:#d9f8ea;
+}
+#paymentBox,.pending-confirm-box,.sb-modal-box{
+  border-radius:26px !important; border:1px solid rgba(64,112,96,.18) !important;
+  box-shadow:0 22px 60px rgba(22,42,35,.12) !important;
+}
+.sb-modal{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+.sb-modal-box{max-width:520px !important;}
+.sb-modal-box h3{font-size:26px !important;letter-spacing:-.025em !important;}
+.sb-modal-box p{font-size:16px !important;line-height:1.55 !important;}
+.sb-modal-actions button,.pending-copy-btn,.sb-pay-copy{border-radius:15px !important;min-height:46px !important;font-weight:800 !important;}
+.sb-modal-ok{background:#172b46 !important;color:#fff !important;border-color:#172b46 !important;}
+.sb-modal-cancel{background:#f2f6f3 !important;color:#315f51 !important;border-color:#d9e5df !important;}
+body.dark-mode .sb-modal-box,body.dark-mode #paymentBox,body.dark-mode .pending-confirm-box{
+  background:#0d211d !important;border-color:rgba(73,213,165,.22) !important;box-shadow:0 22px 64px rgba(0,0,0,.34) !important;
+}
+body.dark-mode .sb-modal-ok{background:#28c98b !important;color:#071713 !important;border-color:#28c98b !important;}
+body.dark-mode .sb-modal-cancel{background:#102b25 !important;color:#d8f5e9 !important;border-color:#245b4b !important;}
+#lockBox.lock{border-radius:18px !important;padding:15px 17px !important;border:1px solid #e8caca !important;background:#fff8f8 !important;color:#8b3030 !important;font-weight:750 !important;}
+body.dark-mode #lockBox.lock{background:#301a1c !important;color:#ffd9da !important;border-color:#6c3538 !important;}
+.sb-reset-toast{border-radius:16px !important;box-shadow:0 16px 42px rgba(20,47,39,.18) !important;}
+.sb-contract-status,.sb-doclab-status,#sbPhotoStatus{border-radius:13px;padding:8px 10px;transition:.2s ease;}
+body.dark-mode .sb-contract-status,body.dark-mode .sb-doclab-status,body.dark-mode #sbPhotoStatus{color:#cce9df !important;}
+#paymentBox .sb-pay-field,.pending-bank-box{border-radius:16px !important;}
+@media(max-width:620px){.plan-ai-extra{font-size:12.5px;padding:8px 10px}.sb-modal-box{padding:22px !important}.sb-modal-box h3{font-size:23px !important}}
