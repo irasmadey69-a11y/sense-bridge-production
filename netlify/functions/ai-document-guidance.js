@@ -15,6 +15,7 @@ const citedSources = data => [...new Map((data.output || []).flatMap(item => ite
 const polishOnlySources = sources => sources.length > 0 && sources.every(source => {
   try { return new URL(source.url).hostname.toLowerCase().endsWith('.pl'); } catch { return false; }
 });
+const asksForSource = text => /\b(link|links|sources?|references?|fontes?|enlaces?|liens?|quellen?)\b|źródł|リンク|链接/u.test(text.toLowerCase());
 const answerText = data => String(data.output_text || (data.output || []).flatMap(item => item.content || []).map(item => item.text || '').join('\n')).trim();
 
 exports.handler = async (event, context) => {
@@ -50,7 +51,7 @@ exports.handler = async (event, context) => {
     let sources = citedSources(data);
     const usageMeta = { feature: mode === 'exercise' ? 'EXERCISE' : mode === 'question' ? 'QUESTION_ANSWER' : 'DOCUMENT_OPTIONS', uiLang: userLang, documentLang: sourceLang, accessType: String(body.accessType || 'UNKNOWN').toUpperCase(), model: data.model || (mode === 'question' ? 'gpt-4.1-mini' : 'gpt-4o-mini') };
     await recordUsage(event, context, data, usageMeta);
-    if (mode === 'question' && userLang !== 'PL' && polishOnlySources(sources) && !/polsk|poland|ポーランド/i.test(text)) {
+    if (mode === 'question' && userLang !== 'PL' && (polishOnlySources(sources) || (!sources.length && asksForSource(text))) && !/polsk|poland|ポーランド/i.test(text)) {
       let searchInput = text;
       if (/[ąćęłńóśźż]/i.test(text)) {
         const translatedQuery = await fetch('https://api.openai.com/v1/responses', {
@@ -67,8 +68,8 @@ exports.handler = async (event, context) => {
       const retry = await fetch('https://api.openai.com/v1/responses', {
         method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'gpt-4.1-mini', temperature: 0.2, max_output_tokens: 3000,
-          tools: [{ type: 'web_search' }], tool_choice: 'auto',
-          instructions: `Answer the user's question entirely in ${languageNames[userLang] || userLang}. Search with ${languageNames[userLang] || userLang}-language search queries. Use a relevant official scientific or academic source in that language when possible; otherwise use an authoritative international source and identify its language. Do not cite Polish-language websites unless the question specifically concerns Poland. Do not cite numerology or astrology for astronomy. Cite only pages that support the answer.`, input: searchInput })
+          tools: [{ type: 'web_search' }], tool_choice: 'required', include: ['web_search_call.action.sources'],
+          instructions: `Answer the user's question entirely in ${languageNames[userLang] || userLang}. Search the web with ${languageNames[userLang] || userLang}-language search queries. Cite a relevant primary scientific, government or academic page in the answer so the user receives its clickable link. Prefer a page in the user's language. If unavailable, cite an authoritative international page and identify its language. Do not cite Polish-language websites unless the question specifically concerns Poland. Do not cite numerology or astrology for astronomy. Only cite pages that actually support the answer.`, input: searchInput })
       });
       if (retry.ok) {
         const revised = await retry.json();
@@ -79,7 +80,7 @@ exports.handler = async (event, context) => {
           sources = revisedSources.filter(source => { try { return !new URL(source.url).hostname.toLowerCase().endsWith('.pl'); } catch { return false; } });
         }
       }
-      if (polishOnlySources(sources)) {
+      if (polishOnlySources(sources) || (!sources.length && asksForSource(text))) {
         const withoutSources = await fetch('https://api.openai.com/v1/responses', {
           method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.2, max_output_tokens: 1800,
