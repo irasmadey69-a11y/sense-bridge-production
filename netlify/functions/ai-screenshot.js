@@ -1,3 +1,4 @@
+const { name: uiLanguageName } = require('./_ai-languages');
 const { recordUsage } = require("./_usage");
 // Sense Bridge AI Tools — screenshot vision check
 // Production Netlify Function
@@ -40,7 +41,7 @@ The user may send ANY kind of image, not only a screenshot or document.
 
 First, silently determine what the image actually shows. Possible examples include an everyday object, product, appliance, vehicle, place, sign, package, food, document, receipt, form, screenshot, SMS, email, warning, banking/login screen, payment request, advertisement or notification. This classification is internal only and must not be printed as a checklist.
 
-Respond in the user's interface language: ${uiLang}.
+Respond in the user's interface language: ${uiLanguageName(uiLang)} (${uiLang}).
 
 Core rules:
 - Describe the actual main subject of the image. Never call an ordinary object a document unless it really is one.
