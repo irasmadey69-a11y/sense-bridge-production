@@ -9063,7 +9063,7 @@ body.dark-mode #translation{
           }
         }
         if(typeof setAiToolsTrialLeft==="function")setAiToolsTrialLeft(left-1);
-        if(typeof trackEvent==="function")trackEvent("ai_doc_"+tool);
+        if(typeof trackEvent==="function")await trackEvent("ai_doc_"+tool);
         id("sbDocLabResult").classList.add("show");set("sbDocLabStatus",com.done);
         id("sbDocLabResult").scrollIntoView({behavior:"smooth",block:"nearest"});
         return;
