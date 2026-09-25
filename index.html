@@ -3029,6 +3029,8 @@ body.dark-mode .sb-contract-gallery-btn{
 .sb-doclab-result-card pre{
   border:0;background:transparent;padding:0;color:#536173;font-family:inherit;font-size:13px;
 }
+.sb-doclab-result-card pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:clamp(15px,3.8vw,18px);line-height:1.65;}
+@media(max-width:900px){body.sb-ai-focus #sbDocLabPanel{padding-bottom:calc(128px + env(safe-area-inset-bottom, 0px))!important;}}
 body.dark-mode .sb-doclab-panel,
 body.dark-mode .sb-doclab-result-card{
   background:linear-gradient(180deg,#0b1a28,#081522) !important;
@@ -8845,7 +8847,18 @@ body.dark-mode #translation{
     resetDocResultCards();
     const current=d();
     set("sbDocLabL1",cleanLabel(current&&current.title?current.title:photoResultLabel(lang())));
-    set("sbDocLabR1",String(textValue||"").trim());
+    const answer=String(textValue||"").trim()
+      .replace(/\[([^\]]+)\]\(https?:\/\/[^\s)]+\)/g,"$1")
+      .replace(/\\\[|\\\]|\\\(|\\\)/g,"")
+      .replace(/\\(?:d?frac)\{([^{}]+)\}\{([^{}]+)\}/g,"$1 / $2")
+      .replace(/\\text\{([^{}]+)\}/g,"$1")
+      .replace(/\\(?:times|cdot)/g," × ")
+      .replace(/\\approx/g,"≈")
+      .replace(/\\%/g,"%")
+      .replace(/^\s*#{1,6}\s+/gm,"")
+      .replace(/\*\*([^*\n]+)\*\*/g,"$1")
+      .replace(/\n{3,}/g,"\n\n");
+    set("sbDocLabR1",answer);
     for(let i=2;i<=6;i++){
       set("sbDocLabR"+i,"");
       setDocResultCardVisible(i,false);
@@ -9009,7 +9022,7 @@ body.dark-mode #translation{
       const premium=hasPremium(), left=typeof getAiToolsTrialLeft==="function"?getAiToolsTrialLeft():2;
       if(left<=0){set("sbDocLabStatus",typeof sbAiLockedText==="function"?sbAiLockedText():com.locked);return;}
       const btn=id("sbDocLabRun");btn.disabled=true;set("sbDocLabStatus",com.analyzing);id("sbDocLabResult").classList.remove("show");
-      const output=String((id("userLang")&&id("userLang").value)||lang()).toUpperCase();
+      const output=String(["exercise","options","question"].includes(tool)?lang():((id("userLang")&&id("userLang").value)||lang())).toUpperCase();
       const source=String((id("sourceLang")&&id("sourceLang").value)||"AUTO").toUpperCase();
 
       // Uploaded photos are analyzed visually. OCR is no longer the primary source for Photo Analysis.
