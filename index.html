@@ -3708,6 +3708,19 @@ body.dark-mode .sb-reset-toast{
 </style>
 <style id="sb-free-access-cleanup-css">#sbAiToolsCard .sb-ai-premium-pill{display:none!important}</style>
 <style id="sb-access-flow-v1">.sb-access-flow-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,24,39,.64);backdrop-filter:blur(8px)}.sb-access-flow-overlay.open{display:flex}.sb-access-flow-box{position:relative;width:min(560px,100%);max-height:90vh;overflow:auto;background:#fff;border:1px solid rgba(63,138,114,.22);border-radius:26px;padding:24px;box-shadow:0 28px 80px rgba(5,24,38,.28)}.sb-access-flow-close{position:absolute;top:14px;right:14px;width:44px;min-height:44px;padding:0;border-radius:999px;background:#fff;border:1px solid rgba(63,138,114,.26);font-size:24px;color:#245c4d}.sb-access-flow-icon{font-size:34px;margin-bottom:6px}.sb-access-flow-box h3{margin:0 50px 14px 0;font-size:26px;line-height:1.15;color:#172033}.sb-access-flow-box p{margin:9px 0;color:#5f6979;font-size:16px;line-height:1.45}.sb-access-flow-left{margin:18px 0 12px;padding:12px 14px;border-radius:15px;background:#eef8f4;color:#2b705d;font-weight:900}.sb-access-flow-request{display:none;width:100%;min-height:52px;border:0;border-radius:15px;background:linear-gradient(135deg,#3f8a72,#52aa8e);color:#fff;font-weight:900;font-size:16px}.sb-access-flow-later{font-size:13px!important;text-align:center}body.dark-mode .sb-access-flow-box{background:#10241f;border-color:#2d6e5b}body.dark-mode .sb-access-flow-box h3{color:#eafdf4}body.dark-mode .sb-access-flow-box p{color:#b9cec6}body.dark-mode .sb-access-flow-left{background:#17362d;color:#c9f2df}</style>
+<style id="sb-job-offer-style">
+.sb-job-context{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+#sbJobDetails[hidden],#sbJobMissing[hidden],.sb-job-context[hidden],#sbJobFollowup[hidden],#sbJobDraft[hidden]{display:none!important}
+.sb-job-context label,.sb-job-reply{display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:650;min-width:0}
+.sb-job-context .wide{grid-column:1/-1}
+.sb-job-context input,.sb-job-context select,.sb-job-context textarea,.sb-job-reply select{width:100%;box-sizing:border-box;border:1px solid #a7b9ca;border-radius:12px;padding:11px;background:#fff;color:#142c45;font:inherit;min-height:44px}
+.sb-job-context textarea{resize:vertical}
+.sb-job-reply{margin:18px 0 12px;max-width:420px}
+#sbJobDraft{margin-top:18px}
+#sbJobDetails{margin:14px 0}#sbJobDetails summary{cursor:pointer;font-weight:700;padding:12px 0}#sbJobMissing{margin:16px 0}#sbJobMissing p{white-space:pre-line}
+body.dark-mode .sb-job-context input,body.dark-mode .sb-job-context select,body.dark-mode .sb-job-context textarea,body.dark-mode .sb-job-reply select{background:#12283b;color:#f0f6fc;border-color:#60768c}
+@media(max-width:480px){.sb-job-context{grid-template-columns:minmax(0,1fr)}#sbJobFollowup .sb-doclab-actions{display:grid;grid-template-columns:1fr}}
+</style>
 </head>
 
 <body>
@@ -3898,6 +3911,10 @@ body.dark-mode .sb-reset-toast{
           <div class="sb-ai-tool-top"><div class="sb-ai-tool-name"><span class="sb-ai-tool-svg"><svg class="sb-ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8a3.2 3.2 0 1 1 5.2 2.5c-1.6 1.2-2.2 1.8-2.2 3"/><circle cx="12" cy="18" r=".7"/><circle cx="12" cy="12" r="9"/></svg></span><span id="sbDocQuestionTitle">Odpowiedź na pytanie</span></div><span aria-hidden="true">↗</span></div>
           <p class="sb-ai-tool-desc" id="sbDocQuestionDesc">Sprawdź odpowiedź i źródła dalszych informacji.</p>
         </button>
+        <button class="sb-ai-tool sb-job-tile" type="button" data-sb-doc-tool="job">
+          <div class="sb-ai-tool-top"><div class="sb-ai-tool-name"><span class="sb-ai-tool-svg"><svg class="sb-ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12h18M10 12v3h4v-3"/></svg></span><span id="sbDocJobTitle">Zrozum ofertę pracy</span></div><span aria-hidden="true">↗</span></div>
+          <p class="sb-ai-tool-desc" id="sbDocJobDesc">Wyjaśnij warunki, wymagania i porównaj płacę z minimum.</p>
+        </button>
         <button class="sb-ai-tool" type="button" data-sb-doc-tool="pdf">
           <div class="sb-ai-tool-top">
             <div class="sb-ai-tool-name"><span class="sb-ai-tool-svg"><svg class="sb-ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg></span><span id="sbDocPdfTitle">Analiza PDF</span></div>
@@ -4036,6 +4053,17 @@ body.dark-mode .sb-reset-toast{
           <div class="sb-doclab-thumbs" id="sbDocLabThumbs"></div>
         </div>
 
+        <details id="sbJobDetails" hidden><summary id="sbJobDetailsLabel"></summary>
+        <div id="sbJobContext" class="sb-job-context">
+          <label><span id="sbJobCountryLabel"></span><select id="sbJobCountry"></select></label>
+          <label><span id="sbJobAgeLabel"></span><input id="sbJobAge" type="number" min="15" max="100" step="1" inputmode="numeric"></label>
+          <label><span id="sbJobDateLabel"></span><input id="sbJobDate" type="date"></label>
+          <label><span id="sbJobContractLabel"></span><select id="sbJobContract"></select></label>
+          <label class="wide"><span id="sbJobProfileLabel"></span><textarea id="sbJobProfile" maxlength="3000" rows="2"></textarea></label>
+          <label class="wide"><span id="sbJobPreferencesLabel"></span><textarea id="sbJobPreferences" maxlength="2000" rows="2"></textarea></label>
+        </div>
+        </details>
+        <div id="sbJobMissing" hidden><p id="sbJobMissingText"></p><button type="button" class="sb-doclab-file-btn" id="sbJobComplete"></button></div>
         <div class="sb-doclab-note" id="sbDocLabNote"></div>
         <div class="sb-doclab-actions">
           <button class="sb-doclab-run" id="sbDocLabRun" type="button">Analizuj</button>
@@ -4051,6 +4079,11 @@ body.dark-mode .sb-reset-toast{
             <div class="sb-doclab-result-card"><strong id="sbDocLabL4"></strong><pre id="sbDocLabR4"></pre></div>
             <div class="sb-doclab-result-card"><strong id="sbDocLabL5"></strong><pre id="sbDocLabR5"></pre></div>
             <div class="sb-doclab-result-card wide"><strong id="sbDocLabL6"></strong><pre id="sbDocLabR6"></pre></div>
+          </div>
+          <div id="sbJobFollowup" hidden>
+            <label class="sb-job-reply"><span id="sbJobReplyLanguageLabel"></span><select id="sbJobReplyLanguage"></select></label>
+            <div class="sb-doclab-actions"><button type="button" class="sb-doclab-file-btn" id="sbJobAsk"></button><button type="button" class="sb-doclab-file-btn" id="sbJobApply"></button><button type="button" class="sb-doclab-file-btn" id="sbJobConversation"></button></div>
+            <div class="sb-doclab-result-card wide" id="sbJobDraft" hidden><pre id="sbJobDraftText"></pre><button class="sb-doclab-file-btn" type="button" id="sbJobCopy"></button></div>
           </div>
         </div>
       </div>
@@ -8779,6 +8812,8 @@ body.dark-mode #translation{
 })();
 </script>
 
+<script src="languages/job-offer-24.js"></script>
+<script src="job-offer.js"></script>
 <script>
 (function(){
   "use strict";
@@ -8869,6 +8904,11 @@ body.dark-mode #translation{
     for(const mode of ["exercise","options"]){
       TOOLS[code][mode].note="";
     }
+  });
+  Object.entries(window.SBJobCopy).forEach(([code, t])=>{
+    const base=(TOOLS[code]&&TOOLS[code].pdf)||TOOLS.EN.pdf;
+    TOOLS[code]=TOOLS[code]||{};
+    TOOLS[code].job={...base,title:t.title,desc:t.desc,card:t.desc,run:t.run,placeholder:t.title+"…",note:"",labels:[t.work,t.conditions,t.requirements,t.wage,t.questions,t.fit]};
   });
   function id(x){return document.getElementById(x);}
   function set(x,v){const e=id(x);if(e)e.textContent=v;}
@@ -8961,7 +9001,7 @@ body.dark-mode #translation{
   }
 
   function applyCards(){
-    const map={pdf:"Pdf",form:"Form",photo:"Photo",bill:"Bill",exercise:"Exercise",options:"Options",question:"Question"};
+    const map={pdf:"Pdf",form:"Form",photo:"Photo",bill:"Bill",exercise:"Exercise",options:"Options",question:"Question",job:"Job"};
     Object.keys(map).forEach(k=>{
       const data=(TOOLS[lang()]||TOOLS.PL)[k]||TOOLS.PL[k]||TOOLS.EN[k];
       set("sbDoc"+map[k]+"Title",data.title);set("sbDoc"+map[k]+"Desc",data.card);
@@ -8981,6 +9021,8 @@ body.dark-mode #translation{
     for(let i=1;i<=6;i++)set("sbDocLabL"+i,cleanLabel(x.labels[i-1]||""));
     id("sbDocLabPdfActions").style.display=["exercise","options","question"].includes(tool)?"flex":"none";
     id("sbDocLabImageActions").style.display=["exercise","options","question"].includes(tool)?"flex":"none";
+    id("sbDocLabPanel").dataset.sbMode=tool;
+    window.SBJobUI.apply(tool==="job",lang(),sbAnswerLang(),com);
     renderFiles();applyCards();
   }
   function setSource(next){
@@ -9016,7 +9058,7 @@ body.dark-mode #translation{
     set("sbDocLabFileName",pdfFile?pdfFile.name:(tool==="pdf"?com.none:""));
   }
   function clear(resetText=true){
-    images=[];pdfFile=null;
+    images=[];pdfFile=null;window.SBJobUI.clear();
     ["sbDocLabPdfFile","sbDocLabCameraFile","sbDocLabGalleryFiles"].forEach(x=>{const e=id(x);if(e)e.value="";});
     if(resetText&&id("sbDocLabText"))id("sbDocLabText").value="";
     set("sbDocLabStatus","");id("sbDocLabResult").classList.remove("show");
@@ -9114,6 +9156,7 @@ body.dark-mode #translation{
         return;
       }
 
+      const manualJobText=tool==="job"?text:"";
       if(sourceMode==="upload"){
         if(tool==="pdf")text=await pdfText();
         else if(["exercise","options","question"].includes(tool)){
@@ -9122,7 +9165,21 @@ body.dark-mode #translation{
         }
         else{if(!images.length){set("sbDocLabStatus",com.empty);return;}text=await ocrImages();}
       }
+      if(tool==="job"&&sourceMode==="upload"&&manualJobText)text=[text,manualJobText].filter(Boolean).join("\n\n");
       if(!text){set("sbDocLabStatus",com.empty);return;}
+      if(tool==="job"){
+        const request={...window.SBJobUI.values(),text,userLang:output,outputRegion:sbRegionCode(output),sourceLang:source,accessType:sbTelemetryAccessType()};
+        const response=await fetch("/.netlify/functions/ai-job-offer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(request)});
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok||!result.ok)throw new Error();
+        window.SBJobUI.render(result,request);
+        if(typeof setAiToolsTrialLeft==="function")setAiToolsTrialLeft(left-1);
+        if(typeof trackEvent==="function")await trackEvent("ai_doc_job");
+        id("sbDocLabResult").classList.add("show");set("sbDocLabStatus",com.done);
+        id("sbDocLabResult").scrollIntoView({behavior:"smooth",block:"nearest"});
+        return;
+      }
+
       if(["exercise","options","question"].includes(tool)){
         const response=await fetch("/.netlify/functions/ai-document-guidance",{
           method:"POST",headers:{"Content-Type":"application/json"},
@@ -11319,7 +11376,7 @@ module.exports = QRCode;
 (function(){
   "use strict";
   const toneByIndex=["mint","blue","violet","green","purple","indigo","orchid","jade","sky","coral","amber","rose","slate"];
-  const newTones={exercise:"orchid",options:"jade",question:"sky"};
+  const newTones={exercise:"orchid",options:"jade",question:"sky",job:"amber"};
 
   function toolsCard(){return document.getElementById("sbAiToolsCard")}
   function aiNav(){return document.querySelector('[data-sb-mobile-nav="tools"]')}
@@ -11813,3 +11870,12 @@ document.addEventListener("DOMContentLoaded", function(){
   try{ if(typeof sbApplyStoreShell === "function") sbApplyStoreShell(); }catch(_){}
 });
 </script>
+
+<style id="sb-job-dark-fields">
+body.dark-mode.sb-ai-focus #sbDocLabPanel[data-sb-mode="job"] .sb-job-context input,
+body.dark-mode.sb-ai-focus #sbDocLabPanel[data-sb-mode="job"] .sb-job-context select,
+body.dark-mode.sb-ai-focus #sbDocLabPanel[data-sb-mode="job"] .sb-job-context textarea,
+body.dark-mode.sb-ai-focus #sbDocLabPanel[data-sb-mode="job"] .sb-job-reply select,
+body.dark-mode.sb-ai-focus #sbDocLabPanel[data-sb-mode="job"] #sbDocLabText{background:#10283b!important;color:#f1f7fc!important;border:1px solid #60798e!important}
+body.dark-mode.sb-ai-focus #sbDocLabPanel[data-sb-mode="job"] #sbDocLabStatus{color:#c9e2d4!important}
+</style>
