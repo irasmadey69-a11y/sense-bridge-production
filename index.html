@@ -8960,16 +8960,16 @@ body.dark-mode #translation{
     try{
       const request={...last.request,...values(),action,replyLang:el('sbJobReplyLanguage').value,userLang:outputLang};
       const response=await fetch('/.netlify/functions/ai-job-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});
-      const data=await response.json();if(!response.ok||!data.ok)throw new Error();
+      const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.errorCode||'service');
       const names=new Intl.DisplayNames([locale(selectedLang)],{type:'language'});
       const heading=code=>names.of(locale(code));
       el('sbJobDraftText').textContent=data.draft?heading(data.replyLang||request.replyLang)+'\n\n'+data.draft+(data.translation?'\n\n────────\n\n'+heading(data.userLang||outputLang)+'\n\n'+data.translation:''):data.result;
       el('sbJobDraftText').dataset.copyText=data.draft||data.result;el('sbJobDraft').hidden=false;el('sbJobCopy').textContent=copy(selectedLang).copy;
       if(typeof setAiToolsTrialLeft==='function')setAiToolsTrialLeft(left-1);
-      if(typeof trackEvent==='function')await trackEvent('ai_job_'+action);
+      if(typeof trackEvent==='function')Promise.resolve(trackEvent('ai_job_'+action)).catch(()=>{});
       el('sbDocLabStatus').textContent=oldStatus;
       el('sbJobDraft').scrollIntoView({behavior:'smooth',block:'nearest'});
-    }catch{el('sbDocLabStatus').textContent=uiCopy.error||copy(selectedLang).missing;}
+    }catch(error){el('sbDocLabStatus').textContent=(uiCopy.error||copy(selectedLang).missing)+' ['+(error.message||'service')+']';el('sbDocLabStatus').scrollIntoView({behavior:'smooth',block:'center'});}
     finally{running=false;buttons.forEach(id=>el(id).disabled=false);el('sbDocLabRun').disabled=false;}
   }
   async function complete(){
