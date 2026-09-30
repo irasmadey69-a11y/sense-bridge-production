@@ -1,3 +1,13 @@
+# Naprawa inicjalizacji — 30.09.2026
+
+Na działającej stronie brakowało languages/job-offer-24.js (404). To powodowało błąd Object.entries(window.SBJobCopy), przerywający inicjalizację całego panelu dokumentów. Interfejs i wszystkie 24 tłumaczenia narzędzia są teraz osadzone bezpośrednio w index.html. Nie wymagają osobnego wgrania dwóch plików JavaScript.
+
+Wgraj poprawiony index.html. Funkcje backendowe netlify/functions/ai-job-offer.js oraz netlify/functions/_job-wages.js muszą również znajdować się w repozytorium i zostać wdrożone przez Netlify. Najbezpieczniej wgrać zawartość całego pakietu.
+
+Potwierdzono błąd na stronie produkcyjnej w przeglądarce; poprawiony pakiet nie został przez nas wdrożony. Testy kodu korzystają z symulowanych odpowiedzi API.
+
+---
+
 # Uproszczony panel — aktualizacja 30.09.2026
 
 Na początku wystarczy zdjęcie/zrzut ekranu lub tekst i przycisk „Wyjaśnij ofertę”. Pola dodatkowe są schowane w rozwijanej sekcji „Dodatkowe dane — opcjonalnie”.
