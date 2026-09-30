@@ -3157,6 +3157,14 @@ body.dark-mode .sb-reset-toast{
   }
 }
 
+
+  .sb-analysis-workspace .sb-region-wrap{grid-column:1/-1;min-width:0;display:grid;gap:5px;margin:0}
+  .sb-analysis-workspace #sbRegionLabel{font-size:16px;font-weight:850;color:#17634f;letter-spacing:.01em;line-height:1.3}
+  .sb-analysis-workspace .sb-region-hint{font-size:12px;line-height:1.35;color:var(--muted,#526477);font-weight:550}
+  body.dark-mode .sb-analysis-workspace #sbRegionLabel{color:#8be3c0}
+  body.dark-mode .sb-analysis-workspace .sb-region-hint{color:#d4e6e0}
+  .sb-analysis-workspace #sbRegion{width:100%;max-width:none;min-width:0;min-height:48px;padding:9px 14px;font-size:15px;border-radius:14px;background-color:var(--card,#fff);color:var(--text,#17283c);border:1px solid rgba(63,138,114,.28)}
+  body.dark-mode .sb-analysis-workspace .row #sbRegion{background:#17283c!important;color:#fff!important;border-color:#789d91!important}
 </style>
 
 <style id="sb-mobile-workspace-v2-css">
@@ -4126,12 +4134,12 @@ body.dark-mode .sb-reset-toast{
         <option value="PL">🇵🇱 Polski</option>
         <option value="UA">🇺🇦 Українська</option>
         <option value="NL">🇳🇱 Nederlands</option>
-        <option value="EN">🇬🇧 English</option>
+        <option value="EN">🌐 English</option>
         <option value="DE">🇩🇪 Deutsch</option>
-        <option value="FR">🇫🇷 Français</option>
+        <option value="FR">🌐 Français</option>
         <option value="IT">🇮🇹 Italiano</option>
-        <option value="ES">🇪🇸 Español</option>
-        <option value="PT">🇵🇹 Português</option>
+        <option value="ES">🌐 Español</option>
+        <option value="PT">🌐 Português</option>
         <option value="LT">🇱🇹 Lietuvių</option>
         <option value="LV">🇱🇻 Latviešu</option>
         <option value="HU">🇭🇺 Magyar</option>
@@ -4158,12 +4166,12 @@ body.dark-mode .sb-reset-toast{
         <option value="PL">🇵🇱 Polski</option>
         <option value="UA">🇺🇦 Українська</option>
         <option value="NL">🇳🇱 Nederlands</option>
-        <option value="EN">🇬🇧 English</option>
+        <option value="EN">🌐 English</option>
         <option value="DE">🇩🇪 Deutsch</option>
-        <option value="FR">🇫🇷 Français</option>
+        <option value="FR">🌐 Français</option>
         <option value="IT">🇮🇹 Italiano</option>
-        <option value="ES">🇪🇸 Español</option>
-        <option value="PT">🇵🇹 Português</option>
+        <option value="ES">🌐 Español</option>
+        <option value="PT">🌐 Português</option>
         <option value="LT">🇱🇹 Lietuvių</option>
         <option value="LV">🇱🇻 Latviešu</option>
         <option value="HU">🇭🇺 Magyar</option>
@@ -4183,6 +4191,12 @@ body.dark-mode .sb-reset-toast{
         </select>
       </div>
 
+
+      <div id="sbRegionWrap" class="sb-region-wrap">
+        <label id="sbRegionLabel" for="sbRegion">Krajowy wariant języka odpowiedzi</label>
+        <select id="sbRegion" aria-label="Krajowy wariant języka odpowiedzi" aria-describedby="sbRegionHint"><option value="">Bez wyboru — standardowy</option></select>
+        <small id="sbRegionHint" class="sb-region-hint">Dotyczy analizy i Narzędzi AI. Nie zmienia kraju pisma.</small>
+      </div>
       <button id="btnAnalyze" class="primary grow" onclick="analyze()">Analizuj pismo</button>
       <div id="analyzeStatus" class="analyze-status"></div>
 
@@ -4483,6 +4497,59 @@ function toggleTheme(){
 }
 
 const STRIPE_LINKS = {}; // legacy placeholder; public payments disabled
+
+
+const SB_REGION_COUNTRIES = {"PL":["PL"],"UA":["UA"],"NL":["NL","BE","SR","AW","CW","SX","BQ"],"EN":["GB","US","CA","AU","NZ","IE","IN","ZA","NG","KE","GH","UG","TZ","ZM","ZW","BW","NA","LS","SZ","LR","SL","GM","MW","RW","SS","SD","CM","MU","SC","SG","MY","PH","PK","BD","LK","MT","CY","FJ","PG","SB","VU","WS","TO","KI","TV","NR","JM","TT","BS","BB","BZ","GY","AG","DM","GD","KN","LC","VC","AI","BM","KY","VG","TC","MS","FK","GI","GG","JE","IM","HK","MO"],"DE":["DE","AT","CH","LI","LU","BE"],"FR":["FR","CA","BE","CH","LU","MC","HT","SN","CI","BJ","BF","ML","NE","TG","GN","CD","CG","GA","CM","TD","CF","DJ","KM","MG","MU","SC","RW","BI","VU","NC","PF","WF","RE","MQ","GP","GF","BL","MF","PM","YT"],"IT":["IT","CH","SM","VA","MT"],"ES":["ES","MX","CO","CL","AR","PE","VE","EC","BO","PY","UY","CR","PA","GT","HN","SV","NI","DO","CU","PR","GQ"],"PT":["PT","BR","AO","MZ","CV","GW","ST","TL","GQ"],"LT":["LT"],"LV":["LV"],"HU":["HU","RO","SK","RS","UA","SI","AT","HR"],"ZH":["CN","TW","HK","MO","SG","MY"],"JA":["JP"],"HI":["IN","FJ"],"AR":["SA","EG","AE","QA","KW","BH","OM","YE","IQ","JO","LB","SY","PS","MA","DZ","TN","LY","SD","MR","SO","DJ","KM","TD","ER"],"EG":["EG"],"ET":["EE"],"RO":["RO","MD"],"HR":["HR","BA","RS","ME"],"FI":["FI"],"SV":["SE","FI","AX"],"NO":["NO"],"DA":["DK","GL","FO"]};
+const SB_ALL_COUNTRIES = ["AD","AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AW","AX","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BL","BM","BN","BO","BQ","BR","BS","BT","BV","BW","BY","BZ","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CU","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FO","FR","GA","GB","GD","GE","GF","GG","GH","GI","GL","GM","GN","GP","GQ","GR","GS","GT","GU","GW","GY","HK","HM","HN","HR","HT","HU","ID","IE","IL","IM","IN","IO","IQ","IR","IS","IT","JE","JM","JO","JP","KE","KG","KH","KI","KM","KN","KP","KR","KW","KY","KZ","LA","LB","LC","LI","LK","LR","LS","LT","LU","LV","LY","MA","MC","MD","ME","MF","MG","MH","MK","ML","MM","MN","MO","MP","MQ","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NC","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PF","PG","PH","PK","PL","PM","PN","PR","PS","PT","PW","PY","QA","RE","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SR","SS","ST","SV","SX","SY","SZ","TC","TD","TF","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TT","TV","TW","TZ","UA","UG","UM","US","UY","UZ","VA","VC","VE","VG","VI","VN","VU","WF","WS","YE","YT","ZA","ZM","ZW"];
+const SB_REGION_LABELS = {"PL":"Krajowy wariant języka odpowiedzi","UA":"Країновий варіант мови відповіді","NL":"Landvariant van de antwoordtaal","EN":"Country variant of the answer language","DE":"Ländervariante der Antwortsprache","FR":"Variante du pays pour la langue de réponse","IT":"Variante nazionale della lingua di risposta","ES":"Variante del país para el idioma de respuesta","PT":"Variante do país para o idioma da resposta","LT":"Atsakymo kalbos šalies variantas","LV":"Atbildes valodas valsts variants","HU":"A válasz nyelvének országváltozata","ZH":"回答语言的国家或地区变体","JA":"回答言語の国・地域別の表現","HI":"उत्तर की भाषा का देशीय रूप","AR":"صيغة لغة الرد حسب البلد","EG":"صيغة لغة الرد حسب البلد","ET":"Vastuse keele riigivariant","RO":"Varianta de țară a limbii răspunsului","HR":"Državna inačica jezika odgovora","FI":"Vastauskielen maakohtainen variantti","SV":"Landvariant av svarsspråket","NO":"Landsvariant av svarspråket","DA":"Landevariant af svarssproget"};
+const SB_REGION_HINTS = {"PL":"Dotyczy analizy i Narzędzi AI. Nie zmienia kraju pisma.","UA":"Стосується аналізу та інструментів ШІ. Не змінює країну документа.","NL":"Geldt voor de analyse en AI-tools. Het land van de brief verandert niet.","EN":"Applies to analysis and AI tools. It does not change the document country.","DE":"Gilt für Analyse und KI-Werkzeuge. Das Land des Dokuments bleibt unverändert.","FR":"S’applique à l’analyse et aux outils IA. Ne change pas le pays du document.","IT":"Si applica all’analisi e agli strumenti IA. Non cambia il paese del documento.","ES":"Se aplica al análisis y a las herramientas de IA. No cambia el país del documento.","PT":"Aplica-se à análise e às ferramentas de IA. Não altera o país do documento.","LT":"Taikoma analizei ir DI įrankiams. Dokumento šalies nekeičia.","LV":"Attiecas uz analīzi un MI rīkiem. Dokumenta valsti nemaina.","HU":"Az elemzésre és az MI-eszközökre vonatkozik. Nem módosítja a dokumentum országát.","ZH":"适用于分析和 AI 工具，不会更改文件所属国家或地区。","JA":"分析とAIツールに適用されます。文書の国は変わりません。","HI":"विश्लेषण और AI टूल पर लागू होता है। दस्तावेज़ का देश नहीं बदलता।","AR":"ينطبق على التحليل وأدوات الذكاء الاصطناعي. لا يغيّر بلد المستند.","EG":"ينطبق على التحليل وأدوات الذكاء الاصطناعي. لا يغيّر بلد المستند.","ET":"Kehtib analüüsile ja AI tööriistadele. Dokumendi riiki ei muuda.","RO":"Se aplică analizei și instrumentelor IA. Nu schimbă țara documentului.","HR":"Odnosi se na analizu i AI alate. Ne mijenja državu dokumenta.","FI":"Koskee analyysiä ja tekoälytyökaluja. Asiakirjan maa ei muutu.","SV":"Gäller analys och AI-verktyg. Dokumentets land ändras inte.","NO":"Gjelder analyse og KI-verktøy. Dokumentets land endres ikke.","DA":"Gælder analyse og AI-værktøjer. Dokumentets land ændres ikke."};
+const SB_REGION_DEFAULT = {"PL":"Bez wyboru — standardowy","UA":"Без вибору — стандартна","NL":"Geen keuze — standaard","EN":"No selection — standard","DE":"Keine Auswahl — Standard","FR":"Sans choix — standard","IT":"Nessuna scelta — standard","ES":"Sin elegir — estándar","PT":"Sem seleção — padrão","LT":"Nepasirinkta — standartinė","LV":"Nav izvēlēts — standarta","HU":"Nincs kiválasztva — alapértelmezett","ZH":"未选择 — 标准","JA":"未選択 — 標準","HI":"चयन नहीं — मानक","AR":"بدون اختيار — القياسي","EG":"بدون اختيار — القياسي","ET":"Valimata — tavaline","RO":"Fără selecție — standard","HR":"Bez odabira — standardno","FI":"Ei valintaa — yleiskieli","SV":"Inget val — standard","NO":"Ingen valgt — standard","DA":"Intet valg — standard"};
+function sbAnswerLang(){
+  const sel=document.getElementById('userLang');
+  return String((sel&&sel.value)||(typeof UI!=='undefined'&&UI&&UI.lang)||'PL').toUpperCase();
+}
+function sbRegionCode(lang){
+  const L=String(lang||'').toUpperCase();
+  const C=String((document.getElementById('sbRegion')||{}).value||'').toUpperCase();
+  const selected=String((document.getElementById('userLang')||{}).value||'').toUpperCase();
+  let chosen=L===selected?C:'';
+  if(!chosen){try{chosen=String(localStorage.getItem('sb_region_'+L)||'').toUpperCase()}catch(e){}}
+  return SB_REGION_COUNTRIES[L] && SB_REGION_COUNTRIES[L].includes(chosen) ? chosen : '';
+}
+function sbUpdateRegionChoices(){
+  const select=document.getElementById('sbRegion');
+  const base=document.getElementById('userLang');
+  if(!select||!base)return;
+  const L=base.value;
+  const ui=String((typeof UI!=='undefined'&&UI&&UI.lang)||'PL').toUpperCase();
+  const label=document.getElementById('sbRegionLabel');
+  if(label)label.textContent=SB_REGION_LABELS[ui]||SB_REGION_LABELS.EN;
+  const hint=document.getElementById('sbRegionHint');
+  if(hint)hint.textContent=SB_REGION_HINTS[ui]||SB_REGION_HINTS.EN;
+  select.setAttribute('aria-label',SB_REGION_LABELS[ui]||SB_REGION_LABELS.EN);
+  const old=select.dataset.lang===L?select.value:(()=>{try{return localStorage.getItem('sb_region_'+L)||''}catch(e){return ''}})();
+  const locale=({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh',JA:'ja',HI:'hi',AR:'ar',EG:'ar',ET:'et',RO:'ro',HR:'hr',FI:'fi',SV:'sv',NO:'no',DA:'da'})[ui]||'en';
+  const dn=typeof Intl.DisplayNames==='function'?new Intl.DisplayNames([locale],{type:'region'}):null;
+  const name=C=>{try{return dn?dn.of(C):C}catch(e){return C}};
+  const flag=C=>/^[A-Z]{2}$/.test(C)?String.fromCodePoint(...[...C].map(ch=>127397+ch.charCodeAt(0))):'🌐';
+  select.replaceChildren();
+  select.add(new Option('🌐 '+(SB_REGION_DEFAULT[ui]||SB_REGION_DEFAULT.EN),''));
+  const available=SB_REGION_COUNTRIES[L]||[];
+  for(const C of available)select.add(new Option(flag(C)+' '+name(C),C));
+  const other=document.createElement('optgroup');
+  other.label=ui==='PL'?'Pozostałe kraje — standardowa odmiana':ui==='ES'?'Otros países — variante estándar':ui==='PT'?'Outros países — variante padrão':ui==='FR'?'Autres pays — variante standard':ui==='DE'?'Andere Länder — Standardsprache':'Other countries — standard language';
+  for(const C of SB_ALL_COUNTRIES){if(!available.includes(C))other.appendChild(new Option(flag(C)+' '+name(C),C));}
+  select.appendChild(other);
+  select.value=SB_ALL_COUNTRIES.includes(old)?old:'';
+  select.dataset.lang=L;
+}
+document.addEventListener('DOMContentLoaded',function(){
+  const base=document.getElementById('userLang'),select=document.getElementById('sbRegion');
+  if(!base||!select)return;
+  base.addEventListener('change',sbUpdateRegionChoices);
+  select.addEventListener('change',function(){try{localStorage.setItem('sb_region_'+base.value,select.value)}catch(e){}});
+  sbUpdateRegionChoices();
+});
 
 const ENDPOINTS = {
   analyze: "/.netlify/functions/analyze",
@@ -5334,7 +5401,7 @@ async function runAiToolsPreview(){
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           input: "Read the visible text, sender, links/URLs and relevant details from this image faithfully. Keep the content useful for the next Sense Bridge tool.",
-          uiLang: (UI && UI.lang) ? UI.lang : "PL",
+          uiLang: sbAnswerLang(), outputRegion:sbRegionCode(sbAnswerLang()),
           imageData: imageData,
           accessType: sbTelemetryAccessType()
         })
@@ -5352,7 +5419,7 @@ async function runAiToolsPreview(){
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         input: effectiveInput,
-        uiLang: (UI && UI.lang) ? UI.lang : "PL",
+        uiLang: sbAnswerLang(), outputRegion:sbRegionCode(sbAnswerLang()),
         tool: tool,
         premium: !!hasPremium,
         imageData: (tool === "screenshot") ? imageData : "",
@@ -5424,6 +5491,7 @@ function applyUiLang(){
   try{ document.documentElement.lang = ({PL:'pl',UA:'uk',NL:'nl',EN:'en',DE:'de',FR:'fr',IT:'it',ES:'es',PT:'pt',LT:'lt',LV:'lv',HU:'hu',ZH:'zh-CN',JA:'ja',HI:'hi',AR:'ar',EG:'ar-EG',ET:'et',RO:'ro',HR:'hr',FI:'fi',SV:'sv',NO:'no',DA:'da'}[UI.lang] || 'en'); }catch(e){}
   try{ document.documentElement.dir = (UI.lang === 'AR' || UI.lang === 'EG') ? 'rtl' : 'ltr'; }catch(e){}
   applyCompactUiLabels();
+  sbUpdateRegionChoices();
 
   document.getElementById("hTitle").textContent = t.title;
   document.getElementById("hDesc").innerHTML = sbHeroDescHtml(t.desc);
@@ -6891,7 +6959,7 @@ if(!text){
     const res = await fetch(ENDPOINTS.analyze,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ text, sourceLang, userLang, mode:"letter", accessType:sbTelemetryAccessType() })
+      body:JSON.stringify({ text, sourceLang, userLang, outputRegion:sbRegionCode(userLang), mode:"letter", accessType:sbTelemetryAccessType() })
     });
 
     const data = await res.json();
@@ -7112,7 +7180,7 @@ if (examplesDocEl) {
       const trRes = await fetch(ENDPOINTS.translate,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ text, sourceLang, userLang, accessType:sbTelemetryAccessType() })
+        body:JSON.stringify({ text, sourceLang, userLang, outputRegion:sbRegionCode(userLang), accessType:sbTelemetryAccessType() })
       });
       const trData = await sbReadJsonResponse(trRes);
       if(!trRes.ok){
@@ -8618,7 +8686,7 @@ body.dark-mode #translation{
       const payloadText=instruction(outputLang)+"\n\n"+contractText;
       const res=await fetch("/.netlify/functions/analyze",{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({text:payloadText,sourceLang,userLang:outputLang,mode:"contract",accessType:sbTelemetryAccessType()})
+        body:JSON.stringify({text:payloadText,sourceLang,userLang:outputLang,outputRegion:sbRegionCode(outputLang),mode:"contract",accessType:sbTelemetryAccessType()})
       });
       const data=await res.json().catch(()=>({}));
       if(!res.ok) throw new Error(data.error||data.message||("HTTP "+res.status));
@@ -9022,7 +9090,7 @@ body.dark-mode #translation{
       const premium=hasPremium(), left=typeof getAiToolsTrialLeft==="function"?getAiToolsTrialLeft():2;
       if(left<=0){set("sbDocLabStatus",typeof sbAiLockedText==="function"?sbAiLockedText():com.locked);return;}
       const btn=id("sbDocLabRun");btn.disabled=true;set("sbDocLabStatus",com.analyzing);id("sbDocLabResult").classList.remove("show");
-      const output=String(["exercise","options","question"].includes(tool)?lang():((id("userLang")&&id("userLang").value)||lang())).toUpperCase();
+      const output=sbAnswerLang();
       const source=String((id("sourceLang")&&id("sourceLang").value)||"AUTO").toUpperCase();
 
       // Uploaded photos are analyzed visually. OCR is no longer the primary source for Photo Analysis.
@@ -9032,7 +9100,7 @@ body.dark-mode #translation{
         const extra=String(id("sbDocLabText").value||"").trim();
         const vr=await fetch("/.netlify/functions/ai-screenshot",{
           method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({input:extra,uiLang:output,tool:"photo",premium,imageData,accessType:sbTelemetryAccessType()})
+          body:JSON.stringify({input:extra,uiLang:sbAnswerLang(),outputRegion:sbRegionCode(sbAnswerLang()),tool:"photo",premium,imageData,accessType:sbTelemetryAccessType()})
         });
         const vd=await vr.json().catch(()=>({}));
         if(!vr.ok)throw new Error(vd.error||vd.message||("HTTP "+vr.status));
@@ -9058,7 +9126,7 @@ body.dark-mode #translation{
       if(["exercise","options","question"].includes(tool)){
         const response=await fetch("/.netlify/functions/ai-document-guidance",{
           method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({mode:tool,text,sourceLang:source,userLang:output,accessType:sbTelemetryAccessType()})
+          body:JSON.stringify({mode:tool,text,sourceLang:source,userLang:output,outputRegion:sbRegionCode(output),accessType:sbTelemetryAccessType()})
         });
         const result=await response.json().catch(()=>({}));
         if(!response.ok||!result.ok)throw new Error(result.error||("HTTP "+response.status));
@@ -9081,7 +9149,7 @@ body.dark-mode #translation{
         id("sbDocLabResult").scrollIntoView({behavior:"smooth",block:"nearest"});
         return;
       }
-      const r=await fetch("/.netlify/functions/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:instruction(output)+"\n\n"+text,sourceLang:source,userLang:output,mode:"document_"+tool,accessType:sbTelemetryAccessType()})});
+      const r=await fetch("/.netlify/functions/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:instruction(output)+"\n\n"+text,sourceLang:source,userLang:output,outputRegion:sbRegionCode(output),mode:"document_"+tool,accessType:sbTelemetryAccessType()})});
       const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||data.message||("HTTP "+r.status));
       const smart=String(data.smartResult||"").trim();
       if(["pdf","form","bill","exercise","options"].includes(tool)){
