@@ -8903,7 +8903,7 @@ body.dark-mode #translation{
     const list=Object.keys(window.SBJobCopy).map(code=>[code,languages?languages.of(locale(code)):code]);
     options('sbJobReplyLanguage',list);
     if(!el('sbJobReplyLanguage').dataset.chosen)el('sbJobReplyLanguage').value=outLang;
-    el('sbJobReplyLanguage').onchange=()=>{el('sbJobReplyLanguage').dataset.chosen='1';};
+    el('sbJobReplyLanguage').onchange=()=>{el('sbJobReplyLanguage').dataset.chosen='1';el('sbJobDraft').hidden=true;el('sbJobDraftText').textContent='';el('sbJobDraftText').dataset.copyText='';};
     if(!el('sbJobDate').value)el('sbJobDate').value=(()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');})();
     el('sbJobContext').dir=['AR','EG'].includes(lang)?'rtl':'ltr';
     if(active&&last)render(last.data,last.request);
@@ -8961,7 +8961,10 @@ body.dark-mode #translation{
       const request={...last.request,...values(),action,replyLang:el('sbJobReplyLanguage').value,userLang:outputLang};
       const response=await fetch('/.netlify/functions/ai-job-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});
       const data=await response.json();if(!response.ok||!data.ok)throw new Error();
-      el('sbJobDraftText').textContent=data.result;el('sbJobDraft').hidden=false;el('sbJobCopy').textContent=copy(selectedLang).copy;
+      const names=new Intl.DisplayNames([locale(selectedLang)],{type:'language'});
+      const heading=code=>names.of(locale(code));
+      el('sbJobDraftText').textContent=data.draft?heading(data.replyLang||request.replyLang)+'\n\n'+data.draft+(data.translation?'\n\n────────\n\n'+heading(data.userLang||outputLang)+'\n\n'+data.translation:''):data.result;
+      el('sbJobDraftText').dataset.copyText=data.draft||data.result;el('sbJobDraft').hidden=false;el('sbJobCopy').textContent=copy(selectedLang).copy;
       if(typeof setAiToolsTrialLeft==='function')setAiToolsTrialLeft(left-1);
       if(typeof trackEvent==='function')await trackEvent('ai_job_'+action);
       el('sbDocLabStatus').textContent=oldStatus;
@@ -8989,7 +8992,7 @@ body.dark-mode #translation{
     el('sbJobDetails').ontoggle=()=>{el('sbJobComplete').textContent=el('sbJobDetails').open?copy(selectedLang).recalculate:copy(selectedLang).complete;};
     el('sbJobAsk').onclick=()=>followup('ask');el('sbJobApply').onclick=()=>followup('apply');el('sbJobConversation').onclick=()=>followup('conversation');
     el('sbJobCopy').onclick=async()=>{
-      try{await navigator.clipboard.writeText(el('sbJobDraftText').textContent);el('sbJobCopy').textContent=copy(selectedLang).copied;}
+      try{await navigator.clipboard.writeText(el('sbJobDraftText').dataset.copyText||el('sbJobDraftText').textContent);el('sbJobCopy').textContent=copy(selectedLang).copied;}
       catch{const range=document.createRange();range.selectNodeContents(el('sbJobDraftText'));const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);}
     };
   }
