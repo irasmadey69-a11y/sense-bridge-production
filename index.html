@@ -9620,6 +9620,7 @@ body.dark-mode #translation{
     }
 
     if(shouldOpen){
+      document.body.classList.remove("sb-analysis-focus");
       card.style.removeProperty("display");
       if(scrollToPanel){
         requestAnimationFrame(function(){
@@ -11912,6 +11913,30 @@ body.dark-mode .sb-modern-tone-amber{background:#4a391b!important;color:#ffdb89!
 body.dark-mode .sb-modern-tone-rose{background:#4c2840!important;color:#ffb8d7!important}
 body.dark-mode .sb-modern-tone-slate{background:#263d4a!important;color:#c3dfed!important}
 </style>
+
+<style id="sb-wide-screen-navigation">
+@media screen and (min-width:641px){
+  #sbMobileBottomNavV2{
+    display:grid!important;position:fixed!important;
+    grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+    left:50%!important;right:auto!important;transform:translateX(-50%);
+    width:min(640px,calc(100% - 32px));box-sizing:border-box;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;z-index:99990;
+  }
+  #sbMobileBottomNavV2 .sb-mobile-nav-btn{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:0;background:transparent;font-weight:800;box-shadow:none;
+  }
+  #sbMobileBottomNavV2 .sb-mobile-nav-btn .label{font-size:13px!important;line-height:1.2!important}
+  #sbMobileBottomNavV2 .sb-mobile-nav-btn:focus-visible{outline:3px solid #367a69;outline-offset:2px}
+  main{padding-bottom:110px!important}
+  html{scroll-padding-bottom:110px}
+}
+@media print{
+  #sbMobileBottomNavV2{display:none!important}
+}
+</style>
+
 </body>
       </html>
 
