@@ -17,7 +17,7 @@
   (M["m5319_map"] ||= Object.create(null))["PT"] = "Cada documento. Cada idioma. Explicação, análise e resposta claras.";
   (M["m5334_map"] ||= Object.create(null))["PT"] = ["Entenda a carta", "Saiba o que fazer a seguir", "Verifique se parece seguro", "Respostas prontas para enviar"];
   (M["m5464_packs"] ||= Object.create(null))["PT"] = {free:"GRÁTIS — restantes",basic:"BASIC — restantes",pro:"PRO — restantes"};
-  (M["m5491_map"] ||= Object.create(null))["PT"] = {title:"Novas ferramentas de IA",desc:"Teste 2 vezes qualquer nova ferramenta. Depois desbloqueie o Premium.",trials:"Usos de teste:",premium:"BASIC: 2 usos • PRO ilimitado",badge:"Ferramenta IA",screenshotTitle:"Verificar screenshot",screenshotDesc:"Uma mensagem, anúncio, aviso ou ecrã suspeito.",linkTitle:"Verificar link ou site",linkDesc:"Verificação de domínio, imitação e sinais de risco.",messageTitle:"Verificar e-mail ou SMS",messageDesc:"Mensagem de empresa, entidade, banco ou remetente desconhecido.",replyTitle:"Ajuda na resposta",replyDesc:"Resposta educada, firme ou neutra para editar.",conversationTitle:"Preparar conversa",conversationDesc:"Perguntas e frases para entidade, empresa ou instituição.",note:"Escolha uma ferramenta, insira o conteúdo e use um dos seus 2 testes.",used:"Uso de teste marcado. A função completa será ligada no próximo passo.",locked:"Os usos de teste terminaram. Desbloqueie Premium."};
+  (M["m5491_map"] ||= Object.create(null))["PT"] = {title:"Novas Funções adicionais",desc:"Teste 2 vezes qualquer nova ferramenta. Depois desbloqueie o Premium.",trials:"Usos de teste:",premium:"BASIC: 2 usos • PRO ilimitado",badge:"Ferramenta IA",screenshotTitle:"Verificar screenshot",screenshotDesc:"Uma mensagem, anúncio, aviso ou ecrã suspeito.",linkTitle:"Verificar link ou site",linkDesc:"Verificação de domínio, imitação e sinais de risco.",messageTitle:"Verificar e-mail ou SMS",messageDesc:"Mensagem de empresa, entidade, banco ou remetente desconhecido.",replyTitle:"Ajuda na resposta",replyDesc:"Resposta educada, firme ou neutra para editar.",conversationTitle:"Preparar conversa",conversationDesc:"Perguntas e frases para entidade, empresa ou instituição.",note:"Escolha uma ferramenta, insira o conteúdo e use um dos seus 2 testes.",used:"Uso de teste marcado. A função completa será ligada no próximo passo.",locked:"Os usos de teste terminaram. Desbloqueie Premium."};
   (M["m5581_pack"] ||= Object.create(null))["PT"] = {
       previewDesc:{screenshot:"Descreva o ecrã suspeito, mensagem, anúncio ou aviso.",link:"Cole o link ou site que quer verificar.",message:"Cole o conteúdo do e-mail, SMS ou mensagem.",reply:"Cole a mensagem ou documento a que quer responder.",conversation:"Descreva com quem vai falar e qual é o assunto."},
       placeholder:{screenshot:"Ex. aviso de vírus, pedido de pagamento, pop-up...",link:"Cole o link aqui, ex. https://...",message:"Cole o conteúdo da mensagem...",reply:"Cole o documento ou mensagem...",conversation:"Ex. entidade, banco, empregador, escola..."},
@@ -28,7 +28,7 @@
   (M["m6039_map"] ||= Object.create(null))["PT"] = {
       name:"30 dias PRO",
       meta:"Acesso completo + ferramentas avançadas de IA",
-      features:"100 utilizações das ferramentas de IA durante 30 dias e acesso completo à análise normal.",
+      features:"100 utilizações das Funções adicionais durante 30 dias e acesso completo à análise normal.",
       aria:"Escolher acesso PRO de 30 dias por 25 euros"
     };
   (M["m6113_t"] ||= Object.create(null))["PT"] = {lead:"Use o Sense Bridge como uma aplicação normal.",sub:"",hint:"Toque nos 3 pontos do navegador e escolha «Adicionar ao ecrã inicial»."};
@@ -98,7 +98,7 @@
   (M["m8450_labels"] ||= Object.create(null))["PT"] = "Avaliação e passos do Sense Bridge";
   (M["m8484_COPY"] ||= Object.create(null))["PT"] = {label:"Vista da aplicação",sub:"Escolha a vista simples ou completa",simple:"Simples",full:"Completa",language:"Idioma da aplicação",show:"📂 Mostrar análise completa",hide:"📁 Ocultar detalhes"};
   (M["m8495_FLAGS"] ||= Object.create(null))["PT"] = "🇵🇹 PT";
-  (M["m8598_COPY"] ||= Object.create(null))["PT"] = {menu:"Menu",title:"Menu do Sense Bridge",ai:"Novas ferramentas de IA",aiSub:"Verifique uma captura, link ou mensagem, ou prepare uma resposta.",view:"Vista da aplicação",viewSub:"Alterne entre a vista Simples e Completa.",benefits:"O que a aplicação faz",benefitsSub:"Veja as principais funções do Sense Bridge.",access:"Acesso",accessSub:"Verifique análises FREE ou acesso ativo.",note:"Na vista Completa, todas as secções ficam sempre visíveis.",close:"Fechar"};
+  (M["m8598_COPY"] ||= Object.create(null))["PT"] = {menu:"Menu",title:"Menu do Sense Bridge",ai:"Novas Funções adicionais",aiSub:"Verifique uma captura, link ou mensagem, ou prepare uma resposta.",view:"Vista da aplicação",viewSub:"Alterne entre a vista Simples e Completa.",benefits:"O que a aplicação faz",benefitsSub:"Veja as principais funções do Sense Bridge.",access:"Acesso",accessSub:"Verifique análises FREE ou acesso ativo.",note:"Na vista Completa, todas as secções ficam sempre visíveis.",close:"Fechar"};
   (M["m9112_SB_UX_COPY"] ||= Object.create(null))["PT"] = {
       main:"Cada documento. Cada idioma.",
       sub:"Explicação clara, análise e resposta.",

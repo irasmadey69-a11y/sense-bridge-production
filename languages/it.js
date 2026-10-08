@@ -98,7 +98,7 @@
   (M["m8450_labels"] ||= Object.create(null))["IT"] = "Valutazione e passi Sense Bridge";
   (M["m8484_COPY"] ||= Object.create(null))["IT"] = {label:"Vista dell’app",sub:"Scegli la visualizzazione semplice o completa",simple:"Semplice",full:"Completa",language:"Lingua dell’app",show:"📂 Mostra analisi completa",hide:"📁 Nascondi dettagli"};
   (M["m8495_FLAGS"] ||= Object.create(null))["IT"] = "🇮🇹 IT";
-  (M["m8598_COPY"] ||= Object.create(null))["IT"] = {menu:"Menu",title:"Menu Sense Bridge",ai:"Nuovi strumenti IA",aiSub:"Controlla uno screenshot, un link o un messaggio, oppure prepara una risposta.",view:"Vista dell’app",viewSub:"Passa dalla vista Semplice a quella Completa.",benefits:"Cosa fa l’app",benefitsSub:"Scopri le funzioni principali di Sense Bridge.",access:"Accesso",accessSub:"Controlla le analisi FREE o l’accesso attivo.",note:"Nella vista Completa tutte le sezioni sono sempre visibili.",close:"Chiudi"};
+  (M["m8598_COPY"] ||= Object.create(null))["IT"] = {menu:"Menu",title:"Menu Sense Bridge",ai:"Nuovi Funzioni aggiuntive",aiSub:"Controlla uno screenshot, un link o un messaggio, oppure prepara una risposta.",view:"Vista dell’app",viewSub:"Passa dalla vista Semplice a quella Completa.",benefits:"Cosa fa l’app",benefitsSub:"Scopri le funzioni principali di Sense Bridge.",access:"Accesso",accessSub:"Controlla le analisi FREE o l’accesso attivo.",note:"Nella vista Completa tutte le sezioni sono sempre visibili.",close:"Chiudi"};
   (M["m9112_SB_UX_COPY"] ||= Object.create(null))["IT"] = {
       main:"Ogni documento. Ogni lingua.",
       sub:"Spiegazione chiara, analisi e risposta.",

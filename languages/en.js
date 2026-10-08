@@ -17,7 +17,7 @@
   (M["m5319_map"] ||= Object.create(null))["EN"] = "Every document. Every language. Clear explanation, analysis and response.";
   (M["m5334_map"] ||= Object.create(null))["EN"] = ["Understand the letter", "Know what to do next", "Check if it looks safe", "Ready-to-send responses"];
   (M["m5464_packs"] ||= Object.create(null))["EN"] = {free:"FREE — remaining",basic:"BASIC — remaining",pro:"PRO — remaining"};
-  (M["m5491_map"] ||= Object.create(null))["EN"] = {title:"New AI tools",desc:"Try any new tool 2 times. Then unlock the Premium package.",trials:"Trial uses:",premium:"BASIC: 2 uses • PRO: 100 uses",badge:"AI Tool",screenshotTitle:"Check a screenshot",screenshotDesc:"A message, ad, warning or suspicious screen.",linkTitle:"Check a link or website",linkDesc:"Domain, impersonation and risk-signal check.",messageTitle:"Check an email or SMS",messageDesc:"A message from a company, office, bank or unknown sender.",replyTitle:"Reply assistant",replyDesc:"Polite, firm or neutral reply for further editing.",conversationTitle:"Prepare for a conversation",conversationDesc:"Questions and phrases for an office, company or institution.",note:"Choose a tool, enter content and use one of your 2 trials.",used:"Trial use marked. Full functionality will be connected in the next step.",locked:"Trial uses are used. Unlock the Premium package."};
+  (M["m5491_map"] ||= Object.create(null))["EN"] = {title:"New Additional functions",desc:"Try any new tool 2 times. Then unlock the Premium package.",trials:"Trial uses:",premium:"BASIC: 2 uses • PRO: 100 uses",badge:"AI Tool",screenshotTitle:"Check a screenshot",screenshotDesc:"A message, ad, warning or suspicious screen.",linkTitle:"Check a link or website",linkDesc:"Domain, impersonation and risk-signal check.",messageTitle:"Check an email or SMS",messageDesc:"A message from a company, office, bank or unknown sender.",replyTitle:"Reply assistant",replyDesc:"Polite, firm or neutral reply for further editing.",conversationTitle:"Prepare for a conversation",conversationDesc:"Questions and phrases for an office, company or institution.",note:"Choose a tool, enter content and use one of your 2 trials.",used:"Trial use marked. Full functionality will be connected in the next step.",locked:"Trial uses are used. Unlock the Premium package."};
   (M["m5581_pack"] ||= Object.create(null))["EN"] = {
       previewDesc:{screenshot:"Describe the suspicious screen, message, ad or warning.",link:"Paste the link or website address you want to check.",message:"Paste the email, SMS or message content.",reply:"Paste the message or letter you want to reply to.",conversation:"Describe who you will talk to and what the matter is about."},
       placeholder:{screenshot:"Example: virus warning, payment request, pop-up ad...",link:"Paste the link here, e.g. https://...",message:"Paste the message content...",reply:"Paste the letter or message content...",conversation:"Example: office, bank, employer, school conversation..."},
@@ -34,7 +34,7 @@
   (M["m5871_labels"] ||= Object.create(null))["EN"] = {flow:"ℹ️ How does the analysis work?",info:"ℹ️ Information and privacy"};
   (M["m6039_map"] ||= Object.create(null))["EN"] = {
       name:"30 days PRO",
-      meta:"Full access + advanced AI tools",
+      meta:"Full access + advanced Additional functions",
       features:"100 AI tool uses for 30 days plus full access to standard analysis.",
       aria:"Choose 30 days PRO access for 25 euros"
     };
@@ -104,7 +104,7 @@
   (M["m8450_labels"] ||= Object.create(null))["EN"] = "Sense Bridge assessment and steps";
   (M["m8484_COPY"] ||= Object.create(null))["EN"] = {label:"App view",sub:"Choose a simple or full experience",simple:"Simple",full:"Full",language:"Your app language",show:"📂 Show full analysis",hide:"📁 Hide details"};
   (M["m8495_FLAGS"] ||= Object.create(null))["EN"] = "🇬🇧 EN";
-  (M["m8598_COPY"] ||= Object.create(null))["EN"] = {menu:"Menu",title:"Sense Bridge menu",ai:"New AI tools",aiSub:"Check a screenshot, link, message or prepare a reply.",view:"App view",viewSub:"Switch between Simple and Full view.",benefits:"What the app does",benefitsSub:"See the key Sense Bridge features.",access:"Access",accessSub:"Check FREE analyses or active access.",note:"In Full view, all sections are always visible.",close:"Close"};
+  (M["m8598_COPY"] ||= Object.create(null))["EN"] = {menu:"Menu",title:"Sense Bridge menu",ai:"New Additional functions",aiSub:"Check a screenshot, link, message or prepare a reply.",view:"App view",viewSub:"Switch between Simple and Full view.",benefits:"What the app does",benefitsSub:"See the key Sense Bridge features.",access:"Access",accessSub:"Check FREE analyses or active access.",note:"In Full view, all sections are always visible.",close:"Close"};
   (M["m9112_SB_UX_COPY"] ||= Object.create(null))["EN"] = {
       main:"Every document. Every language.",
       sub:"Clear explanation, analysis and reply.",
@@ -129,7 +129,7 @@
       photo:{title:"Photo analysis",desc:"Add up to 5 photos containing text, a notice, sign or document.",card:"Read and explain text visible in photos.",run:"Analyze photos",placeholder:"Optionally describe the photo or what you want to know...",note:"The photo should be sharp, well lit and include all of the text.",labels:["🖼️ What the photos show","📄 Extracted content","🏛️ Sender or source","⚠️ Important signals","➡️ What to do next","🌍 Plain explanation / translation"]},
       bill:{title:"Bills and invoices",desc:"Paste bill text or add up to 5 photos of its pages.",card:"Amounts, payment deadlines, line items and possible unclear charges.",run:"Explain bill",placeholder:"Paste the bill or invoice text...",note:"Sense Bridge provides informational guidance. Verify the recipient and bank details before paying.",labels:["🧾 What the bill is for","💶 Amounts and line items","📅 Payment deadline and method","⚠️ Charges or unclear points","➡️ What to check before paying","🌍 Plain-language explanation"]}
     };
-  (M["m9959_COPY"] ||= Object.create(null))["EN"] = {analysis:"Analysis",tools:"AI Tools",settings:"Settings"};
+  (M["m9959_COPY"] ||= Object.create(null))["EN"] = {analysis:"Analysis",tools:"Additional functions",settings:"Settings"};
   (M["ui_main"] ||= Object.create(null))["EN"] = {
       title: "Sense Bridge",
       desc: "Official letters explained in your language. No advice. No pressure. Just clarity.",

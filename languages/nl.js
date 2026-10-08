@@ -17,7 +17,7 @@
   (M["m5319_map"] ||= Object.create(null))["NL"] = "Elk document. Elke taal. Duidelijke uitleg, analyse en antwoord.";
   (M["m5334_map"] ||= Object.create(null))["NL"] = ["Begrijp de brief", "Weet wat je nu moet doen", "Controleer of het veilig lijkt", "Kant-en-klare antwoordvoorbeelden"];
   (M["m5464_packs"] ||= Object.create(null))["NL"] = {free:"GRATIS — resterend",basic:"BASIC — resterend",pro:"PRO — resterend"};
-  (M["m5491_map"] ||= Object.create(null))["NL"] = {title:"Nieuwe AI-tools",desc:"Probeer 2 keer een nieuw hulpmiddel naar keuze. Ontgrendel daarna Premium.",trials:"Testgebruik:",premium:"BASIC: 2 keer • PRO onbeperkt",badge:"AI-tool",screenshotTitle:"Controleer een screenshot",screenshotDesc:"Een melding, advertentie, waarschuwing of verdacht scherm.",linkTitle:"Controleer een link of website",linkDesc:"Controle van domein, imitatie en risicosignalen.",messageTitle:"Controleer e-mail of SMS",messageDesc:"Een bericht van een bedrijf, instantie, bank of onbekende afzender.",replyTitle:"Hulp bij antwoorden",replyDesc:"Een beleefd, duidelijk of neutraal antwoord om verder te bewerken.",conversationTitle:"Bereid een gesprek voor",conversationDesc:"Vragen en zinnen voor een instantie, bedrijf of kantoor.",note:"Kies een hulpmiddel, voer tekst in en gebruik een van je 2 tests.",used:"Testgebruik gemarkeerd. Volledige werking koppelen we in de volgende stap.",locked:"Testgebruik is op. Ontgrendel Premium."};
+  (M["m5491_map"] ||= Object.create(null))["NL"] = {title:"Nieuwe Extra functies",desc:"Probeer 2 keer een nieuw hulpmiddel naar keuze. Ontgrendel daarna Premium.",trials:"Testgebruik:",premium:"BASIC: 2 keer • PRO onbeperkt",badge:"AI-tool",screenshotTitle:"Controleer een screenshot",screenshotDesc:"Een melding, advertentie, waarschuwing of verdacht scherm.",linkTitle:"Controleer een link of website",linkDesc:"Controle van domein, imitatie en risicosignalen.",messageTitle:"Controleer e-mail of SMS",messageDesc:"Een bericht van een bedrijf, instantie, bank of onbekende afzender.",replyTitle:"Hulp bij antwoorden",replyDesc:"Een beleefd, duidelijk of neutraal antwoord om verder te bewerken.",conversationTitle:"Bereid een gesprek voor",conversationDesc:"Vragen en zinnen voor een instantie, bedrijf of kantoor.",note:"Kies een hulpmiddel, voer tekst in en gebruik een van je 2 tests.",used:"Testgebruik gemarkeerd. Volledige werking koppelen we in de volgende stap.",locked:"Testgebruik is op. Ontgrendel Premium."};
   (M["m5581_pack"] ||= Object.create(null))["NL"] = {
       previewDesc:{screenshot:"Beschrijf het verdachte scherm, bericht, advertentie of waarschuwing.",link:"Plak de link of website die je wilt controleren.",message:"Plak de inhoud van de e-mail, SMS of boodschap.",reply:"Plak het bericht of de brief waarop je wilt antwoorden.",conversation:"Beschrijf met wie je gaat praten en waarover het gaat."},
       placeholder:{screenshot:"Bijv. viruswaarschuwing, betaalverzoek, pop-up advertentie...",link:"Plak hier de link, bijv. https://...",message:"Plak de inhoud van het bericht...",reply:"Plak de brief of het bericht...",conversation:"Bijv. gesprek met instantie, bank, werkgever, school..."},
@@ -27,8 +27,8 @@
   (M["m5871_labels"] ||= Object.create(null))["NL"] = {flow:"ℹ️ Hoe werkt de analyse?",info:"ℹ️ Informatie en privacy"};
   (M["m6039_map"] ||= Object.create(null))["NL"] = {
       name:"30 dagen PRO",
-      meta:"Volledige toegang + geavanceerde AI-tools",
-      features:"100 gebruiken van AI-tools gedurende 30 dagen en volledige toegang tot de gewone analyse.",
+      meta:"Volledige toegang + geavanceerde Extra functies",
+      features:"100 gebruiken van Extra functies gedurende 30 dagen en volledige toegang tot de gewone analyse.",
       aria:"Kies 30 dagen PRO-toegang voor 25 euro"
     };
   (M["m6113_t"] ||= Object.create(null))["NL"] = {lead:"Gebruik Sense Bridge als een gewone app.",sub:"",hint:"Tik op de 3 puntjes in de browser en kies ‘Toevoegen aan startscherm’."};
@@ -98,7 +98,7 @@
   (M["m8450_labels"] ||= Object.create(null))["NL"] = "Beoordeling en stappen van Sense Bridge";
   (M["m8484_COPY"] ||= Object.create(null))["NL"] = {label:"App-weergave",sub:"Kies de eenvoudige of volledige weergave",simple:"Eenvoudig",full:"Volledig",language:"Taal van je app",show:"📂 Toon volledige analyse",hide:"📁 Verberg details"};
   (M["m8495_FLAGS"] ||= Object.create(null))["NL"] = "🇳🇱 NL";
-  (M["m8598_COPY"] ||= Object.create(null))["NL"] = {menu:"Menu",title:"Sense Bridge-menu",ai:"Nieuwe AI-tools",aiSub:"Controleer een screenshot, link of bericht, of maak een antwoord.",view:"App-weergave",viewSub:"Schakel tussen Eenvoudig en Volledig.",benefits:"Wat de app doet",benefitsSub:"Bekijk de belangrijkste functies van Sense Bridge.",access:"Toegang",accessSub:"Controleer FREE-analyses of actieve toegang.",note:"In de Volledige weergave zijn alle onderdelen altijd zichtbaar.",close:"Sluiten"};
+  (M["m8598_COPY"] ||= Object.create(null))["NL"] = {menu:"Menu",title:"Sense Bridge-menu",ai:"Nieuwe Extra functies",aiSub:"Controleer een screenshot, link of bericht, of maak een antwoord.",view:"App-weergave",viewSub:"Schakel tussen Eenvoudig en Volledig.",benefits:"Wat de app doet",benefitsSub:"Bekijk de belangrijkste functies van Sense Bridge.",access:"Toegang",accessSub:"Controleer FREE-analyses of actieve toegang.",note:"In de Volledige weergave zijn alle onderdelen altijd zichtbaar.",close:"Sluiten"};
   (M["m9112_SB_UX_COPY"] ||= Object.create(null))["NL"] = {
       main:"Elk document. Elke taal.",
       sub:"Duidelijke uitleg, analyse en antwoord.",
@@ -123,7 +123,7 @@
       photo:{title:"Fotoanalyse",desc:"Voeg maximaal 5 foto's toe met tekst, een melding, bord of document.",card:"Lees en verklaar tekst die op foto's zichtbaar is.",run:"Foto's analyseren",placeholder:"Beschrijf eventueel wat op de foto staat of wat je wilt weten...",note:"De foto moet scherp, goed belicht en volledig zijn.",labels:["🖼️ Wat de foto's tonen","📄 Uitgelezen inhoud","🏛️ Afzender of bron","⚠️ Belangrijke signalen","➡️ Wat nu te doen","🌍 Eenvoudige uitleg / vertaling"]},
       bill:{title:"Rekeningen en facturen",desc:"Plak de tekst of voeg maximaal 5 foto's van de pagina's toe.",card:"Bedragen, betalingstermijnen, posten en mogelijke onduidelijkheden.",run:"Rekening uitleggen",placeholder:"Plak de tekst van de rekening of factuur...",note:"Sense Bridge geeft informatieve uitleg. Controleer ontvanger en bankgegevens vóór betaling.",labels:["🧾 Waarvoor de rekening is","💶 Bedragen en posten","📅 Betaaltermijn en methode","⚠️ Kosten of onduidelijkheden","➡️ Wat te controleren vóór betaling","🌍 Eenvoudige uitleg"]}
     };
-  (M["m9959_COPY"] ||= Object.create(null))["NL"] = {analysis:"Analyse",tools:"AI-tools",settings:"Instellingen"};
+  (M["m9959_COPY"] ||= Object.create(null))["NL"] = {analysis:"Analyse",tools:"Extra functies",settings:"Instellingen"};
   (M["ui_main"] ||= Object.create(null))["NL"] = {
       title: "Sense Bridge",
       desc: "Officiële brieven uitgelegd in jouw taal. Geen advies. Geen druk. Gewoon duidelijk.",

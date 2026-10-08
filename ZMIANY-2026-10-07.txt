@@ -1,0 +1,25 @@
+Sense Bridge — lokalizowane przykłady i spójne nazwy, 07.10.2026
+
+Wdrożenie:
+1. Wdróż całą zawartość sense-bridge-production-main z Sense-Bridge-APP-przyklady-2026-10-07.zip do istniejącego projektu aplikacji.
+2. Wdróż całą zawartość sense-bridge-www-main z Sense-Bridge-WWW-przyklady-2026-10-07.zip do istniejącego projektu WWW.
+Pliki zastępują wcześniejsze ZIP-y przygotowane w tej rozmowie. Nowe CSS, JS i assets są wymagane.
+
+Baza: aktualne przesłane WWW (10) i aplikacja (23), wraz ze zmianami wykonanymi w tej rozmowie.
+
+Zmiany tej wersji:
+- Dodatkowe funkcje w nagłówku, nawigacji, menu i opisie wariantu języka; 24 języki.
+- 96 lokalnych zrzutów aktualnego interfejsu: pismo, SMS, rachunek, formularz; 4 na każdy język.
+- Przykłady są fikcyjnymi danymi wpisanymi w rzeczywiste formularze. Nie przedstawiają wygenerowanych wyników analizy. Nie wysyłano analiz ani nie zużywano limitów użytkowników.
+- Podmiana obrazu, podpisów, opisów i tekstu alternatywnego wraz z językiem strony.
+- Zrzuty w przykładach i na ciemnych kartach sytuacji. Powiększenie dotknięciem lub Enter, zamknięcie Escape/przyciskiem.
+- Lokalne ikony SVG w przyciskach formularzy; brak zależności od zewnętrznej usługi obrazów.
+- Poprawiona szerokość kart, zawijanie nagłówków i usunięte poziome przewijanie telefonu.
+- Kompresja WebP i wymiary obrazów ograniczające przesunięcia układu.
+
+Zachowane: backend, funkcje analizy, admin, statystyki, limity dostępu, konfiguracja deployu, manifest/service worker i mechanizm instalacji z wcześniejszej poprawki. Zmieniono teksty interfejsu w istniejących plikach językowych. Zachowano metadane SEO, dane strukturalne i ścieżki strony.
+
+Testy: 72 kombinacje WWW (24 języki x 390/820/1440 px), 24 przełączenia języka aplikacji, 14 paneli funkcji. Bez błędów JavaScript i poziomego przewijania. Dodatkowo telefon z szerokim viewportem, tryb standalone, symulowany prompt natywnej instalacji, instrukcja awaryjna i powiększanie zdjęć. Sprawdzono składnię JS, JSON-LD i unikalność identyfikatorów. Backend porównany bajtowo.
+Instalację na rzeczywistym Androidzie i iPhone/iPad trzeba sprawdzić po deployu pod docelowym HTTPS. Testy lokalne nie wysyłały rzeczywistych analiz ani zapisów statystyk.
+
+Podstrony guide/country/countries pochodzą z wcześniejszej modernizacji w tej rozmowie. To ogólne fikcyjne przykłady, nie odzyskane historyczne artykuły ani porady o przepisach konkretnego kraju.

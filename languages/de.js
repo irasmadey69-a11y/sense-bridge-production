@@ -17,7 +17,7 @@
   (M["m5319_map"] ||= Object.create(null))["DE"] = "Jedes Dokument. Jede Sprache. Klare Erklärung, Analyse und Antwort.";
   (M["m5334_map"] ||= Object.create(null))["DE"] = ["Brief verstehen", "Wissen, was als Nächstes zu tun ist", "Prüfen, ob es sicher wirkt", "Fertige Antwortbeispiele"];
   (M["m5464_packs"] ||= Object.create(null))["DE"] = {free:"KOSTENLOS — verbleibend",basic:"BASIC — verbleibend",pro:"PRO — verbleibend"};
-  (M["m5491_map"] ||= Object.create(null))["DE"] = {title:"Neue KI-Tools",desc:"Teste 2-mal ein beliebiges neues Tool. Danach schaltest du Premium frei.",trials:"Testnutzungen:",premium:"BASIC: 2 Nutzungen • PRO unbegrenzt",badge:"KI-Tool",screenshotTitle:"Screenshot prüfen",screenshotDesc:"Eine Meldung, Werbung, Warnung oder ein verdächtiger Bildschirm.",linkTitle:"Link oder Website prüfen",linkDesc:"Prüfung von Domain, Nachahmung und Risikosignalen.",messageTitle:"E-Mail oder SMS prüfen",messageDesc:"Eine Nachricht von Firma, Behörde, Bank oder unbekanntem Absender.",replyTitle:"Antwort-Hilfe",replyDesc:"Eine höfliche, klare oder neutrale Antwort zur weiteren Bearbeitung.",conversationTitle:"Gespräch vorbereiten",conversationDesc:"Fragen und Sätze für Behörde, Firma oder Institution.",note:"Wähle ein Tool, gib Inhalt ein und nutze einen deiner 2 Tests.",used:"Testnutzung markiert. Die vollständige Funktion verbinden wir im nächsten Schritt.",locked:"Testnutzungen sind aufgebraucht. Premium freischalten."};
+  (M["m5491_map"] ||= Object.create(null))["DE"] = {title:"Neue Zusätzliche Funktionen",desc:"Teste 2-mal ein beliebiges neues Tool. Danach schaltest du Premium frei.",trials:"Testnutzungen:",premium:"BASIC: 2 Nutzungen • PRO unbegrenzt",badge:"KI-Tool",screenshotTitle:"Screenshot prüfen",screenshotDesc:"Eine Meldung, Werbung, Warnung oder ein verdächtiger Bildschirm.",linkTitle:"Link oder Website prüfen",linkDesc:"Prüfung von Domain, Nachahmung und Risikosignalen.",messageTitle:"E-Mail oder SMS prüfen",messageDesc:"Eine Nachricht von Firma, Behörde, Bank oder unbekanntem Absender.",replyTitle:"Antwort-Hilfe",replyDesc:"Eine höfliche, klare oder neutrale Antwort zur weiteren Bearbeitung.",conversationTitle:"Gespräch vorbereiten",conversationDesc:"Fragen und Sätze für Behörde, Firma oder Institution.",note:"Wähle ein Tool, gib Inhalt ein und nutze einen deiner 2 Tests.",used:"Testnutzung markiert. Die vollständige Funktion verbinden wir im nächsten Schritt.",locked:"Testnutzungen sind aufgebraucht. Premium freischalten."};
   (M["m5581_pack"] ||= Object.create(null))["DE"] = {
       previewDesc:{screenshot:"Beschreibe den verdächtigen Bildschirm, die Meldung, Werbung oder Warnung.",link:"Füge den Link oder die Website-Adresse ein, die du prüfen möchtest.",message:"Füge den Inhalt der E-Mail, SMS oder Nachricht ein.",reply:"Füge die Nachricht oder den Brief ein, auf den du antworten möchtest.",conversation:"Beschreibe, mit wem du sprechen wirst und worum es geht."},
       placeholder:{screenshot:"Z.B. Viruswarnung, Zahlungsaufforderung, Pop-up-Werbung...",link:"Link hier einfügen, z.B. https://...",message:"Nachrichtentext einfügen...",reply:"Brief oder Nachricht einfügen...",conversation:"Z.B. Gespräch mit Behörde, Bank, Arbeitgeber, Schule..."},
@@ -27,8 +27,8 @@
   (M["m5871_labels"] ||= Object.create(null))["DE"] = {flow:"ℹ️ Wie funktioniert die Analyse?",info:"ℹ️ Informationen und Datenschutz"};
   (M["m6039_map"] ||= Object.create(null))["DE"] = {
       name:"30 Tage PRO",
-      meta:"Voller Zugang + erweiterte KI-Tools",
-      features:"100 Nutzungen der KI-Tools für 30 Tage sowie voller Zugang zur normalen Analyse.",
+      meta:"Voller Zugang + erweiterte Zusätzliche Funktionen",
+      features:"100 Nutzungen der Zusätzliche Funktionen für 30 Tage sowie voller Zugang zur normalen Analyse.",
       aria:"30 Tage PRO-Zugang für 25 Euro wählen"
     };
   (M["m6113_t"] ||= Object.create(null))["DE"] = {lead:"Nutze Sense Bridge wie eine normale App.",sub:"",hint:"Tippe im Browser auf die 3 Punkte und wähle „Zum Startbildschirm hinzufügen“."};
@@ -98,7 +98,7 @@
   (M["m8450_labels"] ||= Object.create(null))["DE"] = "Bewertung und Schritte von Sense Bridge";
   (M["m8484_COPY"] ||= Object.create(null))["DE"] = {label:"App-Ansicht",sub:"Wähle die einfache oder vollständige Ansicht",simple:"Einfach",full:"Vollständig",language:"Deine App-Sprache",show:"📂 Vollständige Analyse anzeigen",hide:"📁 Details ausblenden"};
   (M["m8495_FLAGS"] ||= Object.create(null))["DE"] = "🇩🇪 DE";
-  (M["m8598_COPY"] ||= Object.create(null))["DE"] = {menu:"Menü",title:"Sense Bridge-Menü",ai:"Neue KI-Werkzeuge",aiSub:"Screenshot, Link oder Nachricht prüfen oder eine Antwort vorbereiten.",view:"App-Ansicht",viewSub:"Zwischen Einfach und Vollständig wechseln.",benefits:"Was die App macht",benefitsSub:"Die wichtigsten Funktionen von Sense Bridge ansehen.",access:"Zugang",accessSub:"FREE-Analysen oder aktiven Zugang prüfen.",note:"In der vollständigen Ansicht sind alle Bereiche immer sichtbar.",close:"Schließen"};
+  (M["m8598_COPY"] ||= Object.create(null))["DE"] = {menu:"Menü",title:"Sense Bridge-Menü",ai:"Neue Zusätzliche Funktionen",aiSub:"Screenshot, Link oder Nachricht prüfen oder eine Antwort vorbereiten.",view:"App-Ansicht",viewSub:"Zwischen Einfach und Vollständig wechseln.",benefits:"Was die App macht",benefitsSub:"Die wichtigsten Funktionen von Sense Bridge ansehen.",access:"Zugang",accessSub:"FREE-Analysen oder aktiven Zugang prüfen.",note:"In der vollständigen Ansicht sind alle Bereiche immer sichtbar.",close:"Schließen"};
   (M["m9112_SB_UX_COPY"] ||= Object.create(null))["DE"] = {
       main:"Jedes Dokument. Jede Sprache.",
       sub:"Klare Erklärung, Analyse und Antwort.",
@@ -123,7 +123,7 @@
       photo:{title:"Fotoanalyse",desc:"Fügen Sie bis zu 5 Fotos mit Text, Hinweis, Schild oder Dokument hinzu.",card:"Auf Fotos sichtbaren Text lesen und erklären.",run:"Fotos analysieren",placeholder:"Beschreiben Sie optional das Foto oder Ihre Frage...",note:"Das Foto sollte scharf, gut beleuchtet und vollständig sein.",labels:["🖼️ Was die Fotos zeigen","📄 Erkannter Inhalt","🏛️ Absender oder Quelle","⚠️ Wichtige Signale","➡️ Nächste Schritte","🌍 Einfache Erklärung / Übersetzung"]},
       bill:{title:"Rechnungen und Belege",desc:"Fügen Sie Rechnungstext oder bis zu 5 Fotos hinzu.",card:"Beträge, Zahlungsfristen, Positionen und mögliche Unklarheiten.",run:"Rechnung erklären",placeholder:"Fügen Sie den Rechnungs- oder Belegtext ein...",note:"Sense Bridge erklärt informativ. Prüfen Sie Empfänger und Bankdaten vor der Zahlung.",labels:["🧾 Wofür die Rechnung ist","💶 Beträge und Positionen","📅 Zahlungsfrist und -methode","⚠️ Gebühren oder Unklarheiten","➡️ Vor der Zahlung prüfen","🌍 Einfache Erklärung"]}
     };
-  (M["m9959_COPY"] ||= Object.create(null))["DE"] = {analysis:"Analyse",tools:"KI-Tools",settings:"Einstellungen"};
+  (M["m9959_COPY"] ||= Object.create(null))["DE"] = {analysis:"Analyse",tools:"Zusätzliche Funktionen",settings:"Einstellungen"};
   (M["ui_main"] ||= Object.create(null))["DE"] = {
       title: "Sense Bridge",
       desc: "Hilft, amtliche Schreiben zu verstehen. Keine Beratung. Kein Druck.",

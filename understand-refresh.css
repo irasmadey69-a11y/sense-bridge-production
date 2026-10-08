@@ -1,0 +1,7 @@
+body.light-mode .card:has(#btnAnalyze){background:linear-gradient(155deg,#f3fcf8 0%,#ffffff 58%,#eef8f3 100%);border-color:#a9cfbf;box-shadow:0 12px 32px rgba(47,111,86,.09)}
+body.light-mode .card:has(#btnAnalyze) textarea{background:#fff;border-color:#bfd9cc}
+body.light-mode .card:has(#btnAnalyze) select{background:#f4fbf7;border-color:#a9cfbf}
+body.light-mode #btnAnalyze{background:linear-gradient(135deg,#245a4b,#39806b)!important;border:1px solid #2c6955!important;box-shadow:0 8px 20px rgba(36,90,75,.2)!important;color:#fff!important}
+body.light-mode #btnAnalyze:hover{background:linear-gradient(135deg,#1d4b3e,#2f705c)!important}
+body.light-mode .sb-mobile-nav-btn[data-sb-mobile-nav="analysis"][aria-current="page"]{background:#ddf2e7!important}
+.sb-mobile-bottom-nav .label{line-height:1.2!important}

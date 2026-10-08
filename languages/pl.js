@@ -17,7 +17,7 @@
   (M["m5319_map"] ||= Object.create(null))["PL"] = "Każde pismo. Każdy język. Jasne wyjaśnienie, analiza i odpowiedź.";
   (M["m5334_map"] ||= Object.create(null))["PL"] = ["Zrozum pismo", "Wiesz, co zrobić dalej", "Sprawdź, czy wygląda bezpiecznie", "Gotowe przykłady odpowiedzi"];
   (M["m5464_packs"] ||= Object.create(null))["PL"] = {free:"DARMOWE — pozostało",basic:"BASIC — pozostało",pro:"PRO — pozostało"};
-  (M["m5491_map"] ||= Object.create(null))["PL"] = {title:"Otwórz nowe narzędzia AI",desc:"Wypróbuj 2 razy dowolne nowe narzędzie. Potem odblokuj pakiet Premium.",trials:"Testowe użycia:",premium:"BASIC: 2 użycia • PRO: 100 użyć",badge:"AI Tool",screenshotTitle:"Sprawdź zrzut ekranu",screenshotDesc:"Komunikat, reklama, ostrzeżenie lub podejrzany ekran.",linkTitle:"Sprawdź link lub stronę",linkDesc:"Ocena domeny, podszywania się i sygnałów ryzyka.",messageTitle:"Sprawdź e-mail lub SMS",messageDesc:"Wiadomość od firmy, urzędu, banku albo nieznanego nadawcy.",replyTitle:"Pomoc w odpowiedzi",replyDesc:"Uprzejma, stanowcza albo neutralna odpowiedź do dalszej edycji.",conversationTitle:"Przygotuj rozmowę",conversationDesc:"Pytania i zdania do urzędu, firmy lub instytucji.",note:"Wybierz narzędzie, wpisz treść i użyj jednego z 2 testów.",used:"Użycie testowe zostało zaznaczone. Pełne działanie podłączymy w następnym kroku.",locked:"Testowe użycia zostały wykorzystane. Odblokuj pakiet Premium."};
+  (M["m5491_map"] ||= Object.create(null))["PL"] = {title:"Otwórz nowe Dodatkowe funkcje",desc:"Wypróbuj 2 razy dowolne nowe narzędzie. Potem odblokuj pakiet Premium.",trials:"Testowe użycia:",premium:"BASIC: 2 użycia • PRO: 100 użyć",badge:"AI Tool",screenshotTitle:"Sprawdź zrzut ekranu",screenshotDesc:"Komunikat, reklama, ostrzeżenie lub podejrzany ekran.",linkTitle:"Sprawdź link lub stronę",linkDesc:"Ocena domeny, podszywania się i sygnałów ryzyka.",messageTitle:"Sprawdź e-mail lub SMS",messageDesc:"Wiadomość od firmy, urzędu, banku albo nieznanego nadawcy.",replyTitle:"Pomoc w odpowiedzi",replyDesc:"Uprzejma, stanowcza albo neutralna odpowiedź do dalszej edycji.",conversationTitle:"Przygotuj rozmowę",conversationDesc:"Pytania i zdania do urzędu, firmy lub instytucji.",note:"Wybierz narzędzie, wpisz treść i użyj jednego z 2 testów.",used:"Użycie testowe zostało zaznaczone. Pełne działanie podłączymy w następnym kroku.",locked:"Testowe użycia zostały wykorzystane. Odblokuj pakiet Premium."};
   (M["m5581_pack"] ||= Object.create(null))["PL"] = {
       previewDesc:{
         screenshot:"Opisz podejrzany ekran, komunikat, reklamę albo ostrzeżenie.",
@@ -46,7 +46,7 @@
   (M["m5871_labels"] ||= Object.create(null))["PL"] = {flow:"ℹ️ Jak działa analiza?",info:"ℹ️ Informacje i prywatność"};
   (M["m6039_map"] ||= Object.create(null))["PL"] = {
       name:"30 dni PRO",
-      meta:"Pełny dostęp + zaawansowane narzędzia AI",
+      meta:"Pełny dostęp + zaawansowane Dodatkowe funkcje",
       features:"100 użyć narzędzi AI przez 30 dni oraz pełny dostęp do zwykłej analizy.",
       aria:"Wybierz dostęp 30 dni PRO za 25 euro"
     };
@@ -117,7 +117,7 @@
   (M["m8450_labels"] ||= Object.create(null))["PL"] = "Ocena i kroki Sense Bridge";
   (M["m8484_COPY"] ||= Object.create(null))["PL"] = {label:"Widok aplikacji",sub:"Wybierz prosty lub pełny sposób korzystania",simple:"Prosty",full:"Pełny",language:"Twój język aplikacji",show:"📂 Pokaż pełną analizę",hide:"📁 Ukryj szczegóły"};
   (M["m8495_FLAGS"] ||= Object.create(null))["PL"] = "🇵🇱 PL";
-  (M["m8598_COPY"] ||= Object.create(null))["PL"] = {menu:"Menu",title:"Menu Sense Bridge",ai:"Nowe narzędzia AI",aiSub:"Sprawdź zrzut, link, wiadomość lub przygotuj odpowiedź.",view:"Widok aplikacji",viewSub:"Przełącz między widokiem prostym i pełnym.",benefits:"Co robi aplikacja",benefitsSub:"Zobacz najważniejsze możliwości Sense Bridge.",access:"Dostęp",accessSub:"Sprawdź analizy FREE lub aktywny dostęp.",note:"W widoku Pełnym wszystkie sekcje są zawsze widoczne.",close:"Zamknij"};
+  (M["m8598_COPY"] ||= Object.create(null))["PL"] = {menu:"Menu",title:"Menu Sense Bridge",ai:"Nowe Dodatkowe funkcje",aiSub:"Sprawdź zrzut, link, wiadomość lub przygotuj odpowiedź.",view:"Widok aplikacji",viewSub:"Przełącz między widokiem prostym i pełnym.",benefits:"Co robi aplikacja",benefitsSub:"Zobacz najważniejsze możliwości Sense Bridge.",access:"Dostęp",accessSub:"Sprawdź analizy FREE lub aktywny dostęp.",note:"W widoku Pełnym wszystkie sekcje są zawsze widoczne.",close:"Zamknij"};
   (M["m9112_SB_UX_COPY"] ||= Object.create(null))["PL"] = {
       main:"Każde pismo. Każdy język.",
       sub:"Jasne wyjaśnienie, analiza i odpowiedź.",
@@ -143,7 +143,7 @@
       photo:{title:"Analiza zdjęć",desc:"Dodaj do 5 zdjęć z tekstem, komunikatem, tabliczką lub dokumentem.",card:"Odczytaj i wyjaśnij tekst widoczny na zdjęciach.",run:"Analizuj zdjęcia",placeholder:"Opcjonalnie opisz, co znajduje się na zdjęciu lub czego chcesz się dowiedzieć...",note:"Zdjęcie powinno być ostre, dobrze oświetlone i obejmować cały tekst.",labels:["🖼️ Co przedstawiają zdjęcia","📄 Odczytana treść","🏛️ Nadawca lub źródło","⚠️ Ważne sygnały","➡️ Co zrobić dalej","🌍 Proste wyjaśnienie / tłumaczenie"]},
       bill:{title:"Rachunki i faktury",desc:"Wklej treść rachunku lub dodaj do 5 zdjęć jego stron.",card:"Kwoty, terminy płatności, pozycje i możliwe niejasności.",run:"Wyjaśnij rachunek",placeholder:"Wklej treść rachunku lub faktury...",note:"Sense Bridge wyjaśnia dokument informacyjnie. Przed płatnością sprawdź dane odbiorcy i numer konta.",labels:["🧾 Za co jest rachunek","💶 Kwoty i pozycje","📅 Termin i sposób płatności","⚠️ Opłaty lub niejasności","➡️ Co sprawdzić przed płatnością","🌍 Proste wyjaśnienie"]}
     };
-  (M["m9959_COPY"] ||= Object.create(null))["PL"] = {analysis:"Analiza",tools:"Narzędzia AI",settings:"Ustawienia"};
+  (M["m9959_COPY"] ||= Object.create(null))["PL"] = {analysis:"Analiza",tools:"Dodatkowe funkcje",settings:"Ustawienia"};
   (M["ui_main"] ||= Object.create(null))["PL"] = {
       title: "Sense Bridge",
       desc: "Pisma urzędowe wyjaśnione w Twoim języku. Bez porad. Bez presji. Po prostu jasno.",
