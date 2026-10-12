@@ -3691,7 +3691,7 @@ body.dark-mode .sb-reset-toast{
 .sb-start-name{margin:7px 0 0;font-size:clamp(46px,11.5vw,64px);line-height:.98;font-weight:900;letter-spacing:-.055em;color:#072b59}
 .sb-start-tagline{margin-top:10px;font-size:clamp(18px,4.8vw,23px);font-weight:500;letter-spacing:-.027em;color:#14385f}
 .sb-start-progress{position:relative;width:min(87%,340px);height:16px;margin:24px auto 0;border:2px solid rgba(16,199,151,.48);border-radius:999px;background:rgba(255,255,255,.72);overflow:hidden;box-shadow:0 0 18px rgba(18,198,151,.14),inset 0 1px 4px rgba(8,43,83,.05)}
-.sb-start-progress span{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#24c997,#16ce98 55%,#55dfb5);transform:scaleX(0);transform-origin:left center;animation:sbSplashProgress 4s linear forwards;box-shadow:0 0 16px rgba(30,207,158,.38)}
+.sb-start-progress span{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#24c997,#16ce98 55%,#55dfb5);transform:scaleX(0);transform-origin:left center;animation:sbSplashProgress 2.8s linear forwards;box-shadow:0 0 16px rgba(30,207,158,.38)}
 .sb-start-loading{margin-top:9px;color:#17395f;font-size:15px;font-weight:650}
 .sb-start-features{display:grid;grid-template-columns:repeat(3,1fr);width:min(94%,390px);margin:23px auto 20px;align-items:start}
 .sb-start-feature{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;padding:0 10px;color:#092d59;font-size:12.5px;line-height:1.18;font-weight:800}
@@ -8153,7 +8153,7 @@ body.dark-mode #translation{
 .sb-start-name{margin:7px 0 0;font-size:clamp(46px,11.5vw,64px);line-height:.98;font-weight:900;letter-spacing:-.055em;color:#072b59}
 .sb-start-tagline{margin-top:10px;font-size:clamp(18px,4.8vw,23px);font-weight:500;letter-spacing:-.027em;color:#14385f}
 .sb-start-progress{position:relative;width:min(87%,340px);height:16px;margin:24px auto 0;border:2px solid rgba(16,199,151,.48);border-radius:999px;background:rgba(255,255,255,.72);overflow:hidden;box-shadow:0 0 18px rgba(18,198,151,.14),inset 0 1px 4px rgba(8,43,83,.05)}
-.sb-start-progress span{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#24c997,#16ce98 55%,#55dfb5);transform:scaleX(0);transform-origin:left center;animation:sbSplashProgress 4s linear forwards;box-shadow:0 0 16px rgba(30,207,158,.38)}
+.sb-start-progress span{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#24c997,#16ce98 55%,#55dfb5);transform:scaleX(0);transform-origin:left center;animation:sbSplashProgress 2.8s linear forwards;box-shadow:0 0 16px rgba(30,207,158,.38)}
 .sb-start-loading{margin-top:9px;color:#17395f;font-size:15px;font-weight:650}
 .sb-start-features{display:grid;grid-template-columns:repeat(3,1fr);width:min(94%,390px);margin:23px auto 20px;align-items:start}
 .sb-start-feature{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;padding:0 10px;color:#092d59;font-size:12.5px;line-height:1.18;font-weight:800}
@@ -9494,11 +9494,11 @@ body.dark-mode #translation{
 (function(){
   "use strict";
   var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var startedAt=Date.now(), minVisibleMs=reduceMotion?0:3600, closeScheduled=false, removed=false;
+  var startedAt=Date.now(), minVisibleMs=reduceMotion?0:2800, closeScheduled=false, removed=false;
   /* Same 24 languages as the app menu; Ukrainian is intentionally last. */
   var flags=["🇵🇱","🇳🇱","🇬🇧","🇩🇪","🇫🇷","🇮🇹","🇪🇸","🇵🇹","🇱🇹","🇱🇻","🇭🇺","🇨🇳","🇯🇵","🇮🇳","🇸🇦","🇪🇬","🇪🇪","🇷🇴","🇭🇷","🇫🇮","🇸🇪","🇳🇴","🇩🇰","🇺🇦"];
-  var slots=[], startPerf=0, duration=reduceMotion?1:3600;
-  /* 8 flags are visible at once. During 4 seconds the strip moves left by
+  var slots=[], startPerf=0, duration=reduceMotion?1:2800;
+  /* 8 flags are visible at once. The strip moves left by
      exactly 16 positions, so flags 1-8 become flags 17-24. Ukraine is
      therefore the final flag on the right at the end of the splash. */
   function arcPoint(slotPos){
@@ -9564,7 +9564,7 @@ body.dark-mode #translation{
     window.setTimeout(function(){
       removed=true;
       splash.classList.add('sb-splash-out');
-      window.setTimeout(function(){if(splash&&splash.parentNode)splash.parentNode.removeChild(splash)},520);
+      window.setTimeout(function(){if(splash&&splash.parentNode)splash.parentNode.removeChild(splash)},200);
     },wait);
   }
   seedFlags();
@@ -11741,6 +11741,9 @@ body.dark-mode .sb-modern-tone-slate{background:#263d4a!important;color:#c3dfed!
 <script src="/languages/install-24.js"></script>
 <script src="/install-guide.js"></script>
 <script src="/site-handoff.js" defer></script><link rel="stylesheet" href="understand-refresh.css">
+<link rel="stylesheet" href="modern-ui.css">
+<script src="modern-ui.js"></script>
+<style>#sbStartupSplash{transition:opacity .2s linear,visibility .2s linear}</style>
 </body>
       </html>
 
