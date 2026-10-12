@@ -70,6 +70,11 @@ exports.handler = async (event, context) => {
 ${buildModePrompt(mode, userLang)}
 ${buildSmartResultInstruction(mode, userLang)}
 ${outputInstruction}
+EVIDENCE AND REPLY RULES:
+- A document's language never establishes its country. If the text lacks country evidence and no specific known institution establishes it, institution.country must be empty.
+- Generic signatures such as "Die Verwaltung", "De administratie", "Administration" or "Amministrazione" are not identified institutions. Set institution.name and officialWebsite to empty strings and confidence to 0.
+- For an ordinary appointment confirmation without a legal dispute, payment demand or concrete danger, use LOW urgency and NONE for legalHelpNeeded. Do not add lawyer recommendations or consequences absent from the source.
+- The neutral, polite and firm reply variants must express the same intent. Do not invent inability to attend, refusal, acceptance, payment, cancellation or a request to reschedule from a tone selection. If no intent is supplied, all variants only acknowledge receipt and ask for clarification where necessary; do not commit the user to attendance.
 
 DODATKOWE ZADANIE: oceń spokojnie ryzyko możliwego oszustwa / phishingu / podszywania się.
 To ma być ANALIZA RYZYKA, nie wyrok. Nigdy nie pisz, że dokument jest na 100% prawdziwy albo na 100% fałszywy.
@@ -82,7 +87,7 @@ Twoim celem jest spokojne wyjaśnienie sytuacji użytkownikowi:
 - czy potrzebna jest pomoc
 - czy są sygnały typowe dla oszustw
 
-Odpowiadaj w języku użytkownika: ${userLang}.
+Odpowiadaj w języku użytkownika: ${require("./_ai-languages").name(userLang)} (${userLang}).
 
 DOPRACOWANIE WIELOJĘZYCZNE SENSE BRIDGE:
 Obsługiwane języki użytkownika: PL, UA, NL, EN, DE, FR, IT, ES, PT, LT, LV, HU, ZH, JA, HI, AR, EG, ET, RO, HR.
@@ -591,8 +596,10 @@ detectedPhones,
     forceUserLanguageNormalizationV2(payload, userLang);
 
     sbApplyExtraLanguageSafetyLocalizationV3(payload, userLang);
+    const knownForGrounding=sbGlobalInstitutionRegistryV2().some(entry=>entry.country===payload.institution?.country&&entry.patterns.some(pattern=>pattern.test(text)));
+    require('./_analysis-grounding').apply(payload,text,knownForGrounding,fallbackReplies);
 
-    // Final output-only language guard for the extra UI languages.
+    // Final output-only language guard for all catalog languages.
     // Runs AFTER all local fraud/institution post-processing, because those
     // legacy safety layers can still inject PL/EN phrases. It never changes
     // risk levels, confidence, institution data, URLs, detected links/phones,
@@ -872,9 +879,8 @@ async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase, 
   if (!payload || typeof payload !== "object" || !apiKey) return payload;
 
   const L = String(userLang || payload.userLang || "").toUpperCase();
-  const supported = new Set(["LT", "LV", "HU", "ZH", "JA", "HI", "AR", "EG", "ET", "RO", "HR"]);
   const target = outputLanguage(L, outputRegion);
-  if (!supported.has(L) && !target.region) return payload;
+  if (!require("./_ai-languages").supported(L)) return payload;
 
   const languageNames = {
     LT: "Lithuanian",
@@ -922,7 +928,7 @@ async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase, 
 
   const prompt = `
 You are the final language-consistency pass for Sense Bridge.
-Translate ONLY the JSON string values below into ${target.region ? target.label : (languageNames[L] || L)}.
+Translate ONLY the JSON string values below into ${target.region ? target.label : require("./_ai-languages").name(L)}.
 ${outputVariantInstruction(L, outputRegion)}
 
 STRICT RULES:
@@ -935,7 +941,7 @@ STRICT RULES:
 - Keep the meaning and safety level unchanged.
 - Do not change LOW/MEDIUM/HIGH/UNKNOWN or any numeric confidence (they are not included here anyway).
 - Do not translate product name "Sense Bridge".
-- Do not leave Polish, English, Dutch, German or another language in ordinary prose when a natural ${languageNames[L] || L} translation exists.
+- Do not leave Polish, English, Dutch, German or another language in ordinary prose when a natural ${require("./_ai-languages").name(L)} translation exists.
 - For EG use natural contemporary Egyptian Arabic, not formal MSA.
 
 JSON TO TRANSLATE:
@@ -951,7 +957,7 @@ ${JSON.stringify(source)}
     const cleanStr = v => typeof v === "string" ? cleanAiText(v) : "";
     const protectedTokens = text => String(text || '').match(/https?:\/\/[^\s<>"']+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\d+(?:[.,:/-]\d+)*/g) || [];
     const preserveFacts = (incoming, original) => {
-      if (!target.region) return cleanStr(incoming);
+      
       const value = cleanStr(incoming);
       const before = protectedTokens(original).sort();
       const after = protectedTokens(value).sort();
@@ -1574,14 +1580,7 @@ function officialInstitutionSafeSteps(lang, institution) {
 
 
 function softenConsequencesForAppointment(consequences, lang) {
-  const L = (lang || "PL").toUpperCase();
-  const base = arr(consequences).filter(c => !/praw|legal|kara|boete|fine|oszust|scam/i.test(c));
-  if (base.length) return base;
-  if (L === "NL") return ["De afspraak kan niet doorgaan als u niet voorbereid bent.", "U moet mogelijk opnieuw een afspraak maken."];
-  if (L === "EN") return ["The appointment may not go ahead if you are not prepared.", "You may need to make a new appointment."];
-  if (L === "DE") return ["Der Termin kann ausfallen, wenn Sie nicht vorbereitet sind.", "Möglicherweise müssen Sie einen neuen Termin vereinbaren."];
-  if (L === "UA") return ["Візит може не відбутися, якщо ви не підготовані.", "Можливо, доведеться записатися знову."];
-  return ["Wizyta może się nie odbyć, jeśli nie będziesz przygotowany.", "Może być potrzebne umówienie nowego terminu."];
+  return arr(consequences).filter(c => !/praw|legal|kara|boete|fine|oszust|scam/i.test(c));
 }
 
 function normalizeFraudRisk(v, userLang) {

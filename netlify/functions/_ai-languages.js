@@ -1,2 +1,3 @@
-const names = { PL: 'Polish', UA: 'Ukrainian', NL: 'Dutch', EN: 'English', DE: 'German', FR: 'French', IT: 'Italian', ES: 'Spanish', PT: 'Portuguese', LT: 'Lithuanian', LV: 'Latvian', HU: 'Hungarian', ZH: 'Simplified Chinese', JA: 'Japanese', HI: 'Hindi', AR: 'Modern Standard Arabic', EG: 'Egyptian Arabic', ET: 'Estonian', RO: 'Romanian', HR: 'Croatian', FI: 'Finnish', SV: 'Swedish', NO: 'Norwegian Bokmål', DA: 'Danish' };
-exports.name = code => names[String(code || '').toUpperCase()] || names.PL;
+const {languages}=require('./_world-catalog.json');
+exports.name=code=>{const key=String(code||'').toUpperCase();return languages[key]?languages[key].name:'Polish'};
+exports.supported=code=>!!languages[String(code||'').toUpperCase()];

@@ -9,7 +9,7 @@ const headers = {
   'Cache-Control': 'no-store'
 };
 const respond = (statusCode, data) => ({ statusCode, headers, body: JSON.stringify(data) });
-const language = value => String(value || 'AUTO').replace(/[^A-Za-z-]/g, '').slice(0, 12).toUpperCase();
+const language = value => {const code=String(value||'AUTO').toUpperCase();return require('./_ai-languages').supported(code)?code:'AUTO';};
 const languageNames = { PL: 'Polish', UA: 'Ukrainian', NL: 'Dutch', EN: 'English', DE: 'German', FR: 'French', IT: 'Italian', ES: 'Spanish', PT: 'Portuguese', LT: 'Lithuanian', LV: 'Latvian', HU: 'Hungarian', ZH: 'Simplified Chinese', JA: 'Japanese', HI: 'Hindi', AR: 'Modern Standard Arabic', EG: 'Egyptian Arabic', ET: 'Estonian', RO: 'Romanian', HR: 'Croatian', FI: 'Finnish', SV: 'Swedish', NO: 'Norwegian Bokmål', DA: 'Danish' };
 const isJapanese = value => /[\u3040-\u30ff\u3400-\u9fff]/u.test(value);
 const citedSources = data => [...new Map((data.output || []).flatMap(item => item.content || []).flatMap(content => content.annotations || []).filter(a => a.type === 'url_citation' && /^https?:\/\//i.test(a.url || '')).map(a => [a.url, { title: String(a.title || '').slice(0, 160), url: a.url }])).values()].slice(0, 8);
