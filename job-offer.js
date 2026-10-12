@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   const el=id=>document.getElementById(id);
-  const locale=lang=>({UA:'uk',EG:'ar',ZH:'zh-Hans'})[lang]||lang.toLowerCase();
+  const locale=lang=>window.SBWorldCatalog?.languages[lang]?.locale||({UA:'uk',EG:'ar',ZH:'zh-Hans'})[lang]||lang.toLowerCase();
   const copy=lang=>window.SBJobCopy[lang]||window.SBJobCopy.EN;
   const countryCodes=['NL','BE','DE','FR','PL','GB','IE','ES','PT','IT','AT','CH','SE','NO','DK','FI','LT','LV','EE','HU','RO','HR','UA','CZ','SK','SI','GR','CY','MT','LU','IS','US','CA','AU','NZ','JP','CN','IN','EG','AE','BR','ZA'];
   let selectedLang='PL',outputLang='PL',last=null,running=false,uiCopy={};
@@ -24,12 +24,12 @@
     const available=typeof SB_ALL_COUNTRIES!=='undefined'?[...new Set([...countryCodes,...SB_ALL_COUNTRIES])]:countryCodes;
     options('sbJobCountry',[['',t.unknown],...available.map(code=>[code,names?names.of(code):code])]);
     let languages;try{languages=new Intl.DisplayNames([locale(lang)],{type:'language'});}catch{}
-    const list=Object.keys(window.SBJobCopy).map(code=>[code,languages?languages.of(locale(code)):code]);
+    const list=Object.keys(window.SBWorldCatalog?.languages||window.SBJobCopy).map(code=>[code,window.SBWorldCatalog?.languages[code]?.native||(languages?languages.of(locale(code)):code)]);
     options('sbJobReplyLanguage',list);
     if(!el('sbJobReplyLanguage').dataset.chosen)el('sbJobReplyLanguage').value=outLang;
     el('sbJobReplyLanguage').onchange=()=>{el('sbJobReplyLanguage').dataset.chosen='1';};
     if(!el('sbJobDate').value)el('sbJobDate').value=(()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');})();
-    el('sbJobContext').dir=['AR','EG'].includes(lang)?'rtl':'ltr';
+    el('sbJobContext').dir=(window.SBWorldCatalog?.languages[lang]?.rtl||['AR','EG'].includes(lang))?'rtl':'ltr';
     if(active&&last)render(last.data,last.request);
   }
   function values(){

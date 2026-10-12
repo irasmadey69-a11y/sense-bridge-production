@@ -5000,6 +5000,7 @@ const SB_AI_ACCESS_COPY = {
   RO:{extra:n=>`În plus: ${n} utilizări ale instrumentelor AI`, free:"Ai 2 utilizări gratuite ale instrumentelor AI pentru testare.", basic:n=>`Accesul tău temporar include în plus ${n} utilizări ale instrumentelor AI.`, pro:"PRO include 100 de utilizări ale instrumentelor AI timp de 30 de zile."},
   HR:{extra:n=>`Dodatno: ${n} korištenja AI alata`, free:"Za isprobavanje imate 2 besplatna korištenja AI alata.", basic:n=>`Vaš vremenski pristup dodatno uključuje ${n} korištenja AI alata.`, pro:"PRO uključuje 100 korištenja AI alata tijekom 30 dana."}
 };
+window.SB_I18N.modules.ai_access=SB_AI_ACCESS_COPY;
 function sbAiAccessCopy(){ const l=(UI&&UI.lang)?UI.lang:"PL"; return SB_AI_ACCESS_COPY[l]||SB_AI_ACCESS_COPY.EN; }
 
 const SB_AI_LOCKED_COPY={
@@ -5028,6 +5029,7 @@ const SB_AI_LOCKED_COPY={
  RO:{free:"Utilizările AI gratuite s-au terminat. Alege un acces temporar sau PRO.",basic:"Limita AI suplimentară a acestui acces a fost folosită. Analiza standard rămâne disponibilă până la expirare.",pro:"Cele 100 de utilizări AI din PRO au fost folosite. Analiza standard rămâne disponibilă până la expirare."},
  HR:{free:"Besplatna AI korištenja su potrošena. Odaberite vremenski pristup ili PRO.",basic:"Dodatni AI limit ovog pristupa je potrošen. Obična analiza radi do isteka pristupa.",pro:"100 AI korištenja u PRO je potrošeno. Obična analiza radi do isteka pristupa."}
 };
+window.SB_I18N.modules.ai_locked=SB_AI_LOCKED_COPY;
 function sbAiLockedText(){const l=(UI&&UI.lang)?UI.lang:"PL",c=SB_AI_LOCKED_COPY[l]||SB_AI_LOCKED_COPY.EN,st=window.SBProManager?window.SBProManager.status():{};return st.pro||st.review||st.beta?c.pro:(st.paid?c.basic:c.free);}
 
 function sbAiLimitForPlan(plan){ const p=String(plan||"").toLowerCase(); return p==="24h"?3:p==="7d"?15:p==="30d"?40:p==="30d-pro"?100:2; }
@@ -6176,10 +6178,6 @@ function sbInferDocumentCountry(){
     }
   }
 
-  const langMap = window.SB_I18N.modules["m6857_langMap"];
-  if(langMap[selectedLang]){
-    return {code:langMap[selectedLang], level:"language", reason:"language"};
-  }
 
   return {code:"", level:"unknown", reason:"unknown"};
 }
@@ -6377,6 +6375,7 @@ function renderInstitution(data){
 }
 
 function countryName(code){
+  try{const lang=typeof UI!=='undefined'?UI.lang:'EN';const locale=window.SBWorldCatalog?.languages[lang]?.locale||({UA:'uk',EG:'ar',ZH:'zh'}[lang])||lang.toLowerCase();return new Intl.DisplayNames([locale],{type:'region'}).of(code)}catch(_){}
   const map = {
     DE: "Germany",
 PL: "Poland",
@@ -8678,7 +8677,7 @@ body.dark-mode #translation{
 (function(){
   'use strict';
   const el=id=>document.getElementById(id);
-  const locale=lang=>({UA:'uk',EG:'ar',ZH:'zh-Hans'})[lang]||lang.toLowerCase();
+  const locale=lang=>window.SBWorldCatalog?.languages[lang]?.locale||({UA:'uk',EG:'ar',ZH:'zh-Hans'})[lang]||lang.toLowerCase();
   const copy=lang=>window.SBJobCopy[lang]||window.SBJobCopy.EN;
   const countryCodes=['NL','BE','DE','FR','PL','GB','IE','ES','PT','IT','AT','CH','SE','NO','DK','FI','LT','LV','EE','HU','RO','HR','UA','CZ','SK','SI','GR','CY','MT','LU','IS','US','CA','AU','NZ','JP','CN','IN','EG','AE','BR','ZA'];
   let selectedLang='PL',outputLang='PL',last=null,running=false,uiCopy={};
@@ -8701,12 +8700,12 @@ body.dark-mode #translation{
     const available=typeof SB_ALL_COUNTRIES!=='undefined'?[...new Set([...countryCodes,...SB_ALL_COUNTRIES])]:countryCodes;
     options('sbJobCountry',[['',t.unknown],...available.map(code=>[code,names?names.of(code):code])]);
     let languages;try{languages=new Intl.DisplayNames([locale(lang)],{type:'language'});}catch{}
-    const list=Object.keys(window.SBJobCopy).map(code=>[code,languages?languages.of(locale(code)):code]);
+    const list=Object.keys(window.SBWorldCatalog?.languages||window.SBJobCopy).map(code=>[code,window.SBWorldCatalog?.languages[code]?.native||(languages?languages.of(locale(code)):code)]);
     options('sbJobReplyLanguage',list);
     if(!el('sbJobReplyLanguage').dataset.chosen)el('sbJobReplyLanguage').value=outLang;
     el('sbJobReplyLanguage').onchange=()=>{el('sbJobReplyLanguage').dataset.chosen='1';el('sbJobDraft').hidden=true;el('sbJobDraftText').textContent='';el('sbJobDraftText').dataset.copyText='';};
     if(!el('sbJobDate').value)el('sbJobDate').value=(()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');})();
-    el('sbJobContext').dir=['AR','EG'].includes(lang)?'rtl':'ltr';
+    el('sbJobContext').dir=(window.SBWorldCatalog?.languages[lang]?.rtl||['AR','EG'].includes(lang))?'rtl':'ltr';
     if(active&&last)render(last.data,last.request);
   }
   function values(){
@@ -8867,6 +8866,7 @@ body.dark-mode #translation{
   });
 
   const NEW_TOOLS_COPY = {"PL": ["Rozwiąż zadanie lub ćwiczenie", "Moje możliwości z pisma", "Kroki i wynik w języku zadania oraz użytkownika.", "Możliwe działania, terminy i źródła pomocy.", "Rozwiąż zadanie", "Sprawdź możliwości"], "EN": ["Solve an exercise", "My options from a letter", "Steps and answer in the exercise and user languages.", "Possible actions, deadlines and sources of help.", "Solve exercise", "Explore options"], "NL": ["Los een opgave op", "Mijn mogelijkheden bij een brief", "Stappen en antwoord in beide talen.", "Mogelijke stappen, termijnen en hulp.", "Los op", "Bekijk mogelijkheden"], "DE": ["Aufgabe lösen", "Meine Möglichkeiten aus dem Schreiben", "Lösungsweg und Antwort in beiden Sprachen.", "Mögliche Schritte, Fristen und Hilfe.", "Aufgabe lösen", "Möglichkeiten prüfen"], "FR": ["Résoudre un exercice", "Mes options selon la lettre", "Étapes et réponse dans les deux langues.", "Actions possibles, délais et aide.", "Résoudre", "Voir les options"], "IT": ["Risolvi un esercizio", "Le mie opzioni dalla lettera", "Passaggi e risultato in entrambe le lingue.", "Azioni possibili, scadenze e aiuto.", "Risolvi", "Esamina le opzioni"], "ES": ["Resolver un ejercicio", "Mis opciones según la carta", "Pasos y resultado en ambos idiomas.", "Posibles acciones, plazos y ayuda.", "Resolver", "Ver opciones"], "PT": ["Resolver um exercício", "As minhas opções da carta", "Passos e resposta nos dois idiomas.", "Possíveis ações, prazos e ajuda.", "Resolver", "Ver opções"], "UA": ["Розв’язати завдання", "Мої можливості за листом", "Кроки й відповідь двома мовами.", "Можливі дії, терміни й допомога.", "Розв’язати", "Переглянути можливості"], "SV": ["Lös en uppgift", "Mina möjligheter utifrån brevet", "Steg och svar på båda språken.", "Möjliga åtgärder, tidsfrister och hjälp.", "Lös uppgift", "Visa möjligheter"], "NO": ["Løs en oppgave", "Mine muligheter ut fra brevet", "Fremgangsmåte og svar på begge språk.", "Mulige tiltak, frister og hjelp.", "Løs oppgave", "Se muligheter"], "DA": ["Løs en opgave", "Mine muligheder ud fra brevet", "Trin og svar på begge sprog.", "Mulige handlinger, frister og hjælp.", "Løs opgave", "Se muligheder"], "FI": ["Ratkaise tehtävä", "Kirjeen tarjoamat vaihtoehdot", "Vaiheet ja vastaus molemmilla kielillä.", "Mahdolliset toimet, määräajat ja apu.", "Ratkaise", "Katso vaihtoehdot"], "HU": ["Feladat megoldása", "Lehetőségeim a levél alapján", "Lépések és eredmény mindkét nyelven.", "Lehetséges lépések, határidők és segítség.", "Megoldás", "Lehetőségek"], "LV": ["Atrisini uzdevumu", "Manas iespējas pēc vēstules", "Soļi un atbilde abās valodās.", "Iespējamie soļi, termiņi un palīdzība.", "Atrisināt", "Skatīt iespējas"], "LT": ["Išspręsti užduotį", "Mano galimybės pagal laišką", "Žingsniai ir atsakymas abiem kalbomis.", "Galimi veiksmai, terminai ir pagalba.", "Spręsti", "Rodyti galimybes"]};
+  window.SB_I18N.modules.new_tools=NEW_TOOLS_COPY;
   Object.assign(NEW_TOOLS_COPY, {
     AR:["حل تمرين","خياراتي من الخطاب","خطوات الحل والإجابة بلغتي التمرين والمستخدم.","إجراءات ممكنة ومواعيد ومصادر مساعدة.","حل التمرين","اعرض الخيارات"],
     EG:["حل تمرين","اختياراتي من الجواب","خطوات الحل والإجابة بلغة التمرين ولغتك.","الخطوات الممكنة والمواعيد والمساعدة.","حل التمرين","شوف الاختيارات"],
@@ -8878,6 +8878,7 @@ body.dark-mode #translation{
     ZH:["解答练习","信件中的可选方案","以题目语言和用户语言提供步骤与答案。","可能的行动、期限和求助途径。","解答","查看方案"]
   });
   const QUESTION_COPY = {"PL": ["Odpowiedź na pytanie", "Sprawdź odpowiedź i źródła dalszych informacji.", "Odpowiedz"], "EN": ["Answer a question", "Check the answer and sources for further reading.", "Answer"], "NL": ["Beantwoord een vraag", "Controleer het antwoord en verdere bronnen.", "Beantwoord"], "DE": ["Frage beantworten", "Antwort und Quellen für weitere Informationen prüfen.", "Antworten"], "FR": ["Répondre à une question", "Vérifiez la réponse et les sources utiles.", "Répondre"], "IT": ["Rispondi a una domanda", "Verifica la risposta e le fonti per approfondire.", "Rispondi"], "ES": ["Responder una pregunta", "Comprueba la respuesta y las fuentes para saber más.", "Responder"], "PT": ["Responder a uma pergunta", "Verifique a resposta e as fontes para saber mais.", "Responder"], "UA": ["Відповісти на запитання", "Перевірте відповідь і джерела додаткової інформації.", "Відповісти"], "SV": ["Svara på en fråga", "Kontrollera svaret och källor för mer information.", "Svara"], "NO": ["Svar på et spørsmål", "Kontroller svaret og kilder til mer informasjon.", "Svar"], "DA": ["Besvar et spørgsmål", "Tjek svaret og kilder til mere information.", "Besvar"], "FI": ["Vastaa kysymykseen", "Tarkista vastaus ja lisätietojen lähteet.", "Vastaa"], "HU": ["Válasz egy kérdésre", "Ellenőrizze a választ és a további forrásokat.", "Válasz"], "LV": ["Atbildēt uz jautājumu", "Pārbaudiet atbildi un papildu avotus.", "Atbildēt"], "LT": ["Atsakyti į klausimą", "Patikrinkite atsakymą ir papildomus šaltinius.", "Atsakyti"], "AR": ["الإجابة عن سؤال", "تحقق من الإجابة ومصادر المعلومات الإضافية.", "أجب"], "EG": ["الإجابة على سؤال", "اتأكد من الإجابة ومصادر معلومات تانية.", "جاوب"], "ET": ["Vasta küsimusele", "Kontrolli vastust ja lisateabe allikaid.", "Vasta"], "HR": ["Odgovori na pitanje", "Provjeri odgovor i izvore za više informacija.", "Odgovori"], "HI": ["सवाल का जवाब", "जवाब और आगे की जानकारी के स्रोत जाँचें।", "जवाब दें"], "JA": ["質問に答える", "回答と詳しい情報の出典を確認。", "回答する"], "RO": ["Răspunde la întrebare", "Verifică răspunsul și sursele pentru detalii.", "Răspunde"], "ZH": ["回答问题", "核查答案和更多信息来源。", "回答"]};
+  window.SB_I18N.modules.question_copy=QUESTION_COPY;
   Object.entries(NEW_TOOLS_COPY).forEach(([code, pair])=>{
     const base=(TOOLS[code]&&TOOLS[code].pdf)||TOOLS.EN.pdf;
     TOOLS[code]=TOOLS[code]||{};
@@ -11742,7 +11743,9 @@ body.dark-mode .sb-modern-tone-slate{background:#263d4a!important;color:#c3dfed!
 <script src="/install-guide.js"></script>
 <script src="/site-handoff.js" defer></script><link rel="stylesheet" href="understand-refresh.css">
 <link rel="stylesheet" href="modern-ui.css">
+<script src="languages/world-catalog.js"></script>
 <script src="modern-ui.js"></script>
+<script src="world-ui.js"></script>
 <style>#sbStartupSplash{transition:opacity .2s linear,visibility .2s linear}</style>
 </body>
       </html>
