@@ -5,6 +5,7 @@
   const understandCopy = {"PL": ["Zrozum pismo", "Zrozum więcej"], "EN": ["Understand a letter", "Understand more"], "NL": ["Begrijp een brief", "Begrijp meer"], "DE": ["Brief verstehen", "Mehr verstehen"], "FR": ["Comprendre un courrier", "Comprendre davantage"], "IT": ["Comprendi una lettera", "Comprendi di più"], "ES": ["Entiende una carta", "Entiende más"], "PT": ["Compreenda uma carta", "Compreenda mais"], "UA": ["Зрозумій лист", "Зрозумій більше"], "LT": ["Suprask laišką", "Suprask daugiau"], "LV": ["Izproti vēstuli", "Izproti vairāk"], "HU": ["Értsd meg a levelet", "Érts meg többet"], "ZH": ["理解信件", "了解更多"], "JA": ["手紙を理解する", "もっと理解する"], "HI": ["पत्र समझें", "और समझें"], "AR": ["افهم الرسالة", "افهم المزيد"], "EG": ["افهم الجواب", "افهم أكتر"], "ET": ["Mõista kirja", "Mõista rohkem"], "RO": ["Înțelege scrisoarea", "Înțelege mai mult"], "HR": ["Razumij pismo", "Razumij više"], "FI": ["Ymmärrä kirje", "Ymmärrä enemmän"], "SV": ["Förstå ett brev", "Förstå mer"], "NO": ["Forstå et brev", "Forstå mer"], "DA": ["Forstå et brev", "Forstå mere"]};
   Object.entries(labels).forEach(([lang,text]) => {text[0]=understandCopy[lang][1];});
   const modules = window.SB_I18N.modules;
+  modules.functions_labels=labels;modules.functions_access=access;modules.functions_understand=understandCopy;
   Object.entries(labels).forEach(([lang,text]) => {
     if(modules.m5491_map?.[lang]) Object.assign(modules.m5491_map[lang],{title:text[0],badge:text[1]});
     if(modules.m8598_COPY?.[lang]) modules.m8598_COPY[lang].ai=text[0];
@@ -23,8 +24,8 @@
       }
     });
     const lang=typeof UI !== 'undefined' ? UI.lang : 'PL';
-    const text=labels[lang] || labels.EN;
-    const mainText=(understandCopy[lang] || understandCopy.EN)[0];
+    const text=modules.functions_labels[lang] || labels.EN;
+    const mainText=(modules.functions_understand[lang] || understandCopy.EN)[0];
     const mainNav=document.querySelector('[data-sb-mobile-nav="analysis"] .label');
     const mainButton=document.getElementById('btnAnalyze');
     [mainNav,mainButton].forEach(el=>{if(el && el.textContent!==mainText) el.textContent=mainText;});
@@ -33,7 +34,7 @@
     const nav=document.querySelector('[data-sb-mobile-nav="tools"] .label');
     if(nav && nav.textContent !== text[0]) nav.textContent=text[0];
     const desc=document.getElementById('sbAiToolsDesc');
-    const value=(access[lang] || access.EN).intro+' '+(access[lang] || access.EN).after;
+    const value=(modules.functions_access[lang] || access.EN).intro+' '+(modules.functions_access[lang] || access.EN).after;
     if(desc && desc.textContent !== value) desc.textContent=value;
     document.querySelectorAll('#sbAiToolsCard [data-ai-badge]' ).forEach(el => {if(el.textContent !== text[1]) el.textContent=text[1];});
   }
