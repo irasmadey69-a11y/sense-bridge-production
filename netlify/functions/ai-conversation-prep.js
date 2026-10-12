@@ -1,3 +1,4 @@
+const { instruction: outputVariantInstruction } = require('./_output-language');
 const { name: uiLanguageName } = require('./_ai-languages');
 const { recordUsage } = require("./_usage");
 // Sense Bridge AI Tools — conversation-prep
@@ -35,6 +36,7 @@ exports.handler = async (event, context) => {
 
     const prompt = `
 You are Sense Bridge.
+${outputVariantInstruction(uiLang, body.outputRegion)}
 
 Prepare the user for a conversation with an office, bank, employer, school, company, doctor, municipality or other institution.
 

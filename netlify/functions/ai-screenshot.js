@@ -1,3 +1,4 @@
+const { instruction: outputVariantInstruction } = require('./_output-language');
 const { name: uiLanguageName } = require('./_ai-languages');
 const { recordUsage } = require("./_usage");
 // Sense Bridge AI Tools — screenshot vision check
@@ -36,6 +37,7 @@ exports.handler = async (event, context) => {
 
     const prompt = `
 You are Sense Bridge.
+${outputVariantInstruction(uiLang, body.outputRegion)}
 
 The user may send ANY kind of image, not only a screenshot or document.
 

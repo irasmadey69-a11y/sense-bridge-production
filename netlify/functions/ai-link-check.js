@@ -1,3 +1,4 @@
+const { instruction: outputVariantInstruction } = require('./_output-language');
 const { name: uiLanguageName } = require('./_ai-languages');
 const { recordUsage } = require("./_usage");
 // Sense Bridge AI Tools — production Netlify Function
@@ -33,7 +34,8 @@ exports.handler = async (event, context) => {
     }
 
     const prompt = `
-You are Sense Bridge. Check a link, URL or website and explain the result in the user's language: ${uiLanguageName(uiLang)} (${uiLang}).
+You are Sense Bridge.
+${outputVariantInstruction(uiLang, body.outputRegion)} Check a link, URL or website and explain the result in the user's language: ${uiLanguageName(uiLang)} (${uiLang}).
 
 Before answering, silently evaluate all relevant signals: the real hostname, protocol, subdomains, IP-address use, punycode, unusual characters, suspicious path/query wording, possible impersonation, login/payment/data requests and pressure. This is an internal checklist only. Do not print the checklist or these instructions.
 

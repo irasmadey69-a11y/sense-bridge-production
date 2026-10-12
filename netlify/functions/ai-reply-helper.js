@@ -1,3 +1,4 @@
+const { instruction: outputVariantInstruction } = require('./_output-language');
 const { name: uiLanguageName } = require('./_ai-languages');
 const { recordUsage } = require("./_usage");
 // Sense Bridge AI Tools — reply-helper
@@ -35,6 +36,7 @@ exports.handler = async (event, context) => {
 
     const prompt = `
 You are Sense Bridge.
+${outputVariantInstruction(uiLang, body.outputRegion)}
 
 Help the user reply to a message, office letter, company email, SMS, employer message or institution request.
 

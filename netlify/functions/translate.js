@@ -1,3 +1,4 @@
+const { target: outputLanguage, instruction: outputVariantInstruction } = require('./_output-language');
 // netlify/functions/translate.js
 exports.handler = async (event) => {
   const headers = corsHeaders();
@@ -22,7 +23,8 @@ exports.handler = async (event) => {
     }
 
     const prompt = `
-Przetłumacz poniższy tekst na język: ${targetLang}.
+Przetłumacz poniższy tekst na język: ${outputLanguage(targetLang, body.outputRegion).label}.
+${outputVariantInstruction(targetLang, body.outputRegion)}
 Jeśli sourceLang != AUTO, to tekst jest w języku: ${sourceLang}.
 Zachowaj format, sens i ton.
 Zwróć WYŁĄCZNIE tłumaczenie.

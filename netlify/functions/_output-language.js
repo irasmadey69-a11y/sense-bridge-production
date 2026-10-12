@@ -1,0 +1,18 @@
+const { name } = require('./_ai-languages');
+const countries = {"PL":["PL"],"UA":["UA"],"NL":["NL","BE","SR","AW","CW","SX","BQ"],"EN":["GB","US","CA","AU","NZ","IE","IN","ZA","NG","KE","GH","UG","TZ","ZM","ZW","BW","NA","LS","SZ","LR","SL","GM","MW","RW","SS","SD","CM","MU","SC","SG","MY","PH","PK","BD","LK","MT","CY","FJ","PG","SB","VU","WS","TO","KI","TV","NR","JM","TT","BS","BB","BZ","GY","AG","DM","GD","KN","LC","VC","AI","BM","KY","VG","TC","MS","FK","GI","GG","JE","IM","HK","MO"],"DE":["DE","AT","CH","LI","LU","BE"],"FR":["FR","CA","BE","CH","LU","MC","HT","SN","CI","BJ","BF","ML","NE","TG","GN","CD","CG","GA","CM","TD","CF","DJ","KM","MG","MU","SC","RW","BI","VU","NC","PF","WF","RE","MQ","GP","GF","BL","MF","PM","YT"],"IT":["IT","CH","SM","VA","MT"],"ES":["ES","MX","CO","CL","AR","PE","VE","EC","BO","PY","UY","CR","PA","GT","HN","SV","NI","DO","CU","PR","GQ"],"PT":["PT","BR","AO","MZ","CV","GW","ST","TL","GQ"],"LT":["LT"],"LV":["LV"],"HU":["HU","RO","SK","RS","UA","SI","AT","HR"],"ZH":["CN","TW","HK","MO","SG","MY"],"JA":["JP"],"HI":["IN","FJ"],"AR":["SA","EG","AE","QA","KW","BH","OM","YE","IQ","JO","LB","SY","PS","MA","DZ","TN","LY","SD","MR","SO","DJ","KM","TD","ER"],"EG":["EG"],"ET":["EE"],"RO":["RO","MD"],"HR":["HR","BA","RS","ME"],"FI":["FI"],"SV":["SE","FI","AX"],"NO":["NO"],"DA":["DK","GL","FO"]};
+const overrides = {PT:{BR:'Brazilian Portuguese',PT:'European Portuguese'},EN:{GB:'British English',US:'American English',CA:'Canadian English',AU:'Australian English',NZ:'New Zealand English',IE:'Irish English'},FR:{CA:'Canadian French',FR:'French as used in France',BE:'Belgian French',CH:'Swiss French'},DE:{DE:'Standard German as used in Germany',AT:'Austrian Standard German',CH:'Swiss Standard German'},ES:{ES:'Spanish as used in Spain',MX:'Mexican Spanish',AR:'Argentinian Spanish',CO:'Colombian Spanish',CL:'Chilean Spanish'},NL:{NL:'Dutch as used in the Netherlands',BE:'Belgian Dutch'},ZH:{CN:'Simplified Chinese as used in mainland China',TW:'Traditional Chinese as used in Taiwan',HK:'Traditional Chinese as used in Hong Kong',MO:'Traditional Chinese as used in Macao'},AR:{EG:'Modern Standard Arabic as used in Egypt'},EG:{EG:'Egyptian Arabic'}};
+function target(language,region){
+ const lang=typeof language==='string'?language.trim().toUpperCase():'';
+ const code=typeof region==='string'?region.trim().toUpperCase():'';
+ const selected=/^[A-Z]{2}$/.test(code)&&countries[lang]&&countries[lang].includes(code)?code:'';
+ let label=name(lang);
+ if(selected){let country=selected;try{country=new Intl.DisplayNames(['en'],{type:'region'}).of(selected)||selected}catch(_){}label=(overrides[lang]||{})[selected]||label+' as used in '+country;}
+ return {language:lang,region:selected,label};
+}
+function instruction(language,region){
+ const t=target(language,region);if(!t.region)return '';
+ return `OUTPUT LANGUAGE VARIANT: Write user-facing explanations and translations into the user's language in ${t.label}. Use its natural spelling, vocabulary, grammar and appropriate written conventions. This is an output-language choice only. It is not evidence of the document country, jurisdiction, user's residence or work country. Determine those facts only from the supplied document or verified evidence. Preserve meaning, legal names, institutions, URLs, account numbers, reference codes, dates, amounts and currencies; do not convert or reinterpret them. Do not apply this choice to replies explicitly requested in the document or recipient's language. Keep JSON keys, language codes and risk classifications unchanged.`;
+}
+exports.target=target;
+exports.instruction=instruction;
+exports.countries=countries;

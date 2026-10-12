@@ -1,3 +1,4 @@
+const { target: outputLanguage, instruction: outputVariantInstruction } = require('./_output-language');
 const { recordUsage } = require("./_usage");
 // netlify/functions/analyze.js  (CommonJS)
 // Sense Bridge — analiza pisma + spokojna analiza ryzyka oszustwa
@@ -16,6 +17,8 @@ exports.handler = async (event, context) => {
     text = stripLegacyModeInstruction(text, mode);
     const sourceLang = str(body.sourceLang || body.source || "AUTO").toUpperCase();
     const userLang = str(body.userLang || body.targetLang || body.target || "PL").toUpperCase();
+    const outputTarget = outputLanguage(userLang, body.outputRegion);
+    const outputInstruction = outputVariantInstruction(userLang, body.outputRegion);
     const tone = str(body.tone || body.style || "neutral").toLowerCase();
     const accessType = str(body.accessType || "UNKNOWN").toUpperCase();
     const usageBase = { event, context, uiLang:userLang, accessType, feature:featureFromMode(mode) };
@@ -66,6 +69,7 @@ exports.handler = async (event, context) => {
     const analysisPrompt = `
 ${buildModePrompt(mode, userLang)}
 ${buildSmartResultInstruction(mode, userLang)}
+${outputInstruction}
 
 DODATKOWE ZADANIE: oceń spokojnie ryzyko możliwego oszustwa / phishingu / podszywania się.
 To ma być ANALIZA RYZYKA, nie wyrok. Nigdy nie pisz, że dokument jest na 100% prawdziwy albo na 100% fałszywy.
@@ -514,11 +518,12 @@ if (
     const effectiveSource = (sourceLang === "AUTO" ? detectedLang : sourceLang) || "UNKNOWN";
 
     let translation = "";
-    if (!effectiveSource || effectiveSource === "UNKNOWN" || effectiveSource === userLang || userLang === "AUTO") {
+    if (((!effectiveSource || effectiveSource === "UNKNOWN" || effectiveSource === userLang) && !outputTarget.region) || userLang === "AUTO") {
       translation = text;
     } else {
       const translatePrompt = `
-Przetłumacz poniższy tekst na język: ${userLang}.
+Przetłumacz poniższy tekst na język: ${outputTarget.label}.
+${outputInstruction}
 Zachowaj sens, ton i format (akapity, listy).
 Zwróć WYŁĄCZNIE przetłumaczony tekst, bez komentarzy.
 
@@ -592,7 +597,7 @@ detectedPhones,
     // legacy safety layers can still inject PL/EN phrases. It never changes
     // risk levels, confidence, institution data, URLs, detected links/phones,
     // OCR text or access/payment logic. On any error it fails open.
-    await sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase);
+    await sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase, outputTarget.region);
 
     sbDedupePayloadArraysV1(payload);
 
@@ -863,12 +868,13 @@ function sbExtraLangV3(lang) {
    IMPORTANT: this does NOT touch scoring, OCR, institution recognition,
    links, phones, access/payment logic or the original 9-language behavior.
    ============================================================ */
-async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase) {
+async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase, outputRegion) {
   if (!payload || typeof payload !== "object" || !apiKey) return payload;
 
   const L = String(userLang || payload.userLang || "").toUpperCase();
   const supported = new Set(["LT", "LV", "HU", "ZH", "JA", "HI", "AR", "EG", "ET", "RO", "HR"]);
-  if (!supported.has(L)) return payload;
+  const target = outputLanguage(L, outputRegion);
+  if (!supported.has(L) && !target.region) return payload;
 
   const languageNames = {
     LT: "Lithuanian",
@@ -916,7 +922,8 @@ async function sbFinalUserLanguageGuardV4(apiKey, payload, userLang, usageBase) 
 
   const prompt = `
 You are the final language-consistency pass for Sense Bridge.
-Translate ONLY the JSON string values below into ${languageNames[L] || L}.
+Translate ONLY the JSON string values below into ${target.region ? target.label : (languageNames[L] || L)}.
+${outputVariantInstruction(L, outputRegion)}
 
 STRICT RULES:
 - Return ONLY a valid JSON object with exactly the same keys and structure.
@@ -942,16 +949,24 @@ ${JSON.stringify(source)}
 
     const sameLen = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length;
     const cleanStr = v => typeof v === "string" ? cleanAiText(v) : "";
+    const protectedTokens = text => String(text || '').match(/https?:\/\/[^\s<>"']+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\d+(?:[.,:/-]\d+)*/g) || [];
+    const preserveFacts = (incoming, original) => {
+      if (!target.region) return cleanStr(incoming);
+      const value = cleanStr(incoming);
+      const before = protectedTokens(original).sort();
+      const after = protectedTokens(value).sort();
+      return JSON.stringify(before) === JSON.stringify(after) ? value : original;
+    };
     const safeArray = (incoming, original) => sameLen(incoming, original)
-      ? incoming.map((v, i) => typeof v === "string" ? cleanAiText(v) : original[i])
+      ? incoming.map((v, i) => typeof v === "string" ? preserveFacts(v, original[i]) : original[i])
       : original;
 
-    if (cleanStr(translated.summary)) payload.summary = cleanStr(translated.summary);
-    if (cleanStr(translated.smartResult)) payload.smartResult = cleanStr(translated.smartResult);
-    if (cleanStr(translated.whatOfficeSays)) payload.whatOfficeSays = cleanStr(translated.whatOfficeSays);
-    if (cleanStr(translated.communication)) payload.communication = cleanStr(translated.communication);
-    if (cleanStr(translated.officeSummary)) payload.officeSummary = cleanStr(translated.officeSummary);
-    if (cleanStr(translated.documentTone)) payload.documentTone = cleanStr(translated.documentTone);
+    if (cleanStr(translated.summary)) payload.summary = preserveFacts(translated.summary, source.summary);
+    if (cleanStr(translated.smartResult)) payload.smartResult = preserveFacts(translated.smartResult, source.smartResult);
+    if (cleanStr(translated.whatOfficeSays)) payload.whatOfficeSays = preserveFacts(translated.whatOfficeSays, source.whatOfficeSays);
+    if (cleanStr(translated.communication)) payload.communication = preserveFacts(translated.communication, source.communication);
+    if (cleanStr(translated.officeSummary)) payload.officeSummary = preserveFacts(translated.officeSummary, source.officeSummary);
+    if (cleanStr(translated.documentTone)) payload.documentTone = preserveFacts(translated.documentTone, source.documentTone);
 
     payload.nextSteps = safeArray(translated.nextSteps, source.nextSteps);
     payload.actions = safeArray(translated.actions, source.actions);
@@ -976,14 +991,14 @@ ${JSON.stringify(source)}
     if (translated.replies && typeof translated.replies === "object" && payload.replies && typeof payload.replies === "object") {
       for (const key of ["neutral", "polite", "firm"]) {
         const value = cleanStr(translated.replies[key]);
-        if (value) payload.replies[key] = value;
+        if (value) payload.replies[key] = preserveFacts(value, source.replies[key]);
       }
     }
 
     if (translated.fraudRisk && typeof translated.fraudRisk === "object" && payload.fraudRisk && typeof payload.fraudRisk === "object") {
       for (const key of ["label", "summary", "disclaimer"]) {
         const value = cleanStr(translated.fraudRisk[key]);
-        if (value) payload.fraudRisk[key] = value;
+        if (value) payload.fraudRisk[key] = preserveFacts(value, source.fraudRisk[key]);
       }
       payload.fraudRisk.signals = safeArray(translated.fraudRisk.signals, source.fraudRisk.signals || []);
       payload.fraudRisk.suspiciousElements = safeArray(translated.fraudRisk.suspiciousElements, source.fraudRisk.suspiciousElements || []);
