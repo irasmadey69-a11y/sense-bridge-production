@@ -83,6 +83,8 @@
   }
   function open() {
     if(shell()) return;
+    if(busy) return;
+    if(typeof trackEvent==='function') trackEvent('shortcut_click');
     trigger=document.activeElement;
     if(deferredPrompt && device !== 'ios') return promptInstall();
     guide();

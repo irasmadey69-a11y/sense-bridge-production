@@ -5384,15 +5384,16 @@ function sbAiRenderResult(result){
   '</div>';
 }
 
+function sbAiPlainText(content){
+  return String(content || "").replace(/^\s*#{1,6}\s+/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1").replace(/__([^_]+)__/g, "$1")
+    .replace(/`([^`]+)`/g, "$1");
+}
 function sbAiSetResult(content, type){
   const box = document.getElementById("sbAiPreviewResult");
   if(!box) return;
   box.className = "sb-ai-preview-result show" + (type ? " " + type : "");
-  if(String(content || "").indexOf("sb-ai-result-cards") !== -1){
-    box.innerHTML = content;
-  }else{
-    box.textContent = content;
-  }
+  box.textContent = sbAiPlainText(content);
 }
 
 async function runAiToolsPreview(){
@@ -6634,7 +6635,7 @@ async function requestFreeAccess(){
 
     localStorage.setItem("sb_user_email",normalized);
     // access_request is counted server-side by pending_set after the request is safely stored.
-    await sbShowModal({title:t.sentTitle,text:t.sent,input:false});
+    await sbShowModal({title:t.sentTitle,text:data.emailSent===false ? ((window.SB_ACCESS_FLOW_COPY||{})[String(UI.lang).toUpperCase()]?.mailPending || (window.SB_ACCESS_FLOW_COPY||{}).EN.mailPending) : t.sent,input:false});
     refreshUI(); updatePaidMessage();
   }catch(e){ sbShowNotice(t.error+(e&&e.message?e.message:e)); }
 }
@@ -7233,9 +7234,9 @@ if (examplesDocEl) {
 
 fetch("/.netlify/functions/analyze_count", {
   method: "POST",
-  headers: { "X-SB-Event": "analyze" }
+  headers: { "X-SB-Event": "analyze", "Content-Type":"application/json" },
+  body: JSON.stringify({combined:true,lang:(typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:"UNKNOWN"})
 }).catch(()=>{});
-    trackEvent("analysis_use");
     consumeFreeIfNeeded();
     refreshUI();
     updatePaidMessage();
@@ -7391,7 +7392,7 @@ fetch("/.netlify/functions/analyze_count", {
       const res = await fetch("/.netlify/functions/ocr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageDataUrl, uiLang:(typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:"PL", accessType:sbTelemetryAccessType() })
+        body: JSON.stringify({ countOCR:true, imageDataUrl, uiLang:(typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:"PL", accessType:sbTelemetryAccessType() })
       });
 
       const data = await res.json();
@@ -7405,7 +7406,7 @@ fetch("/.netlify/functions/analyze_count", {
       textarea.dispatchEvent(new Event("input", { bubbles: true }));
 
       setStatus(text ? msg("statusInserted") : "Nie udało się odczytać tekstu.");
-      if (text) trackEvent("ocr_use");
+      // Successful OCR is counted by the server, including uploads in extra tools.
       return text;
 
     } catch (err) {
@@ -7483,7 +7484,7 @@ fetch("/.netlify/functions/analyze_count", {
   async function trackEvent(eventName) {
   try {
     await fetch(
-      "https://sense-bridge-production.netlify.app/.netlify/functions/track_event",
+      "/.netlify/functions/track_event",
       {
         method: "POST",
         headers: {
@@ -7491,7 +7492,7 @@ fetch("/.netlify/functions/analyze_count", {
         },
         body: JSON.stringify({
           event: eventName,
-          lang: (window.UI && UI.lang) ? String(UI.lang).toUpperCase() : "UNKNOWN"
+          lang: (typeof UI!=="undefined" && UI && UI.lang) ? String(UI.lang).toUpperCase() : "UNKNOWN"
         })
       }
     );
@@ -8467,7 +8468,7 @@ body.dark-mode #translation{
       const imageDataUrl=await fileToDataUrl(selectedFiles[i]);
       const res=await fetch("/.netlify/functions/ocr",{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({imageDataUrl})
+        body:JSON.stringify({countOCR:true,imageDataUrl,uiLang:sbAnswerLang(),accessType:sbTelemetryAccessType()})
       });
       const data=await res.json().catch(()=>({}));
       if(!res.ok || !data.ok) throw new Error(data.error || "OCR error");
@@ -8710,18 +8711,15 @@ body.dark-mode #translation{
     if(active&&last)render(last.data,last.request);
   }
   function values(){
-    return {country:el('sbJobCountry').value,age:el('sbJobAge').value?Number(el('sbJobAge').value):null,date:el('sbJobDate').value,contract:el('sbJobContract').value,profile:el('sbJobProfile').value,preferences:el('sbJobPreferences').value,replyLang:el('sbJobReplyLanguage').value};
+    return {country:el('sbJobCountry').value,age:el('sbJobAge').value?Number(el('sbJobAge').value):null,date:el('sbJobDate').dataset.chosen==='1'?el('sbJobDate').value:'',contract:el('sbJobContract').value,profile:el('sbJobProfile').value,preferences:el('sbJobPreferences').value,replyLang:el('sbJobReplyLanguage').value};
   }
   function clear(){last=null;el('sbJobDetails').open=false;el('sbJobMissing').hidden=true;el('sbJobFollowup').hidden=true;el('sbJobDraft').hidden=true;el('sbJobDraftText').textContent='';}
   function render(data,request){
     last={data,request};const t=copy(outputLang),w=data.comparison;
-    if(data.resolvedContext){
-      if(!el('sbJobCountry').value)el('sbJobCountry').value=data.resolvedContext.country||'';
-      if(el('sbJobContract').value==='unknown')el('sbJobContract').value=data.resolvedContext.contract||'unknown';
-    }
+    // Keep inferred facts in this result only; never turn them into manual defaults for the next advertisement.
     const fields=[];
     if(!w.country)fields.push(t.country);
-    if(!request.age)fields.push(t.age);
+    if(!(data.resolvedContext?.age||request.age))fields.push(t.age);
     if((data.resolvedContext?.contract||request.contract)==='unknown')fields.push(t.contract);
     el('sbJobMissing').hidden=w.status!=='UNAVAILABLE'||!fields.length;
     el('sbJobMissingText').textContent=t.missingDetails+' '+fields.join(', ');
@@ -8779,7 +8777,8 @@ body.dark-mode #translation{
     if(!details.open){details.open=true;el('sbJobComplete').textContent=copy(selectedLang).recalculate;details.scrollIntoView({behavior:'smooth',block:'start'});return;}
     running=true;el('sbJobComplete').disabled=true;
     try{
-      const request={...last.request,...values(),action:'compare',salary:last.data.salary};
+      const manual=Object.fromEntries(Object.entries(values()).filter(([,v])=>v!==''&&v!==null&&v!=='unknown'));
+      const request={...last.request,...last.data.resolvedContext,...manual,action:'compare',salary:last.data.salary};
       const response=await fetch('/.netlify/functions/ai-job-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});
       const result=await response.json();if(!response.ok||!result.ok)throw new Error();
       const data={...last.data,comparison:result.comparison,resolvedContext:request};
@@ -8789,6 +8788,7 @@ body.dark-mode #translation{
     finally{running=false;el('sbJobComplete').disabled=false;}
   }
   function init(){
+    el('sbJobDate').onchange=()=>{el('sbJobDate').dataset.chosen='1';};
     el('sbJobComplete').onclick=complete;
     el('sbJobDetails').ontoggle=()=>{el('sbJobComplete').textContent=el('sbJobDetails').open?copy(selectedLang).recalculate:copy(selectedLang).complete;};
     el('sbJobAsk').onclick=()=>followup('ask');el('sbJobApply').onclick=()=>followup('apply');el('sbJobConversation').onclick=()=>followup('conversation');
@@ -8935,7 +8935,7 @@ body.dark-mode #translation{
   function showNaturalPhotoResult(textValue,outputLang){
     resetDocResultCards();
     set("sbDocLabL1",cleanLabel(photoResultLabel(outputLang)));
-    set("sbDocLabR1",String(textValue||"").trim());
+    set("sbDocLabR1",sbAiPlainText(textValue).trim());
     for(let i=2;i<=6;i++){
       set("sbDocLabR"+i,"");
       setDocResultCardVisible(i,false);
@@ -8948,11 +8948,12 @@ body.dark-mode #translation{
     const answer=String(textValue||"").trim()
       .replace(/\[([^\]]+)\]\(https?:\/\/[^\s)]+\)/g,"$1")
       .replace(/\\\[|\\\]|\\\(|\\\)/g,"")
-      .replace(/\\(?:d?frac)\{([^{}]+)\}\{([^{}]+)\}/g,"$1 / $2")
+      .replace(/\\(?:d?frac)\{([^{}]+)\}\{([^{}]+)\}/g,"($1) / ($2)")
       .replace(/\\text\{([^{}]+)\}/g,"$1")
       .replace(/\\(?:times|cdot)/g," × ")
       .replace(/\\approx/g,"≈")
       .replace(/\\%/g,"%")
+      .replace(/\\[,;!:]/g," ")
       .replace(/^\s*#{1,6}\s+/gm,"")
       .replace(/\*\*([^*\n]+)\*\*/g,"$1")
       .replace(/\n{3,}/g,"\n\n");
@@ -9024,7 +9025,7 @@ body.dark-mode #translation{
     id("sbDocLabUploadWrap").classList.toggle("show",next==="upload");
   }
   function open(next){
-    tool=next;clear(false);sourceMode=next==="pdf"?"upload":"text";
+    tool=next;clear(true);sourceMode=next==="pdf"?"upload":"text";
     id("sbDocLabPdfActions").style.display="none";
     id("sbDocLabImageActions").style.display="none";
     id("sbDocLabThumbs").style.display=next==="pdf"?"none":"grid";
@@ -9064,7 +9065,7 @@ body.dark-mode #translation{
     return cv.toDataURL("image/jpeg",.80);
   }
   async function ocrData(url){
-    const r=await fetch("/.netlify/functions/ocr",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageDataUrl:url,uiLang:lang(),accessType:sbTelemetryAccessType()})});
+    const r=await fetch("/.netlify/functions/ocr",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({countOCR:true,imageDataUrl:url,uiLang:lang(),accessType:sbTelemetryAccessType()})});
     const x=await r.json().catch(()=>({}));if(!r.ok||!x.ok)throw new Error(x.error||"OCR error");return String(x.text||"").trim();
   }
   async function ocrImages(){
@@ -11687,7 +11688,7 @@ module.exports = QRCode;
 })();
 </script>
 <script src="languages/lang-sync-24.js"></script>
-<script src="languages/access-flow-24.js"></script>
+<script src="languages/access-flow-24.js?v=20261016"></script>
 <style id="sb-ai-tools-unique-colors">
 .sb-modern-tone-mint{background:linear-gradient(145deg,#82dcc2,#d9f8eb)!important;color:#075e4b!important}
 .sb-modern-tone-blue{background:linear-gradient(145deg,#8ebdff,#e0eeff)!important;color:#103f89!important}
@@ -11746,7 +11747,7 @@ body.dark-mode .sb-modern-tone-slate{background:#263d4a!important;color:#c3dfed!
 <link rel="stylesheet" href="modern-ui.css">
 <link rel="stylesheet" href="world-fonts.css">
 <script src="languages/world-catalog.js"></script>
-<script src="modern-ui.js"></script>
+<script src="modern-ui.js?v=20261016"></script>
 <script src="world-ui.js"></script>
 <style>#sbStartupSplash{transition:opacity .2s linear,visibility .2s linear}</style>
 </body>

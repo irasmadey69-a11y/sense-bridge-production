@@ -1,0 +1,57 @@
+SENSE BRIDGE — PACZKA PO 42 TESTACH I KONTROLI PISM, LICZNIKÓW, MAILA, 16.10.2026
+
+TO JEST KANDYDAT DO TESTÓW. NIE ZOSTAŁ WDROŻONY.
+Zawiera poprzednie poprawki z dzisiaj i kolejne wynikające z 42 prób.
+Nie używaj wcześniejszej pobranej paczki z tego dnia — pobierz tę wersję ponownie.
+
+PODMIANA.zip: tylko nowe/zmienione pliki, z zachowaniem ścieżek.
+PELNA.zip: cała aplikacja, pliki bez dodatkowego nadrzędnego folderu.
+Wybierz jedną paczkę, nie wgrywaj obu jako dwóch osobnych aktualizacji.
+Przed podmianą zachowaj aktualną kopię aplikacji.
+Nowy plik netlify/functions/_document-analysis.js musi być dołączony.
+
+Zakres: linki, kompletność dokumentów i tłumaczeń, obliczenia i ich kontrola,
+oferty pracy, przechodzenie między funkcjami, wygląd wyników.
+Zachowano piaskowy motyw startowy dla nowych użytkowników oraz wcześniejsze
+poprawki zgłoszeń dostępu, e-maila i zapisu ułamków.
+
+Walidacja: 33/33 testów lokalnych z symulowanymi usługami; 58 kontroli składni.
+Dołącz package.json, package-lock.json oraz wszystkie nowe pliki pomocnicze.
+Rozdzielono zapisane prośby o dostęp od starszego licznika kliknięć/próśb.
+42 próby były wykonane na STAREJ działającej wersji, nie na tej paczce.
+Najpierw testowy podgląd nowej wersji i powtórzenie błędnych/częściowych prób.
+Dodatkowa kontrola AI może zwiększyć czas oraz koszt odpowiedzi.
+Nie wykonano deploya i nie potwierdzono jeszcze jakości odpowiedzi nowej wersji.
+
+Szczegóły i przykłady: Raport-Sense-Bridge-42-testy.md.
+Lista zmienionych plików poniżej:
+admin.html
+index.html
+install-guide.js
+languages/access-flow-24.js
+modern-ui.js
+netlify/functions/_atomic-stats.js
+netlify/functions/_document-analysis.js
+netlify/functions/_exercise.js
+netlify/functions/_usage.js
+netlify/functions/access_bonus.js
+netlify/functions/access_set.js
+netlify/functions/admin_payment_stats.js
+netlify/functions/admin_payments.js
+netlify/functions/admin_usage.js
+netlify/functions/ai-document-guidance.js
+netlify/functions/ai-job-offer.js
+netlify/functions/ai-link-check.js
+netlify/functions/ai-screenshot.js
+netlify/functions/analyze.js
+netlify/functions/analyze_count.js
+netlify/functions/ocr.js
+netlify/functions/pending_set.js
+netlify/functions/stats.js
+netlify/functions/track_event.js
+netlify/functions/visit.js
+package-lock.json
+package.json
+tests/counters-mail-letter.test.js
+tests/full-audit.test.js
+tests/repairs.test.js
