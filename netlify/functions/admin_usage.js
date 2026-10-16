@@ -6,7 +6,7 @@ exports.handler=async(event)=>{try{
   const body=JSON.parse(event.body||"{}");
   const pin=String(body.adminPin||"").trim();
   if(!process.env.ADMIN_PIN||pin!==process.env.ADMIN_PIN)return json(403,{ok:false,error:"Wrong admin PIN"});
-  const store=getStore({name:"sb-usage",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
+  const store=getStore({consistency:"strong",name:"sb-usage",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
   let s={};try{const raw=await store.get("usage_summary_v1");s=raw?JSON.parse(raw):{};}catch(_){s={};}
   return json(200,{ok:true,summary:s||{}});
 }catch(e){return json(500,{ok:false,error:e?.message||String(e)})}};

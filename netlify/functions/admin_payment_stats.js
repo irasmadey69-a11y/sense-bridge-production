@@ -25,7 +25,7 @@ exports.handler = async (event) => {
       return json(403, { ok: false, error: "Invalid admin PIN" });
     }
 
-    const store = getStore({
+    const store = getStore({consistency:"strong",
       name: "sb-payment-stats",
       siteID: process.env.NETLIFY_SITE_ID,
       token: process.env.NETLIFY_AUTH_TOKEN

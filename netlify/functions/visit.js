@@ -1,5 +1,7 @@
-const { getStore } = require("@netlify/blobs");
+const atomicStats = require('./_atomic-stats');
+const { getStore, connectLambda } = require("@netlify/blobs");
 exports.handler=async(event,context)=>{try{
+  connectLambda(event);
   if(event.httpMethod!=="POST")return json(405,{ok:false,error:"Method not allowed"});
   if(String(event.headers?.["x-sb-event"]||event.headers?.["X-SB-Event"]||"").toLowerCase()!=="visit")return json(403,{ok:false,error:"Wrong event"});
   const body=safeJson(event.body)||{};
@@ -11,7 +13,7 @@ exports.handler=async(event,context)=>{try{
   await incrementMap(store,"lang_visits",lang);
   return json(200,{ok:true,visits:count,country,lang});
 }catch(e){return json(500,{ok:false,error:e.message})}};
-async function inc(store,key){const raw=await store.get(key);const n=raw?parseInt(raw,10):0;const next=Number.isFinite(n)?n+1:1;await store.set(key,String(next));return next;}
+async function inc(store,key){return atomicStats.increment(store,key);}
 function safeJson(v){try{return v?JSON.parse(v):{}}catch{return {}}}
 
 function normCode(v, maxLen=8){
@@ -26,16 +28,7 @@ function requestCountry(event, context){
     4
   );
 }
-async function incrementMap(store,key,label){
-  const raw=await store.get(key);
-  let map={};
-  try{ map=raw?JSON.parse(raw):{}; }catch(_){ map={}; }
-  if(!map || typeof map!=="object" || Array.isArray(map)) map={};
-  const k=normCode(label);
-  map[k]=Math.max(0,Number(map[k])||0)+1;
-  await store.set(key,JSON.stringify(map));
-  return map[k];
-}
+async function incrementMap(store,key,label){return atomicStats.incrementMap(store,key,label);}
 async function readMap(store,key){
   const raw=await store.get(key);
   try{ const v=raw?JSON.parse(raw):{}; return v&&typeof v==="object"&&!Array.isArray(v)?v:{}; }catch(_){ return {}; }

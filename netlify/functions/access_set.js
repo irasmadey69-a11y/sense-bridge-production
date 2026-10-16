@@ -1,3 +1,4 @@
+const atomicStats = require('./_atomic-stats');
 const { getStore, connectLambda } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
@@ -96,9 +97,13 @@ exports.handler = async (event) => {
       createdAt: existingSafe?.createdAt || now, activatedAt: now, expires, last: "Przyznano dostęp czasowy"
     }));
     const stats = getStore({name:"sb-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
+    let analyticsError=null;
+    try{
     await incrementStat(stats,"access_grant_time"); await incrementStat(stats,"access_granted");
     await incrementMap(stats,"geo_access_grant_time",existingSafe?.requestCountry||"UNKNOWN");
     await incrementMap(stats,"lang_access_grant_time",existingSafe?.requestLang||"UNKNOWN");
+
+    }catch(e){analyticsError=e?.message||String(e);console.error("activation statistics error",e);}
 
     // Błąd wysłania maila nie może cofnąć poprawnie zapisanej aktywacji.
     const mailResult = await sendNotificationEmail({
@@ -119,6 +124,7 @@ exports.handler = async (event) => {
       accessType: plan === "30d-pro" ? "PRO" : "BASIC",
       aiLimit,
       expires,
+      analyticsError,
       emailSent: mailResult.sent,
       emailError: mailResult.error || null
     });
@@ -133,13 +139,8 @@ exports.handler = async (event) => {
   }
 };
 
-async function incrementStat(store,key){const raw=await store.get(key);const n=raw?parseInt(raw,10):0;const next=Number.isFinite(n)?n+1:1;await store.set(key,String(next));return next;}
-
-
-function normCode(v, maxLen=8){
-  const s=String(v||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"");
-  return s && s.length<=maxLen ? s : "UNKNOWN";
-}
+async function incrementStat(store,key){return atomicStats.increment(store,key);}
+function normCode(v,maxLen=8){const s=String(v||"UNKNOWN").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"");return s&&s.length<=maxLen?s:"UNKNOWN";}
 function requestCountry(event, context){
   const h=event?.headers||{};
   return normCode(
@@ -148,16 +149,7 @@ function requestCountry(event, context){
     4
   );
 }
-async function incrementMap(store,key,label){
-  const raw=await store.get(key);
-  let map={};
-  try{ map=raw?JSON.parse(raw):{}; }catch(_){ map={}; }
-  if(!map || typeof map!=="object" || Array.isArray(map)) map={};
-  const k=normCode(label);
-  map[k]=Math.max(0,Number(map[k])||0)+1;
-  await store.set(key,JSON.stringify(map));
-  return map[k];
-}
+async function incrementMap(store,key,label){return atomicStats.incrementMap(store,key,label);}
 async function readMap(store,key){
   const raw=await store.get(key);
   try{ const v=raw?JSON.parse(raw):{}; return v&&typeof v==="object"&&!Array.isArray(v)?v:{}; }catch(_){ return {}; }

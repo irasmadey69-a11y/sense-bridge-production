@@ -1,3 +1,4 @@
+const {mutateText} = require('./_atomic-stats');
 // Sense Bridge usage & cost telemetry v1
 // Stores only aggregate metadata. Never stores document text, images or AI output.
 const { getStore, connectLambda } = require("@netlify/blobs");
@@ -53,8 +54,9 @@ async function recordUsage(event, context, data, meta={}){
     const now=Date.now();
     const store=getStore({name:"sb-usage",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
     const key="usage_summary_v1";
+    await mutateText(store,key,raw=>{
     let summary={};
-    try{const raw=await store.get(key);summary=raw?JSON.parse(raw):{};}catch(_){summary={};}
+    try{summary=raw?JSON.parse(raw):{};}catch(_){summary={};}
     if(!summary||typeof summary!=="object"||Array.isArray(summary))summary={};
     summary.version=1;
     summary.since=summary.since||now;
@@ -74,7 +76,8 @@ async function recordUsage(event, context, data, meta={}){
     addBucket(summary.byModel,model,inputTokens,outputTokens,cost);
     addBucket(summary.byDay,dayKey(now),inputTokens,outputTokens,cost);
     pruneDays(summary.byDay,120);
-    await store.set(key,JSON.stringify(summary));
+    return JSON.stringify(summary);
+    });
     return {ok:true,costUsd:cost,inputTokens,outputTokens};
   }catch(e){
     console.error("usage telemetry error:",e);

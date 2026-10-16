@@ -10,7 +10,7 @@ exports.handler = async (event) => {
     const adminPin = String(body.adminPin || "").trim();
     if (!process.env.ADMIN_PIN || adminPin !== process.env.ADMIN_PIN) return json(401, { ok:false, error:"Unauthorized" });
 
-    const cfg = { siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_AUTH_TOKEN };
+    const cfg = { consistency:"strong", siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_AUTH_TOKEN };
     const payments = getStore({ name:"sb-payments", ...cfg });
     const users = getStore({ name:"sb-users", ...cfg });
     const stats = getStore({ name:"sb-stats", ...cfg });
@@ -78,7 +78,9 @@ exports.handler = async (event) => {
     for (const item of items) {
       if (!item || !item.email) continue;
       const id = String(item.email).toLowerCase()+"|"+String(item.requestNumber||1)+"|"+String(item.createdAt||0);
-      if (!byId.has(id)) byId.set(id, item);
+      const previous=byId.get(id);
+      const defined=Object.fromEntries(Object.entries(item).filter(([,value])=>value!==undefined));
+      byId.set(id,{...previous,...defined,key:previous?.key||item.key});
     }
     const out = [...byId.values()].sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
     return json(200, { ok:true, count:out.length, items:out, diagnostics: errors.slice(0,20) });

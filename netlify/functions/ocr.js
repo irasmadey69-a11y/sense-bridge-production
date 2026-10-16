@@ -1,3 +1,5 @@
+const {getStore,connectLambda}=require('@netlify/blobs');
+const {increment,incrementMap}=require('./_atomic-stats');
 const { recordUsage } = require("./_usage");
 exports.handler = async (event, context) => {
   try {
@@ -62,10 +64,19 @@ exports.handler = async (event, context) => {
       data.output?.[0]?.content?.[0]?.text ||
       "";
 
-    return json(200, {
-      ok: true,
-      text: String(text || "").trim()
-    });
+    if(data.status==='incomplete')return json(502,{ok:false,error:'Incomplete OCR result'});
+    if(body.countOCR===true && String(text||'').trim()) {
+      try {
+        connectLambda(event);
+        const store=getStore({name:'sb-stats',siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
+        const h=event.headers||{};
+        const country=h['x-nf-country']||h['X-Nf-Country']||context?.geo?.country?.code||'UNKNOWN';
+        await increment(store,'ocr_use');
+        await incrementMap(store,'geo_ocr_use',country);
+        await incrementMap(store,'lang_ocr_use',uiLang);
+      }catch(e){console.error('OCR statistics error',e);}
+    }
+    return json(200,{ok:true,text:String(text||'').trim()});
   } catch (err) {
     return json(500, { ok: false, error: err.message || "Server error" });
   }

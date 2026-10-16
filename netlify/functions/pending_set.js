@@ -1,3 +1,4 @@
+const atomicStats = require('./_atomic-stats');
 const { getStore, connectLambda } = require("@netlify/blobs");
 
 exports.handler = async (event, context) => {
@@ -66,7 +67,9 @@ exports.handler = async (event, context) => {
     // Najpierw zapisujemy samo zgłoszenie. Statystyki i e-mail nie mogą
     // zablokować prawidłowego zgłoszenia użytkownika.
     await requests.set(requestKey, JSON.stringify(baseRecord));
-    await incrementRequestCounter(requestStats, now);
+    let analyticsError = null;
+    try { await incrementRequestCounter(requestStats, now); }
+    catch (e) { analyticsError = e?.message || String(e); console.error("access request counter error:", e); }
 
     const userData = {
       ...(existing && typeof existing === "object" ? existing : {}),
@@ -110,7 +113,6 @@ exports.handler = async (event, context) => {
 
     // Analityka jest ważna, ale jej chwilowy błąd nie może zatrzymać
     // zgłoszenia ani wysyłki maila.
-    let analyticsError = null;
     try {
       await incrementStat(stats, "access_request");
       await incrementMap(stats, "geo_access_request", requestCountryCode);
@@ -123,18 +125,13 @@ exports.handler = async (event, context) => {
 
     // Save mail delivery diagnostics in the existing request/user records.
     // The access request remains valid even if email delivery fails.
-    await requests.set(requestKey, JSON.stringify({
-      ...baseRecord,
-      emailSent: mailResult.sent,
-      emailError: mailResult.error || null,
-      emailCheckedAt: Date.now()
-    }));
-    await users.set(email, JSON.stringify({
-      ...userData,
-      notificationEmailSent: mailResult.sent,
-      notificationEmailError: mailResult.error || null,
-      notificationEmailCheckedAt: Date.now()
-    }));
+    try {
+      await requests.set(requestKey, JSON.stringify({...baseRecord,emailSent:mailResult.sent,emailError:mailResult.error||null,emailCheckedAt:Date.now()}));
+      await atomicStats.mutateText(users,email,raw=>{
+        const latest=safeJson(raw)||userData;
+        return JSON.stringify({...latest,notificationEmailSent:mailResult.sent,notificationEmailError:mailResult.error||null,notificationEmailCheckedAt:Date.now()});
+      });
+    } catch(e) { console.error('access notification diagnostic write error',e); }
 
     return json(200, {
       ok: true,
@@ -161,9 +158,11 @@ async function sendRequestEmail({ email, createdAt, repeated, requestCount, requ
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
+      signal: AbortSignal.timeout(12000),
       headers: {
         "Authorization": "Bearer " + process.env.RESEND_API_KEY,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Idempotency-Key": "sb-request-" + require("node:crypto").createHash("sha256").update(email+"|"+createdAt).digest("hex")
       },
       body: JSON.stringify({
         from,
@@ -180,33 +179,22 @@ async function sendRequestEmail({ email, createdAt, repeated, requestCount, requ
   }
 }
 
-async function appendRequestQueue(store, item) {
-  const key = "access_requests_queue_v2";
-  const raw = await store.get(key);
-  let arr = [];
-  try { arr = raw ? JSON.parse(raw) : []; } catch { arr = []; }
-  if (!Array.isArray(arr)) arr = [];
-  arr.push(item);
-  // Zachowujemy ostatnie 500 zgłoszeń; nie wpływa to na stare rekordy użytkowników ani stare statystyki.
-  if (arr.length > 500) arr = arr.slice(-500);
-  await store.set(key, JSON.stringify(arr));
+async function appendRequestQueue(store,item) {
+  await atomicStats.mutateText(store,'access_requests_queue_v2',raw=>{
+    let arr;try{arr=JSON.parse(raw||'[]');}catch{arr=[];}
+    if(!Array.isArray(arr))arr=[];
+    return JSON.stringify([...arr,item].slice(-500));
+  });
 }
 
-async function incrementStat(store, key) {
-  const raw = await store.get(key);
-  const n = raw ? parseInt(raw, 10) : 0;
-  const next = Number.isFinite(n) ? n + 1 : 1;
-  await store.set(key, String(next));
-  return next;
-}
+async function incrementStat(store,key){return atomicStats.increment(store,key);}
 
-async function incrementRequestCounter(store, now) {
-  const key = "payment_clicks_total"; // legacy key retained for historical/admin compatibility
-  const raw = await store.get(key);
-  const previous = safeJson(raw);
-  const total = Math.max(0, Number(previous?.total) || 0) + 1;
-  await store.set(key, JSON.stringify({ total, updatedAt: now, kind: "access_requests" }));
-  return total;
+async function incrementRequestCounter(store,now) {
+  const value=await atomicStats.mutateText(store,'payment_clicks_total',raw=>{
+    const old=safeJson(raw);
+    return JSON.stringify({total:Math.max(0,Number(old?.total)||0)+1,updatedAt:now,kind:'access_requests'});
+  });
+  return JSON.parse(value).total;
 }
 
 function safeJson(value) {
@@ -232,16 +220,7 @@ function requestCountry(event, context) {
     4
   );
 }
-async function incrementMap(store, key, label) {
-  const raw = await store.get(key);
-  let map = {};
-  try { map = raw ? JSON.parse(raw) : {}; } catch { map = {}; }
-  if (!map || typeof map !== "object" || Array.isArray(map)) map = {};
-  const k = normCode(label);
-  map[k] = Math.max(0, Number(map[k]) || 0) + 1;
-  await store.set(key, JSON.stringify(map));
-  return map[k];
-}
+async function incrementMap(store,key,label){return atomicStats.incrementMap(store,key,label);}
 function json(statusCode, obj) {
   return {
     statusCode,

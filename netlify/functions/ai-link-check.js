@@ -44,6 +44,11 @@ ${JSON.stringify(urlFacts, null, 2)}
 
 Important:
 - Base claims about the URL structure on the facts above.
+- State the EXACT destination hostname. Text before @ is userinfo, NEVER the destination host; @ is not part of the hostname.
+- If embeddedDomainCandidates contains a familiar domain followed by more labels, explicitly explain that it is NOT that domain or its subdomain; it is under the additional suffix. Do not call this merely a suspicious word such as login.
+- If hasUserinfo, embeddedDomainCandidates is nonempty, usesIpAddress, hasPunycode or nonWebProtocol is true, explain the specific signal. NEVER say "no warning signs" in the same answer.
+- reservedExampleHost means a reserved documentation/test address, not a real production bank/government site. Explain that no real official service can be verified from it; do not infer fraud solely from a test suffix.
+- End with a proportionate safe step. For a disguised login destination, advise not entering passwords, codes or payment details and using an independently known official address.
 - Do not claim that a site is officially owned by a company or institution unless that is actually established.
 - Do not claim that malware, phishing databases, certificates, redirects or live website content were checked unless such data is explicitly provided.
 - HTTPS alone does not prove a site is trustworthy.
@@ -108,6 +113,10 @@ function inspectUrl(raw) {
     validUrl: false,
     protocol: "",
     hostname: "",
+    hasUserinfo: false,
+    embeddedDomainCandidates: [],
+    reservedExampleHost: false,
+    nonWebProtocol: false,
     port: "",
     pathname: "",
     hasHttps: false,
@@ -125,10 +134,18 @@ function inspectUrl(raw) {
     facts.normalized = u.href;
     facts.protocol = u.protocol.replace(":", "");
     facts.hostname = u.hostname.toLowerCase();
+    facts.hasUserinfo = !!(u.username || u.password);
+    facts.nonWebProtocol = !['https:','http:'].includes(u.protocol);
+    facts.reservedExampleHost = /(?:^|\.)(example|test|invalid|localhost)$/.test(facts.hostname) || /(?:^|\.)example\.(com|net|org)$/.test(facts.hostname);
+    // Known roots only: guessing a registrable domain from the last two labels
+    // produces false alarms for public suffixes such as gov.uk and co.uk.
+    const knownRoots = ['rijksoverheid.nl','government.nl','digid.nl','belastingdienst.nl','ing.nl','rabobank.nl','abnamro.nl','gov.uk','gov.pl'];
+    facts.embeddedDomainCandidates = knownRoots.filter(root =>
+      (facts.hostname.startsWith(root+'.') || facts.hostname.includes('.'+root+'.')) && facts.hostname !== root && !facts.hostname.endsWith('.'+root));
     facts.port = u.port || "";
     facts.pathname = u.pathname || "/";
     facts.hasHttps = u.protocol === "https:";
-    facts.usesIpAddress = /^\[?[0-9a-f:.]+\]?$/i.test(u.hostname);
+    facts.usesIpAddress = require('node:net').isIP(u.hostname.replace(/^\[|\]$/g,'')) !== 0;
     facts.hasPunycode = u.hostname.includes("xn--");
     facts.veryLongHostname = u.hostname.length > 60;
     facts.manySubdomains = u.hostname.split(".").length > 4;
@@ -165,7 +182,8 @@ async function callOpenAIText(apiKey, prompt) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: "gpt-4.1-mini",
+      store: false,
       temperature: 0.2,
       max_output_tokens: 1200,
       input: prompt
@@ -174,6 +192,7 @@ async function callOpenAIText(apiKey, prompt) {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`OpenAI error ${res.status}: ${JSON.stringify(data)}`);
+  if (data.status === 'incomplete' || data.error) throw new Error('Incomplete link analysis');
 
   const text =
     data.output_text ||
@@ -183,3 +202,5 @@ async function callOpenAIText(apiKey, prompt) {
 
   return { text:String(text || "").trim(), data };
 }
+
+exports.inspectUrl = inspectUrl;

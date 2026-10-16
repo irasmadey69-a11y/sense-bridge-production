@@ -3,22 +3,22 @@ exports.handler=async(event)=>{try{
   if(event.httpMethod!=="POST")return json(405,{ok:false,error:"Method not allowed"});
   const body=JSON.parse(event.body||"{}"); const adminPin=String(body.adminPin||"");
   if(!process.env.ADMIN_PIN||adminPin!==process.env.ADMIN_PIN)return json(403,{ok:false,error:"Wrong admin PIN"});
-  const store=getStore({name:"sb-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
-  const requestStats=getStore({name:"sb-payment-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
-  const keys=["visits","analyzes","app_open","shortcut_add","ocr_use","return_user","analysis_use","access_request","access_request_unique","access_info_open","free_limit_reached","access_grant_3","access_grant_time","access_granted","ai_screenshot","ai_link","ai_message","ai_reply","ai_conversation","ai_contract","ai_doc_pdf","ai_doc_form","ai_doc_photo","ai_doc_bill","ai_doc_exercise","ai_doc_options","ai_doc_question","ai_doc_job","ai_job_ask","ai_job_apply","ai_job_conversation","ai_doc_unknown","ai_error"];
+  const store=getStore({consistency:"strong",name:"sb-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
+  const requestStats=getStore({consistency:"strong",name:"sb-payment-stats",siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_AUTH_TOKEN});
+  const keys=["visits","analyzes","app_open","shortcut_add","shortcut_click","ocr_use","return_user","analysis_use","access_request","access_request_unique","access_info_open","free_limit_reached","access_grant_3","access_grant_time","access_granted","ai_screenshot","ai_link","ai_message","ai_reply","ai_conversation","ai_contract","ai_doc_pdf","ai_doc_form","ai_doc_photo","ai_doc_bill","ai_doc_exercise","ai_doc_options","ai_doc_question","ai_doc_job","ai_job_ask","ai_job_apply","ai_job_conversation","ai_doc_unknown","ai_error"];
   const vals={}; await Promise.all(keys.map(async k=>{vals[k]=await getCount(store,k)}));
   const breakEvents=["visits","app_open","analysis_use","access_info_open","free_limit_reached","access_request","access_grant_3","access_grant_time"];
   const legacyRequestRaw=await requestStats.get("payment_clicks_total");
   let legacyRequestTotal=0;
   try{ const r=legacyRequestRaw?JSON.parse(legacyRequestRaw):{}; legacyRequestTotal=Math.max(0,Number(r?.total)||0); }catch(_){ legacyRequestTotal=0; }
-  const accessRequestsTotal=Math.max(vals.access_request,legacyRequestTotal);
+  const accessRequestsTotal=vals.access_request;
   const country={},language={};
   await Promise.all(breakEvents.flatMap(ev=>[
     readMap(store,"geo_"+ev).then(v=>country[ev]=v),
     readMap(store,"lang_"+ev).then(v=>language[ev]=v)
   ]));
   return json(200,{ok:true,
-    visits:vals.visits,analyzes:vals.analyzes,appOpens:vals.app_open,shortcutAdds:vals.shortcut_add,ocrUses:vals.ocr_use,returnUsers:vals.return_user,
+    visits:vals.visits,analyzes:vals.analyzes,appOpens:vals.app_open,shortcutAdds:vals.shortcut_add,shortcutClicks:vals.shortcut_click,ocrUses:vals.ocr_use,returnUsers:vals.return_user,
     analysisUses:vals.analysis_use,accessRequests:accessRequestsTotal,legacyAccessRequests:legacyRequestTotal,uniqueAccessRequesters:vals.access_request_unique,accessInfoOpens:vals.access_info_open,freeLimitReached:vals.free_limit_reached,
     accessGrant3:vals.access_grant_3,accessGrantTime:vals.access_grant_time,accessGranted:vals.access_granted,
     aiScreenshot:vals.ai_screenshot,aiLink:vals.ai_link,aiMessage:vals.ai_message,aiReply:vals.ai_reply,aiConversation:vals.ai_conversation,aiContract:vals.ai_contract,
