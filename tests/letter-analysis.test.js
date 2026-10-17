@@ -122,3 +122,15 @@ test('German dotted dates and Dutch dotted times are not mistaken for invented m
  const result={summary:'Wizyta 19 listopada 2026 o 11:30.',actions:[],facts:[],calculations:[]};
  engine.validateCriticalFacts(result,'Termin 19.11.2026, 11.30 uur.');
 });
+
+test('fractional model confidence is normalized to percentage points and existing percentages stay unchanged',async()=>{
+ const d=fixture.draft(),r=fixture.review();d.fraudRisk.confidence=0.9;r.fraudRisk.confidence=0.9;
+ const output=await harness([d,r]).run();assert.equal(output.fraudRisk.confidence,90);
+ const other=fixture.review();other.fraudRisk.confidence=75;
+ assert.equal((await harness([fixture.draft(),other]).run()).fraudRisk.confidence,75);
+});
+test('both model passes explicitly keep phishing threats attributed and confidence uses a percentage scale',async()=>{
+ const h=harness([fixture.draft(),fixture.review()]);await h.run();
+ for(const req of h.requests){assert.match(req.input[0].content,/EVERY threat or claimed consequence/);assert.match(req.input[0].content,/90, not 0.9/);}
+ assert.match(h.requests[1].input[1].content,/unverified claims, not established outcomes/);
+});
