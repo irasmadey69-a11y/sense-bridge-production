@@ -4428,6 +4428,7 @@ body.dark-mode .sb-job-context input,body.dark-mode .sb-job-context select,body.
   </div>
 </div>
 
+<script src="/letter-request.js?v=20261016-evidence-1"></script>
 <script>
 
 let sbModalResolve = null;
@@ -6966,13 +6967,27 @@ function sbPolishResultView(data){
   }
 }
 
+function sbClearLetterResult(){
+ if(typeof sbClearQuickResultCards==='function')sbClearQuickResultCards();
+ if(typeof sbShowNewAnalysis==='function')sbShowNewAnalysis(false);
+ for(const id of ['translation','summary','examples','examplesDoc','risks','actions','consequences','help','helpLinks','institutionBox','legalStatus','urgencyBox','fraudRiskBox']){
+  const el=document.getElementById(id);if(el)el.textContent='';
+ }
+ const top=document.getElementById('topInsightBox');if(top){top.textContent='';top.style.display='none';}
+ const separator=document.getElementById('sbSummarySeparator');if(separator)separator.style.display='none';
+ const fraud=document.getElementById('fraudCard');if(fraud){fraud.style.display='none';fraud.removeAttribute('open');}
+ for(const id of ['summaryAccordion','risksAccordion','examplesAccordion','examplesDocAccordion']){
+  const el=document.getElementById(id);if(el)el.removeAttribute('open');
+ }
+}
+
 async function analyze(){
   if (!checkPaywall()) return;
 
   const btn = document.getElementById("btnAnalyze");
   const statusEl = document.getElementById("analyzeStatus");
   btn.disabled = true;
-  if(typeof sbClearQuickResultCards === "function") sbClearQuickResultCards();
+  sbClearLetterResult();
   if(typeof sbProgressSet === "function") sbProgressSet(1, "statusPreparing");
 
   try{
@@ -6996,18 +7011,9 @@ if(!text){
 
     if(typeof window.sbEnterAnalysisFocus === "function") window.sbEnterAnalysisFocus();
     if(typeof sbProgressSet === "function") sbProgressSet(3, "statusAnalyzing");
-    const res = await fetch(ENDPOINTS.analyze,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ text, sourceLang, userLang, outputRegion:sbRegionCode(userLang), mode:"letter", accessType:sbTelemetryAccessType() })
-    });
+    const data = await window.SBLetterRequest.request(ENDPOINTS.analyze,{text,sourceLang,userLang,outputRegion:sbRegionCode(userLang),mode:'letter',accessType:sbTelemetryAccessType()});
 
-    const data = await res.json();
-    if(!res.ok){
-      throw new Error((data && (data.error || data.message)) ? (data.error || data.message) : ("HTTP " + res.status));
-    }
-
-    if(typeof sbApplyTrustedDomainRiskConsistency === "function") {
+    if(!data.pipeline && typeof sbApplyTrustedDomainRiskConsistency === "function") {
       sbApplyTrustedDomainRiskConsistency(data, text);
     }
 
@@ -7174,14 +7180,19 @@ if (helpLinksBox) {
     if(ex.neutral) parts.push(sbResultText("replyNeutral", rLang) + ":\n" + ex.neutral);
     if(ex.polite)  parts.push(sbResultText("replyPolite", rLang) + ":\n" + ex.polite);
     if(ex.firm)    parts.push(sbResultText("replyFirm", rLang) + ":\n" + ex.firm);
-    document.getElementById("examples").textContent = parts.join("\n\n");
+    document.getElementById("examples").textContent = parts.join("\n\n") || data.replyGuidance || "";
+    const documentRepliesCard=document.getElementById("examplesDocAccordion");
+    if(documentRepliesCard)documentRepliesCard.style.display=data.replyIntent==="NO_REPLY"?"none":"";
 
     const examplesDocEl = document.getElementById("examplesDoc");
 
-let docText = "";
+let docText = '';
+if(data.repliesDocument && data.replyIntent!=='NO_REPLY'){
+ const r=data.repliesDocument;docText=[r.neutral,r.polite,r.firm].filter(Boolean).join('\n\n');
+}
 const docTargetLang = sourceLang !== "AUTO" ? sourceLang : (data.detectedLang || data.language || "");
 
-if (docTargetLang && docTargetLang !== userLang && parts.length > 0) {
+if (!data.pipeline && docTargetLang && docTargetLang !== userLang && parts.length > 0) {
   try {
     const trDocRes = await fetch(ENDPOINTS.translate, {
       method: "POST",
@@ -7216,7 +7227,7 @@ if (examplesDocEl) {
 
     let translation = (data.translation || data.translatedText || data.translated || "").trim();
 
-    if(!translation){
+    if(!translation && !data.pipeline){
       const trRes = await fetch(ENDPOINTS.translate,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
@@ -7248,7 +7259,9 @@ fetch("/.netlify/functions/analyze_count", {
     (quickBox || document.getElementById("translation")).scrollIntoView({behavior:"smooth"});
   } catch (e){
     if(statusEl){ statusEl.textContent = "❌ " + (typeof sbUx10Text === "function" ? sbUx10Text("statusError", sbGetResultLang()) : "Błąd analizy"); }
-    sbShowNotice(((UI&&UI.dict&&UI.dict[UI.lang]&&UI.dict[UI.lang].error)||"Error: ") + (e?.message || e));
+    trackEvent("analysis_error");
+    sbClearLetterResult();
+    sbShowNotice(window.SBLetterRequest.message(UI.lang,e?.code));
   } finally {
     btn.disabled = false;
     setTimeout(() => {

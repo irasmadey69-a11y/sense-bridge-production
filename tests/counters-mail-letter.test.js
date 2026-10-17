@@ -29,12 +29,13 @@ test('concurrent counters/maps preserve every increment and legacy values',async
  await Promise.all(Array.from({length:20},()=>a.incrementMap(s,'langs','PL')));
  assert.equal(JSON.parse(await s.get('langs')).PL,20);
 });
-test('all 28 permitted client events reach the matching admin field exactly once',async()=>{
+test('all 29 permitted client events reach the matching admin field exactly once',async()=>{
  const db=storage(),track=load('track_event.js',db),stats=load('stats.js',db);
- const pairs={app_open:'appOpens',shortcut_add:'shortcutAdds',shortcut_click:'shortcutClicks',ocr_use:'ocrUses',return_user:'returnUsers',analysis_use:'analysisUses',access_request:'accessRequests',access_info_open:'accessInfoOpens',free_limit_reached:'freeLimitReached',ai_screenshot:'aiScreenshot',ai_link:'aiLink',ai_message:'aiMessage',ai_reply:'aiReply',ai_conversation:'aiConversation',ai_contract:'aiContract',ai_doc_pdf:'aiDocPdf',ai_doc_form:'aiDocForm',ai_doc_photo:'aiDocPhoto',ai_doc_bill:'aiDocBill',ai_doc_exercise:'aiDocExercise',ai_doc_options:'aiDocOptions',ai_doc_question:'aiDocQuestion',ai_doc_job:'aiDocJob',ai_job_ask:'aiJobAsk',ai_job_apply:'aiJobApply',ai_job_conversation:'aiJobConversation',ai_doc_unknown:'aiDocUnknown',ai_error:'aiErrors'};
+ const pairs={app_open:'appOpens',shortcut_add:'shortcutAdds',shortcut_click:'shortcutClicks',ocr_use:'ocrUses',return_user:'returnUsers',analysis_use:'analysisUses',access_request:'accessRequests',access_info_open:'accessInfoOpens',free_limit_reached:'freeLimitReached',ai_screenshot:'aiScreenshot',ai_link:'aiLink',ai_message:'aiMessage',ai_reply:'aiReply',ai_conversation:'aiConversation',ai_contract:'aiContract',ai_doc_pdf:'aiDocPdf',ai_doc_form:'aiDocForm',ai_doc_photo:'aiDocPhoto',ai_doc_bill:'aiDocBill',ai_doc_exercise:'aiDocExercise',ai_doc_options:'aiDocOptions',ai_doc_question:'aiDocQuestion',ai_doc_job:'aiDocJob',ai_job_ask:'aiJobAsk',ai_job_apply:'aiJobApply',ai_job_conversation:'aiJobConversation',ai_doc_unknown:'aiDocUnknown',ai_error:'aiErrors',analysis_error:'letterErrors'};
  for(const e of Object.keys(pairs))assert.equal((await run(track,{event:e,lang:'PL'})).ok,true,e);
  const result=await run(stats,{adminPin:'test-pin'});
- for(const [e,field] of Object.entries(pairs))assert.equal(result[field],1,e+' -> '+field);
+ for(const [e,field] of Object.entries(pairs))assert.equal(result[field],field==='aiErrors'?2:1,e+' -> '+field);
+ assert.equal(result.aiToolErrors,1);
  assert.equal(result.breakdown.language.analysis_use.PL,1);assert.equal(result.breakdown.country.analysis_use.NL,1);
  assert.equal((await run(track,{event:'not-an-event'})).ok,false);
  assert.equal((await run(stats,{adminPin:'wrong'})).ok,false);
@@ -95,14 +96,11 @@ test('admin user counts use effective expiry and preserve blocked/beta/bonus',as
  const r=await run(load('admin_list.js',db),{adminPin:'test-pin'});
  assert.equal(r.count,6);for(const key of ['ACTIVE','EXPIRED','BLOCKED','BETA','BONUS','PENDING'])assert.equal(r.counts[key],1);
 });
-test('main letter uses the reviewed facts and does not add a payment promise',async()=>{
- const db=storage(),calls=[];
- const base={detectedLang:'PL',translation:'',summary:'Pismo dotyczy uzupełnienia dokumentów.',documentTone:'formalny',responseRequired:'YES',urgency:'MEDIUM',actions:[],consequences:[],risks:[],help:[],helpLinks:[],nextSteps:[],legalHelpNeeded:'NONE',fraudRisk:{level:'LOW',confidence:30,label:'Brak silnych sygnałów',summary:'Nie potwierdzono autentyczności.',signals:[],suspiciousElements:[],safeSteps:[]},institution:{name:'',country:'',officialWebsite:'',confidence:0},detectedLinks:[],suspiciousLinks:[],detectedPhones:[],replies:{neutral:'Dziękuję za wiadomość. Proszę o wyjaśnienie.',polite:'Uprzejmie dziękuję za wiadomość. Proszę o wyjaśnienie.',firm:'Proszę o jednoznaczne wyjaśnienie wiadomości.'}};
- const checked={...base,summary:'Według pisma: pozostało 60 EUR do 30 listopada 2026; kopia zaświadczenia przed 20 listopada 2026.',actions:['Sprawdź informację o wpłacie 40 EUR i pozostałych 60 EUR.','Dostarcz kopię zaświadczenia przed 20 listopada 2026.']};
- const replies=[base,checked];
- const h=load('analyze.js',db,async(_url,options)=>{calls.push(JSON.parse(options.body));assert.ok(replies.length,'unexpected extra API call');return {ok:true,json:async()=>({status:'completed',output_text:JSON.stringify(replies.shift())})};});
- const r=await run(h,{text:'Przykład: 100 EUR minus wpłata 40 EUR. Pozostało 60 EUR do 30 listopada 2026. Kopia zaświadczenia przed 20 listopada 2026. Nie opisano kar ani konsekwencji. Nie podano zamiaru odpowiedzi użytkownika.',userLang:'PL',sourceLang:'PL'});
- assert.equal(r.ok,true);assert.match(r.summary,/60 EUR/);assert.match(r.summary,/20 listopada/);assert.equal(r.consequences.length,0);assert.doesNotMatch(JSON.stringify(r.replies),/Potwierdzam obecność|Zobowiązuję/);assert.ok(calls.length>=2);assert.match(calls[1].input,/QUALITY REVIEW/);assert.equal(calls[0].store,false);
+test('main handler uses the evidence pipeline and reviewed facts without extra translation requests',async()=>{
+ const fixture=require('./letter-fixtures');const db=storage(),calls=[],values=[fixture.draft(),fixture.review()];
+ const h=load('analyze.js',db,async(_url,options)=>{calls.push(JSON.parse(options.body));assert.ok(values.length);return fixture.api(values.shift());});
+ const r=await run(h,{text:fixture.source,userLang:'PL',sourceLang:'PL'});
+ assert.equal(r.ok,true);assert.match(r.summary,/60 EUR/);assert.match(r.actions[0],/Jeśli.*przed 20 listopada/);assert.equal(r.consequences.length,0);assert.equal(calls.length,2);assert.equal(r.pipeline,'letter-evidence-v1');
 });
 test('browser event tracking sends the lexical language to the same deployment',async()=>{
  const src=fs.readFileSync(path.join(dir,'../../index.html'),'utf8');const a=src.indexOf('  async function trackEvent(eventName)'),b=src.indexOf('let deferredPrompt',a);const calls=[];
