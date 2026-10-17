@@ -7182,7 +7182,7 @@ if (helpLinksBox) {
     if(ex.firm)    parts.push(sbResultText("replyFirm", rLang) + ":\n" + ex.firm);
     document.getElementById("examples").textContent = parts.join("\n\n") || data.replyGuidance || "";
     const documentRepliesCard=document.getElementById("examplesDocAccordion");
-    if(documentRepliesCard)documentRepliesCard.style.display=data.replyIntent==="NO_REPLY"?"none":"";
+    if(documentRepliesCard)documentRepliesCard.style.display=["NO_REPLY","MANUAL_REPLY"].includes(data.replyIntent)?"none":"";
 
     const examplesDocEl = document.getElementById("examplesDoc");
 
