@@ -149,7 +149,7 @@ async function analyze(options){
  const budget=Math.min(45000,Math.max(100,options.timeoutMs||45000));
  let rejectDeadline;const deadline=new Promise((_,reject)=>{rejectDeadline=reject;});
  const timer=setTimeout(()=>{controller.abort();rejectDeadline(failure('LETTER_TIMEOUT',504));},budget);
- const usage=[];let telemetryLanguage=sourceLang;
+ const usage=[];let telemetryLanguage=sourceLang;let validationStage="DRAFT";
  async function call(schema,prompt,feature,maxTokens){
   controller.signal.throwIfAborted();
   const res=await fetcher('https://api.openai.com/v1/responses',{
@@ -174,12 +174,18 @@ async function analyze(options){
   const source=String(draft.detectedLang||'UNKNOWN').toUpperCase();telemetryLanguage=source;
   if(applySecurity)applySecurity(draft,'draft',source);
   const reviewCandidate={...draft};delete reviewCandidate.translation;delete reviewCandidate.facts;
+  validationStage="REVIEW";
   const checked=await call(reviewSchema,`FACT CHECK AND FINAL WORDING. Return the final corrected fields, not comments. Independently compare every claim to ORIGINAL. Recheck omitted/replaced amounts, BEFORE vs BY, optional vs required documents, explicit vs invented consequences, correct recipient perspective and identical noncommittal reply intent. The candidate may be wrong. Return corrected facts, and include all CURRENT monetary/date/appointment facts in summary or actions, keeping superseded facts marked SUPERSEDED. Verify that translation is complete and preserves all negations, conditions, dates and amounts. translationCorrection is empty when translation is correct; otherwise return the COMPLETE corrected translation. verified must be false if reliable completion is impossible. Do not lower a source-backed HIGH credential-theft risk. Check every sentence of summary and consequences: a suspected scammer's threats are unverified claims, not established outcomes. Correct unconditional wording such as 'your account will be blocked' to explicitly attributed wording.\nORIGINAL DATA:\n${JSON.stringify(text)}\nFACTS:\n${JSON.stringify(draft.facts)}\nTRANSLATION:\n${JSON.stringify(draft.translation)}\nDRAFT ISSUES:\n${JSON.stringify(draftIssues)}\nCANDIDATE:\n${JSON.stringify(reviewCandidate)}`,'LETTER_ANALYSIS',5000);
+  validationStage="REVIEW_COMPLETENESS";
   if(!checked.verified||!checked.translationComplete)throw failure('LETTER_UNVERIFIED');
+  validationStage="SOURCE_EVIDENCE";
   validateEvidence(checked,text);
+  validationStage="CRITICAL_FACTS";
   validateCriticalFacts(checked,text);
+  validationStage="TRANSLATION";
   const translation=checked.translationCorrection.trim()||draft.translation;
   if(!translationTokensPresent(text,translation))throw failure('LETTER_UNVERIFIED');
+  validationStage="SECURITY";
   if(applySecurity)applySecurity(checked,'final',source);
   // Local security recognition may raise risk, but must not rewrite reviewed prose.
   const rank={UNKNOWN:0,LOW:1,MEDIUM:2,HIGH:3};
@@ -187,13 +193,14 @@ async function analyze(options){
   if(hardCredentialRequest(text)&&checked.fraudRisk.level!=='HIGH')throw failure('LETTER_UNVERIFIED');
   if(checked.fraudRisk.level==='HIGH')checked.replyIntent='NO_REPLY';
   if(checked.replyIntent==='NO_REPLY'&&!checked.replyGuidance.trim())throw failure('LETTER_INCOMPLETE');
+  validationStage="REPLY_INTENT";
   if(checked.replyIntent==='ACKNOWLEDGE_ONLY'){
    for(const replies of [checked.replies,checked.repliesDocument])for(const tone of ['neutral','polite','firm']){if(!replies[tone].trim())throw failure('LETTER_INCOMPLETE');if(replyViolatesIntent(replies[tone]))throw failure('LETTER_UNVERIFIED');}
   }
   return project(checked,source===userLang&&!outputRegion?text:translation,source,userLang,sourceLang);
  }
  try{return await Promise.race([run(),deadline]);}
- catch(e){if(controller.signal.aborted)throw failure('LETTER_TIMEOUT',504);throw e;}
+ catch(e){if(controller.signal.aborted)throw failure('LETTER_TIMEOUT',504);e.validationStage=validationStage;throw e;}
  finally{
   clearTimeout(timer);controller.abort();
   const jobs=usage.map(({data,feature})=>Promise.resolve().then(()=>recordUsage(event,context,data,{feature,uiLang:userLang,documentLang:telemetryLanguage,accessType:options.accessType,model:MODEL})).catch(()=>{}));

@@ -639,7 +639,7 @@ detectedPhones,
 
     return json(200, headers, payload);
   } catch (err) {
-    return json(err?.statusCode || 500, corsHeaders(), { ok: false, errorCode:err?.code || "ANALYSIS_FAILED", error: err?.code ? "Document analysis could not be completed." : "Analysis service unavailable." });
+    return json(err?.statusCode || 500, corsHeaders(), { ok: false, errorCode:err?.code || "ANALYSIS_FAILED", validationStage:err?.validationStage || "", error: err?.code ? "Document analysis could not be completed." : "Analysis service unavailable." });
   }
 };
 
