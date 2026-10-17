@@ -72,6 +72,14 @@ exports.handler = async (event, context) => {
       return json(200, headers, { ok:true, userLang, sourceLang, detectedLang:checked.detectedLang, smartResult, summary:checked.analysis, translation:checked.translation });
     }
 
+    if (mode === 'letter') {
+      const result = await require('./_letter-analysis').analyze({
+        key:apiKey,text,userLang,sourceLang,outputRegion:body.outputRegion,event,context,accessType,fetcher:fetch,recordUsage,
+        applySecurity:(candidate,stage,detected)=>applyLetterSecurity(candidate,text,userLang,stage,detected)
+      });
+      return json(200,headers,result);
+    }
+
     const analysisPrompt = `
 ${buildModePrompt(mode, userLang)}
 ${buildSmartResultInstruction(mode, userLang)}
@@ -329,10 +337,7 @@ ${text}
 
     const analysisSignal = AbortSignal.timeout(45000);
     let modelJson = await callOpenAIJsonObject(apiKey, analysisPrompt, analysisSignal);
-    if (mode === 'letter') {
-      if(modelJson.__sbResponseData) await recordUsage(event, context, modelJson.__sbResponseData, { ...usageBase, feature:'LETTER_DRAFT', documentLang:modelJson.detectedLang||'UNKNOWN', model:modelJson.__sbResponseData.model||'gpt-4.1-mini' });
-      modelJson = await callOpenAIJsonObject(apiKey, analysisPrompt + '\n\nQUALITY REVIEW: Independently check the candidate against the ORIGINAL TEXT above. Correct every omitted amount/date, unsupported consequence, false country attribution and invented contact. Preserve all conditions, replaced dates, separate deadlines and payment corrections. Make all three replies share one intent and never commit the user without stated intent. Do not infer authenticity from appearance. Return the FULL corrected JSON object with the same fields, including complete translation. Return no review comments.\nCANDIDATE:\n' + JSON.stringify(modelJson), analysisSignal);
-    }
+
 
     if (!modelJson || typeof modelJson.summary !== 'string' || !modelJson.summary.trim() || !Array.isArray(modelJson.actions) || !modelJson.replies || typeof modelJson.replies !== 'object') throw new Error('Incomplete letter result');
     const detectedLang = str(modelJson.detectedLang || "UNKNOWN").toUpperCase();
@@ -634,9 +639,48 @@ detectedPhones,
 
     return json(200, headers, payload);
   } catch (err) {
-    return json(500, corsHeaders(), { ok: false, error: String(err?.message || err) });
+    return json(err?.statusCode || 500, corsHeaders(), { ok: false, errorCode:err?.code || "ANALYSIS_FAILED", error: err?.code ? "Document analysis could not be completed." : "Analysis service unavailable." });
   }
 };
+
+
+function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
+  const originalLevel=String(candidate.fraudRisk?.level||'UNKNOWN');
+  const fraudRisk=normalizeFraudRisk(JSON.parse(JSON.stringify(candidate.fraudRisk)),userLang);
+  const institution=normalizeInstitution(candidate.institution);
+  const detectedLinks=arr(candidate.detectedLinks).filter(link=>String(text).includes(link));
+  const quote=String(candidate.institution.quote||'');
+  const validQuote=require('./_letter-analysis').sourceContains(text,quote);
+  const registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>sbSameInstitutionNameV2(institution.name,item.name)&&item.patterns.some(pattern=>pattern.test(quote)));
+  const escapedName=String(institution.name||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const namedInQuote=institution.name && new RegExp('(?:^|[^\\p{L}\\p{N}])'+escapedName+'(?:$|[^\\p{L}\\p{N}])','iu').test(quote);
+  if(!validQuote||(!registryEntry&&!namedInQuote))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
+  if(registryEntry)Object.assign(institution,{name:registryEntry.name,country:registryEntry.country,officialWebsite:registryEntry.officialWebsite});
+  if(!registryEntry&&namedInQuote&&sbHasEtzEvidence(quote)&&sbHasEtzEvidence(institution.name))applyKnownInstitutionFix(institution,quote);
+  const ctx={text,userLang,fraudRisk,institution,detectedLinks,suspiciousLinks:arr(candidate.suspiciousLinks),matchedSuspiciousLinks:[],suspiciousPhoneMatches:[],risks:[],consequences:[],help:[],urgency:candidate.urgency,legalHelpFinal:candidate.legalHelpNeeded};
+  sbApplyFraudLogicSyncV8(ctx);
+  sbApplyInstitutionImpersonationPatchV1(ctx);
+  sbApplyGlobalImpersonationHighGuardV1(ctx);
+  sbApplyGlobalScamLayerV1(ctx);
+  const rank={UNKNOWN:0,LOW:1,MEDIUM:2,HIGH:3};
+  if(stage==='draft' && rank[fraudRisk.level]>rank[originalLevel])candidate.fraudRisk=fraudRisk;
+  if(stage==='final' && rank[fraudRisk.level]>rank[originalLevel]){
+    const error=new Error('LETTER_UNVERIFIED');error.code='LETTER_UNVERIFIED';error.statusCode=502;throw error;
+  }
+  if(require('./_analysis-grounding').genericName(institution.name))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
+  if(institution.name){
+    const entry=sbGlobalInstitutionRegistryV2().find(item=>item.name===institution.name);
+    if(!entry){
+      const country=String(institution.country||'').toUpperCase();
+      let names=[];
+      for(const locale of ['en','nl','de','fr','pl','es','it','pt',(detectedLang||candidate.detectedLang)?.toLowerCase()]){try{names.push(new Intl.DisplayNames([locale],{type:'region'}).of(country));}catch{}}
+      const supported=names.some(name=>name && new RegExp('(?:^|[^\\p{L}])'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:$|[^\\p{L}])','iu').test(text));
+      if(!supported)institution.country='';
+      if(institution.officialWebsite&&!String(text).includes(institution.officialWebsite))institution.officialWebsite='';
+    }
+    if(quote && require('./_letter-analysis').sourceContains(text,quote))candidate.institution={...institution,quote};
+  } else candidate.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:''};
+}
 
 /* ---------------- helpers ---------------- */
 
