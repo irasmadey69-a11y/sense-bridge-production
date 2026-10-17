@@ -63,8 +63,11 @@ test('recipient commitments and adviser perspective are rejected across common l
  for(const s of ['Potwierdzam swoją obecność.','Proszę o potwierdzenie mojej obecności.','Chętnie dostarczę dokumenty.','W razie potrzeby służę pomocą.','I will pay tomorrow.','Please confirm my attendance.','Ich bestätige meine Teilnahme.','Je confirme ma présence.','Ik zal betalen.'])assert.equal(engine.replyViolatesIntent(s),true,s);
  for(const s of ['Potwierdzam otrzymanie wiadomości.','Proszę o doprecyzowanie danych nadawcy.','Thank you for your letter.'])assert.equal(engine.replyViolatesIntent(s),false,s);
 });
-test('a review with an invented reply promise fails closed',async()=>{
- const r=fixture.review();r.replies.polite='Potwierdzam swoją obecność.';await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
+test('unsafe reply is withheld without discarding the verified letter analysis',async()=>{
+ const r=fixture.review();r.replies.polite='Potwierdzam swoją obecność.';
+ const out=await harness([fixture.draft(),r]).run();assert.equal(out.ok,true);assert.match(out.summary,/60 EUR/);assert.equal(out.replyIntent,'MANUAL_REPLY');assert.equal(out.responseRequired,r.responseRequired);
+ for(const replies of [out.replies,out.repliesDocument])assert.ok(Object.values(replies).every(v=>v===''));
+ assert.match(out.replyGuidance,/nie składać zobowiązań/);assert.equal(out.qualityChecked,true);
 });
 test('false institution evidence and invented URLs are not exposed',()=>{
  const d=fixture.draft();d.institution={name:'IND',country:'NL',officialWebsite:'https://ind.nl',confidence:99,quote:'indépendant'};
@@ -133,4 +136,10 @@ test('both model passes explicitly keep phishing threats attributed and confiden
  const h=harness([fixture.draft(),fixture.review()]);await h.run();
  for(const req of h.requests){assert.match(req.input[0].content,/EVERY threat or claimed consequence/);assert.match(req.input[0].content,/90, not 0.9/);}
  assert.match(h.requests[1].input[1].content,/unverified claims, not established outcomes/);
+});
+
+test('unsafe document-language reply is also withheld; invalid source evidence still fails',async()=>{
+ const r=fixture.review();r.repliesDocument.firm='I will pay tomorrow.';
+ const out=await harness([fixture.draft(),r]).run();assert.equal(out.replyIntent,'MANUAL_REPLY');assert.equal(out.replies.neutral,'');
+ r.actions[0].quotes=['Invented quote'];await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
 });
