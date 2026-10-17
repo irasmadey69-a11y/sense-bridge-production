@@ -40,7 +40,7 @@
   const work=(async()=>{
    const response=await fetcher(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw error('LETTER_UPSTREAM');}
-   if(!response.ok||data.ok===false)throw error(data.errorCode||'LETTER_UPSTREAM');
+   if(!response.ok||data.ok===false){if(data.validationStage&&root.console)root.console.warn('Sense Bridge validation stage:',data.validationStage);throw error(data.errorCode||'LETTER_UPSTREAM');}
    if(!data||typeof data!=='object'||!String(data.summary||'').trim())throw error('LETTER_INCOMPLETE');
    if(data.pipeline==='letter-evidence-v1'&&(!data.qualityChecked||!String(data.translation||'').trim()))throw error('LETTER_INCOMPLETE');
    return data;
