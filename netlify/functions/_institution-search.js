@@ -42,7 +42,8 @@ async function resolve(options){
   // Citations may follow the JSON; consume the first complete JSON object only.
   let parsed;try{parsed=parse(found);}catch{const s=output(found),start=s.indexOf('{'),end=s.lastIndexOf('}');parsed=JSON.parse(s.slice(start,end+1));}
   const institutions=validateMatches(parsed.institutions,identities,found);
-  return {ok:true,status:institutions.length?'verified':'unverified',institutions,unresolved:identities.filter(x=>!institutions.some(y=>x.name===y.name)).map(x=>x.name),checkedAt:new Date().toISOString()};
+  const previewDebug=process.env.CONTEXT==='deploy-preview'?{searchDebug:{output:output(found),citations:citations(found),calls:(found.output||[]).filter(x=>x.type==='web_search_call')}}:{};
+  return {...previewDebug,ok:true,status:institutions.length?'verified':'unverified',institutions,unresolved:identities.filter(x=>!institutions.some(y=>x.name===y.name)).map(x=>x.name),checkedAt:new Date().toISOString()};
  }catch{return {ok:true,status:'unavailable',institutions:[]};}
  finally{
   clearTimeout(timer);controller.abort();
