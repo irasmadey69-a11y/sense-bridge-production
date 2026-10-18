@@ -2137,12 +2137,20 @@ function sbFraudTextMapV8(lang) {
   return map[L] || map.PL;
 }
 
+// A second, explicitly known public-information portal is not an impersonation link.
+// This only classifies the host; it never proves the letter is authentic.
+function sbHostMatchesInstitution(host, officialHost, institution) {
+  if(host===officialHost||host.endsWith('.'+officialHost))return true;
+  const frenchHosts=['impots.gouv.fr','service-public.gouv.fr','service-public.fr'];
+  return String(institution?.country||'').toUpperCase()==='FR' && frenchHosts.includes(officialHost) && frenchHosts.includes(host);
+}
+
 function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
   const t = String(text || "").toLowerCase();
   const links = Array.isArray(detectedLinks) ? detectedLinks : [];
 
   const credential =
-    /(tan|sms[\s-]*(code|kod|codigo|c[oó]digo|codice)|password|passwort|wachtwoord|hasło|senha|palavra[-\s]?passe|login|logowanie|access code|c[oó]digo de acesso|dane dostępowe|zugangsdaten|credenciais|credenziali)/i.test(t);
+    /(\btan\b|sms[\s-]*(code|kod|codigo|c[oó]digo|codice)|password|passwort|wachtwoord|hasło|senha|palavra[-\s]?passe|login|logowanie|access code|c[oó]digo de acesso|dane dostępowe|zugangsdaten|credenciais|credenziali)/i.test(t);
 
   const timePressure =
     /((2|3|6|8|12|24)\s*(h|hours|hour|uur|stunden|ore|heures|horas|godzin)|dans un délai de\s*(2|3|6|8|12|24)\s*heures|within\s*(2|3|6|8|12|24)\s*hours|binnen\s*(2|3|6|8|12|24)\s*uur|dentro de\s*(2|3|6|8|12|24)\s*horas|entro\s*(2|3|6|8|12|24)\s*ore|immediately|urgent|urgente|dringend|sofort|natychmiast|onmiddellijk|imediatamente|immediat)/i.test(t);
@@ -2152,7 +2160,7 @@ function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
     /(suspens|suspensão|sospensione|bloqueio|blocco|blokada|sperrung).{0,90}(account|konto|rekening|conta|bank)/i.test(t);
 
   const financialBrand =
-    /(bank|banco|sparkasse|millennium|bcp|ing|rabobank|abn|paypal|creditcard|visa|mastercard|rekening|bankkonto|conta banc[aá]ria)/i.test(t);
+    /(bank|banco|sparkasse|millennium|bcp|\bing\b|rabobank|\babn\b|paypal|creditcard|\bvisa\b|mastercard|rekening|bankkonto|conta banc[aá]ria)/i.test(t);
 
   const rawSuspiciousLink =
     /(security|secure|verify|verifica|verification|verifizierung|login|check|account|konto|conta|bank|belastingdienst|digid|uwv|toeslagen|direct|betalen|controle).{0,80}\.(com|net|info|top|xyz|click|site|online|live|app)/i.test(t) ||
@@ -2165,7 +2173,7 @@ function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
     for (const link of links) {
       try {
         const host = new URL(String(link)).hostname.replace(/^www\./, "").toLowerCase();
-        if (officialHost && !host.endsWith(officialHost)) nonOfficialLink = true;
+        if (officialHost && !sbHostMatchesInstitution(host,officialHost,institution)) nonOfficialLink = true;
         if (!officialHost && /(security|verify|verifica|verification|login|check|secure)/i.test(host)) nonOfficialLink = true;
       } catch {}
     }
@@ -2242,12 +2250,12 @@ function sbDetectInstitutionImpersonationPatchV1(text, detectedLinks, institutio
   for (const link of links) {
     const host = sbHostFromLinkPatchV1(link);
     if (!host) continue;
-    if (officialHost && !host.endsWith(officialHost)) externalLinks.push(link);
+    if (officialHost && !sbHostMatchesInstitution(host,officialHost,institution)) externalLinks.push(link);
     if (!officialHost && /(secure|verify|verificatie|login|direct|betalen|payment|account|update|controle|check)/i.test(host)) externalLinks.push(link);
   }
 
   const hasExternal = externalLinks.length > 0;
-  const credential = /(tan|sms[\s-]*(code|kod)|password|passwort|wachtwoord|hasło|login|digid-login|gegevens|dane dostępowe|inloggen|log in)/i.test(t);
+  const credential = /(\btan\b|sms[\s-]*(code|kod)|password|passwort|wachtwoord|hasło|login|digid-login|gegevens|dane dostępowe|inloggen|log in)/i.test(t);
   const timePressure = /(binnen\s*(2|3|6|8|12|24)\s*uur|within\s*(2|3|6|8|12|24)\s*hours|24\s*(h|uur|hours)|direct|onmiddellijk|urgent|dringend|laatste kans|natychmiast)/i.test(t);
   const accountThreat = /(account|digid|konto|rekening).{0,90}(blok|blocked|geblokkeerd|geschorst|suspend|deactiv|deaktiv|zamknięt|zablok)/i.test(t);
   const payment = /(betaal|betaling|betalen|pay|payment|iban|rekeningnummer|overmaken|schuld|boete|487|€|eur)/i.test(t);
@@ -2857,7 +2865,7 @@ function sbDetectGlobalScamLayerV1(text, detectedLinks, suspiciousLinks) {
     return { score:0, high:false, medium:false, links:[], suspiciousDomains:[], signals:[], rawHits:[], categoryLabel:"" };
   }
 
-  const loginSignal = /(login|log\s*in|inloggen|wachtwoord|password|passwort|hasło|contraseñ|senha|palavra[-\s]?passe|sms\s*code|tan|2fa|verification\s*code|verificatiecode|kod\s*sms|c[oó]digo)/i.test(t);
+  const loginSignal = /(login|log\s*in|inloggen|wachtwoord|password|passwort|hasło|contraseñ|senha|palavra[-\s]?passe|sms\s*code|\btan\b|2fa|verification\s*code|verificatiecode|kod\s*sms|c[oó]digo)/i.test(t);
   const paymentSignal = /(pay|payment|betaling|betaal|betalen|płatno|zapłać|overmaken|iban|bankrekening|rekeningnummer|fee|kosten|douane|customs|import\s*fee|verzendkosten|delivery\s*fee|shipping\s*fee|verzeker|insurance)/i.test(t);
   const urgencySignal = /(urgent|dringend|pilne|natychmiast|immediately|direct|onmiddellijk|laatste\s*kans|last\s*chance|binnen\s*24\s*uur|within\s*24\s*hours|24\s*h|vandaag|today|heute|oggi|hoy)/i.test(t);
   const offPlatformSignal = /(whatsapp|telegram|signal|outside\s*(the\s*)?platform|buiten\s*(het\s*)?platform|poza\s*platform|hors\s*plateforme|fuera\s*de\s*la\s*plataforma|prywatny\s*kurier|private\s*courier)/i.test(t);
@@ -3468,13 +3476,13 @@ function sbApplyGlobalImpersonationHighGuardV1(ctx) {
   const externalLinks = allLinks.filter(link => {
     const host = hostFromUrl(link);
     if (!host) return false;
-    return !(host === officialHost || host.endsWith("." + officialHost));
+    return !sbHostMatchesInstitution(host,officialHost,institution);
   });
 
   if (!externalLinks.length) return ctx;
 
   const credentialSignal =
-    /(tan|sms[\s-]*(code|kod|codigo|c[oó]digo|codice)|password|passwort|wachtwoord|hasło|contraseña|senha|palavra[-\s]?passe|login|usuario|utente|gebruiker|username|access code|c[oó]digo de acesso|dane dostępowe|zugangsdaten|credenciais|credenziali)/i.test(text);
+    /(\btan\b|sms[\s-]*(code|kod|codigo|c[oó]digo|codice)|password|passwort|wachtwoord|hasło|contraseña|senha|palavra[-\s]?passe|login|usuario|utente|gebruiker|username|access code|c[oó]digo de acesso|dane dostępowe|zugangsdaten|credenciais|credenziali)/i.test(text);
 
   const urgentSignal =
     /((2|3|6|8|12|24)\s*(h|hours|hour|uur|stunden|ore|heures|horas|godzin)|within\s*(2|3|6|8|12|24)\s*hours|binnen\s*(2|3|6|8|12|24)\s*uur|dentro de\s*(2|3|6|8|12|24)\s*horas|entro\s*(2|3|6|8|12|24)\s*ore|dans un délai de\s*(2|3|6|8|12|24)\s*heures|urgent|urgente|dringend|sofort|natychmiast|onmiddellijk|immediately|imediatamente)/i.test(text);

@@ -47,7 +47,7 @@ function validateEvidence(result,source){
  }
  for(const item of [...(result.facts||[]),...result.actions,...result.consequences]){
   const quotes=item.quote!==undefined?[item.quote]:item.quotes;
-  if(!quotes?.length||quotes.some(q=>!sourceContains(source,q)))throw failure('LETTER_UNVERIFIED',502,'SOURCE_QUOTE');
+  if(!quotes?.length||quotes.some(q=>!sourceContains(source,q))){const e=failure('LETTER_UNVERIFIED',502,'SOURCE_QUOTE');e.validationQuote=quotes?.find(q=>!sourceContains(source,q))||'';throw e;}
   if(item.text!==undefined&&!item.text.trim())throw failure('LETTER_INCOMPLETE');
  }
  const inst=result.institution;
