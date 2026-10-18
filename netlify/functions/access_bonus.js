@@ -21,7 +21,7 @@ exports.handler = async (event) => {
     if (status === "BLOCKED") return json(403,{ok:false,error:"Ten email jest zablokowany."});
     const bonusUsesGranted = Math.max(0,Number(existing?.bonusUsesGranted)||0) + 3;
     const bonusGrantCount = Math.max(0,Number(existing?.bonusGrantCount)||0) + 1;
-    const timedActive = Number(existing?.expires) > now && ["ACTIVE","BETA"].includes(status);
+    const timedActive = status === "BETA" || (Number(existing?.expires) > now && status === "ACTIVE");
     const nextStatus = timedActive ? status : "BONUS";
     const userData = {...(existing&&typeof existing==="object"?existing:{}),email,status:nextStatus,bonusUsesGranted,bonusGrantCount,bonusGrantedAt:now,createdAt:existing?.createdAt||now,last:"Przyznano +3 użycia"};
     await users.set(email,JSON.stringify(userData));
@@ -30,7 +30,8 @@ exports.handler = async (event) => {
     await incrementMap(stats,"geo_access_grant_3",existing?.requestCountry||"UNKNOWN");
     await incrementMap(stats,"lang_access_grant_3",existing?.requestLang||"UNKNOWN");
     }catch(e){analyticsError=e?.message||String(e);console.error("bonus statistics error",e);}
-    return json(200,{ok:true,analyticsError,email,status:nextStatus,bonusUsesGranted,bonusGrantCount,requestCount:Math.max(0,Number(userData.requestCount)||0)});
+    const mail = await require("./_mail").sendActivation({email,plan:"BONUS",createdAt:now,lang:existing?.requestLang});
+    return json(200,{ok:true,emailSent:mail.sent,emailError:mail.error,adminEmailSent:mail.adminEmailSent,adminEmailError:mail.adminEmailError,analyticsError,email,status:nextStatus,bonusUsesGranted,bonusGrantCount,requestCount:Math.max(0,Number(userData.requestCount)||0)});
   } catch(e){console.error("access_bonus error:",e);return json(500,{ok:false,error:e?.message||String(e)});}
 };
 async function inc(store,key){return atomicStats.increment(store,key);}
@@ -55,3 +56,4 @@ async function readMap(store,key){
 }
 
 function json(statusCode,obj){return{statusCode,headers:{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"Content-Type","Access-Control-Allow-Methods":"POST, OPTIONS","Cache-Control":"no-store"},body:JSON.stringify(obj)}}
+

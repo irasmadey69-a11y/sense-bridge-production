@@ -148,36 +148,7 @@ exports.handler = async (event, context) => {
   }
 };
 
-async function sendRequestEmail({ email, createdAt, repeated, requestCount, requestCountry, requestLang }) {
-  if (!process.env.RESEND_API_KEY) return { sent: false, error: "Missing RESEND_API_KEY" };
-
-  const subject = repeated ? "Ponowne zgłoszenie dostępu Sense Bridge" : "Nowe zgłoszenie dostępu Sense Bridge";
-  const from = "Sense Bridge <onboarding@resend.dev>";
-  const to = "madey.verpakken@gmail.com";
-
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      signal: AbortSignal.timeout(12000),
-      headers: {
-        "Authorization": "Bearer " + process.env.RESEND_API_KEY,
-        "Content-Type": "application/json",
-        "Idempotency-Key": "sb-request-" + require("node:crypto").createHash("sha256").update(email+"|"+createdAt).digest("hex")
-      },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject,
-        html: `<h2>${escapeHtml(subject)}</h2><p><b>Email użytkownika:</b> ${escapeHtml(email)}</p><p><b>Status:</b> PENDING</p><p><b>Numer prośby tego użytkownika:</b> ${Number(requestCount)||1}</p><p><b>Kraj:</b> ${escapeHtml(requestCountry||"UNKNOWN")}</p><p><b>Język aplikacji:</b> ${escapeHtml(requestLang||"UNKNOWN")}</p><p><b>Zgłoszono:</b> ${new Date(createdAt).toLocaleString("pl-PL")}</p><p>Użytkownik wykorzystał bezpłatny limit i prosi o dalszy dostęp. Rozpatrz zgłoszenie w panelu admina.</p>`
-      })
-    });
-    const txt = await res.text();
-    if (!res.ok) return { sent: false, error: "Resend error " + res.status + ": " + txt.slice(0, 500) };
-    return { sent: true, error: null };
-  } catch (e) {
-    return { sent: false, error: e?.message || String(e) };
-  }
-}
+const { sendRequest: sendRequestEmail } = require('./_mail');
 
 async function appendRequestQueue(store,item) {
   await atomicStats.mutateText(store,'access_requests_queue_v2',raw=>{
@@ -234,3 +205,4 @@ function json(statusCode, obj) {
     body: JSON.stringify(obj)
   };
 }
+

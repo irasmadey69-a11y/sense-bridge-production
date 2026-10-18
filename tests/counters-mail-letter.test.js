@@ -16,8 +16,8 @@ function storage(){
  }};return {sdk,maps,store:n=>sdk.getStore({name:n})};
 }
 function load(file,db,fetcher=async()=>{throw Error('Unexpected external call')}){
- const context={exports:{},process:{env:{ADMIN_PIN:'test-pin',OPENAI_API_KEY:'test-only',RESEND_API_KEY:'test-only'}},URL,Date,AbortSignal,setTimeout,console:{error(){}},
-  require(n){if(n==='@netlify/blobs')return db.sdk;if(n==='./_usage')return {recordUsage:async()=>({ok:true})};return n.startsWith('.')?require(path.join(dir,n)):require(n);},fetch:fetcher};
+ const context={exports:{},process:{env:{ADMIN_PIN:'test-pin',OPENAI_API_KEY:'test-only',RESEND_API_KEY:'test-only',SB_RESEND_API_KEY:'test-brand'}},URL,Date,AbortSignal,setTimeout,console:{error(){}},
+  require(n){if(n==='@netlify/blobs')return db.sdk;if(n==='./_mail'){const box={...context,module:{exports:{}}};box.exports=box.module.exports;vm.runInNewContext(fs.readFileSync(path.join(dir,'_mail.js'),'utf8'),box);return box.module.exports;}if(n==='./_usage')return {recordUsage:async()=>({ok:true})};return n.startsWith('.')?require(path.join(dir,n)):require(n);},fetch:fetcher};
  vm.runInNewContext(fs.readFileSync(path.join(dir,file),'utf8'),context);return context.exports.handler;
 }
 const event=b=>({httpMethod:'POST',headers:{'x-nf-country':'NL'},body:JSON.stringify(b)});
@@ -111,7 +111,7 @@ test('activation and bonus are not reported failed when only their statistics fa
  const db=storage(),original=db.sdk.getStore;db.sdk.getStore=opts=>{const s=original(opts);if(opts.name==='sb-stats')s.set=async()=>{throw Error('statistics unavailable')};return s;};
  let mails=0;const h=load('access_set.js',db,async()=>{mails++;return {ok:true,text:async()=>'{"id":"test"}'}});
  const r=await run(h,{email:'test@example.com',adminPin:'test-pin',plan:'24h'});
- assert.equal(r.ok,true);assert.equal(r.emailSent,true);assert.equal(mails,1);assert.equal(JSON.parse(await db.store('sb-users').get('test@example.com')).status,'ACTIVE');
+ assert.equal(r.ok,true);assert.equal(r.emailSent,true);assert.equal(mails,2);assert.equal(JSON.parse(await db.store('sb-users').get('test@example.com')).status,'ACTIVE');
  const bonus=await run(load('access_bonus.js',db),{email:'bonus@example.com',adminPin:'test-pin'});assert.equal(bonus.ok,true);assert.equal(bonus.bonusUsesGranted,3);
 });
 test('saved access requests are not masked by an older click counter',async()=>{
@@ -165,3 +165,4 @@ test('unsupported high-confidence institution cannot override a source-backed re
  c.applyGlobalInstitutionRecognitionV2(i,'Belastingdienst vraagt een document.',[]);
  assert.equal(i.name,'Belastingdienst');assert.equal(i.country,'NL');assert.match(i.officialWebsite,/belastingdienst\.nl/);
 });
+
