@@ -645,14 +645,35 @@ detectedPhones,
 };
 
 
+function sbLetterHeaderInstitution(text) {
+  const lines=String(text||'').split(/\n+/).map(line=>line.trim()).filter(Boolean);
+  const lead=String(text||'').split(/\b(?:Onderwerp|Subject|Objet|Asunto|Betreff)\s*:/iu)[0].trim();
+  const headers=[lead,...lines.slice(0,8),...lines.slice(-4)];
+  for(const line of headers){
+    if(line.length>180||/https?:\/\//i.test(line))continue;
+    for(const entry of sbGlobalInstitutionRegistryV2()){
+      const name=entry.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const exact=new RegExp('^'+name+'(?:\\s+[—–-]\\s+[^\\n]{1,60})?[.!]?$','iu');
+      const french=entry.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(line);
+      if(exact.test(line)||french)return {entry,quote:line};
+    }
+  }
+  return null;
+}
+
 function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   const originalLevel=String(candidate.fraudRisk?.level||'UNKNOWN');
   const fraudRisk=normalizeFraudRisk(JSON.parse(JSON.stringify(candidate.fraudRisk)),userLang);
   const institution=normalizeInstitution(candidate.institution);
   const detectedLinks=arr(candidate.detectedLinks).filter(link=>String(text).includes(link));
-  const quote=String(candidate.institution.quote||'');
-  const validQuote=require('./_letter-analysis').sourceContains(text,quote);
-  const registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>(sbSameInstitutionNameV2(institution.name,item.name)||(item.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(institution.name)))&&item.patterns.some(pattern=>pattern.test(quote)));
+  let quote=String(candidate.institution.quote||'');
+  let validQuote=require('./_letter-analysis').sourceContains(text,quote);
+  let registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>(sbSameInstitutionNameV2(institution.name,item.name)||(item.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(institution.name)))&&item.patterns.some(pattern=>pattern.test(quote)));
+  const senderHeader=sbLetterHeaderInstitution(text);
+  if(senderHeader){
+    registryEntry=senderHeader.entry;quote=senderHeader.quote;validQuote=true;
+    Object.assign(institution,{name:registryEntry.name,country:registryEntry.country,officialWebsite:registryEntry.officialWebsite,confidence:Math.max(90,Number(institution.confidence)||0)});
+  }
   const escapedName=String(institution.name||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const namedInQuote=institution.name && new RegExp('(?:^|[^\\p{L}\\p{N}])'+escapedName+'(?:$|[^\\p{L}\\p{N}])','iu').test(quote);
   if(!validQuote||(!registryEntry&&!namedInQuote))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
@@ -666,7 +687,7 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   const rank={UNKNOWN:0,LOW:1,MEDIUM:2,HIGH:3};
   if(stage==='draft' && rank[fraudRisk.level]>rank[originalLevel])candidate.fraudRisk=fraudRisk;
   if(stage==='final' && rank[fraudRisk.level]>rank[originalLevel]){
-    const error=new Error('LETTER_UNVERIFIED');error.code='LETTER_UNVERIFIED';error.statusCode=502;error.validationReason='SECURITY_RAISED_'+originalLevel+'_TO_'+fraudRisk.level;throw error;
+    candidate.fraudRisk=fraudRisk;
   }
   if(require('./_analysis-grounding').genericName(institution.name))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
   if(institution.name){
@@ -681,6 +702,14 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
     }
     if(quote && require('./_letter-analysis').sourceContains(text,quote))candidate.institution={...institution,quote};
   } else candidate.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:''};
+  candidate.verifiedInstitution=!!registryEntry;
+  if(stage==='final'&&String(candidate.fraudRisk.level).toUpperCase()==='HIGH'){
+    const labels=sbFraudTextMapV8(userLang);
+    if(!registryEntry)candidate.institution.officialWebsite='';
+    const official=registryEntry?.officialWebsite||'';
+    candidate.securityAdvice={summary:labels.highSummary,actions:[labels.risk1,labels.risk2,labels.risk3+(official?' '+official:'')]};
+    candidate.replyGuidance=labels.risk1;
+  }
 }
 
 /* ---------------- helpers ---------------- */
