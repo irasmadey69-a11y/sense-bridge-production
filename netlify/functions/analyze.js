@@ -701,7 +701,8 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
       for(const locale of ['en','nl','de','fr','pl','es','it','pt',(detectedLang||candidate.detectedLang)?.toLowerCase()]){try{names.push(new Intl.DisplayNames([locale],{type:'region'}).of(country));}catch{}}
       const supported=names.some(name=>name && new RegExp('(?:^|[^\\p{L}])'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:$|[^\\p{L}])','iu').test(text));
       if(!supported)institution.country='';
-      if(institution.officialWebsite&&!String(text).includes(institution.officialWebsite))institution.officialWebsite='';
+      // A URL printed in a letter is a claim, never independent verification.
+      institution.officialWebsite='';
     }
     if(quote && require('./_letter-analysis').sourceContains(text,quote))candidate.institution={...institution,quote};
   } else candidate.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:''};
