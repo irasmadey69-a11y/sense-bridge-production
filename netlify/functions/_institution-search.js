@@ -24,7 +24,7 @@ function validateMatches(items,identities,data){
   const host=new URL(url).hostname.replace(/^www\./,''),other=new URL(evidence).hostname.replace(/^www\./,'');
   if(other===host||other.endsWith('.'+host)||host.endsWith('.'+other))return [];
   if(!cited.some(x=>new URL(x.url).hostname.replace(/^www\./,'')===host)||!cited.some(x=>x.url===evidence))return [];
-  return [{name:identity.name,country:item.country,officialWebsite:url,verification:'web',sources:cited.filter(x=>new URL(x.url).hostname.replace(/^www\./,'')===host||x.url===evidence).slice(0,4)}];
+  return [{name:identity.name,country:item.country,officialWebsite:url,verification:'web',sources:[...cited.filter(x=>new URL(x.url).hostname.replace(/^www\./,'')===host).slice(0,2),cited.find(x=>x.url===evidence)]}];
  });
 }
 async function resolve(options){
