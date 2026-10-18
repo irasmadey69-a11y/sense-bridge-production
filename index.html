@@ -6347,7 +6347,7 @@ function renderInstitution(data){
   let showWebsite = false;
 
   if(website){
-    if(trustedInstitution){
+    if(trustedInstitution || inst.verification==='web'){
       // Exact trusted registry match may be shown even when general country
       // inference is conservative. This does not lower thresholds globally.
       showWebsite = true;
@@ -6362,7 +6362,9 @@ function renderInstitution(data){
 
   let countryLine = "";
 
-  if(hasStrongCountry){
+  if(inst.verification==='web' && backendCountry){
+    countryLine = `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(countryName(backendCountry))}<br>`;
+  }else if(hasStrongCountry){
     countryLine = `🌍 ${escapeHtml(sbTrustText("countryFromDocument", lang))}: ${escapeHtml(countryName(inferred.code))}
       <br><small>${escapeHtml(sbTrustText("basedOnContent", lang))}</small><br>`;
   }else if(hasLanguageCountry){

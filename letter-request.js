@@ -40,6 +40,9 @@
    const result=await request(url,{...body,letterStage:'review',letterDraft:first.draft},fetcher,timeoutMs);
    try{
     result.institutionSearch=await request(url,{...body,letterStage:'institutions'},fetcher,timeoutMs);
+    const normalize=name=>String(name||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+    const primary=result.institutionSearch.institutions.find(x=>x.verification==='web'&&normalize(x.name)===normalize(result.institution?.name));
+    if(primary)result.institution={...result.institution,...primary};
    }catch{result.institutionSearch={status:'unavailable',institutions:[]};}
    return result;
   }
