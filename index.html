@@ -4428,7 +4428,7 @@ body.dark-mode .sb-job-context input,body.dark-mode .sb-job-context select,body.
   </div>
 </div>
 
-<script src="/letter-request.js?v=20261018-staged-2"></script>
+<script src="/letter-request.js?v=20261018-world-search-1"></script>
 <script>
 
 let sbModalResolve = null;
@@ -6295,7 +6295,29 @@ function sbTrustedInstitutionInfo(name){
   return entries.find(entry => entry.names.some(alias => n === alias || n.includes(alias))) || null;
 }
 
+function renderInstitutionSearch(data){
+  let box=document.getElementById('institutionSearchBox');
+  if(!box){box=document.createElement('div');box.id='institutionSearchBox';document.getElementById('institutionBox')?.before(box);}
+  box.replaceChildren();
+  const search=data.institutionSearch;if(!search)return;
+  const pl=sbGetResultLang()==='PL';
+  const heading=document.createElement('strong');heading.textContent=pl?'🌍 Oficjalne instytucje — wyszukiwanie w internecie':'🌍 Official institutions — web search';box.appendChild(heading);
+  const note=document.createElement('p');
+  note.textContent=pl?'Znalezienie oficjalnej instytucji nie potwierdza autentyczności pisma ani jego nadawcy.':'Finding an official institution does not authenticate the letter or its sender.';box.appendChild(note);
+  const safe=value=>{try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:'';}catch{return '';}};
+  for(const inst of search.institutions||[]){
+    if(inst.verification!=='web'||!safe(inst.officialWebsite))continue;
+    const row=document.createElement('div');row.className='box-info';
+    const name=document.createElement('strong');name.textContent=inst.name+' · '+countryName(inst.country);row.appendChild(name);
+    const link=document.createElement('a');link.href=safe(inst.officialWebsite);link.target='_blank';link.rel='noopener noreferrer';link.textContent=inst.officialWebsite;link.style.display='block';row.appendChild(link);
+    const label=document.createElement('small');label.textContent=pl?'Źródła weryfikacji:':'Verification sources:';row.appendChild(label);
+    for(const source of inst.sources||[]){if(!safe(source.url))continue;const a=document.createElement('a');a.href=safe(source.url);a.target='_blank';a.rel='noopener noreferrer';a.textContent=source.title||source.url;a.style.display='block';row.appendChild(a);}
+    box.appendChild(row);
+  }
+  if(search.status!=='verified'||search.unresolved?.length){const warning=document.createElement('p');warning.textContent=search.status==='unavailable'?(pl?'⚠️ Wyszukiwanie chwilowo niedostępne. Nie potwierdzono aktualnych oficjalnych stron.':'⚠️ Web search is temporarily unavailable. Current official websites were not verified.'):(pl?'⚠️ Nie udało się jednoznacznie potwierdzić wszystkich instytucji i ich oficjalnych stron. Nie korzystaj z niezweryfikowanych linków z pisma.':'⚠️ Not all institutions and official websites could be confirmed unambiguously. Do not use unverified links from the letter.');box.appendChild(warning);}
+}
 function renderInstitution(data){
+  renderInstitutionSearch(data);
   const box = document.getElementById("institutionBox");
   if(!box) return;
 
@@ -6970,7 +6992,7 @@ function sbPolishResultView(data){
 function sbClearLetterResult(){
  if(typeof sbClearQuickResultCards==='function')sbClearQuickResultCards();
  if(typeof sbShowNewAnalysis==='function')sbShowNewAnalysis(false);
- for(const id of ['translation','summary','examples','examplesDoc','risks','actions','consequences','help','helpLinks','institutionBox','legalStatus','urgencyBox','fraudRiskBox']){
+ for(const id of ['translation','summary','examples','examplesDoc','risks','actions','consequences','help','helpLinks','institutionBox','institutionSearchBox','legalStatus','urgencyBox','fraudRiskBox']){
   const el=document.getElementById(id);if(el)el.textContent='';
  }
  const top=document.getElementById('topInsightBox');if(top){top.textContent='';top.style.display='none';}
