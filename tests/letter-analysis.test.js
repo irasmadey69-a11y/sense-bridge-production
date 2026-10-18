@@ -183,3 +183,18 @@ test('French tax amounts and official information links do not impersonate crede
  assert.equal(c.sbDetectStrongPhishingV8(phishing,['https://impots.gouv.fr.evil.example/login'],institution).hardHigh,true);
  assert.equal(c.sbHostMatchesInstitution('evilimpots.gouv.fr','impots.gouv.fr',institution),false);
 });
+
+test('French credential prohibition is not a request, even with real TAN context',()=>{
+ assert.equal(engine.hardCredentialRequest('Montant 184 €. https://www.impots.gouv.fr N’envoyez aucun mot de passe ni code TAN.'),false);
+ assert.equal(engine.hardCredentialRequest("Montant 184 €. https://www.impots.gouv.fr N'envoyez aucun mot de passe ni code TAN."),false);
+ assert.equal(engine.hardCredentialRequest('Envoyez votre mot de passe et code TAN à https://bad.example'),true);
+});
+
+test('source citation IDs expand to exact original passages and invalid IDs fail validation',async()=>{
+ const full=fixture.draft();const passages=engine.sourcePassages(fixture.source);
+ const prepared=Object.fromEntries(Object.keys(engine.preparationSchema.properties).map(k=>[k,full[k]]));prepared.facts=[];
+ const r=fixture.review();r.facts=[];r.calculations=[];r.actions=[{text:'Wyjaśnij treść pisma.',quotes:[1]}];r.consequences=[];r.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:0};
+ const out=await harness([r],{stage:'review',draft:prepared}).run();
+ assert.equal(out.evidence.actions[0].quotes[0],passages[1]);
+ r.actions[0].quotes=[999999];await assert.rejects(harness([r],{stage:'review',draft:prepared}).run(),e=>e.code==='LETTER_INCOMPLETE');
+});
