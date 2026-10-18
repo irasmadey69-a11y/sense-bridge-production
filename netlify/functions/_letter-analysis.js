@@ -102,11 +102,11 @@ function translationTokensPresent(source,translation){
 }
 function hardCredentialRequest(source){
  const t=String(source||'').toLowerCase();
- if(!/https?:\/\//.test(t)||!/(?:sms|one.time|otp|tan|verification code|kod)/iu.test(t))return false;
+ if(!/https?:\/\//.test(t)||!/(?:sms|one.time|otp|\btan\b|verification code|kod)/iu.test(t))return false;
  const re=/(?:enter|send|provide|share|wpisz|podaj|wyślij|invoer|geef|eingeben|angeben|saisissez|envoyez|introduce|envía)\b[^.!?;\n]{0,100}(?:password|passwort|hasł[oa]|wachtwoord|mot de passe|contraseña)/giu;
  for(const match of t.matchAll(re)){
   const prefix=t.slice(Math.max(0,match.index-60),match.index).split(/[.!?;\n:]/).pop();
-  if(!/(?:do not|don't|never|must not|not to|nie|nigdy|niet|nooit|nicht|niemals|ne pas|nunca|no)\s*(?:ever\s*)?$/iu.test(prefix.trim()))return true;
+  if(!/(?:do not|don't|never|must not|not to|nie|nigdy|niet|nooit|nicht|niemals|ne pas|nunca|no|n['’])\s*(?:ever\s*)?$/iu.test(prefix.trim()))return true;
  }
  return false;
 }
@@ -141,6 +141,24 @@ Document deadlines determine urgency; missing sender details alone do not turn a
 User has NOT chosen a reply intent. Use ACKNOWLEDGE_ONLY; all tones are first-person messages FROM THE RECIPIENT TO THE SENDER, acknowledge receipt and ask a relevant clarification if needed. No attendance, payment, debt admission, cancellation, refusal or promise of sending documents. Tone changes wording only, never intent. For HIGH phishing use NO_REPLY and all reply strings empty; replyGuidance must explain in the user language not to reply to the suspicious sender. For informational NO_REPLY, explain that the letter does not require a reply. RepliesDocument has the same intent in the document language (${sourceLang==='AUTO'?'detect it':sourceLang}); replies are in the user language. For informational letters NO_REPLY is allowed.
 Keep explanations concise; avoid boilerplate and repeated advice. Empty arrays are valid. Keep JSON structure strictly. Never include surrounding Markdown.`;}
 
+// Reference source passages by ID during transport, so the model cannot accidentally
+// rewrite a citation. Public results still contain the original source strings.
+function sourcePassages(text){
+ const lines=String(text).split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ return [...new Set(['',...lines.flatMap(line=>[line,...line.split(/(?<=[.!?])\s+(?=[\p{Lu}\d])/u)])])];
+}
+function citationSchema(schema,passages){
+ const reference={type:'integer',enum:passages.map((_,i)=>i)};
+ if(schema.type==='object')return {...schema,properties:Object.fromEntries(Object.entries(schema.properties).map(([key,value])=>[key,key==='quote'?reference:key==='quotes'?{type:'array',items:reference}:citationSchema(value,passages)]))};
+ if(schema.type==='array')return {...schema,items:citationSchema(schema.items,passages)};
+ return schema;
+}
+function expandCitations(value,passages){
+ if(Array.isArray(value))return value.map(item=>expandCitations(item,passages));
+ if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,key==='quote'&&Number.isInteger(item)?passages[item]:key==='quotes'&&Array.isArray(item)?item.map(i=>Number.isInteger(i)?passages[i]:i):expandCitations(item,passages)]));
+ return value;
+}
+
 async function analyze(options){
  const {key,text,userLang,sourceLang,outputRegion,event,context,applySecurity}=options;
  const fetcher=options.fetcher||fetch;
@@ -157,12 +175,15 @@ async function analyze(options){
  const budget=Math.min(45000,Math.max(100,options.timeoutMs||45000));
  let rejectDeadline;const deadline=new Promise((_,reject)=>{rejectDeadline=reject;});
  const timer=setTimeout(()=>{controller.abort();rejectDeadline(failure('LETTER_TIMEOUT',504));},budget);
+ const passages=options.stage?sourcePassages(text):null;
  const usage=[];let telemetryLanguage=sourceLang;let validationStage="DRAFT";
  async function call(schema,prompt,feature,maxTokens){
   controller.signal.throwIfAborted();
+  if(passages)prompt+='\nCITATION TRANSPORT: quote and quotes fields MUST contain integer IDs from this source catalog. Choose passages supporting the claim and preserving its conditions. ID 0 is empty and is allowed only for an unidentified institution. The server expands IDs back into exact original quotes. Never type rewritten quotes.\nSOURCE CATALOG:\n'+JSON.stringify(passages.map((quote,id)=>({id,quote})));
+  const wireSchema=passages?citationSchema(schema,passages):schema;
   const res=await fetcher('https://api.openai.com/v1/responses',{
    signal:controller.signal,method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
-   body:JSON.stringify({model:MODEL,store:false,temperature:0,max_output_tokens:maxTokens,input:[{role:'system',content:rules(userLang,sourceLang,outputRegion)},{role:'user',content:prompt}],text:{format:{type:'json_schema',name:feature.toLowerCase(),strict:true,schema}}})
+   body:JSON.stringify({model:MODEL,store:false,temperature:0,max_output_tokens:maxTokens,input:[{role:'system',content:rules(userLang,sourceLang,outputRegion)},{role:'user',content:prompt}],text:{format:{type:'json_schema',name:feature.toLowerCase(),strict:true,schema:wireSchema}}})
   });
   const raw=await res.text();let data;try{data=JSON.parse(raw);}catch{throw failure('LETTER_UPSTREAM');}
   if(data.usage)usage.push({data,feature});
@@ -171,6 +192,7 @@ async function analyze(options){
   let output=data.output_text||'';
   for(const item of data.output||[])for(const part of item.content||[]){if(part.type==='refusal')throw failure('LETTER_UNAVAILABLE',422);if(!output&&part.type==='output_text')output=part.text;}
   let parsed;try{parsed=JSON.parse(output);}catch{throw failure('LETTER_INCOMPLETE');}
+  if(passages)parsed=expandCitations(parsed,passages);
   validateShape(parsed,schema);return parsed;
  }
  async function run(){
@@ -199,7 +221,7 @@ async function analyze(options){
   // Local security recognition may raise risk, but must not rewrite reviewed prose.
   const rank={UNKNOWN:0,LOW:1,MEDIUM:2,HIGH:3};
   if(draft.fraudRisk&&rank[draft.fraudRisk.level]>rank[checked.fraudRisk.level])checked.fraudRisk=draft.fraudRisk;
-  if(hardCredentialRequest(text)&&checked.fraudRisk.level!=='HIGH')throw failure('LETTER_UNVERIFIED');
+  if(hardCredentialRequest(text)&&checked.fraudRisk.level!=='HIGH')throw failure('LETTER_UNVERIFIED',502,'CREDENTIAL_REQUEST');
   if(checked.fraudRisk.level==='HIGH')checked.replyIntent='NO_REPLY';
   if(checked.replyIntent==='NO_REPLY'&&!checked.replyGuidance.trim())throw failure('LETTER_INCOMPLETE');
   validationStage="REPLY_INTENT";
@@ -222,4 +244,4 @@ async function analyze(options){
   if(jobs.length){let t;await Promise.race([Promise.all(jobs),new Promise(resolve=>{t=setTimeout(resolve,Math.max(1,Math.min(4000,options.telemetryTimeoutMs||4000)));})]);clearTimeout(t);}
  }
 }
-module.exports={analyze,validateEvidence,validateShape,validateCriticalFacts,validateCalculations,sourceContains,translationTokensPresent,hardCredentialRequest,replyViolatesIntent,project,draftSchema,preparationSchema,reviewSchema,PIPELINE};
+module.exports={analyze,validateEvidence,validateShape,validateCriticalFacts,validateCalculations,sourceContains,translationTokensPresent,hardCredentialRequest,replyViolatesIntent,project,sourcePassages,citationSchema,expandCitations,draftSchema,preparationSchema,reviewSchema,PIPELINE};
