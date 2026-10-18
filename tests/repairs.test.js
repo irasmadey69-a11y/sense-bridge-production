@@ -60,7 +60,7 @@ test('fraction rendering preserves grouping and removes spacing commands', () =>
 test('email notification still sends when request-stat counter storage fails', async () => {
   const maps = new Map(); const calls = [];
   const context = { exports: {}, Date, AbortSignal, console: { error() {} }, setTimeout, process: { env: { RESEND_API_KEY: 'test-only' } },
-    require: name => name === '@netlify/blobs' ? ({ connectLambda() {}, getStore({ name }) { if (!maps.has(name)) maps.set(name, new Map()); const m = maps.get(name); return { get: async key => m.get(key) || null, getWithMetadata: async key => m.has(key) ? {data:m.get(key),etag:'test'} : null, set: async (key, value) => { if (name === 'sb-payment-stats') throw new Error('stats down'); m.set(key, value); return {modified:true}; } }; } }) : name.startsWith('.') ? require(path.join(root,'netlify/functions',name)) : require(name),
+    require: name => name === './_mail' ? (()=>{const box={...context,module:{exports:{}}};box.exports=box.module.exports;vm.runInNewContext(fs.readFileSync(path.join(root,'netlify/functions/_mail.js'),'utf8'),box);return box.module.exports;})() : name === '@netlify/blobs' ? ({ connectLambda() {}, getStore({ name }) { if (!maps.has(name)) maps.set(name, new Map()); const m = maps.get(name); return { get: async key => m.get(key) || null, getWithMetadata: async key => m.has(key) ? {data:m.get(key),etag:'test'} : null, set: async (key, value) => { if (name === 'sb-payment-stats') throw new Error('stats down'); m.set(key, value); return {modified:true}; } }; } }) : name.startsWith('.') ? require(path.join(root,'netlify/functions',name)) : require(name),
     fetch: async (_url, options) => { calls.push(JSON.parse(options.body)); return { ok: true, text: async () => '{"id":"test-mail"}' }; }
   };
   vm.runInNewContext(fs.readFileSync(path.join(root, 'netlify/functions/pending_set.js'), 'utf8'), context);
@@ -68,3 +68,4 @@ test('email notification still sends when request-stat counter storage fails', a
   assert.equal(out.requestSaved, true); assert.equal(out.emailSent, true); assert.equal(calls.length, 1); assert.equal(out.analyticsError, 'stats down');
   assert.equal(maps.get('sb-payments').size, 1);
 });
+
