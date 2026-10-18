@@ -25,3 +25,14 @@ test('failed browser analysis clears stale results, preserves source and counts 
  vm.runInNewContext(source,context);await context.analyze();
  assert.equal(element('inputText').value,'NOWE PISMO');assert.equal(element('summary').textContent,'');assert.equal(element('translation').textContent,'');assert.equal(element('btnAnalyze').disabled,false);assert.equal(used,0);assert.deepEqual(events,['analysis_error']);assert.match(notices[0],/Nie udało się/);
 });
+
+test('letter transport waits for review and never renders or accepts the draft as final',async()=>{
+ const bodies=[];
+ const result=await request.request('/test',{mode:'letter',text:'source'},async(_url,opts)=>{
+  const body=JSON.parse(opts.body);bodies.push(body);
+  const data=body.letterStage==='draft'?{ok:true,pipeline:'letter-evidence-v1',stage:'draft',draft:{translation:'draft only'}}:{ok:true,pipeline:'letter-evidence-v1',qualityChecked:true,summary:'Reviewed',translation:'complete'};
+  return {ok:true,text:async()=>JSON.stringify(data)};
+ });
+ assert.equal(result.summary,'Reviewed');assert.deepEqual(bodies.map(x=>x.letterStage),['draft','review']);assert.deepEqual(bodies[1].letterDraft,{translation:'draft only'});
+ await assert.rejects(request.request('/test',{mode:'letter'},async()=>({ok:true,text:async()=>JSON.stringify({ok:true,summary:'unreviewed'})})),e=>e.code==='LETTER_INCOMPLETE');
+});

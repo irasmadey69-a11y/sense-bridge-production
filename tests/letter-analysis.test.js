@@ -143,3 +143,68 @@ test('unsafe document-language reply is also withheld; invalid source evidence s
  const out=await harness([fixture.draft(),r]).run();assert.equal(out.replyIntent,'MANUAL_REPLY');assert.equal(out.replies.neutral,'');
  r.actions[0].quotes=['Invented quote'];await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
 });
+
+test('French grouped amounts preserve their whole value across translation and arithmetic',()=>{
+ for(const space of [' ','\u00a0','\u202f']){
+  assert.equal(engine.translationTokensPresent(`24${space}600 € et 28${space}950 €`,'24600 EUR i 28950 EUR'),true);
+  assert.equal(engine.translationTokensPresent(`24${space}600 €`,'24900 EUR'),false);
+  engine.validateCriticalFacts({summary:'Różnica: 4350 EUR.',actions:[],facts:[],calculations:[{operation:'SUBTRACT',operands:[28950,24600],result:4350,quotes:[`28${space}950 € et 24${space}600 €`]}]},`28${space}950 € et 24${space}600 €`);
+ }
+});
+test('separate requests preserve full review and reject tampered source evidence',async()=>{
+ const full=fixture.draft();const prepared=Object.fromEntries(Object.keys(engine.preparationSchema.properties).map(k=>[k,full[k]]));
+ const draft=await harness([prepared],{stage:'draft'}).run();
+ assert.equal(draft.stage,'draft');assert.equal(draft.qualityChecked,undefined);
+ const final=await harness([fixture.review()],{stage:'review',draft:draft.draft}).run();
+ assert.equal(final.qualityChecked,true);
+ const bad=fixture.review();bad.actions[0].quotes=['Forged evidence'];
+ await assert.rejects(harness([bad],{stage:'review',draft:draft.draft}).run(),e=>e.code==='LETTER_UNVERIFIED');
+ await assert.rejects(harness([],{stage:'review',draft:{}}).run(),e=>e.code==='LETTER_INCOMPLETE');
+});
+
+test('typographic apostrophes and list markers do not change source evidence, but words and amounts do',()=>{
+ assert.equal(engine.sourceContains('Montants :\n— 630 € sans majoration ;\n— 691,20 € avec majoration.', 'Montants : 630 € sans majoration ; 691,20 € avec majoration.'),true);
+ assert.equal(engine.sourceContains('l’impôt', "l'impôt"),true);
+ assert.equal(engine.sourceContains('Ne payez pas 630 €.', 'Payez 630 €.'),false);
+ assert.equal(engine.sourceContains('Montant 630 €.', 'Montant 690 €.'),false);
+});
+
+test('French tax amounts and official information links do not impersonate credentials or card brands',()=>{
+ const fs=require('fs'),vm=require('vm'),path=require('path'),dir=path.resolve(__dirname,'../netlify/functions');
+ const c={exports:{},process:{env:{}},URL,Intl,require:n=>n==='./_usage'?{}:require(n.startsWith('.')?path.join(dir,n):n)};
+ vm.runInNewContext(fs.readFileSync(path.join(dir,'analyze.js'),'utf8'),c);
+ const institution={name:'Impots.gouv.fr',country:'FR',officialWebsite:'https://www.impots.gouv.fr',confidence:95};
+ const links=['https://www.impots.gouv.fr/particulier','https://www.service-public.gouv.fr/particuliers/vosdroits/N247'];
+ const text='Montant envisagé : 630 €. Régularisation envisagée. '+links.join(' ');
+ const signals=c.sbDetectStrongPhishingV8(text,links,institution);
+ assert.equal(signals.credential,false);assert.equal(signals.financialBrand,false);assert.equal(signals.suspiciousLink,false);
+ assert.equal(c.sbDetectInstitutionImpersonationPatchV1(text,links,institution).minimumMedium,false);
+ const phishing='Enter TAN and password immediately at https://impots.gouv.fr.evil.example/login';
+ assert.equal(c.sbDetectStrongPhishingV8(phishing,['https://impots.gouv.fr.evil.example/login'],institution).hardHigh,true);
+ assert.equal(c.sbHostMatchesInstitution('evilimpots.gouv.fr','impots.gouv.fr',institution),false);
+});
+
+test('French credential prohibition is not a request, even with real TAN context',()=>{
+ assert.equal(engine.hardCredentialRequest('Montant 184 €. https://www.impots.gouv.fr N’envoyez aucun mot de passe ni code TAN.'),false);
+ assert.equal(engine.hardCredentialRequest("Montant 184 €. https://www.impots.gouv.fr N'envoyez aucun mot de passe ni code TAN."),false);
+ assert.equal(engine.hardCredentialRequest('Envoyez votre mot de passe et code TAN à https://bad.example'),true);
+});
+
+test('source citation IDs expand to exact original passages and invalid IDs fail validation',async()=>{
+ const full=fixture.draft();const passages=engine.sourcePassages(fixture.source);
+ const prepared=Object.fromEntries(Object.keys(engine.preparationSchema.properties).map(k=>[k,full[k]]));prepared.facts=[];
+ const r=fixture.review();r.facts=[];r.calculations=[];r.actions=[{text:'Wyjaśnij treść pisma.',quotes:[1]}];r.consequences=[];r.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:0};
+ const out=await harness([r],{stage:'review',draft:prepared}).run();
+ assert.equal(out.evidence.actions[0].quotes[0],passages[1]);
+ r.actions[0].quotes=[999999];await assert.rejects(harness([r],{stage:'review',draft:prepared}).run(),e=>e.code==='LETTER_INCOMPLETE');
+});
+
+test('DGFiP source header resolves to the French tax institution and country',()=>{
+ const fs=require('fs'),vm=require('vm'),path=require('path'),dir=path.resolve(__dirname,'../netlify/functions');
+ const c={exports:{},process:{env:{}},URL,Intl,require:n=>n==='./_usage'?{}:require(n.startsWith('.')?path.join(dir,n):n)};
+ vm.runInNewContext(fs.readFileSync(path.join(dir,'analyze.js'),'utf8'),c);
+ const candidate=fixture.draft();const header='DIRECTION GÉNÉRALE DES FINANCES PUBLIQUES — DGFiP';
+ candidate.institution={name:header,country:'France',officialWebsite:'https://www.impots.gouv.fr/particulier',confidence:95,quote:header};
+ c.applyLetterSecurity(candidate,header+'\nhttps://www.impots.gouv.fr/particulier','PL','final','FR');
+ assert.equal(candidate.institution.country,'FR');assert.equal(candidate.institution.name,'Impots.gouv.fr');
+});
