@@ -168,3 +168,18 @@ test('typographic apostrophes and list markers do not change source evidence, bu
  assert.equal(engine.sourceContains('Ne payez pas 630 €.', 'Payez 630 €.'),false);
  assert.equal(engine.sourceContains('Montant 630 €.', 'Montant 690 €.'),false);
 });
+
+test('French tax amounts and official information links do not impersonate credentials or card brands',()=>{
+ const fs=require('fs'),vm=require('vm'),path=require('path'),dir=path.resolve(__dirname,'../netlify/functions');
+ const c={exports:{},process:{env:{}},URL,Intl,require:n=>n==='./_usage'?{}:require(n.startsWith('.')?path.join(dir,n):n)};
+ vm.runInNewContext(fs.readFileSync(path.join(dir,'analyze.js'),'utf8'),c);
+ const institution={name:'Impots.gouv.fr',country:'FR',officialWebsite:'https://www.impots.gouv.fr',confidence:95};
+ const links=['https://www.impots.gouv.fr/particulier','https://www.service-public.gouv.fr/particuliers/vosdroits/N247'];
+ const text='Montant envisagé : 630 €. Régularisation envisagée. '+links.join(' ');
+ const signals=c.sbDetectStrongPhishingV8(text,links,institution);
+ assert.equal(signals.credential,false);assert.equal(signals.financialBrand,false);assert.equal(signals.suspiciousLink,false);
+ assert.equal(c.sbDetectInstitutionImpersonationPatchV1(text,links,institution).minimumMedium,false);
+ const phishing='Enter TAN and password immediately at https://impots.gouv.fr.evil.example/login';
+ assert.equal(c.sbDetectStrongPhishingV8(phishing,['https://impots.gouv.fr.evil.example/login'],institution).hardHigh,true);
+ assert.equal(c.sbHostMatchesInstitution('evilimpots.gouv.fr','impots.gouv.fr',institution),false);
+});
