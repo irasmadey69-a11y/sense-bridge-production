@@ -640,7 +640,7 @@ detectedPhones,
 
     return json(200, headers, payload);
   } catch (err) {
-    return json(err?.statusCode || 500, corsHeaders(), { ok: false, errorCode:err?.code || "ANALYSIS_FAILED", validationStage:err?.validationStage || "", error: err?.code ? "Document analysis could not be completed." : "Analysis service unavailable." });
+    return json(err?.statusCode || 500, corsHeaders(), { ok: false, errorCode:err?.code || "ANALYSIS_FAILED", validationStage:err?.validationStage || "", validationReason:err?.validationReason || "", validationQuote:err?.validationQuote || "", error: err?.code ? "Document analysis could not be completed." : "Analysis service unavailable." });
   }
 };
 
@@ -666,7 +666,7 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   const rank={UNKNOWN:0,LOW:1,MEDIUM:2,HIGH:3};
   if(stage==='draft' && rank[fraudRisk.level]>rank[originalLevel])candidate.fraudRisk=fraudRisk;
   if(stage==='final' && rank[fraudRisk.level]>rank[originalLevel]){
-    const error=new Error('LETTER_UNVERIFIED');error.code='LETTER_UNVERIFIED';error.statusCode=502;throw error;
+    const error=new Error('LETTER_UNVERIFIED');error.code='LETTER_UNVERIFIED';error.statusCode=502;error.validationReason='SECURITY_RAISED_'+originalLevel+'_TO_'+fraudRisk.level;throw error;
   }
   if(require('./_analysis-grounding').genericName(institution.name))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
   if(institution.name){
@@ -2142,7 +2142,7 @@ function sbFraudTextMapV8(lang) {
 function sbHostMatchesInstitution(host, officialHost, institution) {
   if(host===officialHost||host.endsWith('.'+officialHost))return true;
   const frenchHosts=['impots.gouv.fr','service-public.gouv.fr','service-public.fr'];
-  return String(institution?.country||'').toUpperCase()==='FR' && frenchHosts.includes(officialHost) && frenchHosts.includes(host);
+  return frenchHosts.includes(officialHost) && frenchHosts.includes(host);
 }
 
 function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
