@@ -652,7 +652,7 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   const detectedLinks=arr(candidate.detectedLinks).filter(link=>String(text).includes(link));
   const quote=String(candidate.institution.quote||'');
   const validQuote=require('./_letter-analysis').sourceContains(text,quote);
-  const registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>sbSameInstitutionNameV2(institution.name,item.name)&&item.patterns.some(pattern=>pattern.test(quote)));
+  const registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>(sbSameInstitutionNameV2(institution.name,item.name)||(item.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(institution.name)))&&item.patterns.some(pattern=>pattern.test(quote)));
   const escapedName=String(institution.name||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const namedInQuote=institution.name && new RegExp('(?:^|[^\\p{L}\\p{N}])'+escapedName+'(?:$|[^\\p{L}\\p{N}])','iu').test(quote);
   if(!validQuote||(!registryEntry&&!namedInQuote))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
