@@ -152,11 +152,19 @@ test('French grouped amounts preserve their whole value across translation and a
  }
 });
 test('separate requests preserve full review and reject tampered source evidence',async()=>{
- const draft=await harness([fixture.draft()],{stage:'draft'}).run();
+ const full=fixture.draft();const prepared=Object.fromEntries(Object.keys(engine.preparationSchema.properties).map(k=>[k,full[k]]));
+ const draft=await harness([prepared],{stage:'draft'}).run();
  assert.equal(draft.stage,'draft');assert.equal(draft.qualityChecked,undefined);
  const final=await harness([fixture.review()],{stage:'review',draft:draft.draft}).run();
  assert.equal(final.qualityChecked,true);
  const bad=fixture.review();bad.actions[0].quotes=['Forged evidence'];
  await assert.rejects(harness([bad],{stage:'review',draft:draft.draft}).run(),e=>e.code==='LETTER_UNVERIFIED');
  await assert.rejects(harness([],{stage:'review',draft:{}}).run(),e=>e.code==='LETTER_INCOMPLETE');
+});
+
+test('typographic apostrophes and list markers do not change source evidence, but words and amounts do',()=>{
+ assert.equal(engine.sourceContains('Montants :\n— 630 € sans majoration ;\n— 691,20 € avec majoration.', 'Montants : 630 € sans majoration ; 691,20 € avec majoration.'),true);
+ assert.equal(engine.sourceContains('l’impôt', "l'impôt"),true);
+ assert.equal(engine.sourceContains('Ne payez pas 630 €.', 'Payez 630 €.'),false);
+ assert.equal(engine.sourceContains('Montant 630 €.', 'Montant 690 €.'),false);
 });
