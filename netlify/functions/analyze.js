@@ -75,6 +75,7 @@ exports.handler = async (event, context) => {
     if (mode === 'letter') {
       const result = await require('./_letter-analysis').analyze({
         key:apiKey,text,userLang,sourceLang,outputRegion:body.outputRegion,event,context,accessType,fetcher:fetch,recordUsage,
+        stage:body.letterStage,draft:body.letterDraft,
         applySecurity:(candidate,stage,detected)=>applyLetterSecurity(candidate,text,userLang,stage,detected)
       });
       return json(200,headers,result);

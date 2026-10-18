@@ -64,7 +64,7 @@ function numericValue(token){
  return Number(decimal?parts.slice(0,-1).join('')+'.'+parts.at(-1):parts.join(''));
 }
 function numberTokens(text){
- const normalized=String(text||'').replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g,'$1 $2 $3').replace(/\b([01]?\d|2[0-3])\.([0-5]\d)(?=\s*(?:uur|Uhr|h\b))/g,'$1:$2').replace(/\b(um|at|godz\.)\s*([01]?\d|2[0-3])\.([0-5]\d)\b/gi,'$1 $2:$3');
+ const normalized=String(text||'').replace(/\b\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?!\d)/g,n=>n.replace(/[ \u00a0\u202f]/g,'')).replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g,'$1 $2 $3').replace(/\b([01]?\d|2[0-3])\.([0-5]\d)(?=\s*(?:uur|Uhr|h\b))/g,'$1:$2').replace(/\b(um|at|godz\.)\s*([01]?\d|2[0-3])\.([0-5]\d)\b/gi,'$1 $2:$3');
  return (normalized.match(/\d+(?:[.,]\d+)*/g)||[]).map(x=>String(numericValue(x)));
 }
 function validateCalculations(result,source){
@@ -95,7 +95,8 @@ function translationTokensPresent(source,translation){
  const targetNumbers=numbers(translation);
  // Dates may be written with named months, so validate digit values mentioned in both
  // the source facts and translation during the review; enforce monetary amounts here.
- const money=String(source).match(/(?:€|\$|£|EUR|USD|GBP)\s*\d+(?:[.,]\d+)*|\d+(?:[.,]\d+)*\s*(?:€|\$|£|EUR|USD|GBP|%)/gi)||[];
+ const amount='(?:\\d{1,3}(?:[ \\u00a0\\u202f]\\d{3})+|\\d+)(?:[.,]\\d+)*';
+ const money=String(source).match(new RegExp('(?:€|\\$|£|EUR|USD|GBP)\\s*'+amount+'|'+amount+'\\s*(?:€|\\$|£|EUR|USD|GBP|%)','gi'))||[];
  return money.every(x=>numbers(x).every(n=>targetNumbers.includes(n)));
 }
 function hardCredentialRequest(source){
@@ -143,6 +144,11 @@ async function analyze(options){
  const {key,text,userLang,sourceLang,outputRegion,event,context,applySecurity}=options;
  const fetcher=options.fetcher||fetch;
  const recordUsage=options.recordUsage||require('./_usage').recordUsage;
+ if(options.stage&&!['draft','review'].includes(options.stage))throw failure('LETTER_STAGE',400);
+ if(options.stage==='review'){
+  if(!options.draft||JSON.stringify(options.draft).length>100000)throw failure('LETTER_INCOMPLETE',400);
+  validateShape(options.draft,draftSchema);
+ }
  if(!text.trim())throw failure('LETTER_EMPTY',400);
  if(text.length>24000)throw failure('LETTER_TOO_LONG',413);
  if(!languages.supported(userLang))throw failure('LETTER_LANGUAGE',400);
@@ -167,13 +173,14 @@ async function analyze(options){
   validateShape(parsed,schema);return parsed;
  }
  async function run(){
-  const draft=await call(draftSchema,`Analyze this ORIGINAL. Supply a complete faithful translation (or original if same language), and a compact fact list with exact source quotes. Mark superseded facts, keep each condition. translationComplete must be false if anything material is missing or illegible.\nORIGINAL DATA:\n${JSON.stringify(text)}`,'LETTER_DRAFT',6000);
+  const draft=options.stage==='review'?options.draft:await call(draftSchema,`Analyze this ORIGINAL. Supply a complete faithful translation (or original if same language), and a compact fact list with exact source quotes. Mark superseded facts, keep each condition. translationComplete must be false if anything material is missing or illegible.\nORIGINAL DATA:\n${JSON.stringify(text)}`,'LETTER_DRAFT',6000);
   const draftIssues=[];
   try{validateEvidence(draft,text);}catch(e){draftIssues.push(e.code||'LETTER_UNVERIFIED');}
   if(!draft.translationComplete||!draft.translation.trim()||!translationTokensPresent(text,draft.translation))draftIssues.push('TRANSLATION_NEEDS_CORRECTION');
   draft.facts=draft.facts.filter(item=>sourceContains(text,item.quote));
   const source=String(draft.detectedLang||'UNKNOWN').toUpperCase();telemetryLanguage=source;
   if(applySecurity)applySecurity(draft,'draft',source);
+  if(options.stage==='draft')return {ok:true,pipeline:PIPELINE,stage:'draft',draft};
   const reviewCandidate={...draft};delete reviewCandidate.translation;delete reviewCandidate.facts;
   validationStage="REVIEW";
   const checked=await call(reviewSchema,`FACT CHECK AND FINAL WORDING. Return the final corrected fields, not comments. Independently compare every claim to ORIGINAL. Recheck omitted/replaced amounts, BEFORE vs BY, optional vs required documents, explicit vs invented consequences, correct recipient perspective and identical noncommittal reply intent. The candidate may be wrong. Return corrected facts, and include all CURRENT monetary/date/appointment facts in summary or actions, keeping superseded facts marked SUPERSEDED. Verify that translation is complete and preserves all negations, conditions, dates and amounts. translationCorrection is empty when translation is correct; otherwise return the COMPLETE corrected translation. verified must be false if reliable completion is impossible. Do not lower a source-backed HIGH credential-theft risk. Check every sentence of summary and consequences: a suspected scammer's threats are unverified claims, not established outcomes. Correct unconditional wording such as 'your account will be blocked' to explicitly attributed wording.\nORIGINAL DATA:\n${JSON.stringify(text)}\nFACTS:\n${JSON.stringify(draft.facts)}\nTRANSLATION:\n${JSON.stringify(draft.translation)}\nDRAFT ISSUES:\n${JSON.stringify(draftIssues)}\nCANDIDATE:\n${JSON.stringify(reviewCandidate)}`,'LETTER_ANALYSIS',5000);
