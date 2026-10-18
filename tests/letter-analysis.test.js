@@ -198,3 +198,13 @@ test('source citation IDs expand to exact original passages and invalid IDs fail
  assert.equal(out.evidence.actions[0].quotes[0],passages[1]);
  r.actions[0].quotes=[999999];await assert.rejects(harness([r],{stage:'review',draft:prepared}).run(),e=>e.code==='LETTER_INCOMPLETE');
 });
+
+test('DGFiP source header resolves to the French tax institution and country',()=>{
+ const fs=require('fs'),vm=require('vm'),path=require('path'),dir=path.resolve(__dirname,'../netlify/functions');
+ const c={exports:{},process:{env:{}},URL,Intl,require:n=>n==='./_usage'?{}:require(n.startsWith('.')?path.join(dir,n):n)};
+ vm.runInNewContext(fs.readFileSync(path.join(dir,'analyze.js'),'utf8'),c);
+ const candidate=fixture.draft();const header='DIRECTION GÉNÉRALE DES FINANCES PUBLIQUES — DGFiP';
+ candidate.institution={name:header,country:'France',officialWebsite:'https://www.impots.gouv.fr/particulier',confidence:95,quote:header};
+ c.applyLetterSecurity(candidate,header+'\nhttps://www.impots.gouv.fr/particulier','PL','final','FR');
+ assert.equal(candidate.institution.country,'FR');assert.equal(candidate.institution.name,'Impots.gouv.fr');
+});
