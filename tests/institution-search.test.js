@@ -5,9 +5,9 @@ test('global lookup uses public names only, supports non-registry countries and 
  const doc='Kenya Revenue Authority\nPRIVATE PERSON: Jane Doe, account 123456, reference SECRET\nGhana Revenue Authority',requests=[];
  const identities=[{name:'Kenya Revenue Authority',quote:'Kenya Revenue Authority',country:'KE'},{name:'Ghana Revenue Authority',quote:'Ghana Revenue Authority',country:'GH'}];
  const items=identities.map((x,i)=>({name:x.name,country:x.country,officialWebsite:i?'https://gra.gov.gh/':'https://kra.go.ke/',corroboratingUrl:i?'https://mofep.gov.gh/agencies':'https://treasury.go.ke/agencies',confirmed:true}));
- const results=[response(JSON.stringify({institutions:identities})),...items.map(x=>response('Official identity independently corroborated.',[x.officialWebsite,x.corroboratingUrl])),response(JSON.stringify({institutions:items}))];
+ const results=[response(JSON.stringify({institutions:identities})),response(JSON.stringify({institutions:identities.map(x=>({name:x.name,officialQuery:x.name+' official',corroborationQuery:x.name+' ministry'}))})),...items.flatMap(x=>[response('Official identity.',[x.officialWebsite]),response('Independent ministry confirms domain.',[x.corroboratingUrl])]),response(JSON.stringify({institutions:items}))];
  const found=await resolve({key:'test',text:doc,fetcher:async(u,o)=>{requests.push(JSON.parse(o.body));return{ok:true,json:async()=>results.shift()}}});
- assert.equal(found.status,'verified');assert.deepEqual(found.institutions.map(x=>x.country),['KE','GH']);assert.equal(requests.length,4);assert.equal(requests[0].tools,undefined);assert.equal(requests[1].tool_choice,'required');assert.doesNotMatch(JSON.stringify(requests[1]),/Jane Doe|123456|SECRET/);assert.equal(found.institutions[0].sources.length,2);assert.equal(requests[3].tools,undefined);
+ assert.equal(found.status,'verified');assert.deepEqual(found.institutions.map(x=>x.country),['KE','GH']);assert.equal(requests.length,7);assert.equal(requests[0].tools,undefined);assert.equal(requests[1].tools,undefined);assert.equal(requests[2].tool_choice,'required');assert.doesNotMatch(JSON.stringify(requests[1]),/Jane Doe|123456|SECRET/);assert.equal(found.institutions[0].sources.length,2);assert.equal(requests[6].tools,undefined);assert.doesNotMatch(JSON.stringify(requests.slice(1)),/Jane Doe|123456|SECRET/);
 });
 test('uncited or self-corroborating domains and unconfirmed identities fail closed',()=>{
  const identities=[{name:'Authority'}],item={name:'Authority',country:'JP',officialWebsite:'https://official.go.jp/',corroboratingUrl:'https://directory.go.jp/authority',confirmed:true};
@@ -24,4 +24,12 @@ test('invented identities cannot be searched; provider outage produces explicit 
  const result=await resolve({key:'test',text:'A private letter',fetcher:async()=>{calls++;return{ok:true,json:async()=>response(JSON.stringify({institutions:[{name:'Made up Authority',quote:'Made up Authority',country:'ZA'}]}))}}});
  assert.equal(calls,1);assert.equal(result.status,'unidentified');
  assert.equal((await resolve({key:'test',text:'Authority',fetcher:async()=>{throw Error('offline')}})).status,'unavailable');
+});
+
+test('Japanese research plans native and ministry queries and accepts only actually retrieved corroboration',async()=>{
+ const name='国税庁',requests=[];
+ const item={name,country:'JP',officialWebsite:'https://www.nta.go.jp/',corroboratingUrl:'https://www.mof.go.jp/about_mof/',confirmed:true};
+ const responses=[response(JSON.stringify({institutions:[{name,quote:name,country:'JP'}]})),response(JSON.stringify({institutions:[{name,officialQuery:'国税庁 公式サイト',corroborationQuery:'国税庁 財務省 リンク'}]})),response('国税庁 official domain.',[item.officialWebsite]),response('Ministry links to the National Tax Agency.',[item.corroboratingUrl]),response(JSON.stringify({institutions:[item]}))];
+ const found=await resolve({key:'test',text:'国税庁 — 日本\nPRIVATE CASE SECRET',fetcher:async(u,o)=>{requests.push(JSON.parse(o.body));return{ok:true,json:async()=>responses.shift()}}});
+ assert.equal(found.institutions[0].officialWebsite,item.officialWebsite);assert.equal(found.institutions[0].country,'JP');assert.match(requests[3].input[1].content,/財務省/);assert.doesNotMatch(JSON.stringify(requests.slice(1)),/PRIVATE CASE|SECRET/);
 });
