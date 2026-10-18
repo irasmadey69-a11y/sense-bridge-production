@@ -5,9 +5,9 @@ test('global lookup uses public names only, supports non-registry countries and 
  const doc='Kenya Revenue Authority\nPRIVATE PERSON: Jane Doe, account 123456, reference SECRET\nGhana Revenue Authority',requests=[];
  const identities=[{name:'Kenya Revenue Authority',quote:'Kenya Revenue Authority',country:'KE'},{name:'Ghana Revenue Authority',quote:'Ghana Revenue Authority',country:'GH'}];
  const items=identities.map((x,i)=>({name:x.name,country:x.country,officialWebsite:i?'https://gra.gov.gh/':'https://kra.go.ke/',corroboratingUrl:i?'https://mofep.gov.gh/agencies':'https://treasury.go.ke/agencies',confirmed:true}));
- const results=[response(JSON.stringify({institutions:identities})),response(JSON.stringify({institutions:items}),items.flatMap(x=>[x.officialWebsite,x.corroboratingUrl]))];
+ const results=[response(JSON.stringify({institutions:identities})),...items.map(x=>response('Official identity independently corroborated.',[x.officialWebsite,x.corroboratingUrl])),response(JSON.stringify({institutions:items}))];
  const found=await resolve({key:'test',text:doc,fetcher:async(u,o)=>{requests.push(JSON.parse(o.body));return{ok:true,json:async()=>results.shift()}}});
- assert.equal(found.status,'verified');assert.deepEqual(found.institutions.map(x=>x.country),['KE','GH']);assert.equal(requests.length,2);assert.equal(requests[0].tools,undefined);assert.equal(requests[1].tool_choice,'required');assert.doesNotMatch(JSON.stringify(requests[1]),/Jane Doe|123456|SECRET/);assert.equal(found.institutions[0].sources.length,2);
+ assert.equal(found.status,'verified');assert.deepEqual(found.institutions.map(x=>x.country),['KE','GH']);assert.equal(requests.length,4);assert.equal(requests[0].tools,undefined);assert.equal(requests[1].tool_choice,'required');assert.doesNotMatch(JSON.stringify(requests[1]),/Jane Doe|123456|SECRET/);assert.equal(found.institutions[0].sources.length,2);assert.equal(requests[3].tools,undefined);
 });
 test('uncited or self-corroborating domains and unconfirmed identities fail closed',()=>{
  const identities=[{name:'Authority'}],item={name:'Authority',country:'JP',officialWebsite:'https://official.go.jp/',corroboratingUrl:'https://directory.go.jp/authority',confirmed:true};
