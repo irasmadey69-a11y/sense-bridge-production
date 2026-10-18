@@ -143,3 +143,20 @@ test('unsafe document-language reply is also withheld; invalid source evidence s
  const out=await harness([fixture.draft(),r]).run();assert.equal(out.replyIntent,'MANUAL_REPLY');assert.equal(out.replies.neutral,'');
  r.actions[0].quotes=['Invented quote'];await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
 });
+
+test('French grouped amounts preserve their whole value across translation and arithmetic',()=>{
+ for(const space of [' ','\u00a0','\u202f']){
+  assert.equal(engine.translationTokensPresent(`24${space}600 € et 28${space}950 €`,'24600 EUR i 28950 EUR'),true);
+  assert.equal(engine.translationTokensPresent(`24${space}600 €`,'24900 EUR'),false);
+  engine.validateCriticalFacts({summary:'Różnica: 4350 EUR.',actions:[],facts:[],calculations:[{operation:'SUBTRACT',operands:[28950,24600],result:4350,quotes:[`28${space}950 € et 24${space}600 €`]}]},`28${space}950 € et 24${space}600 €`);
+ }
+});
+test('separate requests preserve full review and reject tampered source evidence',async()=>{
+ const draft=await harness([fixture.draft()],{stage:'draft'}).run();
+ assert.equal(draft.stage,'draft');assert.equal(draft.qualityChecked,undefined);
+ const final=await harness([fixture.review()],{stage:'review',draft:draft.draft}).run();
+ assert.equal(final.qualityChecked,true);
+ const bad=fixture.review();bad.actions[0].quotes=['Forged evidence'];
+ await assert.rejects(harness([bad],{stage:'review',draft:draft.draft}).run(),e=>e.code==='LETTER_UNVERIFIED');
+ await assert.rejects(harness([],{stage:'review',draft:{}}).run(),e=>e.code==='LETTER_INCOMPLETE');
+});
