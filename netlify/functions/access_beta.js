@@ -59,8 +59,11 @@ exports.handler = async (event) => {
 
     await store.set(email, JSON.stringify(existing));
 
+    const mail = await require("./_mail").sendActivation({email,plan:"BETA",createdAt:now,lang:existing.requestLang});
     return json(200, {
       ok: true,
+      emailSent: mail.sent, emailError: mail.error,
+      adminEmailSent: mail.adminEmailSent, adminEmailError: mail.adminEmailError,
       email,
       status: "BETA",
       plan: "BETA",
@@ -85,3 +88,4 @@ function json(statusCode, obj) {
     body: JSON.stringify(obj)
   };
 }
+

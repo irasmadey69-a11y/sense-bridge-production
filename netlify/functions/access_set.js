@@ -51,14 +51,9 @@ exports.handler = async (event) => {
       token: process.env.NETLIFY_AUTH_TOKEN
     });
 
-    // Zachowujemy dotychczasową logikę:
-    // PIN jest sprawdzany tylko wtedy, gdy został przesłany.
     const adminPin = String(body.adminPin || "");
-    const isAdmin = Boolean(
-      adminPin &&
-      process.env.ADMIN_PIN &&
-      adminPin === process.env.ADMIN_PIN
-    );
+    const isAdmin = Boolean(process.env.ADMIN_PIN && adminPin === process.env.ADMIN_PIN);
+    if (!isAdmin) return json(403, {ok:false,error:"Brak dostępu (PIN)"});
 
     const existingRaw = await store.get(email);
 
@@ -111,6 +106,7 @@ exports.handler = async (event) => {
       plan,
       paymentTitle,
       aiLimit,
+      lang: existingSafe?.requestLang,
       createdAt: now,
       expires
     });
@@ -126,7 +122,9 @@ exports.handler = async (event) => {
       expires,
       analyticsError,
       emailSent: mailResult.sent,
-      emailError: mailResult.error || null
+      emailError: mailResult.error || null,
+      adminEmailSent: mailResult.adminEmailSent,
+      adminEmailError: mailResult.adminEmailError
     });
 
   } catch (e) {
@@ -155,58 +153,7 @@ async function readMap(store,key){
   try{ const v=raw?JSON.parse(raw):{}; return v&&typeof v==="object"&&!Array.isArray(v)?v:{}; }catch(_){ return {}; }
 }
 
-async function sendNotificationEmail({ email, plan, paymentTitle, aiLimit, createdAt, expires }) {
-  if (!process.env.RESEND_API_KEY) {
-    return {
-      sent: false,
-      error: "Missing RESEND_API_KEY"
-    };
-  }
-
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + process.env.RESEND_API_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "Sense Bridge <onboarding@resend.dev>",
-        to: ["madey.verpakken@gmail.com"],
-        subject: "Nowa aktywacja Sense Bridge",
-        html: `
-          <h2>Nowa aktywacja Sense Bridge</h2>
-          <p><b>Email:</b> ${escapeHtml(email)}</p>
-          <p><b>Plan:</b> ${escapeHtml(plan)}</p>
-          <p><b>Typ dostępu:</b> ${plan === "30d-pro" ? "PRO" : "BASIC"}</p>
-          <p><b>Dodatkowy limit narzędzi AI:</b> ${aiLimit}</p>
-          <p><b>Tytuł przelewu:</b> ${escapeHtml(paymentTitle || "-")}</p>
-          <p><b>Aktywacja:</b> ${new Date(createdAt).toLocaleString("pl-PL")}</p>
-          <p><b>Ważne do:</b> ${new Date(expires).toLocaleString("pl-PL")}</p>
-        `
-      })
-    });
-
-    const responseText = await res.text();
-
-    if (!res.ok) {
-      return {
-        sent: false,
-        error: "Resend error " + res.status + ": " + responseText
-      };
-    }
-
-    return {
-      sent: true,
-      error: null
-    };
-  } catch (e) {
-    return {
-      sent: false,
-      error: e?.message || String(e)
-    };
-  }
-}
+const { sendActivation: sendNotificationEmail } = require('./_mail');
 
 function safeJson(value) {
   try {
@@ -240,3 +187,4 @@ function json(statusCode, obj) {
     body: JSON.stringify(obj)
   };
 }
+
