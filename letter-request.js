@@ -37,7 +37,14 @@
  async function request(url,body,fetcher=root.fetch.bind(root),timeoutMs=55000){
   if(body.mode==='letter'&&!body.letterStage){
    const first=await request(url,{...body,letterStage:'draft'},fetcher,timeoutMs);
-   return request(url,{...body,letterStage:'review',letterDraft:first.draft},fetcher,timeoutMs);
+   const result=await request(url,{...body,letterStage:'review',letterDraft:first.draft},fetcher,timeoutMs);
+   try{
+    result.institutionSearch=await request(url,{...body,letterStage:'institutions'},fetcher,timeoutMs);
+    const normalize=name=>String(name||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+    const primary=result.institutionSearch.institutions.find(x=>x.verification==='web'&&normalize(x.name)===normalize(result.institution?.name));
+    if(primary)result.institution={...result.institution,...primary};
+   }catch{result.institutionSearch={status:'unavailable',institutions:[]};}
+   return result;
   }
   const controller=new AbortController();let timer;
   const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(error('LETTER_TIMEOUT'));},timeoutMs);});
@@ -45,6 +52,10 @@
    const response=await fetcher(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw error('LETTER_UPSTREAM');}
    if(!response.ok||data.ok===false){if(data.validationStage&&root.console)root.console.warn('Sense Bridge validation stage:',data.validationStage);throw error(data.errorCode||'LETTER_UPSTREAM');}
+   if(body.letterStage==='institutions'){
+    if(!Array.isArray(data.institutions)||!['verified','unverified','unidentified','unavailable'].includes(data.status))throw error('LETTER_INCOMPLETE');
+    return data;
+   }
    if(body.letterStage==='draft'){
     if(data?.ok!==true||data.stage!=='draft'||data.pipeline!=='letter-evidence-v1'||!data.draft||typeof data.draft!=='object')throw error('LETTER_INCOMPLETE');
     return data;

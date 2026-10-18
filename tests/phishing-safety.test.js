@@ -42,3 +42,21 @@ test('a body mention or imitation domain cannot supply an official sender identi
 test('sender header survives plain-text line wrapping without mistaking the DigiD credential request for the sender',()=>{
  const c=security();assert.equal(c.sbLetterHeaderInstitution(source.replace(/\n/g,' ')).entry.name,'Belastingdienst');
 });
+
+
+test('Czech tax authority headers and aliases restore the independently registered website',()=>{
+ const c=security();
+ for(const header of ['Finanční správa České republiky','Finanční správa','Finanční správa ČR','Financni sprava']){
+  for(const separator of ['\n',' ']){
+   const text=header+separator+'Předmět: Vrácení daně\nZadejte heslo a kód SMS na https://financnisprava.gov.cz.overeni-uctu.example/preplatek';
+   const v=fixture.review();v.fraudRisk.level='HIGH';v.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:''};
+   c.applyLetterSecurity(v,text,'PL','final','CS');const out=engine.project(v,text,'CS','PL','CS');
+   assert.equal(out.institution.name,'Finanční správa',header);assert.equal(out.institution.country,'CZ');assert.equal(out.institution.officialWebsite,'https://financnisprava.gov.cz');
+   assert.deepEqual(out.helpLinks,[{label:'Finanční správa',url:'https://financnisprava.gov.cz'}]);assert.match(out.actions.join(' '),/https:\/\/financnisprava\.gov\.cz/);assert.doesNotMatch(out.actions.join(' '),/\.example/);
+  }
+ }
+});
+test('similar Czech words and a body mention do not create a tax-authority identity',()=>{
+ const c=security();
+ for(const text of ['Finanční služby ABC\nPředmět: nabídka', 'Dobrý den, toto není zpráva od Finanční správy.'])assert.equal(c.sbLetterHeaderInstitution(text),null);
+});

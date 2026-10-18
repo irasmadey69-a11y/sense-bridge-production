@@ -73,6 +73,9 @@ exports.handler = async (event, context) => {
     }
 
     if (mode === 'letter') {
+      if(body.letterStage==='institutions'){
+        return json(200,headers,await require('./_institution-search').resolve({key:apiKey,text,userLang,event,context,accessType,recordUsage}));
+      }
       const result = await require('./_letter-analysis').analyze({
         key:apiKey,text,userLang,sourceLang,outputRegion:body.outputRegion,event,context,accessType,fetcher:fetch,recordUsage,
         stage:body.letterStage,draft:body.letterDraft,
@@ -647,13 +650,13 @@ detectedPhones,
 
 function sbLetterHeaderInstitution(text) {
   const lines=String(text||'').split(/\n+/).map(line=>line.trim()).filter(Boolean);
-  const lead=String(text||'').split(/\b(?:Onderwerp|Subject|Objet|Asunto|Betreff)\s*:/iu)[0].trim();
+  const lead=String(text||'').split(/\b(?:Onderwerp|Subject|Objet|Asunto|Betreff|Předmět)\s*:/iu)[0].trim();
   const headers=[lead,...lines.slice(0,8),...lines.slice(-4)];
   for(const line of headers){
     if(line.length>180||/https?:\/\//i.test(line))continue;
     for(const entry of sbGlobalInstitutionRegistryV2()){
-      const name=entry.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-      const exact=new RegExp('^'+name+'(?:\\s+[—–-]\\s+[^\\n]{1,60})?[.!]?$','iu');
+      const names=[entry.name,...(entry.aliases||[])].map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+      const exact=new RegExp('^(?:'+names.join('|')+')(?:\\s+[—–-]\\s+[^\\n]{1,60})?[.!]?$','iu');
       const french=entry.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(line);
       if(exact.test(line)||french)return {entry,quote:line};
     }
@@ -698,7 +701,8 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
       for(const locale of ['en','nl','de','fr','pl','es','it','pt',(detectedLang||candidate.detectedLang)?.toLowerCase()]){try{names.push(new Intl.DisplayNames([locale],{type:'region'}).of(country));}catch{}}
       const supported=names.some(name=>name && new RegExp('(?:^|[^\\p{L}])'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:$|[^\\p{L}])','iu').test(text));
       if(!supported)institution.country='';
-      if(institution.officialWebsite&&!String(text).includes(institution.officialWebsite))institution.officialWebsite='';
+      // A URL printed in a letter is a claim, never independent verification.
+      institution.officialWebsite='';
     }
     if(quote && require('./_letter-analysis').sourceContains(text,quote))candidate.institution={...institution,quote};
   } else candidate.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:''};
@@ -1348,6 +1352,9 @@ function sbGlobalInstitutionRegistryV2() {
     { name:"NHS", country:"GB", officialWebsite:"https://www.nhs.uk", patterns:[/\bnhs\b|national health service/i] },
     { name:"Department of Social Protection", country:"IE", officialWebsite:"https://www.gov.ie", patterns:[/department of social protection|\bmywelfare\b/i] },
     { name:"Revenue Ireland", country:"IE", officialWebsite:"https://www.revenue.ie", patterns:[/revenue commissioners|revenue ireland|\brevenue\b.*ireland/i] },
+
+    // Czech Republic
+    { name:"Finanční správa", country:"CZ", officialWebsite:"https://financnisprava.gov.cz", aliases:["Finanční správa České republiky","Finanční správa ČR","Financni sprava","Financni sprava Ceske republiky"], patterns:[/finanční správa|financni sprava|financnisprava\.gov\.cz/iu] },
 
     // France / Belgium / Luxembourg
     { name:"Impots.gouv.fr", country:"FR", officialWebsite:"https://www.impots.gouv.fr", patterns:[/imp[oô]ts\.gouv|direction générale des finances publiques|dgfip/i] },

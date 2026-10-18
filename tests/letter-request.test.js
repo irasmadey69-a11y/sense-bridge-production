@@ -33,6 +33,22 @@ test('letter transport waits for review and never renders or accepts the draft a
   const data=body.letterStage==='draft'?{ok:true,pipeline:'letter-evidence-v1',stage:'draft',draft:{translation:'draft only'}}:{ok:true,pipeline:'letter-evidence-v1',qualityChecked:true,summary:'Reviewed',translation:'complete'};
   return {ok:true,text:async()=>JSON.stringify(data)};
  });
- assert.equal(result.summary,'Reviewed');assert.deepEqual(bodies.map(x=>x.letterStage),['draft','review']);assert.deepEqual(bodies[1].letterDraft,{translation:'draft only'});
+ assert.equal(result.summary,'Reviewed');assert.deepEqual(bodies.map(x=>x.letterStage),['draft','review','institutions']);assert.deepEqual(bodies[1].letterDraft,{translation:'draft only'});
  await assert.rejects(request.request('/test',{mode:'letter'},async()=>({ok:true,text:async()=>JSON.stringify({ok:true,summary:'unreviewed'})})),e=>e.code==='LETTER_INCOMPLETE');
+});
+
+test('institution lookup failure preserves reviewed analysis and is explicitly reported',async()=>{
+ const stages=[];const result=await request.request('/test',{mode:'letter',text:'Authority'},async(u,o)=>{
+ const stage=JSON.parse(o.body).letterStage;stages.push(stage);
+ if(stage==='institutions')throw Error('offline');
+ return {ok:true,text:async()=>JSON.stringify(stage==='draft'?{ok:true,pipeline:'letter-evidence-v1',stage:'draft',draft:{}}:{ok:true,pipeline:'letter-evidence-v1',summary:'Complete',translation:'Complete',qualityChecked:true})};
+ });assert.equal(result.summary,'Complete');assert.equal(result.institutionSearch.status,'unavailable');assert.deepEqual(stages,['draft','review','institutions']);
+});
+test('web-confirmed primary institution replaces unverified country and site, retaining the complete result',async()=>{
+ const inst={name:'National Tax Agency',country:'JP',officialWebsite:'https://www.nta.go.jp/',verification:'web',sources:[{url:'https://www.nta.go.jp/'}]};
+ const result=await request.request('/test',{mode:'letter',text:'National Tax Agency'},async(u,o)=>{
+ const stage=JSON.parse(o.body).letterStage;
+ const data=stage==='draft'?{ok:true,pipeline:'letter-evidence-v1',stage:'draft',draft:{}}:stage==='institutions'?{ok:true,status:'verified',institutions:[inst]}:{ok:true,pipeline:'letter-evidence-v1',qualityChecked:true,summary:'Complete',translation:'Complete',institution:{name:'National Tax Agency',country:'',officialWebsite:''}};
+ return {ok:true,text:async()=>JSON.stringify(data)};
+ });assert.equal(result.institution.country,'JP');assert.equal(result.institution.officialWebsite,inst.officialWebsite);assert.equal(result.summary,'Complete');
 });
