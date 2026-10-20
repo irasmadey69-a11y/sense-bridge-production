@@ -235,8 +235,9 @@ async function analyze(options){
   const summary=explanation&&explanation!==notice?notice+'\n\n'+explanation:notice;
   return {...result,qualityChecked:false,analysisStatus:'partial',analysisWarning:notice,translationComplete:!!preparedDraft.translationComplete&&translationTokensPresent(text,translation),validationReason:reason||'REVIEW_UNAVAILABLE',summary,whatOfficeSays:summary,communication:summary,officeSummary:summary};
  }
- async function call(schema,prompt,feature,maxTokens){
+ async function call(schema,prompt,feature,maxTokens,attempt=0){
   controller.signal.throwIfAborted();
+  const originalPrompt=prompt;
   if(passages)prompt+='\nCITATION TRANSPORT: quote and quotes fields MUST contain integer IDs from this source catalog. Choose passages supporting the claim and preserving its conditions. ID 0 is empty and is allowed only for an unidentified institution. The server expands IDs back into exact original quotes. Never type rewritten quotes.\nSOURCE CATALOG:\n'+JSON.stringify(passages.map((quote,id)=>({id,quote})));
   const wireSchema=passages?citationSchema(schema,passages):schema;
   const res=await fetcher('https://api.openai.com/v1/responses',{
@@ -245,7 +246,15 @@ async function analyze(options){
   });
   const raw=await res.text();let data;try{data=JSON.parse(raw);}catch{throw failure('LETTER_UPSTREAM');}
   if(data.usage)usage.push({data,feature});
-  if(!res.ok)throw failure(res.status===429?'LETTER_BUSY':'LETTER_UPSTREAM',res.status===429?503:502);
+  if(!res.ok){
+   const upstreamCode=String(data.error?.code||data.error?.type||'');
+   const reason=['insufficient_quota','rate_limit_exceeded','billing_hard_limit_reached'].includes(upstreamCode)?upstreamCode.toUpperCase():'';
+   if(res.status===429&&reason!=='INSUFFICIENT_QUOTA'&&reason!=='BILLING_HARD_LIMIT_REACHED'&&attempt<2){
+    await new Promise((resolve,reject)=>{const pause=setTimeout(resolve,1000*(attempt+1));controller.signal.addEventListener('abort',()=>{clearTimeout(pause);reject(failure('LETTER_TIMEOUT',504));},{once:true});});
+    return call(schema,originalPrompt,feature,maxTokens,attempt+1);
+   }
+   throw failure(res.status===429?'LETTER_BUSY':'LETTER_UPSTREAM',res.status===429?503:502,reason);
+  }
   if(data.status!=='completed'||data.error||data.incomplete_details)throw failure('LETTER_INCOMPLETE');
   let output=data.output_text||'';
   for(const item of data.output||[])for(const part of item.content||[]){if(part.type==='refusal')throw failure('LETTER_UNAVAILABLE',422);if(!output&&part.type==='output_text')output=part.text;}
