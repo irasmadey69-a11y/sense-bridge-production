@@ -34,10 +34,20 @@
   return messages[lang]||messages.EN;
  }
  function error(code){const e=new Error(code);e.code=code;return e;}
+ function partialResult(draft,lang,reason){
+  const translation=String(draft?.translation||'').trim();
+  if(!translation)return null;
+  const notice=String(draft.fallbackNotice||'').trim()||(lang==='PL'?'Tłumaczenie jest dostępne, ale dodatkowa kontrola wyniku nie została zakończona. Wynik może być niepełny. Sprawdź szczególnie daty, godziny i kwoty.':'The translation is available, but additional checks could not be completed. The result may be incomplete. Check dates, times and amounts.');
+  const replies={neutral:'',polite:'',firm:''};
+  return {ok:true,pipeline:'letter-evidence-v1',qualityChecked:false,analysisStatus:'partial',analysisWarning:notice,validationReason:reason||'REVIEW_UNAVAILABLE',translationComplete:!!draft.translationComplete,translation,summary:notice,whatOfficeSays:notice,detectedLang:draft.detectedLang,actions:[],consequences:[],nextSteps:[],help:[],helpLinks:[],risks:[notice],responseRequired:'UNKNOWN',urgency:'UNKNOWN',legalHelpNeeded:'NONE',replyIntent:'NO_REPLY',replyGuidance:notice,replies,repliesDocument:{...replies},examples:{...replies},fraudRisk:{level:'UNKNOWN',confidence:0,label:notice,summary:notice,signals:[],suspiciousElements:[],safeSteps:[],disclaimer:notice},institution:{name:'',country:'',officialWebsite:'',confidence:0},institutionSearch:{status:'unavailable',institutions:[]}};
+ }
  async function request(url,body,fetcher=root.fetch.bind(root),timeoutMs=55000){
   if(body.mode==='letter'&&!body.letterStage){
    const first=await request(url,{...body,letterStage:'draft'},fetcher,timeoutMs);
-   const result=await request(url,{...body,letterStage:'review',letterDraft:first.draft},fetcher,timeoutMs);
+   let result;
+   try{result=await request(url,{...body,letterStage:'review',letterDraft:first.draft},fetcher,timeoutMs);}
+   catch(e){result=partialResult(first.draft,body.userLang,e.code);if(!result)throw e;}
+   if(result.analysisStatus==='partial')return result;
    try{
     result.institutionSearch=await request(url,{...body,letterStage:'institutions'},fetcher,timeoutMs);
     const normalize=name=>String(name||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
@@ -61,7 +71,10 @@
     return data;
    }
    if(!data||typeof data!=='object'||!String(data.summary||'').trim())throw error('LETTER_INCOMPLETE');
-   if(data.pipeline==='letter-evidence-v1'&&(!data.qualityChecked||!String(data.translation||'').trim()))throw error('LETTER_INCOMPLETE');
+   if(data.pipeline==='letter-evidence-v1'){
+    const partial=data.analysisStatus==='partial'&&data.qualityChecked===false&&String(data.analysisWarning||'').trim();
+    if((!data.qualityChecked&&!partial)||!String(data.translation||'').trim())throw error('LETTER_INCOMPLETE');
+   }
    return data;
   })();
   try{return await Promise.race([work,deadline]);}

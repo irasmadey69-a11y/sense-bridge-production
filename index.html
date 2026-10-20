@@ -2435,7 +2435,6 @@ body.sb-full-view .sb-lang-details>summary{display:none}
 body.sb-full-view .sb-lang-body{padding:0}
 body.sb-simple-view #fraudInfoCard,
 body.sb-simple-view #translationCardV11,
-body.sb-simple-view #risksAccordion,
 body.sb-simple-view #examplesAccordion,
 body.sb-simple-view #examplesDocAccordion,
 body.sb-simple-view #fraudCard,
@@ -4428,7 +4427,7 @@ body.dark-mode .sb-job-context input,body.dark-mode .sb-job-context select,body.
   </div>
 </div>
 
-<script src="/letter-request.js?v=20261018-world-search-1"></script>
+<script src="/letter-request.js?v=20261020-partial-results-1"></script>
 <script>
 
 let sbModalResolve = null;
@@ -6978,10 +6977,17 @@ function sbUniqueStrings(items){
 }
 
 function sbPolishResultView(data){
-  ["summaryAccordion","risksAccordion","examplesAccordion","examplesDocAccordion"].forEach(function(id){
+  ["summaryAccordion","examplesAccordion","examplesDocAccordion"].forEach(function(id){
     const el = document.getElementById(id);
     if(el) el.removeAttribute("open");
   });
+
+  const communicationRisks=document.getElementById('risksAccordion');
+  if(communicationRisks){
+    communicationRisks.hidden=false;
+    communicationRisks.style.display='block';
+    communicationRisks.setAttribute('open','');
+  }
 
   const fraudCard = document.getElementById("fraudCard");
   if(fraudCard){
@@ -7052,6 +7058,7 @@ if(!text){
 const legalStatusEl = document.getElementById("legalStatus");
 
 if (legalStatusEl) {
+  legalStatusEl.style.display = data.analysisStatus === 'partial' ? 'none' : '';
   const legal = String(data.legalHelpNeeded || "RECOMMENDED").toUpperCase();
 
   const rLang = sbGetResultLang();
@@ -7272,13 +7279,14 @@ fetch("/.netlify/functions/analyze_count", {
   headers: { "X-SB-Event": "analyze", "Content-Type":"application/json" },
   body: JSON.stringify({combined:true,lang:(typeof UI!=="undefined"&&UI&&UI.lang)?UI.lang:"UNKNOWN"})
 }).catch(()=>{});
-    consumeFreeIfNeeded();
+    if(data.analysisStatus!=='partial')consumeFreeIfNeeded();
     refreshUI();
     updatePaidMessage();
 
     if(typeof sbProgressFinish === "function") sbProgressFinish();
     if(typeof sbShowNewAnalysis === "function") sbShowNewAnalysis(true);
     else if(statusEl){ statusEl.textContent = "✅ " + sbUx10Text("statusDone", sbGetResultLang()); }
+    if(data.analysisStatus==='partial'&&statusEl)statusEl.textContent='⚠️ '+data.analysisWarning;
     const quickBox = document.getElementById("sbQuickResult");
     (quickBox || document.getElementById("translation")).scrollIntoView({behavior:"smooth"});
   } catch (e){
@@ -11944,4 +11952,5 @@ body.dark-mode.sb-ai-focus #sbDocLabPanel[data-sb-mode="job"] #sbDocLabStatus{co
 
 <link rel="stylesheet" href="/functions-refresh.css">
 <script src="/languages/functions-24.js?v=20261018"></script>
+
 
