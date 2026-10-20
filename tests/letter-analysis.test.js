@@ -46,6 +46,16 @@ test('strict runtime validation catches missing fields and wrong types even if m
  const d=fixture.draft();delete d.actions;assert.throws(()=>engine.validateShape(d,engine.draftSchema),e=>e.code==='LETTER_INCOMPLETE');
  const r=fixture.review();r.fraudRisk.confidence='95';assert.throws(()=>engine.validateShape(r,engine.reviewSchema));
 });
+test('temporary rate limit retries without duplicating the source catalog',async()=>{
+ const d=fixture.draft(),prepared=Object.fromEntries(Object.keys(engine.preparationSchema.properties).map(k=>[k,d[k]]));
+ const h=harness([()=>({ok:false,status:429,text:async()=>JSON.stringify({error:{code:'rate_limit_exceeded'}})}),prepared],{stage:'draft'});
+ const out=await h.run();assert.equal(out.draft.translation,d.translation);assert.equal(h.requests.length,2);
+ assert.equal(h.requests[0].input[1].content,h.requests[1].input[1].content);
+});
+test('exhausted API quota is identified without futile repeated requests',async()=>{
+ const h=harness([()=>({ok:false,status:429,text:async()=>JSON.stringify({error:{code:'insufficient_quota',message:'private upstream detail'}})})],{stage:'draft'});
+ await assert.rejects(h.run(),e=>e.code==='LETTER_BUSY'&&e.validationReason==='INSUFFICIENT_QUOTA');assert.equal(h.requests.length,1);
+});
 test('global deadline covers stuck fetch and stuck response body',async()=>{
  for(const fetcher of [()=>new Promise(()=>{}),async()=>({ok:true,status:200,text:()=>new Promise(()=>{})})]){
   const start=Date.now();await assert.rejects(engine.analyze({key:'test',text:fixture.source,userLang:'PL',sourceLang:'AUTO',fetcher,timeoutMs:100,recordUsage:async()=>{}}),e=>e.code==='LETTER_TIMEOUT');
