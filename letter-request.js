@@ -29,7 +29,7 @@
   if(lang==='PL'){
    if(code==='LETTER_TIMEOUT')return 'Analiza trwała zbyt długo. Spróbuj ponownie. Nie zużyto bezpłatnego użycia.';
    if(code==='LETTER_TOO_LONG')return 'To pismo jest za długie na jedną analizę. Podziel je na części, zachowując powiązane warunki i terminy. Nie zużyto bezpłatnego użycia.';
-   if(code==='LETTER_UNVERIFIED'||code==='LETTER_INCOMPLETE')return 'Nie udało się uzyskać kompletnego, sprawdzonego wyniku. Sprawdź czytelność pisma i spróbuj ponownie. Nie zużyto bezpłatnego użycia.';
+   if(code==='LETTER_UNVERIFIED'||code==='LETTER_INCOMPLETE')return 'Nie udało się zakończyć sprawdzania wyniku analizy. Spróbuj ponownie. Nie zużyto bezpłatnego użycia.';
   }
   return messages[lang]||messages.EN;
  }
@@ -71,3 +71,4 @@
  root.SBLetterRequest={request,message};
  if(typeof module!=='undefined'&&module.exports)module.exports=root.SBLetterRequest;
 })(typeof window==='undefined'?globalThis:window);
+

@@ -126,6 +126,30 @@ test('German dotted dates and Dutch dotted times are not mistaken for invented m
  engine.validateCriticalFacts(result,'Termin 19.11.2026, 11.30 uur.');
 });
 
+test('Dutch cleanup invitation accepts equivalent whole and half-hour times',async()=>{
+ const source='Opruimdag\nOnze jaarlijkse opruimdag zal weer worden gehouden op zaterdag 31 oktober.\nOntvangst om 9 uur met koffie en worstenbroodje in het clubgebouw.\nHalf 10 indelen in groepen en rondom vijvers gaan schoonmaken.\nHalf 1 terug in clubhuis en soep met een broodje frikandel of kroket.';
+ const d=fixture.draft();Object.assign(d,{detectedLang:'NL',translation:'Dzień sprzątania w sobotę 31 października. Powitanie o 09:00. Podział na grupy o 09:30. Powrót do klubu o 12:30.',facts:[],actions:[],summary:'Sprzątanie w sobotę 31 października: powitanie o 09:00, podział na grupy o 09:30, powrót o 12:30.'});
+ const r=fixture.review(d);
+ r.facts=[{kind:'APPOINTMENT',quote:'Half 10 indelen in groepen en rondom vijvers gaan schoonmaken.',explanation:'Podział na grupy o 09:30.',status:'CURRENT'},{kind:'APPOINTMENT',quote:'Half 1 terug in clubhuis en soep met een broodje frikandel of kroket.',explanation:'Powrót o 12:30.',status:'CURRENT'}];
+ const result=await harness([d,r],{text:source}).run();assert.equal(result.ok,true);assert.match(result.translation,/09:30/);assert.match(result.summary,/12:30/);
+ r.summary+=' Zapłać 900 EUR.';await assert.rejects(harness([d,r],{text:source}).run(),e=>e.validationReason==='NEW_NUMBER');
+});
+
+test('whole hours do not rewrite minutes in dotted or colon time formats',()=>{
+ for(const source of ['11.15 uur','11:15 uur','11.05 Uhr','11:05 Uhr']){
+  const summary=source.replace('.',':');engine.validateCriticalFacts({summary,actions:[],facts:[],calculations:[]},source);
+ }
+});
+
+test('Fontys bare web addresses match equivalent HTTPS links without changing their destination',async()=>{
+ const source='Met de kaart kan je inloggen op de Canon printers. Je printtegoed kan je opwaarderen bij Canon via www.fontys.nl/print. Bij verlies of diefstal van de kaart ben je verplicht dat direct te melden via de website www.fontyskaart.nl. Een nieuwe kaart kost € 10,-.';
+ const d=fixture.draft();Object.assign(d,{detectedLang:'NL',translation:'Kartą logujesz się do drukarek Canon. Konto doładujesz przez www.fontys.nl/print. Zgubienie lub kradzież zgłoś przez www.fontyskaart.nl. Nowa karta kosztuje 10 EUR.',summary:'Nowa karta po zgubieniu lub kradzieży kosztuje 10 EUR.',facts:[],actions:[],detectedLinks:['https://www.fontys.nl/print','https://www.fontyskaart.nl/']});
+ const result=await harness([d,fixture.review(d)],{text:source}).run();assert.equal(result.ok,true);assert.equal(result.detectedLinks[0],'https://www.fontys.nl/print');assert.match(result.translation,/10 EUR/);
+ for(const link of ['https://www.fontys.nl.evil.example/print','https://www.fontys.nl/other','https://www.fontys.nl/print?redirect=evil','https://www.fontys.nl@evil.example/print']){
+  const invalid=fixture.review(d);invalid.detectedLinks=[link];assert.throws(()=>engine.validateEvidence(invalid,source),e=>e.validationReason==='SOURCE_LINK');
+ }
+});
+
 test('fractional model confidence is normalized to percentage points and existing percentages stay unchanged',async()=>{
  const d=fixture.draft(),r=fixture.review();d.fraudRisk.confidence=0.9;r.fraudRisk.confidence=0.9;
  const output=await harness([d,r]).run();assert.equal(output.fraudRisk.confidence,90);
@@ -208,3 +232,4 @@ test('DGFiP source header resolves to the French tax institution and country',()
  c.applyLetterSecurity(candidate,header+'\nhttps://www.impots.gouv.fr/particulier','PL','final','FR');
  assert.equal(candidate.institution.country,'FR');assert.equal(candidate.institution.name,'Impots.gouv.fr');
 });
+

@@ -29,6 +29,25 @@ const reviewSchema = object({facts:list(factSchema),verified:{type:'boolean'},tr
 function failure(code,status=502,reason=""){const e=new Error(code);e.code=code;e.statusCode=status;e.validationReason=reason;return e;}
 function normalize(text){return String(text||'').normalize('NFKC').replace(/^[ \t]*[—–•●▪-][ \t]+/gm,'').replace(/[’‘]/g,"'").replace(/\s+/gu,' ').trim();}
 function sourceContains(source,quote){const q=normalize(quote);return !!q && normalize(source).includes(q);}
+function sourceLink(source,link){
+ const parse=value=>{try{
+  const url=new URL(/^www\./i.test(value)?'https://'+value:value);
+  if(!['http:','https:'].includes(url.protocol)||url.username||url.password)return null;
+  return url;
+ }catch{return null;}};
+ const candidate=parse(String(link));if(!candidate)return null;
+ const links=String(source).match(/(?:https?:\/\/|www\.)[^\s<>"'“”]+/giu)||[];
+ for(const raw of links){
+  let original=raw.replace(/[.,;:!?]+$/u,'');
+  while(original.endsWith(')')&&(original.match(/\)/g)||[]).length>(original.match(/\(/g)||[]).length)original=original.slice(0,-1);
+  const url=parse(original);if(!url)continue;
+  if(url.host===candidate.host&&url.pathname===candidate.pathname&&url.search===candidate.search&&url.hash===candidate.hash){
+   if(/^https?:\/\//i.test(original)&&url.protocol!==candidate.protocol)continue;
+   return url.href;
+  }
+ }
+ return null;
+}
 function validateShape(value,schema){
  if(schema.type==='object'){
   if(!value||typeof value!=='object'||Array.isArray(value))throw failure('LETTER_INCOMPLETE');
@@ -54,9 +73,11 @@ function validateEvidence(result,source){
  if(inst.name.trim()&&!sourceContains(source,inst.quote))Object.assign(inst,{name:'',country:'',officialWebsite:'',confidence:0,quote:''});
  if(inst.officialWebsite && !sourceContains(source,inst.officialWebsite))inst.officialWebsite='';
  if(!inst.name.trim())Object.assign(inst,{name:'',country:'',officialWebsite:'',confidence:0,quote:''});
- for(const link of [...result.detectedLinks,...result.suspiciousLinks]){
-  if(!/^https?:\/\//i.test(link)||!sourceContains(source,link))throw failure('LETTER_UNVERIFIED',502,'SOURCE_LINK');
- }
+ for(const key of ['detectedLinks','suspiciousLinks'])result[key]=result[key].map(link=>{
+  const matched=sourceLink(source,link);
+  if(!matched)throw failure('LETTER_UNVERIFIED',502,'SOURCE_LINK');
+  return matched;
+ });
  result.detectedPhones=result.detectedPhones.filter(p=>sourceContains(source,p));
 }
 function numericValue(token){
@@ -65,7 +86,13 @@ function numericValue(token){
  return Number(decimal?parts.slice(0,-1).join('')+'.'+parts.at(-1):parts.join(''));
 }
 function numberTokens(text){
- const normalized=String(text||'').replace(/\b\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?!\d)/g,n=>n.replace(/[ \u00a0\u202f]/g,'')).replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g,'$1 $2 $3').replace(/\b([01]?\d|2[0-3])\.([0-5]\d)(?=\s*(?:uur|Uhr|h\b))/g,'$1:$2').replace(/\b(um|at|godz\.)\s*([01]?\d|2[0-3])\.([0-5]\d)\b/gi,'$1 $2:$3');
+ const normalized=String(text||'')
+  .replace(/\bhalf\s+(1[0-2]|[1-9])\b/gi,(_,hour)=>`${(Number(hour)+10)%12+1}:30`)
+  .replace(/(?<![\d:.])\b([01]?\d|2[0-3])\s*(?=uur\b|Uhr\b)/g,'$1:00 ')
+  .replace(/\b\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?!\d)/g,n=>n.replace(/[ \u00a0\u202f]/g,''))
+  .replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g,'$1 $2 $3')
+  .replace(/\b([01]?\d|2[0-3])\.([0-5]\d)(?=\s*(?:uur|Uhr|h\b))/g,'$1:$2')
+  .replace(/\b(um|at|godz\.)\s*([01]?\d|2[0-3])\.([0-5]\d)\b/gi,'$1 $2:$3');
  return (normalized.match(/\d+(?:[.,]\d+)*/g)||[]).map(x=>String(numericValue(x)));
 }
 function validateCalculations(result,source){
@@ -252,3 +279,4 @@ async function analyze(options){
  }
 }
 module.exports={analyze,validateEvidence,validateShape,validateCriticalFacts,validateCalculations,sourceContains,translationTokensPresent,hardCredentialRequest,replyViolatesIntent,project,sourcePassages,citationSchema,expandCitations,draftSchema,preparationSchema,reviewSchema,PIPELINE};
+
