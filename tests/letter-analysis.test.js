@@ -6,6 +6,14 @@ function harness(values,options={}){
  const run=()=>engine.analyze({key:'test-only',text:fixture.source,userLang:'PL',sourceLang:'AUTO',recordUsage:async(_e,_c,data,meta)=>{usage.push({data,meta});},fetcher:async(_url,opts)=>{requests.push(JSON.parse(opts.body));assert.ok(values.length,'Unexpected extra model request');const value=values.shift();return typeof value==='function'?value(opts):fixture.api(value);},...options});
  return {run,requests,usage};
 }
+async function expectPartial(promise){
+ const result=await promise;
+ assert.equal(result.ok,true);assert.equal(result.qualityChecked,false);assert.equal(result.analysisStatus,'partial');
+ assert.ok(result.translation.trim());assert.ok(result.analysisWarning.trim());assert.ok(result.summary.startsWith(result.analysisWarning));
+ assert.deepEqual(result.consequences,[]);assert.deepEqual(result.evidence.facts,[]);
+ assert.ok(Object.values(result.replies).every(x=>x===''));
+ return result;
+}
 test('letter preserves reviewed facts, conditional action and full translation with exactly two model calls',async()=>{
  const d=fixture.draft(),r=fixture.review();d.summary='Pozostało 100 EUR.';
  const h=harness([d,r]);const output=await h.run();
@@ -19,15 +27,15 @@ test('review repairs unsupported draft evidence instead of displaying it',async(
  const d=fixture.draft();d.consequences=[{text:'Utracisz prawo.',quotes:['Invented source quote']}];
  const h=harness([d,fixture.review()]);const r=await h.run();assert.deepEqual(r.consequences,[]);assert.match(h.requests[1].input[1].content,/LETTER_UNVERIFIED/);
 });
-test('unsupported consequence in final review is rejected, never returned as success',async()=>{
+test('unsupported consequence is withheld while translation remains visible with a warning',async()=>{
  const r=fixture.review();r.consequences=[{text:'Utrata świadczenia.',quotes:['Nieistniejąca sankcja']}];
- await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
+ const result=await expectPartial(harness([fixture.draft(),r]).run());assert.doesNotMatch(result.summary,/Utrata świadczenia/);
 });
 test('review must preserve complete monetary translation or supply a correction',async()=>{
  const d=fixture.draft();d.detectedLang='NL';d.translation='Kwota 100 EUR, wpłacono 40 EUR.';
  const r=fixture.review();r.translationCorrection=fixture.source;
  const ok=await harness([d,r]).run();assert.match(ok.translation,/60 EUR/);
- r.translationCorrection='';await assert.rejects(harness([d,r]).run(),e=>e.code==='LETTER_UNVERIFIED');
+ r.translationCorrection='';const partial=await expectPartial(harness([d,r]).run());assert.equal(partial.translationComplete,false);
 });
 test('partial, malformed, refused and HTML upstream responses never become usable analyses',async()=>{
  for(const response of [fixture.api(fixture.draft(),{status:'incomplete'}),fixture.api(fixture.draft(),{output_text:'{bad'}),{ok:false,status:502,text:async()=>'<HTML>Gateway error</HTML>'},fixture.api(fixture.draft(),{output_text:'',output:[{content:[{type:'refusal',refusal:'No'}]}]})]){
@@ -57,7 +65,7 @@ test('high-risk credential theft never offers a reply to the suspicious sender',
 });
 test('obvious credential theft cannot pass a low-risk review',async()=>{
  const source='Enter password and SMS code at https://bad.example/login';const d=fixture.draft();d.translation=source;d.detectedLang='EN';d.facts=[];d.actions=[];d.summary='Wiadomość prosi o hasło i kod SMS.';
- await assert.rejects(harness([d,fixture.review(d)],{text:source}).run(),e=>e.code==='LETTER_UNVERIFIED');
+ const partial=await expectPartial(harness([d,fixture.review(d)],{text:source}).run());assert.equal(partial.fraudRisk.level,'HIGH');assert.equal(partial.replyIntent,'NO_REPLY');
 });
 test('recipient commitments and adviser perspective are rejected across common languages',()=>{
  for(const s of ['Potwierdzam swoją obecność.','Proszę o potwierdzenie mojej obecności.','Chętnie dostarczę dokumenty.','W razie potrzeby służę pomocą.','I will pay tomorrow.','Please confirm my attendance.','Ich bestätige meine Teilnahme.','Je confirme ma présence.','Ik zal betalen.'])assert.equal(engine.replyViolatesIntent(s),true,s);
@@ -104,17 +112,17 @@ test('a warning not to share credentials is not treated as a request to send the
 test('reviewed critical deadlines cannot disappear from summary and actions',async()=>{
  const r=fixture.review();r.facts.push({kind:'DEADLINE',quote:'Kopię dokumentu dostarcz przed 20 listopada 2026, jeśli jesteś zatrudniony.',explanation:'Termin: przed 20 listopada 2026.',status:'CURRENT'});
  r.summary='Prośba o dokumenty.';r.actions=[];
- await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
+ const partial=await expectPartial(harness([fixture.draft(),r]).run());assert.match(partial.translation,/20 listopada/);
 });
 test('new numeric dates or amounts absent from the source are rejected',async()=>{
  const r=fixture.review();r.summary+=' Zapłać 900 EUR.';
- await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
+ const partial=await expectPartial(harness([fixture.draft(),r]).run());assert.doesNotMatch(partial.summary,/900 EUR/);
 });
 test('derived balance is allowed only when source operands and arithmetic are verified',async()=>{
  const source='Kwota 100 EUR. Wpłacono 40 EUR.';const d=fixture.draft();d.translation=source;d.facts=[];d.actions=[];d.summary='Pozostało 60 EUR.';
  d.calculations=[{operation:'SUBTRACT',operands:[100,40],result:60,quotes:['Kwota 100 EUR. Wpłacono 40 EUR.']}];
  const r=fixture.review(d);const output=await harness([d,r],{text:source}).run();assert.match(output.summary,/60 EUR/);
- r.calculations[0].result=70;await assert.rejects(harness([d,r],{text:source}).run(),e=>e.code==='LETTER_UNVERIFIED');
+ r.calculations[0].result=70;const partial=await expectPartial(harness([d,r],{text:source}).run());assert.doesNotMatch(partial.summary,/70/);
 });
 test('decimal amount formats and explicit arithmetic keep numeric value',()=>{
  assert.equal(engine.translationTokensPresent('17,50 EUR','17.50 EUR'),true);
@@ -132,13 +140,34 @@ test('Dutch cleanup invitation accepts equivalent whole and half-hour times',asy
  const r=fixture.review(d);
  r.facts=[{kind:'APPOINTMENT',quote:'Half 10 indelen in groepen en rondom vijvers gaan schoonmaken.',explanation:'Podział na grupy o 09:30.',status:'CURRENT'},{kind:'APPOINTMENT',quote:'Half 1 terug in clubhuis en soep met een broodje frikandel of kroket.',explanation:'Powrót o 12:30.',status:'CURRENT'}];
  const result=await harness([d,r],{text:source}).run();assert.equal(result.ok,true);assert.match(result.translation,/09:30/);assert.match(result.summary,/12:30/);
- r.summary+=' Zapłać 900 EUR.';await assert.rejects(harness([d,r],{text:source}).run(),e=>e.validationReason==='NEW_NUMBER');
+ r.summary+=' Zapłać 900 EUR.';const partial=await expectPartial(harness([d,r],{text:source}).run());assert.equal(partial.validationReason,'NEW_NUMBER');
 });
 
 test('whole hours do not rewrite minutes in dotted or colon time formats',()=>{
  for(const source of ['11.15 uur','11:15 uur','11.05 Uhr','11:05 Uhr']){
   const summary=source.replace('.',':');engine.validateCriticalFacts({summary,actions:[],facts:[],calculations:[]},source);
  }
+});
+
+test('Dutch quarter-hour expressions are equivalent to digital clock notation',()=>{
+ engine.validateCriticalFacts({summary:'Powitanie o 8:00, początek o 9:15, druga część o 9:45, obiad o 12:30, koniec o 14:15.',actions:[],facts:[],calculations:[]},'Ontvangst om 8 uur. Begin om kwart over 9. Tweede deel om kwart voor 10. Lunch om half 1. Einde om 14.15 uur.');
+});
+
+test('review timeout preserves the prepared translation as an explicitly partial result',async()=>{
+ const full=fixture.draft(),prepared=Object.fromEntries(Object.keys(engine.preparationSchema.properties).map(k=>[k,full[k]]));
+ const result=await expectPartial(engine.analyze({key:'test',text:fixture.source,userLang:'PL',sourceLang:'AUTO',stage:'review',draft:prepared,timeoutMs:100,fetcher:()=>new Promise(()=>{}),recordUsage:async()=>{}}));
+ assert.equal(result.translation,fixture.source);assert.equal(result.fraudRisk.level,'UNKNOWN');
+});
+
+test('incomplete and malformed review responses retain the completed translation',async()=>{
+ for(const response of [fixture.api({}, {status:'incomplete'}),fixture.api({}, {output_text:'{broken'}),{ok:false,status:502,text:async()=>'<HTML>Gateway error</HTML>'}]){
+  const result=await expectPartial(harness([fixture.draft(),()=>response]).run());assert.equal(result.translation,fixture.source);
+ }
+});
+
+test('review reporting uncertainty preserves translation without presenting an unverified summary',async()=>{
+ const r=fixture.review();r.verified=false;r.summary='Zapłać 900 EUR.';
+ const result=await expectPartial(harness([fixture.draft(),r]).run());assert.doesNotMatch(result.summary,/900/);assert.equal(result.fraudRisk.level,'UNKNOWN');
 });
 
 test('Fontys bare web addresses match equivalent HTTPS links without changing their destination',async()=>{
@@ -165,7 +194,7 @@ test('both model passes explicitly keep phishing threats attributed and confiden
 test('unsafe document-language reply is also withheld; invalid source evidence still fails',async()=>{
  const r=fixture.review();r.repliesDocument.firm='I will pay tomorrow.';
  const out=await harness([fixture.draft(),r]).run();assert.equal(out.replyIntent,'MANUAL_REPLY');assert.equal(out.replies.neutral,'');
- r.actions[0].quotes=['Invented quote'];await assert.rejects(harness([fixture.draft(),r]).run(),e=>e.code==='LETTER_UNVERIFIED');
+ r.actions[0].quotes=['Invented quote'];const partial=await expectPartial(harness([fixture.draft(),r]).run());assert.deepEqual(partial.actions,[]);
 });
 
 test('French grouped amounts preserve their whole value across translation and arithmetic',()=>{
@@ -182,7 +211,7 @@ test('separate requests preserve full review and reject tampered source evidence
  const final=await harness([fixture.review()],{stage:'review',draft:draft.draft}).run();
  assert.equal(final.qualityChecked,true);
  const bad=fixture.review();bad.actions[0].quotes=['Forged evidence'];
- await assert.rejects(harness([bad],{stage:'review',draft:draft.draft}).run(),e=>e.code==='LETTER_UNVERIFIED');
+ const partial=await expectPartial(harness([bad],{stage:'review',draft:draft.draft}).run());assert.deepEqual(partial.actions,[]);
  await assert.rejects(harness([],{stage:'review',draft:{}}).run(),e=>e.code==='LETTER_INCOMPLETE');
 });
 
@@ -220,7 +249,7 @@ test('source citation IDs expand to exact original passages and invalid IDs fail
  const r=fixture.review();r.facts=[];r.calculations=[];r.actions=[{text:'Wyjaśnij treść pisma.',quotes:[1]}];r.consequences=[];r.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:0};
  const out=await harness([r],{stage:'review',draft:prepared}).run();
  assert.equal(out.evidence.actions[0].quotes[0],passages[1]);
- r.actions[0].quotes=[999999];await assert.rejects(harness([r],{stage:'review',draft:prepared}).run(),e=>e.code==='LETTER_INCOMPLETE');
+ r.actions[0].quotes=[999999];const partial=await expectPartial(harness([r],{stage:'review',draft:prepared}).run());assert.deepEqual(partial.actions,[]);
 });
 
 test('DGFiP source header resolves to the French tax institution and country',()=>{
