@@ -2435,7 +2435,6 @@ body.sb-full-view .sb-lang-details>summary{display:none}
 body.sb-full-view .sb-lang-body{padding:0}
 body.sb-simple-view #fraudInfoCard,
 body.sb-simple-view #translationCardV11,
-body.sb-simple-view #risksAccordion,
 body.sb-simple-view #examplesAccordion,
 body.sb-simple-view #examplesDocAccordion,
 body.sb-simple-view #fraudCard,
@@ -6978,10 +6977,17 @@ function sbUniqueStrings(items){
 }
 
 function sbPolishResultView(data){
-  ["summaryAccordion","risksAccordion","examplesAccordion","examplesDocAccordion"].forEach(function(id){
+  ["summaryAccordion","examplesAccordion","examplesDocAccordion"].forEach(function(id){
     const el = document.getElementById(id);
     if(el) el.removeAttribute("open");
   });
+
+  const communicationRisks=document.getElementById('risksAccordion');
+  if(communicationRisks){
+    communicationRisks.hidden=false;
+    communicationRisks.style.display='block';
+    communicationRisks.setAttribute('open','');
+  }
 
   const fraudCard = document.getElementById("fraudCard");
   if(fraudCard){
