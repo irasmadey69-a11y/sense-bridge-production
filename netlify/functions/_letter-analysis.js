@@ -15,7 +15,7 @@ const institutionSchema = object({name:textType,country:textType,officialWebsite
 const fraudSchema = object({level:enumType(['LOW','MEDIUM','HIGH','UNKNOWN']),confidence:confidenceType,label:textType,summary:textType,signals:list(textType),suspiciousElements:list(textType),safeSteps:list(textType),disclaimer:textType});
 const fields = {
  calculations:list(object({operation:enumType(['ADD','SUBTRACT']),operands:list({type:'number'}),result:{type:'number'},quotes:list(textType)})),
- summary:textType,actions:list(groundedSchema),consequences:list(groundedSchema),
+ summary:textType,fallbackNotice:textType,actions:list(groundedSchema),consequences:list(groundedSchema),
  responseRequired:enumType(['YES','NO','UNKNOWN']),urgency:enumType(['LOW','MEDIUM','HIGH','UNKNOWN']),
  legalHelpNeeded:enumType(['NONE','RECOMMENDED','URGENT']),documentTone:textType,
  replyIntent:enumType(['ACKNOWLEDGE_ONLY','NO_REPLY']),replyGuidance:textType,replies:repliesSchema,repliesDocument:repliesSchema,
@@ -23,7 +23,7 @@ const fields = {
  detectedLinks:list(textType),suspiciousLinks:list(textType),detectedPhones:list(textType)
 };
 const draftSchema = object({detectedLang:enumType([...Object.keys(require('./_world-catalog.json').languages),'UNKNOWN']),translation:textType,translationComplete:{type:'boolean'},facts:list(factSchema),...fields});
-const preparationSchema=object({detectedLang:draftSchema.properties.detectedLang,translation:textType,translationComplete:{type:'boolean'},facts:list(factSchema)});
+const preparationSchema=object({detectedLang:draftSchema.properties.detectedLang,translation:textType,translationComplete:{type:'boolean'},facts:list(factSchema),summary:textType,fallbackNotice:textType});
 const reviewSchema = object({facts:list(factSchema),verified:{type:'boolean'},translationComplete:{type:'boolean'},translationCorrection:textType,...fields});
 
 function failure(code,status=502,reason=""){const e=new Error(code);e.code=code;e.statusCode=status;e.validationReason=reason;return e;}
@@ -87,6 +87,8 @@ function numericValue(token){
 }
 function numberTokens(text){
  const normalized=String(text||'')
+  .replace(/\bkwart\s+over\s+(1[0-2]|[1-9])\b/gi,'$1:15')
+  .replace(/\bkwart\s+voor\s+(1[0-2]|[1-9])\b/gi,(_,hour)=>`${(Number(hour)+10)%12+1}:45`)
   .replace(/\bhalf\s+(1[0-2]|[1-9])\b/gi,(_,hour)=>`${(Number(hour)+10)%12+1}:30`)
   .replace(/(?<![\d:.])\b([01]?\d|2[0-3])\s*(?=uur\b|Uhr\b)/g,'$1:00 ')
   .replace(/\b\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?!\d)/g,n=>n.replace(/[ \u00a0\u202f]/g,''))
@@ -200,7 +202,7 @@ async function analyze(options){
  if(options.stage&&!['draft','review'].includes(options.stage))throw failure('LETTER_STAGE',400);
  if(options.stage==='review'){
   if(!options.draft||JSON.stringify(options.draft).length>100000)throw failure('LETTER_INCOMPLETE',400);
-  validateShape(options.draft,Object.hasOwn(options.draft,'summary')?draftSchema:preparationSchema);
+  validateShape(options.draft,Object.hasOwn(options.draft,'actions')?draftSchema:preparationSchema);
  }
  if(!text.trim())throw failure('LETTER_EMPTY',400);
  if(text.length>24000)throw failure('LETTER_TOO_LONG',413);
@@ -210,7 +212,26 @@ async function analyze(options){
  let rejectDeadline;const deadline=new Promise((_,reject)=>{rejectDeadline=reject;});
  const timer=setTimeout(()=>{controller.abort();rejectDeadline(failure('LETTER_TIMEOUT',504));},budget);
  const passages=options.stage?sourcePassages(text):null;
- const usage=[];let telemetryLanguage=sourceLang;let validationStage="DRAFT";
+ const usage=[];let telemetryLanguage=sourceLang;let validationStage="DRAFT",preparedDraft=null;
+ function partialResult(reason){
+  const translation=String(preparedDraft?.translation||'').trim();
+  if(!translation)return null;
+  const notice=String(preparedDraft.fallbackNotice||'').trim()||(userLang==='PL'?'Tłumaczenie jest dostępne, ale dodatkowa kontrola wyniku nie została zakończona. Wynik może być niepełny. Sprawdź szczególnie daty, godziny i kwoty.':'The translation is available, but additional checks could not be completed. The result may be incomplete. Check dates, times and amounts.');
+  const candidate={facts:[],calculations:[],summary:notice,actions:[],consequences:[],responseRequired:'UNKNOWN',urgency:'UNKNOWN',legalHelpNeeded:'NONE',documentTone:'',replyIntent:'NO_REPLY',replyGuidance:notice,replies:{neutral:'',polite:'',firm:''},repliesDocument:{neutral:'',polite:'',firm:''},risks:[],help:[],institution:{name:'',country:'',officialWebsite:'',confidence:0,quote:''},fraudRisk:{level:'UNKNOWN',confidence:0,label:notice,summary:notice,signals:[],suspiciousElements:[],safeSteps:[],disclaimer:notice},detectedLinks:[],suspiciousLinks:[],detectedPhones:[]};
+  const source=String(preparedDraft.detectedLang||'UNKNOWN').toUpperCase();
+  if(preparedDraft.fraudRisk?.level==='HIGH')candidate.fraudRisk.level='HIGH';
+  if(applySecurity)try{applySecurity(candidate,'final',source);}catch{}
+  if(hardCredentialRequest(text))candidate.fraudRisk.level='HIGH';
+  const result=project(candidate,translation,source,userLang,sourceLang);
+  let explanation='';
+  if(candidate.fraudRisk.level==='HIGH')explanation=result.summary;
+  else try{
+   const initial={...preparedDraft,actions:preparedDraft.actions||[],calculations:preparedDraft.calculations||[]};
+   validateCriticalFacts(initial,text);explanation=String(preparedDraft.summary||'').trim();
+  }catch{}
+  const summary=explanation&&explanation!==notice?notice+'\n\n'+explanation:notice;
+  return {...result,qualityChecked:false,analysisStatus:'partial',analysisWarning:notice,translationComplete:!!preparedDraft.translationComplete&&translationTokensPresent(text,translation),validationReason:reason||'REVIEW_UNAVAILABLE',summary,whatOfficeSays:summary,communication:summary,officeSummary:summary};
+ }
  async function call(schema,prompt,feature,maxTokens){
   controller.signal.throwIfAborted();
   if(passages)prompt+='\nCITATION TRANSPORT: quote and quotes fields MUST contain integer IDs from this source catalog. Choose passages supporting the claim and preserving its conditions. ID 0 is empty and is allowed only for an unidentified institution. The server expands IDs back into exact original quotes. Never type rewritten quotes.\nSOURCE CATALOG:\n'+JSON.stringify(passages.map((quote,id)=>({id,quote})));
@@ -230,7 +251,8 @@ async function analyze(options){
   validateShape(parsed,schema);return parsed;
  }
  async function run(){
-  const draft=options.stage==='review'?options.draft:await call(options.stage==='draft'?preparationSchema:draftSchema,`Analyze this ORIGINAL. Supply a complete faithful translation INTO ${target(userLang,outputRegion).label} (or original only if same language), and a compact fact list with exact source quotes. Mark superseded facts, keep each condition. translationComplete must be false if anything material is missing or illegible.\nORIGINAL DATA:\n${JSON.stringify(text)}`,'LETTER_DRAFT',options.stage==='draft'?5000:6000);
+  const draft=options.stage==='review'?options.draft:await call(options.stage==='draft'?preparationSchema:draftSchema,`Analyze this ORIGINAL. Supply a complete faithful translation INTO ${target(userLang,outputRegion).label} (or original only if same language), and a compact fact list with exact source quotes. Mark superseded facts, keep each condition. translationComplete must be false if anything material is missing or illegible. fallbackNotice must be in the requested output language and say: the translation is available, but additional automatic checks could not be completed; the result may be incomplete, so check dates, times and amounts. This notice is for a possible later technical failure, not a statement that this request has failed.\nORIGINAL DATA:\n${JSON.stringify(text)}`,'LETTER_DRAFT',options.stage==='draft'?5000:6000);
+  preparedDraft=draft;
   const draftIssues=[];
   try{if(draft.summary)validateEvidence(draft,text);}catch(e){draftIssues.push(e.code||'LETTER_UNVERIFIED');}
   if(!draft.translationComplete||!draft.translation.trim()||!translationTokensPresent(text,draft.translation))draftIssues.push('TRANSLATION_NEEDS_CORRECTION');
@@ -271,7 +293,13 @@ async function analyze(options){
   return project(checked,source===userLang&&!outputRegion?text:translation,source,userLang,sourceLang);
  }
  try{return await Promise.race([run(),deadline]);}
- catch(e){if(controller.signal.aborted)throw failure('LETTER_TIMEOUT',504);e.validationStage=validationStage;throw e;}
+ catch(e){
+  if(options.stage!=='draft'){
+   const partial=partialResult(e.validationReason||e.code);
+   if(partial)return partial;
+  }
+  if(controller.signal.aborted)throw failure('LETTER_TIMEOUT',504);e.validationStage=validationStage;throw e;
+ }
  finally{
   clearTimeout(timer);controller.abort();
   const jobs=usage.map(({data,feature})=>Promise.resolve().then(()=>recordUsage(event,context,data,{feature,uiLang:userLang,documentLang:telemetryLanguage,accessType:options.accessType,model:MODEL})).catch(()=>{}));
