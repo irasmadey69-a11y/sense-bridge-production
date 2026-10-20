@@ -170,6 +170,13 @@ test('review reporting uncertainty preserves translation without presenting an u
  const result=await expectPartial(harness([fixture.draft(),r]).run());assert.doesNotMatch(result.summary,/900/);assert.equal(result.fraudRisk.level,'UNKNOWN');
 });
 
+test('communication risk section always receives either actual risks or a localized status',async()=>{
+ const full=await harness([fixture.draft(),fixture.review()]).run();assert.deepEqual(full.risks,['Nie wykryto wyraźnych ryzyk komunikacyjnych w tej treści.']);
+ const r=fixture.review();r.risks=['Niejasny sposób przekazania dokumentów.'];
+ assert.deepEqual((await harness([fixture.draft(),r]).run()).risks,r.risks);
+ r.verified=false;const partial=await expectPartial(harness([fixture.draft(),r]).run());assert.ok(partial.risks.includes(partial.analysisWarning));assert.doesNotMatch(partial.risks.join(' '),/Nie wykryto/);
+});
+
 test('Fontys bare web addresses match equivalent HTTPS links without changing their destination',async()=>{
  const source='Met de kaart kan je inloggen op de Canon printers. Je printtegoed kan je opwaarderen bij Canon via www.fontys.nl/print. Bij verlies of diefstal van de kaart ben je verplicht dat direct te melden via de website www.fontyskaart.nl. Een nieuwe kaart kost € 10,-.';
  const d=fixture.draft();Object.assign(d,{detectedLang:'NL',translation:'Kartą logujesz się do drukarek Canon. Konto doładujesz przez www.fontys.nl/print. Zgubienie lub kradzież zgłoś przez www.fontyskaart.nl. Nowa karta kosztuje 10 EUR.',summary:'Nowa karta po zgubieniu lub kradzieży kosztuje 10 EUR.',facts:[],actions:[],detectedLinks:['https://www.fontys.nl/print','https://www.fontyskaart.nl/']});

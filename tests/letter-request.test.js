@@ -55,6 +55,18 @@ test('partial result remains visible in the real UI handler without consuming a 
  assert.equal(element('translation').textContent,'ZACHOWANE TŁUMACZENIE');assert.equal(element('summary').textContent,data.analysisWarning);assert.equal(used,0);assert.ok(!events.includes('analysis_error'));assert.equal(element('legalStatus').style.display,'none');
 });
 
+test('communication risks stay visible and expanded after rendering a result',()=>{
+ const fs=require('fs'),vm=require('vm'),path=require('path'),html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+ const source=html.slice(html.indexOf('function sbPolishResultView(data){'),html.indexOf('function sbClearLetterResult(){'));
+ const cards=new Map(),card=id=>{if(!cards.has(id))cards.set(id,{hidden:true,style:{display:'none'},open:false,removeAttribute(name){if(name==='open')this.open=false},setAttribute(name){if(name==='open')this.open=true}});return cards.get(id)};
+ const context={document:{getElementById:card},sbFraudLevelFromData:data=>data.fraudRisk?.level||'UNKNOWN'};vm.runInNewContext(source,context);
+ for(const data of [{fraudRisk:{level:'LOW'}},{analysisStatus:'partial',fraudRisk:{level:'UNKNOWN'}},{fraudRisk:{level:'HIGH'}}]){
+  context.sbPolishResultView(data);assert.equal(card('risksAccordion').hidden,false);assert.equal(card('risksAccordion').style.display,'block');assert.equal(card('risksAccordion').open,true);
+ }
+ const hiddenRule=html.slice(html.indexOf('body.sb-simple-view #fraudInfoCard,'),html.indexOf('body.sb-simple-view.sb-access-locked'));
+ assert.doesNotMatch(hiddenRule,/#risksAccordion/);
+});
+
 test('letter transport waits for review and never renders or accepts the draft as final',async()=>{
  const bodies=[];
  const result=await request.request('/test',{mode:'letter',text:'source'},async(_url,opts)=>{

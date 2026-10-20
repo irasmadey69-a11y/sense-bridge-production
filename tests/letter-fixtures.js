@@ -6,7 +6,7 @@ function draft(){return {
  actions:[{text:'Jeśli jesteś zatrudniony, dostarcz kopię dokumentu przed 20 listopada 2026.',quotes:['Kopię dokumentu dostarcz przed 20 listopada 2026, jeśli jesteś zatrudniony.']}],consequences:[],responseRequired:'YES',urgency:'MEDIUM',legalHelpNeeded:'NONE',documentTone:'formalny',replyIntent:'ACKNOWLEDGE_ONLY',replyGuidance:'',
  replies:{neutral:'Dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',polite:'Uprzejmie dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',firm:'Proszę o jednoznaczne wskazanie sposobu przesłania kopii.'},
  repliesDocument:{neutral:'Dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',polite:'Uprzejmie dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',firm:'Proszę o jednoznaczne wskazanie sposobu przesłania kopii.'},
- risks:[],help:[],institution:{name:'',country:'',officialWebsite:'',confidence:0,quote:''},
+ risks:[],communicationRiskNotice:'Nie wykryto wyraźnych ryzyk komunikacyjnych w tej treści.',help:[],institution:{name:'',country:'',officialWebsite:'',confidence:0,quote:''},
  fraudRisk:{level:'UNKNOWN',confidence:0,label:'Nie potwierdzono nadawcy',summary:'Brak danych do potwierdzenia autentyczności.',signals:[],suspiciousElements:[],safeSteps:[],disclaimer:'To analiza ryzyka, nie potwierdzenie autentyczności.'},detectedLinks:[],suspiciousLinks:[],detectedPhones:[]
 };}
 function review(d=draft()){
