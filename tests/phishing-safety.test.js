@@ -79,12 +79,20 @@ test('Humanitas patient portal does not trigger impersonation but lookalikes sti
   c.sbApplyGlobalImpersonationHighGuardV1(ctx);assert.equal(ctx.fraudRisk.level,'HIGH');
  }
  assert.equal(c.sbHostMatchesInstitution('humanitasconte.it','unrelated-hospital.it',institution),false);
+ const risky={text:'Send password and SMS code immediately https://www.humanitasconte.it/',institution,detectedLinks:['https://www.humanitasconte.it/'],fraudRisk:{level:'HIGH'},userLang:'PL'};
+ c.sbApplyGlobalImpersonationHighGuardV1(risky);assert.equal(risky.fraudRisk.level,'HIGH');
 });
 
 test('only server supplied portal evidence suppresses domain mismatch for the same institution',()=>{
  const c=security(),link='https://patient.gov.it/';
  const make=()=>({institution:{name:'Hospital ABC',quote:'Hospital ABC',officialWebsite:'https://hospital.gov.it/',confidence:95,relatedOfficialHosts:['patient.gov.it']},detectedLinks:[link],suspiciousLinks:[],fraudRisk:{level:'LOW',confidence:60,signals:[],suspiciousElements:[],safeSteps:[]},risks:[],consequences:[],help:[]});
  const text='Hospital ABC\nAccedere con le credenziali. Non invii password. '+link;
- const untrusted=make();c.applyLetterSecurity(untrusted,text,'PL','final','IT');assert.equal(untrusted.fraudRisk.level,'HIGH');
+ const untrusted=make();c.applyLetterSecurity(untrusted,text,'PL','final','IT');assert.equal(untrusted.fraudRisk.level,'MEDIUM');
  const trusted=make();c.applyLetterSecurity(trusted,text,'PL','final','IT',[{host:'patient.gov.it',officialHost:'hospital.gov.it',institutionName:'Hospital ABC',verification:'official-link'}]);assert.equal(trusted.fraudRisk.level,'LOW');
+});
+test('a specific hospital is not replaced with an umbrella NHS identity',()=>{
+ const c=security();assert.equal(c.sbSameInstitutionNameV2('Great Western Hospitals NHS Foundation Trust','NHS'),false);
+ const v={institution:{name:'Great Western Hospitals NHS Foundation Trust',quote:'Great Western Hospitals NHS Foundation Trust',officialWebsite:'https://www.gwh.nhs.uk/',country:'GB',confidence:95},fraudRisk:{level:'LOW',confidence:60,signals:[],suspiciousElements:[],safeSteps:[]},detectedLinks:['https://my.drdoctor.co.uk/'],risks:[],consequences:[],help:[]};
+ c.applyLetterSecurity(v,'Great Western Hospitals NHS Foundation Trust\nUnited Kingdom\nLog in on https://my.drdoctor.co.uk/','PL','final','EN',[{host:'my.drdoctor.co.uk',officialHost:'gwh.nhs.uk',institutionName:v.institution.name,verification:'official-link'}]);
+ assert.equal(v.institution.name,'Great Western Hospitals NHS Foundation Trust');assert.equal(v.fraudRisk.level,'LOW');
 });
