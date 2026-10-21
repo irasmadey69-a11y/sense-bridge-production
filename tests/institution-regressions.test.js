@@ -35,7 +35,7 @@ test('HIGH keeps specific meaning, amount and communication risks while replacin
  const candidate=fixture.review();candidate.summary='Nadawca obiecuje zwrot 18 450 rubli i żąda hasła w ciągu 24 godzin.';
  candidate.risks=['Nadawca żąda hasła i kodu SMS.','Nadawca zabrania kontaktu z urzędem.'];candidate.fraudRisk.level='HIGH';
  const result=engine.project(candidate,'source','RU','PL','AUTO');
- assert.equal(result.summary,candidate.summary);assert.equal(result.whatOfficeSays,candidate.summary);assert.deepEqual(result.risks,candidate.risks);
+ assert.ok(result.summary.includes(candidate.summary));assert.match(result.summary,/^Niepotwierdzone twierdzenia i żądania nadawcy: „/);assert.equal(result.whatOfficeSays,result.summary);assert.deepEqual(result.risks,candidate.risks);
  assert.match(result.actions[0],/Nie klikaj/);assert.equal(result.replyIntent,'NO_REPLY');assert.deepEqual(result.consequences,[]);
 });
 test('frontend does not replace verified institution country with recipient country or link fragments',()=>{
