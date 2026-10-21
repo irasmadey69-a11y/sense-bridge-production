@@ -47,12 +47,13 @@
    let result;
    try{result=await request(url,{...body,letterStage:'review',letterDraft:first.draft},fetcher,timeoutMs);}
    catch(e){result=partialResult(first.draft,body.userLang,e.code);if(!result)throw e;}
-   if(result.analysisStatus==='partial')return result;
    try{
     result.institutionSearch=await request(url,{...body,letterStage:'institutions'},fetcher,timeoutMs);
     const normalize=name=>String(name||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
-    const primary=result.institutionSearch.institutions.find(x=>x.verification==='web'&&normalize(x.name)===normalize(result.institution?.name));
+    const matches=result.institutionSearch.institutions.filter(x=>x.verification==='web');
+    const primary=matches.find(x=>normalize(x.name)===normalize(result.institution?.name))||(!result.institution?.name&&matches.length===1?matches[0]:null);
     if(primary)result.institution={...result.institution,...primary};
+    result.helpLinks=[...(result.helpLinks||[]),...matches.filter(x=>!(result.helpLinks||[]).some(link=>link.url===x.officialWebsite)).map(x=>({label:x.name,url:x.officialWebsite}))];
    }catch{result.institutionSearch={status:'unavailable',institutions:[]};}
    return result;
   }

@@ -3722,6 +3722,7 @@ body.dark-mode .sb-job-context input,body.dark-mode .sb-job-context select,body.
 @media(max-width:480px){.sb-job-context{grid-template-columns:minmax(0,1fr)}#sbJobFollowup .sb-doclab-actions{display:grid;grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="/install-guide.css">
+<style>#sbQuickResult{scroll-margin-top:20px;overflow-anchor:none}#summaryAccordion,#institutionSearchBox,#institutionBox{overflow-anchor:none}</style>
 </head>
 
 <body>
@@ -4427,7 +4428,7 @@ body.dark-mode .sb-job-context input,body.dark-mode .sb-job-context select,body.
   </div>
 </div>
 
-<script src="/letter-request.js?v=20261020-partial-results-1"></script>
+<script src="/letter-request.js?v=20261021-institution-results-1"></script>
 <script>
 
 let sbModalResolve = null;
@@ -6154,34 +6155,16 @@ function sbWebsiteCountry(url){
 }
 
 function sbInferDocumentCountry(){
-  const input = document.getElementById("inputText");
-  const source = document.getElementById("sourceLang");
-  const txt = String((input && input.value) || "");
-  const selectedLang = String((source && source.value) || "AUTO").toUpperCase();
-
-  const contentSignals = [
-    {code:"ES", words:[" españa","españa"," madrid"," barcelona"," valencia"," agencia tributaria"," seguridad social"," banco de españa",".gob.es"," ing.es"]},
-    {code:"NL", words:[" nederland","netherlands"," amsterdam"," rotterdam"," tilburg"," uwv"," belastingdienst"," digid"," gemeente"," rijksoverheid",".nl"," ing.nl"]},
-    {code:"BE", words:[" belgië","belgique"," belgium"," brussel","bruxelles"," vlaanderen",".be"]},
-    {code:"DE", words:[" deutschland"," germany"," berlin"," münchen"," finanzamt"," jobcenter",".de"]},
-    {code:"FR", words:[" france"," paris"," impots.gouv"," caf"," cpam"," ameli",".fr"]},
-    {code:"IT", words:[" italia"," italy"," roma"," agenzia delle entrate"," inps",".it"]},
-    {code:"PT", words:[" portugal"," lisboa"," autoridade tributária"," autoridade tributaria",".pt"]},
-    {code:"PL", words:[" polska"," poland"," warszawa"," zus"," urząd skarbowy"," gov.pl",".pl"]},
-    {code:"US", words:[" united states"," usa"," irs"," social security administration"," uscis",".gov"]},
-    {code:"CA", words:[" canada"," service canada"," cra"," ircc",".gc.ca"]},
-    {code:"GB", words:[" united kingdom"," uk"," hmrc"," gov.uk",".gov.uk"]},
-    {code:"UA", words:[" україна"," ukraine"," київ"," kyiv",".ua"]}
-  ];
-
-  for(const s of contentSignals){
-    if(sbTextIncludesAny(" " + txt + " ", s.words)){
-      return {code:s.code, level:"strong", reason:"content"};
-    }
-  }
-
-
-  return {code:"", level:"unknown", reason:"unknown"};
+  const text=String(document.getElementById('inputText')?.value||'').replace(/(?:https?:\/\/|www\.)\S+/giu,'');
+  const countries=['NL','BE','DE','FR','IT','PT','PL','US','CA','GB','UA','RU','ES'];
+  const locales=['en','nl','pl','ru','uk','de','fr','es','it','pt'];
+  const hits=countries.filter(code=>{
+    const names=[];
+    for(const locale of locales)try{names.push(new Intl.DisplayNames([locale],{type:'region'}).of(code));}catch{}
+    if(code==='RU')names.push('Российская Федерация','Российской Федерации');
+    return names.some(name=>name&&new RegExp('(?:^|[^\\p{L}\\p{N}])'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:$|[^\\p{L}\\p{N}])','iu').test(text));
+  });
+  return hits.length===1?{code:hits[0],level:'strong',reason:'content'}:{code:'',level:'unknown',reason:'unknown'};
 }
 
 function sbIsInternationalInstitution(name){
@@ -6199,6 +6182,8 @@ function sbTrustedInstitutionInfo(name){
   const entries = [
     // China
     {names:["国家税务总局","state taxation administration","state taxation administration of the people's republic of china"],country:"CN",officialWebsite:"https://www.chinatax.gov.cn/"},
+
+    {names:["федеральная налоговая служба","фнс россии","federal tax service of russia","federal taxation service of russia"],country:"RU",officialWebsite:"https://www.nalog.gov.ru/"},
 
     // Netherlands
     {names:["belastingdienst"],country:"NL",officialWebsite:"https://www.belastingdienst.nl/"},
@@ -6313,7 +6298,18 @@ function renderInstitutionSearch(data){
     for(const source of inst.sources||[]){if(!safe(source.url))continue;const a=document.createElement('a');a.href=safe(source.url);a.target='_blank';a.rel='noopener noreferrer';a.textContent=source.title||source.url;a.style.display='block';row.appendChild(a);}
     box.appendChild(row);
   }
-  if(search.status!=='verified'||search.unresolved?.length){const warning=document.createElement('p');warning.textContent=search.status==='unavailable'?(pl?'⚠️ Wyszukiwanie chwilowo niedostępne. Nie potwierdzono aktualnych oficjalnych stron.':'⚠️ Web search is temporarily unavailable. Current official websites were not verified.'):(pl?'⚠️ Nie udało się jednoznacznie potwierdzić wszystkich instytucji i ich oficjalnych stron. Nie korzystaj z niezweryfikowanych linków z pisma.':'⚠️ Not all institutions and official websites could be confirmed unambiguously. Do not use unverified links from the letter.');box.appendChild(warning);}
+  if(search.status!=='verified'||search.unresolved?.length){
+    const warning=document.createElement('p');
+    const known=data.institution;
+    const hasKnownSite=known?.officialWebsite&&(known.verification==='registry'||sbTrustedInstitutionInfo(known.name));
+    if(hasKnownSite){
+      warning.textContent=pl?'ℹ️ Zapisany oficjalny adres rozpoznanej instytucji podano poniżej. Nie udało się uzyskać pełnego dodatkowego potwierdzenia w wyszukiwaniu internetowym.':'ℹ️ The recognized institution’s recorded official address is shown below. Additional web verification could not be completed in full.';
+    }else{
+      warning.textContent=search.status==='unavailable'?(pl?'⚠️ Wyszukiwanie chwilowo niedostępne. Nie potwierdzono aktualnych oficjalnych stron.':'⚠️ Web search is temporarily unavailable. Current official websites were not verified.'):(pl?'⚠️ Nie udało się jednoznacznie potwierdzić wszystkich instytucji i ich oficjalnych stron. Nie korzystaj z niezweryfikowanych linków z pisma.':'⚠️ Not all institutions and official websites could be confirmed unambiguously. Do not use unverified links from the letter.');
+    }
+    if(search.unresolved?.length){const missing=search.unresolved.filter(name=>name!==known?.name);if(missing.length)warning.textContent+=' '+missing.join(', ');}
+    box.appendChild(warning);
+  }
 }
 function renderInstitution(data){
   renderInstitutionSearch(data);
@@ -6331,49 +6327,11 @@ function renderInstitution(data){
   const trustedInstitution = sbTrustedInstitutionInfo(inst.name);
   const website = (trustedInstitution && trustedInstitution.officialWebsite) || inst.officialWebsite || "";
   const confidence = Number(inst.confidence || 0);
-  const inferred = sbInferDocumentCountry();
-  const websiteCountry = sbWebsiteCountry(website);
-  const international = sbIsInternationalInstitution(inst.name);
   const backendCountry = String((trustedInstitution && trustedInstitution.country) || inst.country || "").toUpperCase();
-
-  const hasStrongCountry = inferred.level === "strong" && inferred.code;
-  const hasLanguageCountry = inferred.level === "language" && inferred.code;
-
-  const websiteMatchesStrongCountry = hasStrongCountry && websiteCountry && websiteCountry === inferred.code;
-  const websiteHasNoCountry = website && !websiteCountry;
-  const backendMatchesStrongCountry = hasStrongCountry && backendCountry && backendCountry === inferred.code;
-
-  let showWebsite = false;
-
-  if(website){
-    if(trustedInstitution || inst.verification==='web'){
-      // Exact trusted registry match may be shown even when general country
-      // inference is conservative. This does not lower thresholds globally.
-      showWebsite = true;
-    }else if(websiteMatchesStrongCountry || websiteHasNoCountry){
-      showWebsite = true;
-    }else if(!international && !hasLanguageCountry && !hasStrongCountry){
-      showWebsite = true;
-    }else if(!international && backendMatchesStrongCountry){
-      showWebsite = true;
-    }
-  }
-
-  let countryLine = "";
-
-  if(inst.verification==='web' && backendCountry){
-    countryLine = `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(countryName(backendCountry))}<br>`;
-  }else if(hasStrongCountry){
-    countryLine = `🌍 ${escapeHtml(sbTrustText("countryFromDocument", lang))}: ${escapeHtml(countryName(inferred.code))}
-      <br><small>${escapeHtml(sbTrustText("basedOnContent", lang))}</small><br>`;
-  }else if(hasLanguageCountry){
-    countryLine = `🌍 ${escapeHtml(sbTrustText("probableCountry", lang))}: ${escapeHtml(countryName(inferred.code))}
-      <br><small>${escapeHtml(sbTrustText("basedOnLanguage", lang))}</small><br>`;
-  }else if(backendCountry && !international){
-    countryLine = `🌍 ${escapeHtml(sbResultText("country", lang))}: ${escapeHtml(countryName(backendCountry))}<br>`;
-  }else{
-    countryLine = `🌍 ${escapeHtml(sbTrustText("countryNotCertain", lang))}<br>`;
-  }
+  const showWebsite=!!website&&!!(trustedInstitution||['web','registry'].includes(inst.verification));
+  const countryLine=backendCountry
+    ? `🌍 ${escapeHtml(sbResultText("country",lang))}: ${escapeHtml(countryName(backendCountry))}<br>`
+    : `🌍 ${escapeHtml(sbTrustText("countryNotCertain",lang))}<br>`;
 
   const websiteLine = showWebsite
     ? `🌐 ${escapeHtml(sbResultText("officialWebsite", lang))}:
@@ -6797,33 +6755,11 @@ function sbNormalizeQuickText(value){
   return String(value || "").replace(/\s+/g," ").trim();
 }
 function sbBuildQuickMeaning(data){
-  const base = sbNormalizeQuickText(
-    data?.quickSummary || data?.summary || data?.whatOfficeSays || data?.communication || ""
-  );
-
-  const parts = [];
-  const seen = new Set();
-
-  function addPart(value){
-    const clean = sbNormalizeQuickText(value);
-    if(!clean) return;
-    const key = clean.toLocaleLowerCase();
-    if(seen.has(key)) return;
-    if(parts.some(function(existing){
-      const a = existing.toLocaleLowerCase();
-      return a.includes(key) || key.includes(a);
-    })) return;
-    seen.add(key);
-    parts.push(clean);
-  }
-
-  addPart(base);
-
-  if(base.length < 300){
-    safeArr(data?.consequences).slice(0,2).forEach(addPart);
-  }
-
-  return sbShortenText(parts.join(" "), 430);
+  const base=sbNormalizeQuickText(data?.quickSummary||data?.summary||data?.whatOfficeSays||data?.communication||'');
+  if(base.length<=240)return base;
+  const short=base.slice(0,239);
+  const boundary=Math.max(short.lastIndexOf('. '),short.lastIndexOf('! '),short.lastIndexOf('? '));
+  return boundary>=100?short.slice(0,boundary+1):short.slice(0,short.lastIndexOf(' ')).trim()+'…';
 }
 
 function sbExtractDocumentUrls(text){
@@ -6920,7 +6856,8 @@ function sbRenderQuickResultCards(data){
   const lang = sbGetResultLang();
   sbApplyUxV10Texts();
   const summary = sbBuildQuickMeaning(data) || sbUx10Text("noShortSummary", lang);
-  const firstAction = sbShortenText(sbFirstUsefulText(data.actions), 180) || sbUx10Text("noAction", lang);
+  const noRequiredAction=data.replyIntent==='NO_REPLY'&&data.replyGuidance?sbShortenText(data.replyGuidance,180):sbUx10Text("noAction",lang);
+  const firstAction = data.responseRequired==='NO'&&sbFraudLevelFromData(data)!=='HIGH' ? noRequiredAction : sbShortenText(sbFirstUsefulText(data.actions), 180) || sbUx10Text("noAction", lang);
   const urgency = String(data.urgency || "UNKNOWN").toUpperCase();
   const fraudLevel = sbFraudLevelFromData(data);
   const fr = data.fraudRisk || data.scamRisk || data.authenticityRisk || {};
@@ -7288,7 +7225,10 @@ fetch("/.netlify/functions/analyze_count", {
     else if(statusEl){ statusEl.textContent = "✅ " + sbUx10Text("statusDone", sbGetResultLang()); }
     if(data.analysisStatus==='partial'&&statusEl)statusEl.textContent='⚠️ '+data.analysisWarning;
     const quickBox = document.getElementById("sbQuickResult");
-    (quickBox || document.getElementById("translation")).scrollIntoView({behavior:"smooth"});
+    const resultStart=quickBox||document.getElementById("translation");
+    const showStart=()=>resultStart?.scrollIntoView({behavior:"instant",block:"start"});
+    if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(showStart));
+    else showStart();
   } catch (e){
     if(statusEl){ statusEl.textContent = "❌ " + (typeof sbUx10Text === "function" ? sbUx10Text("statusError", sbGetResultLang()) : "Błąd analizy"); }
     trackEvent("analysis_error");
@@ -7717,7 +7657,7 @@ document.addEventListener("DOMContentLoaded", function(){
   function autoOpenFullAfterAnalysis(){
     if(!document.body.classList.contains('sb-simple-view')||!resultReady())return;
     setView('full',false);
-    setTimeout(()=>{document.getElementById('sbQuickResult')?.scrollIntoView({behavior:'smooth',block:'start'})},120);
+    setTimeout(()=>{document.getElementById('sbQuickResult')?.scrollIntoView({behavior:'instant',block:'start'})},120);
   }
   function buildLanguagePicker(){
     const ui=document.querySelector('.top-card .ui-switch');if(!ui||document.getElementById('sbLangDetailsV12'))return;
