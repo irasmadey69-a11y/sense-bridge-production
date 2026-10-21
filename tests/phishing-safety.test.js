@@ -60,3 +60,31 @@ test('similar Czech words and a body mention do not create a tax-authority ident
  const c=security();
  for(const text of ['Finanční služby ABC\nPředmět: nabídka', 'Dobrý den, toto není zpráva od Finanční správy.'])assert.equal(c.sbLetterHeaderInstitution(text),null);
 });
+
+test('Humanitas patient portal does not trigger impersonation but lookalikes still do',()=>{
+ const c=security();
+ const institution={name:'Humanitas Research Hospital',country:'IT',officialWebsite:'https://www.humanitas.it/',confidence:95};
+ const text='Conferma visita cardiologica 12 novembre 2026 ore 10:30. Accedere con le credenziali personali. Non invii password o codici di accesso. ';
+ for(const host of ['humanitasconte.it','www.humanitasconte.it']){
+  const link='https://'+host+'/';
+  assert.equal(c.sbDetectStrongPhishingV8(text+link,[link],institution).hardHigh,false);
+  assert.equal(c.sbDetectInstitutionImpersonationPatchV1(text+link,[link],institution).minimumMedium,false);
+  const ctx={text:text+link,institution,detectedLinks:[link],fraudRisk:{level:'LOW'},userLang:'PL'};
+  c.sbApplyGlobalImpersonationHighGuardV1(ctx);assert.equal(ctx.fraudRisk.level,'LOW');
+ }
+ for(const host of ['humanitasconte.it.evil.example','evilhumanitasconte.it','humanitas-conte.example']){
+  const link='https://'+host+'/login';
+  assert.equal(c.sbHostMatchesInstitution(host,'humanitas.it',institution),false);
+  const ctx={text:'Enter password immediately '+link,institution,detectedLinks:[link],fraudRisk:{level:'LOW'},userLang:'PL'};
+  c.sbApplyGlobalImpersonationHighGuardV1(ctx);assert.equal(ctx.fraudRisk.level,'HIGH');
+ }
+ assert.equal(c.sbHostMatchesInstitution('humanitasconte.it','unrelated-hospital.it',institution),false);
+});
+
+test('only server supplied portal evidence suppresses domain mismatch for the same institution',()=>{
+ const c=security(),link='https://patient.gov.it/';
+ const make=()=>({institution:{name:'Hospital ABC',quote:'Hospital ABC',officialWebsite:'https://hospital.gov.it/',confidence:95,relatedOfficialHosts:['patient.gov.it']},detectedLinks:[link],suspiciousLinks:[],fraudRisk:{level:'LOW',confidence:60,signals:[],suspiciousElements:[],safeSteps:[]},risks:[],consequences:[],help:[]});
+ const text='Hospital ABC\nAccedere con le credenziali. Non invii password. '+link;
+ const untrusted=make();c.applyLetterSecurity(untrusted,text,'PL','final','IT');assert.equal(untrusted.fraudRisk.level,'HIGH');
+ const trusted=make();c.applyLetterSecurity(trusted,text,'PL','final','IT',[{host:'patient.gov.it',officialHost:'hospital.gov.it',institutionName:'Hospital ABC',verification:'official-link'}]);assert.equal(trusted.fraudRisk.level,'LOW');
+});
