@@ -24,14 +24,15 @@ test('explicit partial result is rendered with translation and warning, never ca
  const invalid={...data,analysisWarning:''};await assert.rejects(request.request('/test',{},async()=>({ok:true,text:async()=>JSON.stringify(invalid)})));
 });
 
-test('review network failure preserves the completed draft translation and skips extra research',async()=>{
+test('review network failure preserves translation while independently finding official institutions',async()=>{
  const stages=[];
  const result=await request.request('/test',{mode:'letter',userLang:'PL',text:'source'},async(_url,opts)=>{
   const stage=JSON.parse(opts.body).letterStage;stages.push(stage);
   if(stage==='review')throw Error('offline');
+  if(stage==='institutions')return {ok:true,text:async()=>JSON.stringify({ok:true,status:'verified',institutions:[{name:'Test Authority',country:'NL',officialWebsite:'https://www.uwv.nl/',verification:'web',sources:[]}]})};
   return {ok:true,text:async()=>JSON.stringify({ok:true,pipeline:'letter-evidence-v1',stage:'draft',draft:{translation:'Zachowane tłumaczenie',translationComplete:true,detectedLang:'NL',fallbackNotice:'Kontrola nie została zakończona. Sprawdź daty i kwoty.'}})};
  });
- assert.equal(result.analysisStatus,'partial');assert.equal(result.qualityChecked,false);assert.equal(result.translation,'Zachowane tłumaczenie');assert.match(result.summary,/Sprawdź daty/);assert.equal(result.fraudRisk.level,'UNKNOWN');assert.deepEqual(result.actions,[]);assert.deepEqual(stages,['draft','review']);
+ assert.equal(result.analysisStatus,'partial');assert.equal(result.qualityChecked,false);assert.equal(result.translation,'Zachowane tłumaczenie');assert.match(result.summary,/Sprawdź daty/);assert.equal(result.fraudRisk.level,'UNKNOWN');assert.deepEqual(result.actions,[]);assert.deepEqual(stages,['draft','review','institutions']);assert.equal(result.institution.officialWebsite,'https://www.uwv.nl/');assert.equal(result.helpLinks.length,1);
 });
 test('failed browser analysis clears stale results, preserves source and counts one failure without consuming a use',async()=>{
  const fs=require('fs'),vm=require('vm'),path=require('path');const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');

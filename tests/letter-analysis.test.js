@@ -56,6 +56,10 @@ test('exhausted API quota is identified without futile repeated requests',async(
  const h=harness([()=>({ok:false,status:429,text:async()=>JSON.stringify({error:{code:'insufficient_quota',message:'private upstream detail'}})})],{stage:'draft'});
  await assert.rejects(h.run(),e=>e.code==='LETTER_BUSY'&&e.validationReason==='INSUFFICIENT_QUOTA');assert.equal(h.requests.length,1);
 });
+test('credit_balance_exhausted is recognized through both modern code and quota type without retries',async()=>{
+ const h=harness([()=>({ok:false,status:429,text:async()=>JSON.stringify({error:{code:'credit_balance_exhausted',type:'insufficient_quota'}})})],{stage:'draft'});
+ await assert.rejects(h.run(),e=>e.code==='LETTER_BUSY'&&e.validationReason==='INSUFFICIENT_QUOTA');assert.equal(h.requests.length,1);
+});
 test('global deadline covers stuck fetch and stuck response body',async()=>{
  for(const fetcher of [()=>new Promise(()=>{}),async()=>({ok:true,status:200,text:()=>new Promise(()=>{})})]){
   const start=Date.now();await assert.rejects(engine.analyze({key:'test',text:fixture.source,userLang:'PL',sourceLang:'AUTO',fetcher,timeoutMs:100,recordUsage:async()=>{}}),e=>e.code==='LETTER_TIMEOUT');

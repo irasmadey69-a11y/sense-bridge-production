@@ -33,3 +33,26 @@ test('Japanese research plans native and ministry queries and accepts only actua
  const found=await resolve({key:'test',text:'国税庁 — 日本\nPRIVATE CASE SECRET',fetcher:async(u,o)=>{requests.push(JSON.parse(o.body));return{ok:true,json:async()=>responses.shift()}}});
  assert.equal(found.institutions[0].officialWebsite,item.officialWebsite);assert.equal(found.institutions[0].country,'JP');assert.match(requests[3].input[1].content,/財務省/);assert.doesNotMatch(JSON.stringify(requests.slice(1)),/PRIVATE CASE|SECRET/);
 });
+
+test('one failed query does not discard independently corroborated results from another query',async()=>{
+ const name='Федеральная налоговая служба',item={name,country:'RU',officialWebsite:'https://www.nalog.gov.ru/',corroboratingUrl:'https://minfin.gov.ru/ru/about/structure/',confirmed:true};
+ const responses=[response(JSON.stringify({institutions:[{name,quote:name,country:'RU'}]})),response(JSON.stringify({institutions:[{name,officialQuery:name+' официальный сайт',corroborationQuery:name+' Минфин'}]})),new Error('one query offline'),response('Ministry identifies the tax agency and links its official site.',[item.officialWebsite,item.corroboratingUrl]),response(JSON.stringify({institutions:[item]}))];
+ const found=await resolve({key:'test',text:name+'\nРоссийская Федерация',fetcher:async()=>{const next=responses.shift();if(next instanceof Error)throw next;return {ok:true,json:async()=>next};}});
+ assert.equal(found.status,'verified');assert.equal(found.institutions[0].officialWebsite,item.officialWebsite);
+});
+test('failed query planning falls back to public-name searches rather than cancelling lookup',async()=>{
+ const name='Revenue Authority',item={name,country:'KE',officialWebsite:'https://kra.go.ke/',corroboratingUrl:'https://treasury.go.ke/agencies',confirmed:true};
+ const responses=[response(JSON.stringify({institutions:[{name,quote:name,country:''}]})),new Error('planner offline'),response('Official identity',[item.officialWebsite]),response('Ministry corroborates',[item.corroboratingUrl]),response(JSON.stringify({institutions:[item]}))];
+ const found=await resolve({key:'test',text:name,fetcher:async()=>{const next=responses.shift();if(next instanceof Error)throw next;return {ok:true,json:async()=>next};}});
+ assert.equal(found.status,'verified');assert.equal(found.institutions[0].country,'KE');
+});
+test('lookup has a real deadline even when the provider ignores cancellation',async()=>{
+ const started=Date.now();
+ const found=await resolve({key:'test',text:'Revenue Authority',timeoutMs:30,fetcher:()=>new Promise(()=>{})});
+ assert.equal(found.status,'unavailable');assert.equal(found.reason,'timeout');assert.ok(Date.now()-started<1000);
+});
+test('shared government hosting preserves an agency path rather than a generic homepage',()=>{
+ const name='HMRC',item={name,country:'GB',officialWebsite:'https://www.gov.uk/government/organisations/hm-revenue-customs',corroboratingUrl:'https://www.parliament.uk/hmrc',confirmed:true};
+ const matches=validateMatches([item],[{name}],response('The official agency page is identified.',[item.officialWebsite,item.corroboratingUrl]));
+ assert.equal(matches[0].officialWebsite,item.officialWebsite);
+});
