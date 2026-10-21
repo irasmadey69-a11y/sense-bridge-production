@@ -650,13 +650,13 @@ detectedPhones,
 
 function sbLetterHeaderInstitution(text) {
   const lines=String(text||'').split(/\n+/).map(line=>line.trim()).filter(Boolean);
-  const lead=String(text||'').split(/\b(?:Onderwerp|Subject|Objet|Asunto|Betreff|Předmět)\s*:/iu)[0].trim();
+  const lead=String(text||'').split(/(?:^|[\s\n])(?:Onderwerp|Subject|Objet|Asunto|Betreff|Předmět|Тема)\s*:/iu)[0].trim();
   const headers=[lead,...lines.slice(0,8),...lines.slice(-4)];
   for(const line of headers){
     if(line.length>180||/https?:\/\//i.test(line))continue;
     for(const entry of sbGlobalInstitutionRegistryV2()){
       const names=[entry.name,...(entry.aliases||[])].map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
-      const exact=new RegExp('^(?:'+names.join('|')+')(?:\\s+[—–-]\\s+[^\\n]{1,60})?[.!]?$','iu');
+      const exact=new RegExp('^(?:(?:Отправитель|Надсилач|Sender|Afzender|Nadawca|Expéditeur|Absender)\\s*:\\s*)?(?:'+names.join('|')+')(?:\\s*\\([^\\n()]{1,40}\\))?(?:(?:\\s+[—–-]\\s+|,\\s*)[^\\n]{1,60})?[.!]?$','iu');
       const french=entry.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(line);
       if(exact.test(line)||french)return {entry,quote:line};
     }
@@ -671,7 +671,8 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   const detectedLinks=arr(candidate.detectedLinks).filter(link=>String(text).includes(link));
   let quote=String(candidate.institution.quote||'');
   let validQuote=require('./_letter-analysis').sourceContains(text,quote);
-  let registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>(sbSameInstitutionNameV2(institution.name,item.name)||(item.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(institution.name)))&&item.patterns.some(pattern=>pattern.test(quote)));
+  const publicName=String(institution.name||'').replace(/\s*\([^()]*\)\s*$/u,'').trim();
+  let registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>(sbSameInstitutionNameV2(institution.name,item.name)||item.patterns.some(pattern=>new RegExp('^(?:'+pattern.source+')$',pattern.flags).test(publicName))||(item.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(institution.name)))&&item.patterns.some(pattern=>pattern.test(quote)));
   const senderHeader=sbLetterHeaderInstitution(text);
   if(senderHeader){
     registryEntry=senderHeader.entry;quote=senderHeader.quote;validQuote=true;
@@ -680,7 +681,7 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   const escapedName=String(institution.name||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const namedInQuote=institution.name && new RegExp('(?:^|[^\\p{L}\\p{N}])'+escapedName+'(?:$|[^\\p{L}\\p{N}])','iu').test(quote);
   if(!validQuote||(!registryEntry&&!namedInQuote))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
-  if(registryEntry)Object.assign(institution,{name:registryEntry.name,country:registryEntry.country,officialWebsite:registryEntry.officialWebsite});
+  if(registryEntry)Object.assign(institution,{name:registryEntry.name,country:registryEntry.country,officialWebsite:registryEntry.officialWebsite,verification:'registry'});
   if(!registryEntry&&namedInQuote&&sbHasEtzEvidence(quote)&&sbHasEtzEvidence(institution.name))applyKnownInstitutionFix(institution,quote);
   const ctx={text,userLang,fraudRisk,institution,detectedLinks,suspiciousLinks:arr(candidate.suspiciousLinks),matchedSuspiciousLinks:[],suspiciousPhoneMatches:[],risks:[],consequences:[],help:[],urgency:candidate.urgency,legalHelpFinal:candidate.legalHelpNeeded};
   sbApplyFraudLogicSyncV8(ctx);
@@ -697,9 +698,7 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
     const entry=sbGlobalInstitutionRegistryV2().find(item=>item.name===institution.name);
     if(!entry){
       const country=String(institution.country||'').toUpperCase();
-      let names=[];
-      for(const locale of ['en','nl','de','fr','pl','es','it','pt',(detectedLang||candidate.detectedLang)?.toLowerCase()]){try{names.push(new Intl.DisplayNames([locale],{type:'region'}).of(country));}catch{}}
-      const supported=names.some(name=>name && new RegExp('(?:^|[^\\p{L}])'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:$|[^\\p{L}])','iu').test(text));
+      const supported=require('./_institution-country').countrySupported(country,text);
       if(!supported)institution.country='';
       // A URL printed in a letter is a claim, never independent verification.
       institution.officialWebsite='';
@@ -1304,8 +1303,8 @@ function applyGlobalInstitutionRecognitionV2(institution, text, detectedLinks) {
 }
 
 function sbSameInstitutionNameV2(a, b) {
-  const x = String(a || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-  const y = String(b || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const x = String(a || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+  const y = String(b || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
   return !!x && !!y && (x.includes(y) || y.includes(x));
 }
 
@@ -1322,6 +1321,7 @@ function sbHostFromGlobalLinkV2(link) {
 
 function sbGlobalInstitutionRegistryV2() {
   return [
+    { name:"Федеральная налоговая служба", aliases:["ФНС России","Федеральная налоговая служба России","Federal Tax Service of Russia","Federal Taxation Service of Russia"], country:"RU", officialWebsite:"https://www.nalog.gov.ru/", patterns:[/федеральная налоговая служба|фнс россии|federal tax(?:ation)? service of russia/iu] },
     // Netherlands
     { name:"DigiD", country:"NL", officialWebsite:"https://www.digid.nl", patterns:[/\bdigid\b/i] },
     { name:"UWV", country:"NL", officialWebsite:"https://www.uwv.nl", patterns:[/\buwv\b/i] },
@@ -1342,12 +1342,12 @@ function sbGlobalInstitutionRegistryV2() {
     { name:"Medicare", country:"US", officialWebsite:"https://www.medicare.gov", patterns:[/\bmedicare\b/i] },
 
     // Canada
-    { name:"Canada Revenue Agency", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/canada revenue agency|\bcra\b|agence du revenu du canada/i] },
+    { name:"Canada Revenue Agency", country:"CA", officialWebsite:"https://www.canada.ca/en/revenue-agency.html", patterns:[/canada revenue agency|\bcra\b|agence du revenu du canada/i] },
     { name:"Service Canada", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/service canada/i] },
     { name:"IRCC", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/\bircc\b|immigration, refugees and citizenship canada|immigration refugees and citizenship canada/i] },
 
     // United Kingdom / Ireland
-    { name:"HM Revenue & Customs", country:"GB", officialWebsite:"https://www.gov.uk", patterns:[/hm revenue|hmrc|hm revenue & customs/i] },
+    { name:"HM Revenue & Customs", country:"GB", officialWebsite:"https://www.gov.uk/government/organisations/hm-revenue-customs", patterns:[/hm revenue|hmrc|hm revenue & customs/i] },
     { name:"UK Home Office", country:"GB", officialWebsite:"https://www.gov.uk", patterns:[/home office|uk visas and immigration|\bukvi\b/i] },
     { name:"NHS", country:"GB", officialWebsite:"https://www.nhs.uk", patterns:[/\bnhs\b|national health service/i] },
     { name:"Department of Social Protection", country:"IE", officialWebsite:"https://www.gov.ie", patterns:[/department of social protection|\bmywelfare\b/i] },

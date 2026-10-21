@@ -34,6 +34,13 @@
   return messages[lang]||messages.EN;
  }
  function error(code){const e=new Error(code);e.code=code;return e;}
+ function sameInstitution(a,b){
+  const key=value=>String(value||'').normalize('NFKC').toLowerCase().trim()
+   .replace(/^(.{6,}?)\s*\([^()]{1,50}\)$/u,'$1')
+   .replace(/\s+(?:hogeschool|university(?: of applied sciences)?|universiteit|college)$/u,'')
+   .replace(/[^\p{L}\p{N}]/gu,'');
+  const first=key(a),second=key(b);return !!first&&first===second;
+ }
  function partialResult(draft,lang,reason){
   const translation=String(draft?.translation||'').trim();
   if(!translation)return null;
@@ -47,12 +54,12 @@
    let result;
    try{result=await request(url,{...body,letterStage:'review',letterDraft:first.draft},fetcher,timeoutMs);}
    catch(e){result=partialResult(first.draft,body.userLang,e.code);if(!result)throw e;}
-   if(result.analysisStatus==='partial')return result;
    try{
     result.institutionSearch=await request(url,{...body,letterStage:'institutions'},fetcher,timeoutMs);
-    const normalize=name=>String(name||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
-    const primary=result.institutionSearch.institutions.find(x=>x.verification==='web'&&normalize(x.name)===normalize(result.institution?.name));
+    const matches=result.institutionSearch.institutions.filter(x=>x.verification==='web');
+    const primary=matches.find(x=>sameInstitution(x.name,result.institution?.name))||(!result.institution?.name&&matches.length===1?matches[0]:null);
     if(primary)result.institution={...result.institution,...primary};
+    result.helpLinks=[...(result.helpLinks||[]),...matches.filter(x=>!(result.helpLinks||[]).some(link=>link.url===x.officialWebsite)).map(x=>({label:x.name,url:x.officialWebsite}))];
    }catch{result.institutionSearch={status:'unavailable',institutions:[]};}
    return result;
   }
@@ -81,7 +88,7 @@
   catch(e){if(controller.signal.aborted)throw error('LETTER_TIMEOUT');throw e;}
   finally{clearTimeout(timer);controller.abort();}
  }
- root.SBLetterRequest={request,message};
+ root.SBLetterRequest={request,message,sameInstitution};
  if(typeof module!=='undefined'&&module.exports)module.exports=root.SBLetterRequest;
 })(typeof window==='undefined'?globalThis:window);
 
