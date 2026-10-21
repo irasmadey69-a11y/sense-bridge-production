@@ -2309,7 +2309,7 @@ function sbDetectInstitutionImpersonationPatchV1(text, detectedLinks, institutio
   const fakeDomainWords = /(belastingdienst|digid|uwv|toeslagen|ing|rabobank|postnl|direct|secure|verify|verificatie|login|betalen|controle)/i.test(externalLinks.join(" "));
 
   const suspiciousScore = [hasExternal, credential, timePressure, accountThreat, payment, fakeDomainWords].filter(Boolean).length;
-  const high = hasExternal && (credential || accountThreat || timePressure) && suspiciousScore >= 3;
+  const high = hasExternal && (accountThreat || timePressure || (credential && payment) || require('./_letter-analysis').hardCredentialRequest(text)) && suspiciousScore >= 3;
   const minimumMedium = hasExternal || high;
 
   return { minimumMedium, high, externalLinks, suspiciousScore, credential, timePressure, accountThreat, payment, fakeDomainWords };
@@ -3538,7 +3538,7 @@ function sbApplyGlobalImpersonationHighGuardV1(ctx) {
     /(account|konto|rekening|cuenta|conta|compte|utente|expediente).{0,120}(suspend|suspended|suspenso|sospeso|gesperrt|blocked|bloquead|blok|zablok|deaktiv|deactiv|suspensión|suspensão|sospensione|blocco|blocage|bloqueo)/i.test(text) ||
     /(suspens|suspensión|suspensão|sospensione|bloqueo|blocco|blokada|sperrung|blocage).{0,120}(account|konto|rekening|cuenta|conta|compte|utente|expediente)/i.test(text);
 
-  const highCondition = externalLinks.length > 0 && (credentialSignal || (urgentSignal && accountThreatSignal));
+  const highCondition = externalLinks.length > 0 && ((credentialSignal && (urgentSignal || accountThreatSignal || require('./_letter-analysis').hardCredentialRequest(text))) || (urgentSignal && accountThreatSignal));
 
   if (!highCondition) return ctx;
 
