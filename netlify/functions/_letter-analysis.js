@@ -11,7 +11,7 @@ const object = properties => ({type:'object',properties,required:Object.keys(pro
 const repliesSchema = object({neutral:textType,polite:textType,firm:textType});
 const groundedSchema = object({text:textType,quotes:list(textType)});
 const factSchema = object({kind:enumType(['AMOUNT','DEADLINE','APPOINTMENT','REQUEST','CONDITION','CONSEQUENCE','STATUS','OTHER']),quote:textType,explanation:textType,status:enumType(['CURRENT','SUPERSEDED','UNCLEAR'])});
-const institutionSchema = object({name:textType,country:textType,officialWebsite:textType,confidence:confidenceType,quote:textType});
+const institutionSchema = object({name:textType,country:{type:'string',description:'ISO 3166-1 alpha-2 country code, INT for international institutions, or empty. Never a translated country name. Never infer it from language.'},officialWebsite:textType,confidence:confidenceType,quote:textType});
 const fraudSchema = object({level:enumType(['LOW','MEDIUM','HIGH','UNKNOWN']),confidence:confidenceType,label:textType,summary:textType,signals:list(textType),suspiciousElements:list(textType),safeSteps:list(textType),disclaimer:textType});
 const fields = {
  calculations:list(object({operation:enumType(['ADD','SUBTRACT']),operands:list({type:'number'}),result:{type:'number'},quotes:list(textType)})),

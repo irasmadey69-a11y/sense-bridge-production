@@ -671,7 +671,8 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   const detectedLinks=arr(candidate.detectedLinks).filter(link=>String(text).includes(link));
   let quote=String(candidate.institution.quote||'');
   let validQuote=require('./_letter-analysis').sourceContains(text,quote);
-  let registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>(sbSameInstitutionNameV2(institution.name,item.name)||(item.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(institution.name)))&&item.patterns.some(pattern=>pattern.test(quote)));
+  const publicName=String(institution.name||'').replace(/\s*\([^()]*\)\s*$/u,'').trim();
+  let registryEntry=validQuote && sbGlobalInstitutionRegistryV2().find(item=>(sbSameInstitutionNameV2(institution.name,item.name)||item.patterns.some(pattern=>new RegExp('^(?:'+pattern.source+')$',pattern.flags).test(publicName))||(item.name==='Impots.gouv.fr'&&/^(?:direction générale des finances publiques(?:\s*[—–-]\s*dgfip)?|dgfip)$/iu.test(institution.name)))&&item.patterns.some(pattern=>pattern.test(quote)));
   const senderHeader=sbLetterHeaderInstitution(text);
   if(senderHeader){
     registryEntry=senderHeader.entry;quote=senderHeader.quote;validQuote=true;
@@ -1341,12 +1342,12 @@ function sbGlobalInstitutionRegistryV2() {
     { name:"Medicare", country:"US", officialWebsite:"https://www.medicare.gov", patterns:[/\bmedicare\b/i] },
 
     // Canada
-    { name:"Canada Revenue Agency", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/canada revenue agency|\bcra\b|agence du revenu du canada/i] },
+    { name:"Canada Revenue Agency", country:"CA", officialWebsite:"https://www.canada.ca/en/revenue-agency.html", patterns:[/canada revenue agency|\bcra\b|agence du revenu du canada/i] },
     { name:"Service Canada", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/service canada/i] },
     { name:"IRCC", country:"CA", officialWebsite:"https://www.canada.ca", patterns:[/\bircc\b|immigration, refugees and citizenship canada|immigration refugees and citizenship canada/i] },
 
     // United Kingdom / Ireland
-    { name:"HM Revenue & Customs", country:"GB", officialWebsite:"https://www.gov.uk", patterns:[/hm revenue|hmrc|hm revenue & customs/i] },
+    { name:"HM Revenue & Customs", country:"GB", officialWebsite:"https://www.gov.uk/government/organisations/hm-revenue-customs", patterns:[/hm revenue|hmrc|hm revenue & customs/i] },
     { name:"UK Home Office", country:"GB", officialWebsite:"https://www.gov.uk", patterns:[/home office|uk visas and immigration|\bukvi\b/i] },
     { name:"NHS", country:"GB", officialWebsite:"https://www.nhs.uk", patterns:[/\bnhs\b|national health service/i] },
     { name:"Department of Social Protection", country:"IE", officialWebsite:"https://www.gov.ie", patterns:[/department of social protection|\bmywelfare\b/i] },
