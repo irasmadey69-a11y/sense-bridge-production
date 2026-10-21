@@ -1311,7 +1311,7 @@ function applyGlobalInstitutionRecognitionV2(institution, text, detectedLinks) {
 function sbSameInstitutionNameV2(a, b) {
   const x = String(a || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
   const y = String(b || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-  return !!x && !!y && (x.includes(y) || y.includes(x));
+  return !!x && !!y && x === y;
 }
 
 function sbHostFromGlobalLinkV2(link) {
