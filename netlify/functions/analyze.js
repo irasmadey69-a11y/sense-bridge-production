@@ -76,12 +76,19 @@ exports.handler = async (event, context) => {
       if(body.letterStage==='institutions'){
         return json(200,headers,await require('./_institution-search').resolve({key:apiKey,text,userLang,event,context,accessType,recordUsage}));
       }
+      let portalVerification={status:'not_required',sources:[]};
       const result = await require('./_letter-analysis').analyze({
         key:apiKey,text,userLang,sourceLang,outputRegion:body.outputRegion,event,context,accessType,fetcher:fetch,recordUsage,
         stage:body.letterStage,draft:body.letterDraft,
-        applySecurity:(candidate,stage,detected)=>applyLetterSecurity(candidate,text,userLang,stage,detected)
+        applySecurity:async(candidate,stage,detected)=>{
+          const officialHost=sbOfficialHostPatchV1(candidate.institution);
+          const links=sbExtractLinksFromTextPatchV1(text).filter(link=>!sbHostMatchesInstitution(sbHostFromLinkPatchV1(link),officialHost,candidate.institution));
+          const portals=stage==='final'?await require('./_institution-portals').verify({key:apiKey,institution:candidate.institution,links,recordUsage,event,context,userLang}):[];
+          if(stage==='final')portalVerification={status:portals.status||(portals.length?'verified':links.length?'unverified':'not_required'),reason:portals.reason||'',sources:portals.map(item=>({host:item.host,sourceUrl:item.sourceUrl}))};
+          applyLetterSecurity(candidate,text,userLang,stage,detected,portals);
+        }
       });
-      return json(200,headers,result);
+      return json(200,headers,{...result,portalVerification});
     }
 
     const analysisPrompt = `
@@ -664,7 +671,7 @@ function sbLetterHeaderInstitution(text) {
   return null;
 }
 
-function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
+function applyLetterSecurity(candidate,text,userLang,stage,detectedLang,portals=[]) {
   const originalLevel=String(candidate.fraudRisk?.level||'UNKNOWN');
   const fraudRisk=normalizeFraudRisk(JSON.parse(JSON.stringify(candidate.fraudRisk)),userLang);
   const institution=normalizeInstitution(candidate.institution);
@@ -683,6 +690,7 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang) {
   if(!validQuote||(!registryEntry&&!namedInQuote))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
   if(registryEntry)Object.assign(institution,{name:registryEntry.name,country:registryEntry.country,officialWebsite:registryEntry.officialWebsite,verification:'registry'});
   if(!registryEntry&&namedInQuote&&sbHasEtzEvidence(quote)&&sbHasEtzEvidence(institution.name))applyKnownInstitutionFix(institution,quote);
+  institution.relatedOfficialHosts=portals.filter(item=>item.verification==='official-link'&&item.institutionName===institution.name&&item.officialHost===sbOfficialHostPatchV1(institution)).map(item=>item.host);
   const ctx={text,userLang,fraudRisk,institution,detectedLinks,suspiciousLinks:arr(candidate.suspiciousLinks),matchedSuspiciousLinks:[],suspiciousPhoneMatches:[],risks:[],consequences:[],help:[],urgency:candidate.urgency,legalHelpFinal:candidate.legalHelpNeeded};
   sbApplyFraudLogicSyncV8(ctx);
   sbApplyInstitutionImpersonationPatchV1(ctx);
@@ -1305,7 +1313,7 @@ function applyGlobalInstitutionRecognitionV2(institution, text, detectedLinks) {
 function sbSameInstitutionNameV2(a, b) {
   const x = String(a || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
   const y = String(b || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-  return !!x && !!y && (x.includes(y) || y.includes(x));
+  return !!x && !!y && x === y;
 }
 
 function sbHostFromGlobalLinkV2(link) {
@@ -2177,8 +2185,13 @@ function sbFraudTextMapV8(lang) {
 // This only classifies the host; it never proves the letter is authentic.
 function sbHostMatchesInstitution(host, officialHost, institution) {
   if(host===officialHost||host.endsWith('.'+officialHost))return true;
-  const frenchHosts=['impots.gouv.fr','service-public.gouv.fr','service-public.fr'];
-  return frenchHosts.includes(officialHost) && frenchHosts.includes(host);
+  if((institution?.relatedOfficialHosts||[]).includes(host))return true;
+  const officialDomainGroups = [
+    ['impots.gouv.fr', 'service-public.gouv.fr', 'service-public.fr'],
+    ['humanitas.it', 'humanitasconte.it']
+  ];
+  return officialDomainGroups.some(group => group.includes(officialHost) &&
+    group.some(domain => host === domain || host.endsWith('.' + domain)));
 }
 
 function sbDetectStrongPhishingV8(text, detectedLinks, institution) {
@@ -2298,7 +2311,7 @@ function sbDetectInstitutionImpersonationPatchV1(text, detectedLinks, institutio
   const fakeDomainWords = /(belastingdienst|digid|uwv|toeslagen|ing|rabobank|postnl|direct|secure|verify|verificatie|login|betalen|controle)/i.test(externalLinks.join(" "));
 
   const suspiciousScore = [hasExternal, credential, timePressure, accountThreat, payment, fakeDomainWords].filter(Boolean).length;
-  const high = hasExternal && (credential || accountThreat || timePressure) && suspiciousScore >= 3;
+  const high = hasExternal && (accountThreat || timePressure || (credential && payment) || require('./_letter-analysis').hardCredentialRequest(text)) && suspiciousScore >= 3;
   const minimumMedium = hasExternal || high;
 
   return { minimumMedium, high, externalLinks, suspiciousScore, credential, timePressure, accountThreat, payment, fakeDomainWords };
@@ -3527,7 +3540,7 @@ function sbApplyGlobalImpersonationHighGuardV1(ctx) {
     /(account|konto|rekening|cuenta|conta|compte|utente|expediente).{0,120}(suspend|suspended|suspenso|sospeso|gesperrt|blocked|bloquead|blok|zablok|deaktiv|deactiv|suspensión|suspensão|sospensione|blocco|blocage|bloqueo)/i.test(text) ||
     /(suspens|suspensión|suspensão|sospensione|bloqueo|blocco|blokada|sperrung|blocage).{0,120}(account|konto|rekening|cuenta|conta|compte|utente|expediente)/i.test(text);
 
-  const highCondition = externalLinks.length > 0 && (credentialSignal || (urgentSignal && accountThreatSignal));
+  const highCondition = externalLinks.length > 0 && ((credentialSignal && (urgentSignal || accountThreatSignal || require('./_letter-analysis').hardCredentialRequest(text))) || (urgentSignal && accountThreatSignal));
 
   if (!highCondition) return ctx;
 
