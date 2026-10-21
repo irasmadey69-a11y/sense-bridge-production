@@ -18,3 +18,8 @@ test('portal check deadline and failures preserve the available analysis',async(
  assert.deepEqual(await verify({key:'test',institution,links:['https://patient.gov.it/'],timeoutMs:15,fetcher:()=>new Promise(()=>{})}),[]);
  assert.deepEqual(await verify({key:'test',institution,links:['https://patient.gov.it/'],fetcher:async()=>{throw Error('offline');}}),[]);
 });
+test('same-domain links do not incur web-search requests',async()=>{
+ let calls=0;
+ assert.deepEqual(await verify({key:'test',institution,links:['https://hospital.gov.it/appointments','https://login.hospital.gov.it/'],fetcher:async()=>{calls++;throw Error('unexpected');}}),[]);
+ assert.equal(calls,0);
+});
