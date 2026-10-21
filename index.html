@@ -6301,13 +6301,14 @@ function renderInstitutionSearch(data){
   if(search.status!=='verified'||search.unresolved?.length){
     const warning=document.createElement('p');
     const known=data.institution;
-    const hasKnownSite=known?.officialWebsite&&(known.verification==='registry'||sbTrustedInstitutionInfo(known.name));
+    const trustedSite=known?.name&&sbTrustedInstitutionInfo(known.name)?.officialWebsite;
+    const hasKnownSite=trustedSite||(known?.officialWebsite&&known.verification==='registry');
     if(hasKnownSite){
       warning.textContent=pl?'ℹ️ Zapisany oficjalny adres rozpoznanej instytucji podano poniżej. Nie udało się uzyskać pełnego dodatkowego potwierdzenia w wyszukiwaniu internetowym.':'ℹ️ The recognized institution’s recorded official address is shown below. Additional web verification could not be completed in full.';
     }else{
       warning.textContent=search.status==='unavailable'?(pl?'⚠️ Wyszukiwanie chwilowo niedostępne. Nie potwierdzono aktualnych oficjalnych stron.':'⚠️ Web search is temporarily unavailable. Current official websites were not verified.'):(pl?'⚠️ Nie udało się jednoznacznie potwierdzić wszystkich instytucji i ich oficjalnych stron. Nie korzystaj z niezweryfikowanych linków z pisma.':'⚠️ Not all institutions and official websites could be confirmed unambiguously. Do not use unverified links from the letter.');
     }
-    if(search.unresolved?.length){const missing=search.unresolved.filter(name=>name!==known?.name);if(missing.length)warning.textContent+=' '+missing.join(', ');}
+    if(search.unresolved?.length){const same=typeof window!=='undefined'&&window.SBLetterRequest?.sameInstitution||((a,b)=>a===b);const missing=search.unresolved.filter(name=>!same(name,known?.name));if(missing.length)warning.textContent+=' '+missing.join(', ');}
     box.appendChild(warning);
   }
 }
