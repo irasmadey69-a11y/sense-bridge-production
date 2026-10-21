@@ -274,7 +274,7 @@ async function analyze(options){
   draft.facts=draft.facts.filter(item=>sourceContains(text,item.quote));
   const source=String(draft.detectedLang||'UNKNOWN').toUpperCase();telemetryLanguage=source;
   if(options.stage==='draft')return {ok:true,pipeline:PIPELINE,stage:'draft',draft};
-  if(applySecurity&&draft.fraudRisk)applySecurity(draft,'draft',source);
+  if(applySecurity&&draft.fraudRisk)await applySecurity(draft,'draft',source);
   const reviewCandidate={...draft};delete reviewCandidate.translation;delete reviewCandidate.facts;
   validationStage="REVIEW";
   const checked=await call(reviewSchema,`FACT CHECK AND FINAL WORDING. Return the final corrected fields in ${target(userLang,outputRegion).label}, not comments. The preparation may contain only translation and facts; independently create the complete analysis. Copy exact source quotes, including punctuation, and use separate short quotes rather than joining nonadjacent source passages into one quote. Independently compare every claim to ORIGINAL. Recheck omitted/replaced amounts, BEFORE vs BY, optional vs required documents, explicit vs invented consequences, correct recipient perspective and identical noncommittal reply intent. The candidate may be wrong. Return corrected facts, and include all CURRENT monetary/date/appointment facts in summary or actions, keeping superseded facts marked SUPERSEDED. Verify that translation is complete and preserves all negations, conditions, dates and amounts. translationCorrection is empty when translation is correct; otherwise return the COMPLETE corrected translation. verified evaluates whether this ANALYSIS faithfully explains the supplied text, NOT whether the source is authentic. An obvious phishing message or a fictitious test can and should have verified=true when its meaning can be accurately explained; classify its risk separately. Set verified=false only if faithful analysis itself is impossible, not because the sender is untrusted or external authenticity cannot be checked. Do not lower a source-backed HIGH credential-theft risk. Check every sentence of summary and consequences: a suspected scammer's threats are unverified claims, not established outcomes. Correct unconditional wording such as 'your account will be blocked' to explicitly attributed wording.\nORIGINAL DATA:\n${JSON.stringify(text)}\nFACTS:\n${JSON.stringify(draft.facts)}\nTRANSLATION:\n${JSON.stringify(draft.translation)}\nDRAFT ISSUES:\n${JSON.stringify(draftIssues)}\nCANDIDATE:\n${JSON.stringify(reviewCandidate)}`,'LETTER_ANALYSIS',5000);
@@ -288,7 +288,7 @@ async function analyze(options){
   const translation=checked.translationCorrection.trim()||draft.translation;
   if(!translationTokensPresent(text,translation))throw failure('LETTER_UNVERIFIED');
   validationStage="SECURITY";
-  if(applySecurity)applySecurity(checked,'final',source);
+  if(applySecurity)await applySecurity(checked,'final',source);
   // Local security recognition may raise risk, but must not rewrite reviewed prose.
   const rank={UNKNOWN:0,LOW:1,MEDIUM:2,HIGH:3};
   if(draft.fraudRisk&&rank[draft.fraudRisk.level]>rank[checked.fraudRisk.level])checked.fraudRisk=draft.fraudRisk;
