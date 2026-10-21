@@ -95,3 +95,21 @@ test('web-confirmed primary institution replaces unverified country and site, re
  });assert.equal(result.institution.country,'JP');assert.equal(result.institution.officialWebsite,inst.officialWebsite);assert.equal(result.summary,'Complete');
 });
 
+
+test('public institution aliases match abbreviations and university suffixes without matching word fragments',()=>{
+ assert.equal(request.sameInstitution('Федеральная налоговая служба','Федеральная налоговая служба (ФНС России)'),true);
+ assert.equal(request.sameInstitution('Fontys Hogeschool','Fontys'),true);
+ assert.equal(request.sameInstitution('Fontys University of Applied Sciences','Fontys'),true);
+ assert.equal(request.sameInstitution('Fontysland','Fontys'),false);
+ assert.equal(request.sameInstitution('Revenue Agency','Revenue'),false);
+ assert.equal(request.sameInstitution('',''),false);
+});
+test('verified university alias fills the primary institution country and official site',async()=>{
+ const inst={name:'Fontys',country:'NL',officialWebsite:'https://www.fontys.nl/',verification:'web',sources:[]};
+ const result=await request.request('/test',{mode:'letter',userLang:'PL',text:'Fontys Hogeschool'},async(_url,opts)=>{
+  const stage=JSON.parse(opts.body).letterStage;
+  const data=stage==='draft'?{ok:true,pipeline:'letter-evidence-v1',stage:'draft',draft:{}}:stage==='review'?{ok:true,pipeline:'letter-evidence-v1',qualityChecked:true,summary:'Pismo dotyczy karty studenckiej.',translation:'Pismo',institution:{name:'Fontys Hogeschool',country:'',officialWebsite:''}}:{ok:true,status:'verified',institutions:[inst]};
+  return {ok:true,text:async()=>JSON.stringify(data)};
+ });
+ assert.equal(result.institution.country,'NL');assert.equal(result.institution.officialWebsite,inst.officialWebsite);
+});

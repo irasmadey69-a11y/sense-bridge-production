@@ -79,3 +79,10 @@ test('an unresolved web lookup distinguishes a recorded official address from fa
  const text=box.children.map(x=>x.textContent).join(' ');
  assert.match(text,/Zapisany oficjalny adres/);assert.match(text,/dodatkowego potwierdzenia/);assert.doesNotMatch(text,/Nie udało się jednoznacznie potwierdzić wszystkich/);
 });
+
+test('French Canadian sender alias uses the agency page and retains its country without an English name',()=>{
+ const candidate=fixture.review(),name='Agence du revenu du Canada (ARC)',source=name+'\nCanada\nObjet : Remboursement';
+ candidate.institution={name,country:'CA',officialWebsite:'',confidence:90,quote:name};
+ security().applyLetterSecurity(candidate,source,'PL','final','FR');
+ assert.equal(candidate.institution.country,'CA');assert.equal(candidate.institution.officialWebsite,'https://www.canada.ca/en/revenue-agency.html');assert.equal(candidate.verifiedInstitution,true);
+});
