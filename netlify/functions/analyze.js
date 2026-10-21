@@ -76,6 +76,7 @@ exports.handler = async (event, context) => {
       if(body.letterStage==='institutions'){
         return json(200,headers,await require('./_institution-search').resolve({key:apiKey,text,userLang,event,context,accessType,recordUsage}));
       }
+      let portalVerification={status:'not_required',sources:[]};
       const result = await require('./_letter-analysis').analyze({
         key:apiKey,text,userLang,sourceLang,outputRegion:body.outputRegion,event,context,accessType,fetcher:fetch,recordUsage,
         stage:body.letterStage,draft:body.letterDraft,
@@ -83,10 +84,11 @@ exports.handler = async (event, context) => {
           const officialHost=sbOfficialHostPatchV1(candidate.institution);
           const links=sbExtractLinksFromTextPatchV1(text).filter(link=>!sbHostMatchesInstitution(sbHostFromLinkPatchV1(link),officialHost,candidate.institution));
           const portals=stage==='final'?await require('./_institution-portals').verify({key:apiKey,institution:candidate.institution,links,recordUsage,event,context,userLang}):[];
+          if(stage==='final')portalVerification={status:portals.status||(portals.length?'verified':links.length?'unverified':'not_required'),reason:portals.reason||'',sources:portals.map(item=>({host:item.host,sourceUrl:item.sourceUrl}))};
           applyLetterSecurity(candidate,text,userLang,stage,detected,portals);
         }
       });
-      return json(200,headers,result);
+      return json(200,headers,{...result,portalVerification});
     }
 
     const analysisPrompt = `
