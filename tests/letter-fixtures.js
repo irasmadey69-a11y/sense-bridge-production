@@ -7,7 +7,7 @@ function draft(){return {
  replies:{neutral:'Dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',polite:'Uprzejmie dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',firm:'Proszę o jednoznaczne wskazanie sposobu przesłania kopii.'},
  repliesDocument:{neutral:'Dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',polite:'Uprzejmie dziękuję za wiadomość. Proszę o potwierdzenie sposobu przesłania kopii.',firm:'Proszę o jednoznaczne wskazanie sposobu przesłania kopii.'},
  risks:[],communicationRiskNotice:'Nie wykryto wyraźnych ryzyk komunikacyjnych w tej treści.',help:[],institution:{name:'',country:'',officialWebsite:'',confidence:0,quote:''},
- fraudRisk:{level:'UNKNOWN',confidence:0,label:'Nie potwierdzono nadawcy',summary:'Brak danych do potwierdzenia autentyczności.',signals:[],suspiciousElements:[],safeSteps:[],disclaimer:'To analiza ryzyka, nie potwierdzenie autentyczności.'},detectedLinks:[],suspiciousLinks:[],detectedPhones:[]
+ fraudRisk:{findings:[],level:'UNKNOWN',confidence:0,label:'Nie potwierdzono nadawcy',summary:'Brak danych do potwierdzenia autentyczności.',signals:[],suspiciousElements:[],safeSteps:[],disclaimer:'To analiza ryzyka, nie potwierdzenie autentyczności.'},detectedLinks:[],suspiciousLinks:[],detectedPhones:[]
 };}
 function review(d=draft()){
  const r=JSON.parse(JSON.stringify(d));for(const k of ['detectedLang','translation'])delete r[k];
