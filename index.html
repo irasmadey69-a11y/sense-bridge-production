@@ -6858,7 +6858,7 @@ function sbRenderQuickResultCards(data){
   sbApplyUxV10Texts();
   const summary = sbBuildQuickMeaning(data) || sbUx10Text("noShortSummary", lang);
   const noRequiredAction=data.replyIntent==='NO_REPLY'&&data.replyGuidance?sbShortenText(data.replyGuidance,180):sbUx10Text("noAction",lang);
-  const firstAction = data.responseRequired==='NO'&&sbFraudLevelFromData(data)!=='HIGH' ? noRequiredAction : sbShortenText(sbFirstUsefulText(data.actions), 180) || sbUx10Text("noAction", lang);
+  const firstAction = data.responseRequired==='NO'&&sbFraudLevelFromData(data)!=='HIGH'&&data.fraudRisk?.assessmentVersion!==2 ? noRequiredAction : sbShortenText(sbFirstUsefulText(data.actions), 180) || sbUx10Text("noAction", lang);
   const urgency = String(data.urgency || "UNKNOWN").toUpperCase();
   const fraudLevel = sbFraudLevelFromData(data);
   const fr = data.fraudRisk || data.scamRisk || data.authenticityRisk || {};
