@@ -16,7 +16,7 @@ function adjudicate(candidate,source,options={}){
  const strong=concerns.filter(x=>directThreatKinds.has(x.kind)||x.severity==='HIGH'&&!['PAYMENT_REQUEST','IDENTITY_UNCERTAINTY'].includes(x.kind));
  const medium=concerns.filter(x=>x.severity==='MEDIUM'||x.severity==='HIGH');
  let level=strong.length?'HIGH':medium.length?'MEDIUM':['UNKNOWN','HIGH','MEDIUM'].includes(original.level)&&!findings.length?'UNKNOWN':'LOW';
- if(findings.length!==valid.length&&!medium.length)level='UNKNOWN';
+ if(findings.length!==valid.length&&!medium.length||options.incomplete&&level==='LOW')level='UNKNOWN';
  const deciding=level==='HIGH'?strong:level==='MEDIUM'?medium:[];
  const unique=items=>[...new Set(items.map(x=>String(x||'').trim()).filter(Boolean))];
  const summary=deciding.length?unique(deciding.map(x=>x.explanation)).join(' '):level===original.level?String(original.summary||''):'';
@@ -27,7 +27,11 @@ function adjudicate(candidate,source,options={}){
  candidate.riskAssessment=assessment;
  // Source URLs remain visible in translation; unverified destinations are not actionable advice.
  const guidance=options.safeSteps?options.safeSteps()[2]:'';
- if(level!=='HIGH'&&guidance&&Array.isArray(candidate.actions))candidate.actions=candidate.actions.map(action=>linkedHosts(action.text).some(h=>!hosts.some(v=>h===v||h.endsWith('.'+v)))?{...action,text:guidance}:action).filter((action,i,all)=>all.findIndex(x=>x.text===action.text)===i);
+ const unverifiedAuthentication=linkedHosts(source).some(h=>!hosts.some(v=>h===v||h.endsWith('.'+v)))&&valid.some(x=>x.kind==='LOGIN'&&x.polarity==='AFFIRMATIVE');
+ const authenticationQuotes=unverifiedAuthentication?valid.filter(x=>x.kind==='LOGIN'&&x.polarity==='AFFIRMATIVE').map(x=>x.quote):[];
+ const authAction=action=>(action.quotes||[]).some(q=>authenticationQuotes.some(login=>supported(q,login)||supported(login,q)));
+ if(unverifiedAuthentication&&guidance)candidate.help=[guidance];
+ if(level!=='HIGH'&&guidance&&Array.isArray(candidate.actions))candidate.actions=candidate.actions.map(action=>authAction(action)||linkedHosts(action.text).some(h=>!hosts.some(v=>h===v||h.endsWith('.'+v)))?{...action,text:guidance}:action).filter((action,i,all)=>all.findIndex(x=>x.text===action.text)===i);
  candidate.suspiciousLinks=level==='HIGH'?candidate.suspiciousLinks:[];
  delete candidate.securityAdvice;
  if(level==='HIGH')candidate.replyIntent='NO_REPLY';

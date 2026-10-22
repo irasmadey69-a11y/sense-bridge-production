@@ -79,7 +79,7 @@ exports.handler = async (event, context) => {
       let portalVerification={status:'not_required',sources:[]};
       const result = await require('./_letter-analysis').analyze({
         key:apiKey,text,userLang,sourceLang,outputRegion:body.outputRegion,event,context,accessType,fetcher:fetch,recordUsage,
-        stage:body.letterStage,draft:body.letterDraft,riskLabel:level=>fraudFallback(userLang,level).label,
+        stage:body.letterStage,draft:body.letterDraft,independentRiskReview:true,riskLabel:level=>fraudFallback(userLang,level).label,
         riskSafeSteps:()=>{const t=sbFraudTextMapV8(userLang);return [t.risk1,t.risk2,t.risk3];},
         applySecurity:async(candidate,stage,detected)=>{
           const officialHost=sbOfficialHostPatchV1(candidate.institution);
