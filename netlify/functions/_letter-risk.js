@@ -21,8 +21,11 @@ function adjudicate(candidate,source,options={}){
  const unique=items=>[...new Set(items.map(x=>String(x||'').trim()).filter(Boolean))];
  const summary=deciding.length?unique(deciding.map(x=>x.explanation)).join(' '):level===original.level?String(original.summary||''):'';
  const assessment={version:2,level,findings:valid,verification:options.verification||'unverified',unsupportedFindings:findings.length-valid.length};
- candidate.fraudRisk={...original,level,confidence:0,label:options.label?options.label(level):level===original.level?original.label:'',summary:summary||(options.label?options.label(level):''),signals:unique(deciding.map(x=>x.explanation)),suspiciousElements:unique(deciding.map(x=>x.quote)),findings:valid,safeSteps:level==='HIGH'?(options.safeSteps?options.safeSteps():[]):[],assessmentVersion:2};
+ candidate.fraudRisk={...original,level,confidence:0,label:options.label?options.label(level):level===original.level?original.label:'',summary:summary||(options.label?options.label(level):''),signals:unique(deciding.map(x=>x.explanation)),suspiciousElements:unique(deciding.map(x=>x.quote)),findings:valid,safeSteps:level==='HIGH'?(original.level==='HIGH'&&Array.isArray(original.safeSteps)&&original.safeSteps.length?original.safeSteps.filter(step=>linkedHosts(step).every(h=>hosts.some(v=>h===v||h.endsWith('.'+v)))):options.safeSteps?options.safeSteps():[]):[],assessmentVersion:2};
  candidate.riskAssessment=assessment;
+ // Source URLs remain visible in translation; unverified destinations are not actionable advice.
+ const guidance=options.safeSteps?options.safeSteps()[2]:'';
+ if(level!=='HIGH'&&guidance&&Array.isArray(candidate.actions))candidate.actions=candidate.actions.map(action=>linkedHosts(action.text).some(h=>!hosts.some(v=>h===v||h.endsWith('.'+v)))?{...action,text:guidance}:action).filter((action,i,all)=>all.findIndex(x=>x.text===action.text)===i);
  candidate.suspiciousLinks=level==='HIGH'?candidate.suspiciousLinks:[];
  delete candidate.securityAdvice;
  if(level==='HIGH')candidate.replyIntent='NO_REPLY';
