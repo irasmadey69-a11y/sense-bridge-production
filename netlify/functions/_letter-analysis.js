@@ -147,27 +147,28 @@ const manualReplyGuidance={"PL": "Przykłady odpowiedzi pominięto, aby nie skł
 const senderClaimLabels={"PL":"Niepotwierdzone twierdzenia i żądania nadawcy","EN":"Unverified claims and demands from the sender","NL":"Onbevestigde beweringen en eisen van de afzender","DE":"Unbestätigte Behauptungen und Forderungen des Absenders","FR":"Affirmations et demandes non vérifiées de l’expéditeur","ES":"Afirmaciones y exigencias no verificadas del remitente","IT":"Affermazioni e richieste non verificate del mittente","PT":"Alegações e exigências não verificadas do remetente","UA":"Неперевірені твердження та вимоги відправника","RU":"Непроверенные утверждения и требования отправителя","LT":"Nepatvirtinti siuntėjo teiginiai ir reikalavimai","LV":"Nepārbaudīti sūtītāja apgalvojumi un prasības","HU":"A feladó nem ellenőrzött állításai és követelései","ZH":"发件人未经核实的说法和要求","JA":"送信者による未確認の主張と要求","HI":"प्रेषक के अपुष्ट दावे और मांगें","AR":"ادعاءات ومطالب غير متحقق منها من المرسل","EG":"ادعاءات وطلبات من المرسل لم يتم التحقق منها","ET":"Saatja kontrollimata väited ja nõudmised","RO":"Afirmații și solicitări neverificate ale expeditorului","HR":"Nepotvrđene tvrdnje i zahtjevi pošiljatelja","FI":"Lähettäjän vahvistamattomat väitteet ja vaatimukset","SV":"Avsändarens obekräftade påståenden och krav","NO":"Avsenderens ubekreftede påstander og krav","DA":"Afsenderens ubekræftede påstande og krav","CS":"Neověřená tvrzení a požadavky odesílatele","SK":"Neoverené tvrdenia a požiadavky odosielateľa","TR":"Gönderenin doğrulanmamış iddiaları ve talepleri"};
 function project(result,translation,detectedLang,userLang,sourceLang){
  const high=String(result.fraudRisk.level).toUpperCase()==='HIGH';
+ const cautious=high||result.riskAssessment?.requiresVerification===true;
  const fallback=userLang==='PL'?{summary:'Wysokie ryzyko oszustwa. Nie wykonuj poleceń z tej wiadomości.',actions:['Nie klikaj linków z wiadomości.','Nie podawaj danych logowania, kodów ani nie dokonuj płatności.','Zweryfikuj sprawę przez niezależnie ustaloną oficjalną stronę instytucji.']}:{summary:'High fraud risk. Do not follow the instructions in this message.',actions:['Do not click links in the message.','Do not share credentials or codes and do not make payments.','Verify independently through the official institution website.']};
  const safety={summary:result.fraudRisk.summary||fallback.summary,actions:result.fraudRisk.assessmentVersion===2&&result.fraudRisk.safeSteps?.length?result.fraudRisk.safeSteps:fallback.actions};
  if(high&&result.verifiedInstitution&&result.institution?.officialWebsite)safety.actions=[...safety.actions,result.institution.officialWebsite];
- const actions=high?safety.actions:result.actions.map(x=>x.text),consequences=high?[]:result.consequences.map(x=>x.text);
+ const actions=cautious?safety.actions:result.actions.map(x=>x.text),consequences=cautious?[]:result.consequences.map(x=>x.text);
  const summary=high?(senderClaimLabels[userLang]||senderClaimLabels.EN)+': „'+result.summary+'”':result.summary;
  const fraudRisk=high?{...result.fraudRisk,summary:safety.summary,safeSteps:actions}:result.fraudRisk,institution={...result.institution};delete institution.quote;
- const replyIntent=high?'NO_REPLY':result.replyIntent;
+ const replyIntent=cautious?'NO_REPLY':result.replyIntent;
  const replies=replyIntent==='NO_REPLY'?{neutral:'',polite:'',firm:''}:result.replies;
  const repliesDocument=replyIntent==='NO_REPLY'?{neutral:'',polite:'',firm:''}:result.repliesDocument;
- const help=high?actions:result.help;
+ const help=cautious?actions:result.help;
  const noCommunicationRisks=result.communicationRiskNotice||(userLang==='PL'?'Nie wykryto wyraźnych ryzyk komunikacyjnych w tej treści.':'No clear communication risks were identified in this text.');
  const risks=result.risks.length?result.risks:[noCommunicationRisks];
  const helpLinks=result.verifiedInstitution&&institution.officialWebsite?[{label:institution.name,url:institution.officialWebsite}]:[];
  return {
-  ok:true,pipeline:PIPELINE,qualityChecked:true,safetyMode:high?'VERIFY_OFFICIAL':'',detectedLang,detected:detectedLang,lang:detectedLang,sourceLang:detectedLang||sourceLang,userLang,
+  ok:true,pipeline:PIPELINE,qualityChecked:true,safetyMode:cautious?'VERIFY_OFFICIAL':'',detectedLang,detected:detectedLang,lang:detectedLang,sourceLang:detectedLang||sourceLang,userLang,
   translation,translated:translation,translatedText:translation,summary,smartResult:'',whatOfficeSays:summary,communication:summary,officeSummary:summary,
-  documentTone:result.documentTone,responseRequired:high?'NO':result.responseRequired,actions,nextSteps:actions.slice(0,3),consequences,urgency:high?'UNKNOWN':result.urgency,
+  documentTone:result.documentTone,responseRequired:cautious?'NO':result.responseRequired,actions,nextSteps:actions.slice(0,3),consequences,urgency:high?'UNKNOWN':result.urgency,
   legalHelpNeeded:result.legalHelpNeeded,help,helpLinks,risks,riskList:risks,riskChips:risks,
   riskAssessment:result.riskAssessment, fraudRisk,scamRisk:fraudRisk,authenticityRisk:fraudRisk,institution,detectedLinks:result.detectedLinks,suspiciousLinks:result.suspiciousLinks,detectedPhones:result.detectedPhones,
-  replyIntent,replyGuidance:high?actions[0]:result.replyGuidance,replies,examples:replies,responseExamples:replies,repliesDocument,
-  evidence:{fraudFindings:result.fraudRisk.findings||[],facts:result.facts,calculations:result.calculations,actions:high?[]:result.actions,consequences:high?[]:result.consequences}
+  replyIntent,replyGuidance:cautious?actions[0]:result.replyGuidance,replies,examples:replies,responseExamples:replies,repliesDocument,
+  evidence:{fraudFindings:result.fraudRisk.findings||[],facts:result.facts,calculations:result.calculations,actions:cautious?[]:result.actions,consequences:cautious?[]:result.consequences}
  };
 }
 
