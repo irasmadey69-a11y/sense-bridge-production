@@ -1,3 +1,4 @@
+const directThreatKinds=new Set(['SECRET_DISCLOSURE','MALWARE','EXTORTION','ADVANCE_FEE']);
 function normalize(value){return String(value||'').normalize('NFKC').replace(/[’‘]/g,"'").replace(/\s+/gu,' ').trim();}
 function supported(source,quote){const q=normalize(quote);return !!q&&normalize(source).includes(q);}
 function hostname(value){try{return new URL(value).hostname.toLowerCase().replace(/^www\./,'');}catch{return '';}}
@@ -7,12 +8,12 @@ function adjudicate(candidate,source,options={}){
  const hosts=[...(options.verifiedHosts||[]),...(candidate.institution?.relatedOfficialHosts||[])];
  if(candidate.verifiedInstitution&&candidate.institution?.officialWebsite)hosts.push(hostname(candidate.institution.officialWebsite));
  const valid=findings.filter(x=>x&&supported(source,x.quote)&&String(x.explanation||'').trim());
- const concerns=valid.filter(x=>x.polarity==='AFFIRMATIVE'&&x.severity!=='LOW'&&x.kind!=='LOGIN').filter(x=>{
+ const concerns=valid.filter(x=>x.polarity==='AFFIRMATIVE'&&(x.severity!=='LOW'||directThreatKinds.has(x.kind))&&x.kind!=='LOGIN').filter(x=>{
   if(x.kind!=='DECEPTIVE_LINK')return true;
   const links=linkedHosts(x.quote);
   return !links.length||!links.every(h=>hosts.some(v=>h===v||h.endsWith('.'+v)));
  });
- const strong=concerns.filter(x=>x.severity==='HIGH'&&!['PAYMENT_REQUEST','IDENTITY_UNCERTAINTY'].includes(x.kind));
+ const strong=concerns.filter(x=>directThreatKinds.has(x.kind)||x.severity==='HIGH'&&!['PAYMENT_REQUEST','IDENTITY_UNCERTAINTY'].includes(x.kind));
  const medium=concerns.filter(x=>x.severity==='MEDIUM'||x.severity==='HIGH');
  let level=strong.length?'HIGH':medium.length?'MEDIUM':['UNKNOWN','HIGH','MEDIUM'].includes(original.level)&&!findings.length?'UNKNOWN':'LOW';
  if(findings.length!==valid.length&&!medium.length)level='UNKNOWN';
