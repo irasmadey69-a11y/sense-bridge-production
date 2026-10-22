@@ -155,7 +155,7 @@ function project(result,translation,detectedLang,userLang,sourceLang){
  const safety={summary:result.fraudRisk.summary||fallback.summary,actions:result.fraudRisk.assessmentVersion===2&&result.fraudRisk.safeSteps?.length?result.fraudRisk.safeSteps:fallback.actions};
  if(high&&result.verifiedInstitution&&result.institution?.officialWebsite)safety.actions=[...safety.actions,result.institution.officialWebsite];
  const actions=cautious?safety.actions:result.actions.map(x=>x.text),consequences=cautious?[]:result.consequences.map(x=>x.text);
- const summary=high?(senderClaimLabels[userLang]||senderClaimLabels.EN)+': „'+result.summary+'”':result.summary;
+ const summary=cautious?(senderClaimLabels[userLang]||senderClaimLabels.EN)+': „'+result.summary+'”':result.summary;
  const fraudRisk=high?{...result.fraudRisk,summary:safety.summary,safeSteps:actions}:result.fraudRisk,institution={...result.institution};delete institution.quote;
  const replyIntent=cautious?'NO_REPLY':result.replyIntent;
  const replies=replyIntent==='NO_REPLY'?{neutral:'',polite:'',firm:''}:result.replies;

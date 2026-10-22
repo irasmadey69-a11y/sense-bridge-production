@@ -8,7 +8,7 @@ function adjudicate(candidate,source,options={}){
  const hosts=[...(options.verifiedHosts||[]),...(candidate.institution?.relatedOfficialHosts||[])];
  if(candidate.verifiedInstitution&&candidate.institution?.officialWebsite)hosts.push(hostname(candidate.institution.officialWebsite));
  const valid=findings.filter(x=>x&&supported(source,x.quote)&&String(x.explanation||'').trim());
- const concerns=valid.filter(x=>x.polarity==='AFFIRMATIVE'&&(x.severity!=='LOW'||directThreatKinds.has(x.kind))&&x.kind!=='LOGIN').filter(x=>{
+ const concerns=valid.filter(x=>x.polarity==='AFFIRMATIVE'&&(x.severity!=='LOW'||directThreatKinds.has(x.kind))).filter(x=>{
   if(x.kind!=='DECEPTIVE_LINK')return true;
   const links=linkedHosts(x.quote);
   return !links.length||!links.every(h=>hosts.some(v=>h===v||h.endsWith('.'+v)));
