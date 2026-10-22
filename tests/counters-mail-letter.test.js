@@ -96,11 +96,11 @@ test('admin user counts use effective expiry and preserve blocked/beta/bonus',as
  const r=await run(load('admin_list.js',db),{adminPin:'test-pin'});
  assert.equal(r.count,6);for(const key of ['ACTIVE','EXPIRED','BLOCKED','BETA','BONUS','PENDING'])assert.equal(r.counts[key],1);
 });
-test('main handler uses the evidence pipeline and reviewed facts without extra translation requests',async()=>{
- const fixture=require('./letter-fixtures');const db=storage(),calls=[],values=[fixture.draft(),fixture.review()];
+test('main handler adds an independent security review without repeating translation',async()=>{
+ const fixture=require('./letter-fixtures');const db=storage(),calls=[],values=[fixture.draft(),fixture.review(),{fraudRisk:fixture.draft().fraudRisk,risks:[],communicationRiskNotice:'Brak wyraźnych ryzyk komunikacyjnych.'}];
  const h=load('analyze.js',db,async(_url,options)=>{calls.push(JSON.parse(options.body));assert.ok(values.length);return fixture.api(values.shift());});
  const r=await run(h,{text:fixture.source,userLang:'PL',sourceLang:'PL'});
- assert.equal(r.ok,true);assert.match(r.summary,/60 EUR/);assert.match(r.actions[0],/Jeśli.*przed 20 listopada/);assert.equal(r.consequences.length,0);assert.equal(calls.length,2);assert.equal(r.pipeline,'letter-evidence-v1');
+ assert.equal(r.ok,true);assert.match(r.summary,/60 EUR/);assert.match(r.actions[0],/Jeśli.*przed 20 listopada/);assert.equal(r.consequences.length,0);assert.equal(calls.length,3);assert.equal(r.pipeline,'letter-evidence-v1');
 });
 test('browser event tracking sends the lexical language to the same deployment',async()=>{
  const src=fs.readFileSync(path.join(dir,'../../index.html'),'utf8');const a=src.indexOf('  async function trackEvent(eventName)'),b=src.indexOf('let deferredPrompt',a);const calls=[];

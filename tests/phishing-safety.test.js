@@ -21,10 +21,10 @@ Afdeling Digitale Veiligheid
 Belastingdienst`;
 function maliciousReview(level='HIGH'){
  const d=fixture.draft();Object.assign(d,{detectedLang:'NL',translation:source,facts:[],calculations:[],summary:'Przysługuje Ci 286,40 €. Potwierdź dane w ciągu 2 godzin.',actions:[{text:'Natychmiast otwórz link https://belastingdienst.nl.veilige-controle.example/teruggave',quotes:['Open onmiddellijk:']},{text:'Nie dzwoń do Belastingdienst.',quotes:['Bel niet met de Belastingdienst.']}],consequences:[{text:'Brak potwierdzenia spowoduje zablokowanie konta.',quotes:['Zonder bevestiging wordt uw teruggave geannuleerd en uw account geblokkeerd.']}],institution:{name:'',country:'',officialWebsite:'',confidence:0,quote:''},urgency:'HIGH',responseRequired:'YES',replyGuidance:'Nie odpowiadaj podejrzanemu nadawcy.',help:['Otwórz https://digid-bevestigen.example/belastingdienst'],risks:[],detectedLinks:source.match(/https?:\/\/\S+/g)});
- d.fraudRisk.level=level;return d;
+ d.fraudRisk.level=level;d.fraudRisk.findings=[{kind:'SECRET_DISCLOSURE',quote:'Vul daar uw DigiD-gebruikersnaam, wachtwoord en de ontvangen sms-code in.',polarity:'AFFIRMATIVE',severity:'HIGH',explanation:'Żądanie danych DigiD i kodu SMS na stronie podszywającej się pod urząd.'}];return d;
 }
-for(const level of ['HIGH','LOW'])test(`phishing ${level} cannot turn sender instructions into advice and restores the official Dutch site`,async()=>{
- const c=security(),d=maliciousReview(level),values=[d,fixture.review(d)];
+for(const kind of ['SECRET_DISCLOSURE','COERCION'])for(const level of ['HIGH','LOW'])test(`phishing ${kind} ${level} cannot turn sender instructions into advice and restores the official Dutch site`,async()=>{
+ const c=security(),d=maliciousReview(level);d.fraudRisk.findings[0].kind=kind;const values=[d,fixture.review(d)];
  const out=await engine.analyze({key:'test',text:source,userLang:'PL',sourceLang:'NL',fetcher:async()=>fixture.api(values.shift()),recordUsage:async()=>{},applySecurity:(v,stage,language)=>c.applyLetterSecurity(v,source,'PL',stage,language)});
  assert.equal(out.fraudRisk.level,'HIGH');assert.equal(out.institution.name,'Belastingdienst');assert.equal(out.institution.country,'NL');assert.equal(out.institution.officialWebsite,'https://www.belastingdienst.nl');
  assert.deepEqual(out.helpLinks,[{label:'Belastingdienst',url:'https://www.belastingdienst.nl'}]);
@@ -87,7 +87,7 @@ test('only server supplied portal evidence suppresses domain mismatch for the sa
  const c=security(),link='https://patient.gov.it/';
  const make=()=>({institution:{name:'Hospital ABC',quote:'Hospital ABC',officialWebsite:'https://hospital.gov.it/',confidence:95,relatedOfficialHosts:['patient.gov.it']},detectedLinks:[link],suspiciousLinks:[],fraudRisk:{level:'LOW',confidence:60,signals:[],suspiciousElements:[],safeSteps:[]},risks:[],consequences:[],help:[]});
  const text='Hospital ABC\nAccedere con le credenziali. Non invii password. '+link;
- const untrusted=make();c.applyLetterSecurity(untrusted,text,'PL','final','IT');assert.equal(untrusted.fraudRisk.level,'MEDIUM');
+ const untrusted=make();c.applyLetterSecurity(untrusted,text,'PL','final','IT');assert.equal(untrusted.fraudRisk.level,'LOW');assert.equal(untrusted.institution.officialWebsite,'');
  const trusted=make();c.applyLetterSecurity(trusted,text,'PL','final','IT',[{host:'patient.gov.it',officialHost:'hospital.gov.it',institutionName:'Hospital ABC',verification:'official-link'}]);assert.equal(trusted.fraudRisk.level,'LOW');
 });
 test('a specific hospital is not replaced with an umbrella NHS identity',()=>{

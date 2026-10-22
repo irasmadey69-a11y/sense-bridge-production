@@ -74,12 +74,14 @@ test('no third request is made after a deadline even when a late fetch ignores c
 test('high-risk credential theft never offers a reply to the suspicious sender',async()=>{
  const source='Send your password and SMS code to https://tax.gov.account-verify.example/login';
  const d=fixture.draft();d.detectedLang='EN';d.translation=source;d.facts=[];d.actions=[];d.summary='Wiadomość prosi o hasło i kod SMS.';d.fraudRisk.level='HIGH';d.detectedLinks=['https://tax.gov.account-verify.example/login'];d.replyIntent='NO_REPLY';d.replyGuidance='Nie odpowiadaj podejrzanemu nadawcy.';
+ d.fraudRisk.findings=[{kind:'SECRET_DISCLOSURE',quote:source,polarity:'AFFIRMATIVE',severity:'HIGH',explanation:'Nadawca żąda przekazania hasła i kodu SMS.'}];
  const r=fixture.review(d);const output=await harness([d,r],{text:source}).run();
  assert.equal(output.fraudRisk.level,'HIGH');assert.equal(output.replyIntent,'NO_REPLY');assert.deepEqual(output.replies,{neutral:'',polite:'',firm:''});assert.equal(output.repliesDocument.neutral,'');
 });
 test('obvious credential theft cannot pass a low-risk review',async()=>{
  const source='Enter password and SMS code at https://bad.example/login';const d=fixture.draft();d.translation=source;d.detectedLang='EN';d.facts=[];d.actions=[];d.summary='Wiadomość prosi o hasło i kod SMS.';
- const partial=await expectPartial(harness([d,fixture.review(d)],{text:source}).run());assert.equal(partial.fraudRisk.level,'HIGH');assert.equal(partial.replyIntent,'NO_REPLY');
+ d.fraudRisk.findings=[{kind:'SECRET_DISCLOSURE',quote:source,polarity:'AFFIRMATIVE',severity:'HIGH',explanation:'Żądanie danych dostępowych na wskazanej stronie podszywającej się pod usługę.'}];
+ const output=await harness([d,fixture.review(d)],{text:source}).run();assert.equal(output.fraudRisk.level,'HIGH');assert.equal(output.replyIntent,'NO_REPLY');
 });
 test('recipient commitments and adviser perspective are rejected across common languages',()=>{
  for(const s of ['Potwierdzam swoją obecność.','Proszę o potwierdzenie mojej obecności.','Chętnie dostarczę dokumenty.','W razie potrzeby służę pomocą.','I will pay tomorrow.','Please confirm my attendance.','Ich bestätige meine Teilnahme.','Je confirme ma présence.','Ik zal betalen.'])assert.equal(engine.replyViolatesIntent(s),true,s);
@@ -102,9 +104,9 @@ test('output region is conveyed as language choice, not document-country evidenc
 test('overlong or empty source is rejected before making API calls',async()=>{
  for(const text of ['', 'a'.repeat(24001)]){const h=harness([],{text});await assert.rejects(h.run());assert.equal(h.requests.length,0);}
 });
-test('a security floor seen in the draft cannot be silently lowered by the review',async()=>{
+test('unsupported draft alarm cannot override a reviewed ordinary letter',async()=>{
  const d=fixture.draft(),r=fixture.review();d.fraudRisk.level='HIGH';d.replyGuidance='Nie odpowiadaj nadawcy.';r.replyGuidance=d.replyGuidance;
- const output=await harness([d,r]).run();assert.equal(output.fraudRisk.level,'HIGH');assert.equal(output.replyIntent,'NO_REPLY');assert.equal(output.replies.neutral,'');
+ const output=await harness([d,r]).run();assert.equal(output.fraudRisk.level,r.fraudRisk.level);assert.notEqual(output.fraudRisk.level,'HIGH');
 });
 test('telemetry failure cannot turn a verified analysis into a failed request',async()=>{
  const h=harness([fixture.draft(),fixture.review()],{recordUsage:async()=>{throw Error('stats down')}});assert.equal((await h.run()).ok,true);
@@ -200,11 +202,11 @@ test('Fontys bare web addresses match equivalent HTTPS links without changing th
  }
 });
 
-test('fractional model confidence is normalized to percentage points and existing percentages stay unchanged',async()=>{
+test('final risk does not present model confidence as calibrated probability',async()=>{
  const d=fixture.draft(),r=fixture.review();d.fraudRisk.confidence=0.9;r.fraudRisk.confidence=0.9;
- const output=await harness([d,r]).run();assert.equal(output.fraudRisk.confidence,90);
+ const output=await harness([d,r]).run();assert.equal(output.fraudRisk.confidence,0);assert.equal(output.fraudRisk.assessmentVersion,2);
  const other=fixture.review();other.fraudRisk.confidence=75;
- assert.equal((await harness([fixture.draft(),other]).run()).fraudRisk.confidence,75);
+ assert.equal((await harness([fixture.draft(),other]).run()).fraudRisk.confidence,0);
 });
 test('both model passes explicitly keep phishing threats attributed and confidence uses a percentage scale',async()=>{
  const h=harness([fixture.draft(),fixture.review()]);await h.run();

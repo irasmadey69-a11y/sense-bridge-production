@@ -6011,7 +6011,7 @@ function renderFraudRisk(data){
     <div class="fraud-box">
       <div class="fraud-head">
         <div class="fraud-pill ${cls}">${icon} ${escapeHtml(label)}</div>
-        <div class="chip"><span>${escapeHtml(sbResultText("confidence", lang))}:</span> <strong>${Number.isFinite(confidence) ? confidence : 0}%</strong></div>
+        ${fr.assessmentVersion===2 ? "" : `<div class="chip"><span>${escapeHtml(sbResultText("confidence", lang))}:</span> <strong>${Number.isFinite(confidence) ? confidence : 0}%</strong></div>`}
       </div>
       <p>${escapeHtml(summary)}</p>
       ${list(sbResultText("signals", lang), signals)}
@@ -6857,8 +6857,8 @@ function sbRenderQuickResultCards(data){
   const lang = sbGetResultLang();
   sbApplyUxV10Texts();
   const summary = sbBuildQuickMeaning(data) || sbUx10Text("noShortSummary", lang);
-  const noRequiredAction=data.replyIntent==='NO_REPLY'&&data.replyGuidance?sbShortenText(data.replyGuidance,180):sbUx10Text("noAction",lang);
-  const firstAction = data.responseRequired==='NO'&&sbFraudLevelFromData(data)!=='HIGH' ? noRequiredAction : sbShortenText(sbFirstUsefulText(data.actions), 180) || sbUx10Text("noAction", lang);
+  const noRequiredAction=data.actionRequired==='NO'&&data.noRequiredActionText?data.noRequiredActionText:data.replyIntent==='NO_REPLY'&&data.replyGuidance?sbShortenText(data.replyGuidance,180):sbUx10Text("noAction",lang);
+  const firstAction = (data.actionRequired==='NO'||data.actionRequired==null&&data.responseRequired==='NO'&&data.fraudRisk?.assessmentVersion!==2)&&sbFraudLevelFromData(data)!=='HIGH'&&!data.riskAssessment?.requiresVerification ? noRequiredAction : sbShortenText(sbFirstUsefulText(data.actions), 180) || sbUx10Text("noAction", lang);
   const urgency = String(data.urgency || "UNKNOWN").toUpperCase();
   const fraudLevel = sbFraudLevelFromData(data);
   const fr = data.fraudRisk || data.scamRisk || data.authenticityRisk || {};
