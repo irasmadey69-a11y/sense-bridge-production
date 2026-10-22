@@ -6011,7 +6011,7 @@ function renderFraudRisk(data){
     <div class="fraud-box">
       <div class="fraud-head">
         <div class="fraud-pill ${cls}">${icon} ${escapeHtml(label)}</div>
-        <div class="chip"><span>${escapeHtml(sbResultText("confidence", lang))}:</span> <strong>${Number.isFinite(confidence) ? confidence : 0}%</strong></div>
+        ${fr.assessmentVersion===2 ? "" : `<div class="chip"><span>${escapeHtml(sbResultText("confidence", lang))}:</span> <strong>${Number.isFinite(confidence) ? confidence : 0}%</strong></div>`}
       </div>
       <p>${escapeHtml(summary)}</p>
       ${list(sbResultText("signals", lang), signals)}
