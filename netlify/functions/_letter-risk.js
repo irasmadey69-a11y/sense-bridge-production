@@ -1,4 +1,4 @@
-const actionable = new Set(['SECRET_DISCLOSURE','DECEPTIVE_LINK','ADVANCE_FEE','MALWARE','EXTORTION']);
+const actionable = new Set(['SECRET_DISCLOSURE','DECEPTIVE_LINK','ADVANCE_FEE','MALWARE','EXTORTION','COERCION','THREAT','ISOLATION']);
 function normalize(value){return String(value||'').normalize('NFKC').replace(/[’‘]/g,"'").replace(/\s+/gu,' ').trim();}
 function supported(source,quote){const q=normalize(quote);return !!q&&normalize(source).includes(q);}
 function hostname(value){try{return new URL(value).hostname.toLowerCase().replace(/^www\./,'');}catch{return '';}}
