@@ -24,3 +24,16 @@ test('unverified authentication advice without a literal URL is withheld while a
 test('incomplete review cannot promote draft login findings to a safe verdict',()=>{const {adjudicate}=require('../netlify/functions/_letter-risk');const c={fraudRisk:{level:'UNKNOWN',findings:[{kind:'LOGIN',quote:'Log in normally.',polarity:'AFFIRMATIVE',severity:'LOW',explanation:'Normal login.'}]}};adjudicate(c,'Log in normally.',{incomplete:true});assert.equal(c.fraudRisk.level,'UNKNOWN');});
 
 test('a suspicious login finding is not discarded merely because its category is LOGIN',()=>{const {adjudicate}=require('../netlify/functions/_letter-risk'),c=fixture.review(),quote='Enter password and SMS code within two hours.';c.fraudRisk={...c.fraudRisk,level:'MEDIUM',findings:[{kind:'LOGIN',quote,polarity:'AFFIRMATIVE',severity:'MEDIUM',explanation:'Podejrzany portal wymaga hasła i kodu pod presją czasu.'}]};c.actions=[{text:'Wpisz hasło i kod SMS.',quotes:[quote]}];adjudicate(c,quote,{safeSteps:()=>['Avoid links','Avoid secrets','Verify independently']});const out=engine.project(c,quote,'EN','PL','EN');assert.equal(out.fraudRisk.level,'MEDIUM');assert.deepEqual(out.actions,['Verify independently']);assert.equal(out.replyIntent,'NO_REPLY');assert.match(out.summary,/Niepotwierdzone twierdzenia/);assert.equal(out.safetyMode,'VERIFY_OFFICIAL');});
+
+test('contradictory affirmative low secret warning is rechecked before a final verdict',async()=>{
+ const text='Stuur geen wachtwoorden of sms-codes in een antwoord.',d=fixture.draft();Object.assign(d,{translation:'Nie wysyłaj haseł ani kodów SMS w odpowiedzi.',detectedLang:'NL',facts:[],summary:'Nie wysyłaj haseł.',actions:[]});
+ const finding={kind:'SECRET_DISCLOSURE',quote:text,polarity:'AFFIRMATIVE',severity:'LOW',explanation:'Ostrzeżenie przed wysyłaniem haseł.'},risk={...d.fraudRisk,level:'LOW',findings:[finding]};
+ const h=run([d,fixture.review(d),security(risk),security({...risk,findings:[{...finding,polarity:'NEGATED'}]})],{text,sourceLang:'NL'}),out=await h.result;
+ assert.equal(h.requests.length,4);assert.equal(out.qualityChecked,true);assert.equal(out.fraudRisk.level,'LOW');assert.match(h.requests[3].input[1].content,/CONSISTENCY RECHECK/);assert.match(h.requests[2].input[0].content,/Every explanation, safeSteps item/);
+});
+test('unresolved polarity contradiction preserves translation without an alarm or a safe verdict',async()=>{
+ const text='Do not send passwords.',d=fixture.draft();Object.assign(d,{translation:'Nie wysyłaj haseł.',detectedLang:'EN',facts:[],summary:'Nie wysyłaj haseł.',actions:[]});
+ const risk={...d.fraudRisk,level:'LOW',findings:[{kind:'SECRET_DISCLOSURE',quote:text,polarity:'AFFIRMATIVE',severity:'LOW',explanation:'Ostrzeżenie przed wysyłaniem haseł.'}]};
+ const out=await run([d,fixture.review(d),security(risk),security(risk)],{text,sourceLang:'EN'}).result;
+ assert.equal(out.analysisStatus,'partial');assert.equal(out.qualityChecked,false);assert.equal(out.fraudRisk.level,'UNKNOWN');assert.equal(out.translation,d.translation);assert.equal(out.validationReason,'SECURITY_POLARITY_INCONSISTENT');
+});
