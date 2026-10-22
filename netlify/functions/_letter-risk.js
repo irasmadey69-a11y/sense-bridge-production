@@ -1,4 +1,3 @@
-const actionable = new Set(['SECRET_DISCLOSURE','DECEPTIVE_LINK','ADVANCE_FEE','MALWARE','EXTORTION','COERCION','THREAT','ISOLATION']);
 function normalize(value){return String(value||'').normalize('NFKC').replace(/[’‘]/g,"'").replace(/\s+/gu,' ').trim();}
 function supported(source,quote){const q=normalize(quote);return !!q&&normalize(source).includes(q);}
 function hostname(value){try{return new URL(value).hostname.toLowerCase().replace(/^www\./,'');}catch{return '';}}
@@ -13,7 +12,7 @@ function adjudicate(candidate,source,options={}){
   const links=linkedHosts(x.quote);
   return !links.length||!links.every(h=>hosts.some(v=>h===v||h.endsWith('.'+v)));
  });
- const strong=concerns.filter(x=>x.severity==='HIGH'&&actionable.has(x.kind));
+ const strong=concerns.filter(x=>x.severity==='HIGH'&&!['PAYMENT_REQUEST','IDENTITY_UNCERTAINTY'].includes(x.kind));
  const medium=concerns.filter(x=>x.severity==='MEDIUM'||x.severity==='HIGH');
  let level=strong.length?'HIGH':medium.length?'MEDIUM':['UNKNOWN','HIGH','MEDIUM'].includes(original.level)&&!findings.length?'UNKNOWN':'LOW';
  if(findings.length!==valid.length&&!medium.length)level='UNKNOWN';
