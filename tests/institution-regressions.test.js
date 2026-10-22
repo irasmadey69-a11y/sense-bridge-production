@@ -71,6 +71,8 @@ test('informational letters do not promote optional actions to the quick require
  assert.equal(element('sbQuickActionText').textContent,'Nie klikaj linku.');
  context.sbRenderQuickResultCards({summary:'Potwierdzenie wizyty.',responseRequired:'NO',replyIntent:'NO_REPLY',replyGuidance:'Nie musisz odpowiadać.',actions:['Przyjdź na wizytę o 10:00.'],fraudRisk:{level:'LOW',assessmentVersion:2}});
  assert.equal(element('sbQuickActionText').textContent,'Przyjdź na wizytę o 10:00.');
+ context.sbRenderQuickResultCards({summary:'Informacja.',actionRequired:'NO',noRequiredActionText:'Nie musisz podejmować żadnych działań.',responseRequired:'NO',actions:['Opcjonalnie sprawdź konto.'],fraudRisk:{level:'LOW',assessmentVersion:2}});
+ assert.equal(element('sbQuickActionText').textContent,'Nie musisz podejmować żadnych działań.');
 });
 test('an unresolved web lookup distinguishes a recorded official address from failed live confirmation',()=>{
  function element(){return {children:[],style:{},textContent:'',replaceChildren(){this.children=[];},appendChild(child){this.children.push(child);}};}
