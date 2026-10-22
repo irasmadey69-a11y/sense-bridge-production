@@ -79,10 +79,11 @@ exports.handler = async (event, context) => {
       let portalVerification={status:'not_required',sources:[]};
       const result = await require('./_letter-analysis').analyze({
         key:apiKey,text,userLang,sourceLang,outputRegion:body.outputRegion,event,context,accessType,fetcher:fetch,recordUsage,
-        stage:body.letterStage,draft:body.letterDraft,
+        stage:body.letterStage,draft:body.letterDraft,riskLabel:level=>fraudFallback(userLang,level).label,
+        riskSafeSteps:()=>{const t=sbFraudTextMapV8(userLang);return [t.risk1,t.risk2,t.risk3];},
         applySecurity:async(candidate,stage,detected)=>{
           const officialHost=sbOfficialHostPatchV1(candidate.institution);
-          const links=sbExtractLinksFromTextPatchV1(text).filter(link=>!sbHostMatchesInstitution(sbHostFromLinkPatchV1(link),officialHost,candidate.institution));
+          const links=sbExtractLinksFromTextPatchV1(text).filter(link=>{const host=sbHostFromLinkPatchV1(link);return host!==officialHost&&!host.endsWith('.'+officialHost);});
           const portals=stage==='final'?await require('./_institution-portals').verify({key:apiKey,institution:candidate.institution,links,recordUsage,event,context,userLang}):[];
           if(stage==='final')portalVerification={status:portals.status||(portals.length?'verified':links.length?'unverified':'not_required'),reason:portals.reason||'',sources:portals.map(item=>({host:item.host,sourceUrl:item.sourceUrl}))};
           applyLetterSecurity(candidate,text,userLang,stage,detected,portals);
@@ -672,10 +673,7 @@ function sbLetterHeaderInstitution(text) {
 }
 
 function applyLetterSecurity(candidate,text,userLang,stage,detectedLang,portals=[]) {
-  const originalLevel=String(candidate.fraudRisk?.level||'UNKNOWN');
-  const fraudRisk=normalizeFraudRisk(JSON.parse(JSON.stringify(candidate.fraudRisk)),userLang);
   const institution=normalizeInstitution(candidate.institution);
-  const detectedLinks=arr(candidate.detectedLinks).filter(link=>String(text).includes(link));
   let quote=String(candidate.institution.quote||'');
   let validQuote=require('./_letter-analysis').sourceContains(text,quote);
   const publicName=String(institution.name||'').replace(/\s*\([^()]*\)\s*$/u,'').trim();
@@ -691,16 +689,6 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang,portals=
   if(registryEntry)Object.assign(institution,{name:registryEntry.name,country:registryEntry.country,officialWebsite:registryEntry.officialWebsite,verification:'registry'});
   if(!registryEntry&&namedInQuote&&sbHasEtzEvidence(quote)&&sbHasEtzEvidence(institution.name))applyKnownInstitutionFix(institution,quote);
   institution.relatedOfficialHosts=portals.filter(item=>item.verification==='official-link'&&item.institutionName===institution.name&&item.officialHost===sbOfficialHostPatchV1(institution)).map(item=>item.host);
-  const ctx={text,userLang,fraudRisk,institution,detectedLinks,suspiciousLinks:arr(candidate.suspiciousLinks),matchedSuspiciousLinks:[],suspiciousPhoneMatches:[],risks:[],consequences:[],help:[],urgency:candidate.urgency,legalHelpFinal:candidate.legalHelpNeeded};
-  sbApplyFraudLogicSyncV8(ctx);
-  sbApplyInstitutionImpersonationPatchV1(ctx);
-  sbApplyGlobalImpersonationHighGuardV1(ctx);
-  sbApplyGlobalScamLayerV1(ctx);
-  const rank={UNKNOWN:0,LOW:1,MEDIUM:2,HIGH:3};
-  if(stage==='draft' && rank[fraudRisk.level]>rank[originalLevel])candidate.fraudRisk=fraudRisk;
-  if(stage==='final' && rank[fraudRisk.level]>rank[originalLevel]){
-    candidate.fraudRisk=fraudRisk;
-  }
   if(require('./_analysis-grounding').genericName(institution.name))Object.assign(institution,{name:'',country:'',officialWebsite:'',confidence:0});
   if(institution.name){
     const entry=sbGlobalInstitutionRegistryV2().find(item=>item.name===institution.name);
@@ -709,18 +697,12 @@ function applyLetterSecurity(candidate,text,userLang,stage,detectedLang,portals=
       const supported=require('./_institution-country').countrySupported(country,text);
       if(!supported)institution.country='';
       // A URL printed in a letter is a claim, never independent verification.
-      institution.officialWebsite='';
+      if(!institution.relatedOfficialHosts.length)institution.officialWebsite='';
     }
     if(quote && require('./_letter-analysis').sourceContains(text,quote))candidate.institution={...institution,quote};
   } else candidate.institution={name:'',country:'',officialWebsite:'',confidence:0,quote:''};
-  candidate.verifiedInstitution=!!registryEntry;
-  if(stage==='final'&&String(candidate.fraudRisk.level).toUpperCase()==='HIGH'){
-    const labels=sbFraudTextMapV8(userLang);
-    if(!registryEntry)candidate.institution.officialWebsite='';
-    const official=registryEntry?.officialWebsite||'';
-    candidate.securityAdvice={summary:labels.highSummary,actions:[labels.risk1,labels.risk2,labels.risk3+(official?' '+official:'')]};
-    candidate.replyGuidance=labels.risk1;
-  }
+  candidate.verifiedInstitution=!!registryEntry||institution.relatedOfficialHosts.length>0;
+
 }
 
 /* ---------------- helpers ---------------- */
