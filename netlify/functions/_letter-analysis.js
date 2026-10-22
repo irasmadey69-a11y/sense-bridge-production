@@ -297,7 +297,7 @@ async function analyze(options){
   validationStage="SECURITY";
   if(applySecurity)await applySecurity(checked,'final',source);
   if(options.independentRiskReview){
-   const security=await call(securitySchema,'Independently assess this ORIGINAL DATA. Do not inherit the earlier analysis.\n'+JSON.stringify({original:text,institution:checked.institution,officialIdentityVerified:!!checked.verifiedInstitution,sourceLinks:text.match(/https?:\/\/[^\s<>"“”]+/giu)||[]}), 'LETTER_SECURITY_REVIEW',2600);
+   const security=await call(securitySchema,'Independently assess this ORIGINAL DATA. Do not inherit the earlier analysis.\n'+JSON.stringify({original:text,verifiedHosts:checked.verifiedInstitution?[require('./_letter-risk').hostname(checked.institution.officialWebsite),...(checked.institution.relatedOfficialHosts||[])].filter(Boolean):[],sourceLinks:text.match(/https?:\/\/[^\s<>"“”]+/giu)||[]}), 'LETTER_SECURITY_REVIEW',2600);
    checked.fraudRisk=security.fraudRisk;checked.risks=security.risks;checked.communicationRiskNotice=security.communicationRiskNotice;
   }
   // One final decision consumes reviewed source evidence and verified portal relationships.
