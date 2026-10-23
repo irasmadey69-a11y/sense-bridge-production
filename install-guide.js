@@ -85,6 +85,7 @@
     if(shell()) return;
     if(busy) return;
     if(typeof trackEvent==='function') trackEvent('shortcut_click');
+    if(window.SBContentMetrics) window.SBContentMetrics.record('install_click');
     trigger=document.activeElement;
     if(deferredPrompt && device !== 'ios') return promptInstall();
     guide();
@@ -92,6 +93,7 @@
   window.SBInstall={open,refresh};
   window.addEventListener('appinstalled',() => {
     if(!installed && typeof trackEvent==='function') trackEvent('shortcut_add');
+    if(!installed && window.SBContentMetrics) window.SBContentMetrics.record('install_confirm');
     installed=true;deferredPrompt=null;refresh();
   });
   for(const mode of ['standalone','fullscreen','minimal-ui']) {
