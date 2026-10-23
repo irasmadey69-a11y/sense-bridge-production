@@ -28,6 +28,8 @@
 
 .traffic-table{display:grid;gap:8px}.traffic-head,.traffic-row{display:grid;grid-template-columns:minmax(82px,1.25fr) repeat(7,minmax(58px,.8fr));gap:6px;align-items:center}.traffic-head{font-size:11px;font-weight:900;color:var(--muted);padding:0 8px}.traffic-row{border:1px solid var(--border);border-radius:13px;background:#fbfdfc;padding:9px 8px;font-size:12px}.traffic-row>div:not(:first-child){text-align:center;font-weight:800}.traffic-name{font-weight:950;color:var(--navy);word-break:break-word}.traffic-empty{padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--muted)}
 @media(max-width:680px){.traffic-table{overflow-x:auto}.traffic-head,.traffic-row{min-width:650px}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+
+.content-stats-table{overflow-x:auto;margin:12px 0 20px}.content-stats-table table{border-collapse:collapse;width:100%;font-size:14px}.content-stats-table th,.content-stats-table td{padding:10px;border:1px solid var(--border);text-align:left;vertical-align:top}.content-stats-table th{background:var(--soft)}.content-stats-table td:first-child{min-width:140px;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -62,6 +64,16 @@
 <h3 style="margin:16px 0 8px">Kraje</h3><div id="countryBreakdown" class="traffic-table"></div>
 <h3 style="margin:18px 0 8px">Języki aplikacji</h3><div id="languageBreakdown" class="traffic-table"></div>
 </div></details>
+<details class="card admin-section"><summary>Podstrony WWW, języki i dodanie do telefonu</summary><div class="admin-section-body">
+<p>Wizyty sesyjne na stronie i w danym języku: maksymalnie jedna na 30 minut w tej samej karcie. To nie jest liczba unikalnych osób. Kliknięcia i potwierdzone instalacje liczymy oddzielnie.</p>
+<button class="btn-main" onclick="loadContentStats()" style="margin-top:12px">Odśwież statystyki podstron</button>
+<div class="notice">Początek nowych pomiarów: <span id="contentSince">—</span></div>
+<h3>Podstrona i język przeczytanego tekstu</h3><div class="content-stats-table" id="contentPageStats"></div>
+<h3>Języki stron — łącznie</h3><div class="content-stats-table" id="contentLanguageStats"></div>
+<h3>Dodanie ikony według języka aplikacji — nowe pomiary</h3><div class="content-stats-table" id="contentAppLanguageStats"></div>
+<h3>Istniejące liczniki ikon według języka aplikacji</h3><div class="content-stats-table" id="installationLanguageStats"></div>
+<p class="notice">DIRECT_APP oznacza brak przypisanego poradnika, UNKNOWN — nieustalony język. Przypisanie podstrony wygasa po 30 minutach. Przeglądarki nie zawsze zgłaszają instalację, szczególnie ręczne dodawanie ikony. Blokowanie pomiarów może powodować braki. Podglądy testowe nie zbierają danych. Historycznych sum nie dodajemy do nowych pomiarów.</p>
+<div class="notice" id="contentStatsMsg"></div></div></details>
 <details class="card admin-section"><summary>🧭 Funnel ruchu</summary><div class="admin-section-body">
 <p>Pełna ścieżka: wejście → aplikacja → użycie → zainteresowanie dalszym dostępem → zgłoszenie → przyznanie.</p>
 <div class="funnel" id="fullFunnel"></div>
@@ -214,6 +226,7 @@ async function loadUsageCosts(){
 renderUsers([]);updateCounts({});updateFunnel();
 
 </script>
+<script src="/admin-content-metrics.js"></script>
 </body>
 </html>
 
